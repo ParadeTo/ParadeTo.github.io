@@ -1,0 +1,468 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>如何在 Go 中使用接口（译） | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="关于 Go 中接口的一篇好文章">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/01/24/go-interface/" title="如何在 Go 中使用接口（译）" itemprop="url">如何在 Go 中使用接口（译）</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2018-01-24T15:45:01.000Z" itemprop="datePublished">2018-01-24</time>
+    更新日期:<time datetime="2018-03-13T08:29:06.000Z" itemprop="dateModified">2018-03-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#接口介绍"><span class="toc-number">1.</span> <span class="toc-text">接口介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#interface-类型"><span class="toc-number">2.</span> <span class="toc-text">interface{} 类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指针和接口"><span class="toc-number">3.</span> <span class="toc-text">指针和接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例1：通过-Twitter-API-获取正确的时间戳"><span class="toc-number">4.</span> <span class="toc-text">例1：通过 Twitter API 获取正确的时间戳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例2：从-HTTP-请求中得到对象"><span class="toc-number">5.</span> <span class="toc-text">例2：从 HTTP 请求中得到对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结语"><span class="toc-number">6.</span> <span class="toc-text">结语</span></a></li></ol>
+		</div>
+		
+		<blockquote>
+<p>本文翻译自 <a href="http://jordanorelli.com/post/32665860244/how-to-use-interfaces-in-go" target="_blank" rel="noopener">How to use interfaces in Go</a> 有部分删减，请以原文为准</p>
+</blockquote>
+<p>在开始使用 Go 编程之前，我的大部分工作都是用 Python 完成的。作为一名 Python 程序员，我发现学习使用 Go 中的接口是非常困难的。基础很简单，而且我知道如何在标准库中使用接口，但是我做了很多练习之后才知道如何设计自己的接口。在本文中，我将讨论 Go 的类型系统，以解释如何有效地使用接口。</p>
+<h3 id="接口介绍"><a href="#接口介绍" class="headerlink" title="接口介绍"></a>接口介绍</h3><p>接口是什么？一个接口包含两层意思：它是一个方法的集合，同样是一个类型。让我们首先关注接口作为方法的集合这一方面。</p>
+<p>通常，我们会用一些假设的例子来介绍接口。让我们来看看这个例子： <code>Animal</code> 类型是一个接口，我们将定义一个 <code>Animal</code> 作为任何可以说话的东西。这是 Go 类型系统的核心概念：我们根据类型可以执行的操作而不是其所能容纳的数据类型来设计抽象。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Animal <span class="keyword">interface</span> &#123;</span><br><span class="line">    Speak() <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>非常简单：我们定义 <code>Animal</code> 为任何具有 <code>Speak</code> 方法的类型。<code>Speak</code> 方法没有参数，返回一个字符串。所有定义了该方法的类型我们称它<strong>实现</strong>了 <code>Animal</code> 接口。Go 中没有 <code>implements</code> 关键字，判断一个类型是否实现了一个接口是完全是自动地。让我们创建几个实现这个接口的类型：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Dog <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(d Dog)</span> <span class="title">Speak</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Woof!"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Cat <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c Cat)</span> <span class="title">Speak</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Meow!"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Llama <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(l Llama)</span> <span class="title">Speak</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"?????"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> JavaProgrammer <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(j JavaProgrammer)</span> <span class="title">Speak</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Design patterns!"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们现在有四种不同类型的动物：<code>Dog</code>、<code>Cat</code>、<code>Llama</code> 和 <code>JavaProgrammer</code>。在我们的 <code>main</code> 函数中，我们创建了一个 <code>[]Animal{Dog{}, Cat{}, Llama{}, JavaProgrammer{}}</code> ，看看每只动物都说了些什么：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    animals := []Animal&#123;Dog&#123;&#125;, Cat&#123;&#125;, Llama&#123;&#125;, JavaProgrammer&#123;&#125;&#125;</span><br><span class="line">    <span class="keyword">for</span> _, animal := <span class="keyword">range</span> animals &#123;</span><br><span class="line">        fmt.Println(animal.Speak())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很好，现在你知道如何使用接口了，我不需要再讨论它们了，对吧？不是的。让我们来看看一些不太明显的东西。</p>
+<h3 id="interface-类型"><a href="#interface-类型" class="headerlink" title="interface{} 类型"></a><code>interface{}</code> 类型</h3><p><code>interface{}</code> 类型，<strong>空接口</strong>，是导致很多混淆的根源。<code>interface{}</code> 类型是没有方法的接口。由于没有 <code>implements</code> 关键字，所以所有类型都至少实现了 0 个方法，所以 <strong>所有类型都实现了空接口</strong>。这意味着，如果您编写一个函数以 <code>interface{}</code> 值作为参数，那么您可以为该函数提供任何值。例如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">DoSomething</span><span class="params">(v <span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">   <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里是让人困惑的地方：在 <code>DoSomething</code> 函数内部，<code>v</code> 的类型是什么？新手们会认为 <code>v</code> 是<strong>任意</strong>类型的，但这是错误的。<code>v</code> 不是<strong>任意</strong>类型，它是 <code>interface{}</code> 类型。对的，没错！当将值传递给<code>DoSomething</code> 函数时，Go 运行时将执行类型转换(如果需要)，并将值转换为 <code>interface{}</code> 类型的值。所有值在运行时只有一个类型，而 <code>v</code> 的一个静态类型是 <code>interface{}</code> 。</p>
+<p>这可能让您感到疑惑：好吧，如果发生了转换，到底是什么东西传入了函数作为 <code>interface{}</code> 的值呢？（具体到上例来说就是 <code>[]Animal</code> 中存的是啥？）</p>
+<p>一个接口值由两个字（32 位机器一个字是 32 bits，64 位机器一个字是 64 bits）组成；一个字用于指向该值底层类型的方法表，另一个字用于指向实际数据。我不想没完没了地谈论这个。如果您理解一个接口值是两个字，并且它包含指向底层数据的指针，那么这就足以避免常见的陷阱。如果您想了解更多关于接口实现的知识。这篇文章很有用：<a href="https://t.umblr.com/redirect?z=http%3A%2F%2Fresearch.swtch.com%2Finterfaces&amp;t=YTNhMjY1ZmM2NmJhMDcwYjAwNzY0MTYzYzBhMDA1MjRjZmIxZTYzMyxoZmZyTU04Sg%3D%3D&amp;b=t%3AWvVgq8ST2uhqerqL8LopZw&amp;p=http%3A%2F%2Fjordanorelli.com%2Fpost%2F32665860244%2Fhow-to-use-interfaces-in-go&amp;m=1" title="Russ Cox&#39;s description of interfaces" target="_blank" rel="noopener">Russ Cox’s description of interfaces</a> 。</p>
+<p>在我们上面的例子中，当我们初始化变量 <code>animals</code> 时，我们不需要像这样 <code>Animal(Dog{})</code> 来显示的转型，因为这是自动地。这些元素都是 <code>Animal</code> 类型，但是他们的底层类型却不相同。</p>
+<p>为什么这很重要呢？理解接口是如何在内存中表示的，可以使得一些潜在的令人困惑的事情变得非常清楚。比如，像 “我可以将 []T 转换为 []interface{}<br> 吗？” 这种问题就容易回答了。下面是一些烂代码的例子，它们代表了对 <code>interface{}</code> 类型的常见误解：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PrintAll</span><span class="params">(vals []<span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> _, val := <span class="keyword">range</span> vals &#123;</span><br><span class="line">        fmt.Println(val)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    names := []<span class="keyword">string</span>&#123;<span class="string">"stanley"</span>, <span class="string">"david"</span>, <span class="string">"oscar"</span>&#125;</span><br><span class="line">    PrintAll(names)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行这段代码你会得到如下错误：<code>cannot use names (type []string) as type []interface {} in argument to PrintAll</code>。如果想使其正常工作，我们必须将 <code>[]string</code> 转为 <code>[]interface{}</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">PrintAll</span><span class="params">(vals []<span class="keyword">interface</span>&#123;&#125;)</span></span> &#123;</span><br><span class="line">    <span class="keyword">for</span> _, val := <span class="keyword">range</span> vals &#123;</span><br><span class="line">        fmt.Println(val)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    names := []<span class="keyword">string</span>&#123;<span class="string">"stanley"</span>, <span class="string">"david"</span>, <span class="string">"oscar"</span>&#125;</span><br><span class="line">    vals := <span class="built_in">make</span>([]<span class="keyword">interface</span>&#123;&#125;, <span class="built_in">len</span>(names))</span><br><span class="line">    <span class="keyword">for</span> i, v := <span class="keyword">range</span> names &#123;</span><br><span class="line">        vals[i] = v</span><br><span class="line">    &#125;</span><br><span class="line">    PrintAll(vals)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很丑陋，但是<strong>生活就是这样</strong>，没有完美的事情。（事实上，这种情况不会经常发生，因为 <code>[]interface{}</code> 并没有像你想象的那样有用）</p>
+<h3 id="指针和接口"><a href="#指针和接口" class="headerlink" title="指针和接口"></a>指针和接口</h3><p>接口的另一个微妙之处是接口定义没有规定一个实现者是否应该使用一个指针接收器或一个值接收器来实现接口。当给定一个接口值时，不能保证底层类型是否为指针。在前面的示例中，我们将方法定义在值接收者之上。让我们稍微改变一下，将 <code>Cat</code> 的 <code>Speak()</code> 方法改为指针接收器：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(c *Cat)</span> <span class="title">Speak</span><span class="params">()</span> <span class="title">string</span></span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"Meow!"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行上述代码，会得到如下错误：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">cannot use Cat literal (type Cat) as type Animal in array or slice literal:</span><br><span class="line">	Cat does not implement Animal (Speak method has pointer receiver)</span><br></pre></td></tr></table></figure>
+<p>该错误的意思是：你尝试将 <code>Cat</code> 转为 <code>Animal</code> ，但是只有 <code>*Cat</code> 类型实现了该接口。你可以通过传入一个指针 （<code>new(Cat)</code> 或者 <code>&amp;Cat{}</code>）来修复这个错误。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">animals := []Animal&#123;Dog&#123;&#125;, new(Cat), Llama&#123;&#125;, JavaProgrammer&#123;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>让我们做一些相反的事情：我们传入一个 <code>*Dog</code> 指针，但是不改变 <code>Dog</code> 的 <code>Speak()</code> 方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">animals := []Animal&#123;new(Dog), new(Cat), Llama&#123;&#125;, JavaProgrammer&#123;&#125;&#125;</span><br></pre></td></tr></table></figure>
+<p>这种方式可以正常工作，因为一个指针类型可以通过其相关的值类型来访问值类型的方法，但是反过来不行。即，一个 <code>*Dog</code> 类型的值可以使用定义在 <code>Dog</code> 类型上的 <code>Speak()</code> 方法，而 <code>Cat</code> 类型的值不能访问定义在 <code>*Cat</code> 类型上的方法。</p>
+<p>这可能听起来很神秘，但当你记住以下内容时就清楚了：Go 中的所有东西都是按值传递的。每次调用函数时，传入的数据都会被复制。对于具有值接收者的方法，在调用该方法时将复制该值。例如下面的方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t T)</span><span class="title">MyMethod</span><span class="params">(s <span class="keyword">string</span>)</span></span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>是 <code>func(T, string)</code> 类型的方法。方法接收器像其他参数一样通过值传递给函数。</p>
+<p>因为所有的参数都是通过值传递的，这就可以解释为什么 <code>*Cat</code> 的方法不能被 <code>Cat</code> 类型的值调用了。任何一个  <code>Cat</code> 类型的值可能会有很多 <code>*Cat</code> 类型的指针指向它，如果我们尝试通过 <code>Cat</code> 类型的值来调用 <code>*Cat</code> 的方法，根本就不知道对应的是哪个指针。相反，如果 <code>Dog</code> 类型上有一个方法，通过 <code>*Dog</code> 来调用这个方法可以确切的找到该指针对应的 <code>Gog</code> 类型的值，从而调用上面的方法。运行时，Go 会自动帮我们做这些，所以我们不需要像 C语言中那样使用类似如下的语句 <code>d-&gt;Speak()</code> 。</p>
+<h3 id="例1：通过-Twitter-API-获取正确的时间戳"><a href="#例1：通过-Twitter-API-获取正确的时间戳" class="headerlink" title="例1：通过 Twitter API 获取正确的时间戳"></a>例1：通过 Twitter API 获取正确的时间戳</h3><p>Twitter API 使用下面的格式来展示时间戳：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&quot;Thu May 31 00:00:01 +0000 2012&quot;</span><br></pre></td></tr></table></figure>
+<p>Twitter API 返回的是一个 json 字符串，这里我们只考虑解析 <code>created_at</code> 字段：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">    <span class="string">"encoding/json"</span></span><br><span class="line">    <span class="string">"fmt"</span></span><br><span class="line">    <span class="string">"reflect"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// start with a string representation of our JSON data</span></span><br><span class="line"><span class="keyword">var</span> input = <span class="string">`</span></span><br><span class="line"><span class="string">&#123;</span></span><br><span class="line"><span class="string">    "created_at": "Thu May 31 00:00:01 +0000 2012"</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string">`</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    <span class="comment">// our target will be of type map[string]interface&#123;&#125;, which is a</span></span><br><span class="line">    <span class="comment">// pretty generic type that will give us a hashtable whose keys</span></span><br><span class="line">    <span class="comment">// are strings, and whose values are of type interface&#123;&#125;</span></span><br><span class="line">    <span class="keyword">var</span> val <span class="keyword">map</span>[<span class="keyword">string</span>]<span class="keyword">interface</span>&#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> err := json.Unmarshal([]<span class="keyword">byte</span>(input), &amp;val); err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="built_in">panic</span>(err)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    fmt.Println(val)</span><br><span class="line">    <span class="keyword">for</span> k, v := <span class="keyword">range</span> val &#123;</span><br><span class="line">        fmt.Println(k, reflect.TypeOf(v))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行上述代码，输出：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">map[created_at:Thu May 31 00:00:01 +0000 2012]</span><br><span class="line">created_at Thu May 31 00:00:01 +0000 2012 string</span><br></pre></td></tr></table></figure>
+<p>我们得到了解析后的结果，但是解析出来的时间是字符串类型的，作用有限，因此我们想把它解析成 <code>time.Time</code> 类型的，对代码做出如下修改：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">var val map[string]interface&#123;&#125; -&gt; var val map[string]time.Time</span><br></pre></td></tr></table></figure>
+<p>结果出错了：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">panic: parsing time &quot;&quot;Thu May 31 00:00:01 +0000 2012&quot;&quot; as &quot;&quot;2006-01-02T15:04:05Z07:00&quot;&quot;: cannot parse &quot;Thu May 31 00:00:01 +0000 2012&quot;&quot; as &quot;2006&quot;</span><br></pre></td></tr></table></figure>
+<p>出错的原因是字符串格式与 Go 中的时间格式不匹配（因为 Twitter’s API 是用 Ruby 写的，其格式跟 Go 不同）。我们必须定义我们自己的类型来解析时间。<code>encoding/json</code> 在解析时会判断传入 <code>json.Unmarshal</code> 的值是否实现了 <code>json.Unmarshaler</code> 接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Unmarshaler <span class="keyword">interface</span> &#123;</span><br><span class="line">    UnmarshalJSON([]<span class="keyword">byte</span>) error</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果实现了，就会调用 <code>UnmarshalJSON</code> 方法来解析（<a href="https://golang.org/pkg/encoding/json/#Unmarshaler" target="_blank" rel="noopener">参考</a>），所以我们需要的是一个实现了 <code>UnmarshalJSON([]byte) error</code> 方法的类型：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Timestamp time.Time</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Timestamp)</span> <span class="title">UnmarshalJSON</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>值得注意的是，我们使用一个指针作为方法接受者，因为我们希望在方法内对接受者进行更改。<code>UnmarshalJSON</code> 中，<code>t</code> 代表指向 <code>Timestamp</code> 类型值的指针，通过 <code>*t</code> 我们可以访问到这个值，这样就可以修改它了。</p>
+<p>我们可以使用 <code>time.Parse(layout, value string) (Time, error)</code> 来解析时间，该函数的第一个参数是表示时间格式的字符串（<a href="https://t.umblr.com/redirect?z=http%3A%2F%2Fgolang.org%2Fpkg%2Ftime%2F&amp;t=MjBjODdjZjg0YzVhYTJjMTk1NjM0OTE0NGFhODY2Y2U1MmU3ZDIwOSxoZmZyTU04Sg%3D%3D&amp;b=t%3AWvVgq8ST2uhqerqL8LopZw&amp;p=http%3A%2F%2Fjordanorelli.com%2Fpost%2F32665860244%2Fhow-to-use-interfaces-in-go&amp;m=1" title="the time package" target="_blank" rel="noopener">更多字符串格式</a>），第二个是我们要解析的字符串。返回 <code>time.Time</code> 类型的值以及 <code>error</code>（如果解析出错）。解析得到 <code>time.Time</code> 类型的值后，转换成 <code>Timestamp</code> 类型然后赋值给 <code>*t</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(t *Timestamp)</span> <span class="title">UnmarshalJSON</span><span class="params">(b []<span class="keyword">byte</span>)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">    v, err := time.Parse(time.RubyDate, <span class="keyword">string</span>(b[<span class="number">1</span>:<span class="built_in">len</span>(b)<span class="number">-1</span>]))</span><br><span class="line">    <span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> err</span><br><span class="line">    &#125;</span><br><span class="line">    *t = Timestamp(v)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意，传入函数的 <code>[]byte</code> 是原始的 JSON 数据，其中包含有引号，所以这里需要切片去掉引号。</p>
+<h3 id="例2：从-HTTP-请求中得到对象"><a href="#例2：从-HTTP-请求中得到对象" class="headerlink" title="例2：从 HTTP 请求中得到对象"></a>例2：从 HTTP 请求中得到对象</h3><p>然我们设计一个接口来解决 web 开发中常见的一个问题：我们想解析 HTTP 请求体得到我们需要的对象数据。例如，我们这样定义我们的接口：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GetEntity(*http.Request) (<span class="keyword">interface</span>&#123;&#125;, error)</span><br></pre></td></tr></table></figure>
+<p>因为 <code>interface{}</code> 可以有任意的底层类型，所以我们可以解析得到任何我们需要的东西。但是这是一个不好的设计，我们将过多的逻辑引入到 <code>GetEntity</code> 函数中，<code>GetEntity</code> 函数现在需要针对每一种新类型进行修改，我们需要使用类型断言来处理返回的值。在实践中，返回 <code>interface{}</code> 的函数往往很烦人，作为一个经验法则，您只需要记住，将 <code>interface{}</code> 作为参数而不是返<code>interface{}</code> 值通常更好（<a href="https://t.umblr.com/redirect?z=http%3A%2F%2Fen.wikipedia.org%2Fwiki%2FRobustness_Principle&amp;t=ZGYxODRiYjhjOWQwNzA5MjgzYTA0ZjRjN2QxNzZiZmJhYzFkNGFjNyxoZmZyTU04Sg%3D%3D&amp;b=t%3AWvVgq8ST2uhqerqL8LopZw&amp;p=http%3A%2F%2Fjordanorelli.com%2Fpost%2F32665860244%2Fhow-to-use-interfaces-in-go&amp;m=1" title="http://en.wikipedia.org/wiki/Robustness_Principle" target="_blank" rel="noopener">Postel’s Law</a>）。</p>
+<p>我们也可能会尝试编写一些返回类型明确的函数，像这样：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GetUser(*http.Request) (User, error)</span><br></pre></td></tr></table></figure>
+<p>但是这样又显得不够灵活，因为需要对不同的类型写不同的函数。我们真正需要的是像这样的一个设计：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Entity <span class="keyword">interface</span> &#123;</span><br><span class="line">	UnmarshalerHTTP(*http.Request) error</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">GetEntity</span><span class="params">(r *http.Request, v Entity)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">	<span class="keyword">return</span> v.UnmarshalerHTTP(r)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>GetEntiry</code> 方法需要传入一个参数，该参数为 <code>Entity</code> 接口类型，确保实现了 <code>UnmarshalHTTP</code> 方法。为了使用该方法，我们需要定义 <code>User</code> 类型并实现 <code>UnmarshalHTTP</code> 方法，并在方法中解析 HTTP 请求：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> User <span class="keyword">struct</span> &#123;</span><br><span class="line">   ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(u *User)</span> <span class="title">UnmarshalHTTP</span><span class="params">(r *http.Request)</span> <span class="title">error</span></span> &#123;</span><br><span class="line">   <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，定义一个 <code>User</code> 类型的变量，并将其指针传递给 <code>GetEntity</code> 方法：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> u User</span><br><span class="line"><span class="keyword">if</span> err := GetEntity(req, &amp;u); err != <span class="literal">nil</span> &#123;</span><br><span class="line">    <span class="comment">// ...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这同解析 JSON 数据类似。这种方式可以始终如一地安全地工作，因为 <code>var u User</code> 将自动地将 <code>User</code> 结构体初始化为零值。Go 不像其他语言一样声明和初始化是分开进行的。通过声明一个值而不初始化它，运行时将为该值分配适当的内存空间。即使我们的 <code>UnmarshalHTTP</code> 方法不能使用某些字段,这些字段也将包含有效的零数据，而不是垃圾数据。</p>
+<h3 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h3><p>我希望读完此文后你可以更加得心应手地使用 Go 中的接口，记住下面这些结论：</p>
+<ul>
+<li>通过考虑数据类型之间的相同功能来创建抽象，而不是相同字段</li>
+<li><code>interface{}</code> 的值不是任意类型，而是 <code>interface{}</code> 类型</li>
+<li>接口包含两个字的大小，类似于 <code>(type, value)</code></li>
+<li>函数可以接受 <code>interface{}</code> 作为参数，但最好不要返回 <code>interface{}</code> </li>
+<li>指针类型可以调用其所指向的值的方法，反过来不可以</li>
+<li>函数中的参数甚至接受者都是通过值传递</li>
+<li>一个接口的值就是就是接口而已，跟指针没什么关系</li>
+<li>如果你想在方法中修改指针所指向的值，使用 <code>*</code> 操作符</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/go/">go</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/翻译/">翻译</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2018/01/24/go-interface/" data-title="如何在 Go 中使用接口（译） | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2018/01/27/go-slice1/" title="Go 切片使用注意事项">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Go 切片使用注意事项</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2018/01/13/500lines-interpreter/"  title="500 行或更少系列之 python 解析器">
+ <strong>NEXT:</strong><br/> 
+ <span>500 行或更少系列之 python 解析器
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#接口介绍"><span class="toc-number">1.</span> <span class="toc-text">接口介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#interface-类型"><span class="toc-number">2.</span> <span class="toc-text">interface{} 类型</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#指针和接口"><span class="toc-number">3.</span> <span class="toc-text">指针和接口</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例1：通过-Twitter-API-获取正确的时间戳"><span class="toc-number">4.</span> <span class="toc-text">例1：通过 Twitter API 获取正确的时间戳</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#例2：从-HTTP-请求中得到对象"><span class="toc-number">5.</span> <span class="toc-text">例2：从 HTTP 请求中得到对象</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#结语"><span class="toc-number">6.</span> <span class="toc-text">结语</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>8</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>2</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 11.67px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+

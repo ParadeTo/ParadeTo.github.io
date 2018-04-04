@@ -1,0 +1,487 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>nodejs之Buffer | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="关于nodejs的Buffer">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/06/04/nodejs-buffer/" title="nodejs之Buffer" itemprop="url">nodejs之Buffer</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-06-04T03:40:49.000Z" itemprop="datePublished">2017-06-04</time>
+    更新日期:<time datetime="2018-03-13T08:29:06.000Z" itemprop="dateModified">2018-03-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer结构"><span class="toc-number">1.</span> <span class="toc-text">Buffer结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Buffer对象"><span class="toc-number">1.1.</span> <span class="toc-text">Buffer对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内存分配"><span class="toc-number">1.2.</span> <span class="toc-text">内存分配</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer的转换"><span class="toc-number">2.</span> <span class="toc-text">Buffer的转换</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#字符串转Buffer"><span class="toc-number">2.1.</span> <span class="toc-text">字符串转Buffer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Buffer转字符串"><span class="toc-number">2.2.</span> <span class="toc-text">Buffer转字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不支持的编码类型"><span class="toc-number">2.3.</span> <span class="toc-text">不支持的编码类型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer的拼接"><span class="toc-number">3.</span> <span class="toc-text">Buffer的拼接</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#乱码产生的原因"><span class="toc-number">3.1.</span> <span class="toc-text">乱码产生的原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setEncoding-与string-decoder"><span class="toc-number">3.2.</span> <span class="toc-text">setEncoding()与string_decoder()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正确的拼接Buffer"><span class="toc-number">3.3.</span> <span class="toc-text">正确的拼接Buffer</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer与性能"><span class="toc-number">4.</span> <span class="toc-text">Buffer与性能</span></a></li></ol>
+		</div>
+		
+		<h1 id="Buffer结构"><a href="#Buffer结构" class="headerlink" title="Buffer结构"></a>Buffer结构</h1><h2 id="Buffer对象"><a href="#Buffer对象" class="headerlink" title="Buffer对象"></a>Buffer对象</h2><ul>
+<li>类似于数组</li>
+<li>为16进制的两位数，即0到255的数值(一个字节)</li>
+<li>如果赋值小于0，就逐次加256，直到得到一个0到255之间的整数；反之，逐次减256…</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> buf = <span class="keyword">new</span> Buffer(<span class="number">100</span>)</span><br></pre></td></tr></table></figure>
+<h2 id="内存分配"><a href="#内存分配" class="headerlink" title="内存分配"></a>内存分配</h2><ul>
+<li>在C++层面申请内存、在JavaScript中分配内存</li>
+<li>slab动态内存管理机制</li>
+</ul>
+<p><strong>分配小Buffer对象</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 新构造一个slab</span></span><br><span class="line">Buffer.poolSize = <span class="number">8</span> * <span class="number">1024</span></span><br><span class="line"><span class="keyword">var</span> pool</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">allocPool</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">	pool = <span class="keyword">new</span> SlowBuffer(Buffer.poolSize)</span><br><span class="line">	pool.used = <span class="number">0</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 初次分配一个Buffer对象</span></span><br><span class="line"><span class="keyword">new</span> Buffer(<span class="number">1024</span>)</span><br><span class="line"><span class="keyword">if</span> (!pool || pool.length - pool.used &lt; <span class="keyword">this</span>.length) allocPool()</span><br><span class="line"><span class="keyword">this</span>.parent = pool</span><br><span class="line"><span class="keyword">this</span>.offset = pool.offset</span><br><span class="line">pool.used += <span class="keyword">this</span>.length</span><br><span class="line"><span class="keyword">if</span> (pool.used &amp; <span class="number">7</span>) pool.used = (pool.used + <span class="number">8</span>) &amp; ~<span class="number">7</span></span><br></pre></td></tr></table></figure>
+<p>如果slab剩余的空间不够，将会构造新的slab，原slab中剩余的空间会被浪费。</p>
+<p>只有当slab中的所有Buffer对象都可以回收时，slab的空间才会被回收。</p>
+<p><strong>分配大Buffer对象</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">this</span>.parent = <span class="keyword">new</span> SlowBuffer(<span class="keyword">this</span>.length)</span><br><span class="line"><span class="keyword">this</span>.offset = <span class="number">0</span></span><br></pre></td></tr></table></figure>
+<h1 id="Buffer的转换"><a href="#Buffer的转换" class="headerlink" title="Buffer的转换"></a>Buffer的转换</h1><h2 id="字符串转Buffer"><a href="#字符串转Buffer" class="headerlink" title="字符串转Buffer"></a>字符串转Buffer</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="keyword">new</span> Buffer(<span class="string">'我'</span>) <span class="comment">// 默认为utf-8</span></span><br><span class="line">&lt;Buffer e6 <span class="number">88</span> <span class="number">91</span>&gt;</span><br><span class="line"><span class="keyword">var</span> b = <span class="keyword">new</span> Buffer(<span class="string">'我'</span>,<span class="string">'ascii'</span>)</span><br><span class="line">&lt;Buffer <span class="number">11</span>&gt;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> b = <span class="keyword">new</span> Buffer(<span class="number">4</span>)</span><br><span class="line">b.write(<span class="string">'我'</span>,<span class="number">0</span>,<span class="number">1</span>,<span class="string">'ascii'</span>)</span><br><span class="line">b.write(<span class="string">'我'</span>,<span class="number">1</span>,<span class="number">3</span>)</span><br><span class="line">&lt;Buffer <span class="number">11</span> e6 <span class="number">88</span> <span class="number">91</span>&gt;</span><br></pre></td></tr></table></figure>
+<h2 id="Buffer转字符串"><a href="#Buffer转字符串" class="headerlink" title="Buffer转字符串"></a>Buffer转字符串</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">buf.toString([encoding], [start], [end]) <span class="comment">// 默认为utf-8</span></span><br></pre></td></tr></table></figure>
+<h2 id="不支持的编码类型"><a href="#不支持的编码类型" class="headerlink" title="不支持的编码类型"></a>不支持的编码类型</h2><p>用<code>Buffer.isEncoding(encoding)</code>来判断是否支持某一种类型，不支持GBK, GB2312, BIG-5</p>
+<p>可以使用<code>iconv</code>和<code>iconv-lite</code>来支持更多的编码类型</p>
+<h1 id="Buffer的拼接"><a href="#Buffer的拼接" class="headerlink" title="Buffer的拼接"></a>Buffer的拼接</h1><p>Buffer在使用场景中，通常是以一段段的方式传输，在Buffer的拼接过程中，要非常小心，例如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> rs = fs.createReadStream(<span class="string">'./test.md'</span>, &#123;<span class="attr">highWaterMark</span>: <span class="number">11</span>&#125;)</span><br><span class="line"><span class="keyword">var</span> data = <span class="string">''</span></span><br><span class="line">rs.on(<span class="string">"data"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">  data += chunk <span class="comment">// data = data + chunk.toString()</span></span><br><span class="line">&#125;)</span><br><span class="line">rs.on(<span class="string">"end"</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">床前明���光，疑���地上霜。举头���明月，���头思故乡。</span><br></pre></td></tr></table></figure>
+<h2 id="乱码产生的原因"><a href="#乱码产生的原因" class="headerlink" title="乱码产生的原因"></a>乱码产生的原因</h2><p>增加一些辅助代码后，可以非常看到乱码产生的过程<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> rs = fs.createReadStream(<span class="string">'./test.md'</span>, &#123;<span class="attr">highWaterMark</span>: <span class="number">11</span>&#125;)</span><br><span class="line"><span class="keyword">var</span> data = <span class="string">''</span></span><br><span class="line"><span class="keyword">var</span> buffer = <span class="keyword">new</span> Buffer(<span class="number">200</span>)</span><br><span class="line"><span class="keyword">var</span> i = <span class="number">0</span></span><br><span class="line">rs.on(<span class="string">"data"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> j = <span class="number">0</span>; j &lt; chunk.length; j++) &#123;</span><br><span class="line">    buffer[i++] = chunk[j]</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">console</span>.log(chunk)</span><br><span class="line">  <span class="built_in">console</span>.log(chunk.toString())</span><br><span class="line">  data += chunk <span class="comment">// data = data + chunk.toString()</span></span><br><span class="line">&#125;)</span><br><span class="line">rs.on(<span class="string">"end"</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data)</span><br><span class="line">  <span class="built_in">console</span>.log(buffer)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">&lt;Buffer e5 ba <span class="number">8</span>a e5 <span class="number">89</span> <span class="number">8</span>d e6 <span class="number">98</span> <span class="number">8</span>e e6 <span class="number">9</span>c&gt;</span><br><span class="line">床前明��</span><br><span class="line">&lt;Buffer <span class="number">88</span> e5 <span class="number">85</span> <span class="number">89</span> ef bc <span class="number">8</span>c e7 <span class="number">96</span> <span class="number">91</span> e6&gt;</span><br><span class="line">�光，疑�</span><br><span class="line">&lt;Buffer <span class="number">98</span> af e5 <span class="number">9</span>c b0 e4 b8 <span class="number">8</span>a e9 <span class="number">9</span>c <span class="number">9</span>c&gt;</span><br><span class="line">��地上霜</span><br><span class="line">&lt;Buffer e3 <span class="number">80</span> <span class="number">82</span> e4 b8 be e5 a4 b4 e6 <span class="number">9</span>c&gt;</span><br><span class="line">。举头��</span><br><span class="line">&lt;Buffer <span class="number">9</span>b e6 <span class="number">98</span> <span class="number">8</span>e e6 <span class="number">9</span>c <span class="number">88</span> ef bc <span class="number">8</span>c e4&gt;</span><br><span class="line">�明月，�</span><br><span class="line">&lt;Buffer bd <span class="number">8</span>e e5 a4 b4 e6 <span class="number">80</span> <span class="number">9</span>d e6 <span class="number">95</span> <span class="number">85</span>&gt;</span><br><span class="line">��头思故</span><br><span class="line">&lt;Buffer e4 b9 a1 e3 <span class="number">80</span> <span class="number">82</span>&gt;</span><br><span class="line">乡。</span><br><span class="line">床前明���光，疑���地上霜。举头���明月，���头思故乡。</span><br><span class="line">&lt;Buffer e5 ba <span class="number">8</span>a e5 <span class="number">89</span> <span class="number">8</span>d e6 <span class="number">98</span> <span class="number">8</span>e e6 <span class="number">9</span>c <span class="number">88</span> e5 <span class="number">85</span> <span class="number">89</span> ef bc <span class="number">8</span>c e7 <span class="number">96</span> <span class="number">91</span> e6 <span class="number">98</span> af e5 <span class="number">9</span>c b0 e4 b8 <span class="number">8</span>a e9 <span class="number">9</span>c <span class="number">9</span>c e3 <span class="number">80</span> <span class="number">82</span> e4 b8 be e5 a4 b4 e6 <span class="number">9</span>c <span class="number">9</span>b e6 <span class="number">98</span> <span class="number">8</span>e e6 <span class="number">9</span>c ... &gt;</span><br></pre></td></tr></table></figure></p>
+<h2 id="setEncoding-与string-decoder"><a href="#setEncoding-与string-decoder" class="headerlink" title="setEncoding()与string_decoder()"></a>setEncoding()与string_decoder()</h2><p>可读流有一个<code>setEncoding</code>的方法，可以让data事件中传递的不再是Buffer对象，而是编码后的字符串。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> rs = fs.createReadStream(<span class="string">'./test.md'</span>, &#123;<span class="attr">highWaterMark</span>: <span class="number">11</span>&#125;)</span><br><span class="line">rs.setEncoding(<span class="string">'utf8'</span>)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>其背后实际上是可读流在内部设置了一个decoder对象，每次data事件都通过该对象进行Buffer到字符串的解码。但是这并没有解决截断的问题，到底是怎么回事可以通过下面这个例子来说明：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> StringDecoder = <span class="built_in">require</span>(<span class="string">'string_decoder'</span>).StringDecoder</span><br><span class="line"><span class="keyword">var</span> decoder = <span class="keyword">new</span> StringDecoder()</span><br><span class="line"><span class="keyword">var</span> buf1 = <span class="keyword">new</span> Buffer([<span class="number">0xe5</span>, <span class="number">0xba</span>, <span class="number">0x8a</span>, <span class="number">0xe5</span>, <span class="number">0x89</span>, <span class="number">0x8d</span>, <span class="number">0xe6</span>, <span class="number">0x98</span>, <span class="number">0x8e</span>, <span class="number">0xe6</span>, <span class="number">0x9c</span>])</span><br><span class="line"><span class="built_in">console</span>.log(decoder.write(buf1))</span><br><span class="line">床前明</span><br><span class="line"><span class="keyword">var</span> buf2 = <span class="keyword">new</span> Buffer([<span class="number">0x88</span>, <span class="number">0xe5</span>, <span class="number">0x85</span>, <span class="number">0x89</span>, <span class="number">0xef</span>, <span class="number">0xbc</span>, <span class="number">0x8c</span>, <span class="number">0xe7</span>, <span class="number">0x896</span>, <span class="number">0x91</span>, <span class="number">0xe6</span>])</span><br><span class="line"><span class="built_in">console</span>.log(decoder.write(buf2))</span><br><span class="line">月光，疑</span><br></pre></td></tr></table></figure>
+<p>UTF-8的编码规则如下：</p>
+<table>
+<thead>
+<tr>
+<th>Number of bytes</th>
+<th>Bits for code point</th>
+<th>First code point</th>
+<th>Last code point</th>
+<th>Byte 1</th>
+<th>Byte 2</th>
+<th>Byte 3</th>
+<th>Byte 4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>7</td>
+<td>U+0000</td>
+<td>U+007F</td>
+<td>0xxxxxxx</td>
+<td>-</td>
+<td>-</td>
+<td>-            </td>
+</tr>
+<tr>
+<td>2</td>
+<td>11</td>
+<td>U+0080</td>
+<td>U+07FF</td>
+<td>110xxxxx</td>
+<td>10xxxxxx</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>3</td>
+<td>16</td>
+<td>U+0800</td>
+<td>U+FFFF</td>
+<td>1110xxxx</td>
+<td>10xxxxxx</td>
+<td>10xxxxxx</td>
+<td>-</td>
+</tr>
+<tr>
+<td>4</td>
+<td>21</td>
+<td>U+10000</td>
+<td>U+10FFFF</td>
+<td>11110xxx</td>
+<td>10xxxxxx</td>
+<td>10xxxxxx</td>
+<td>10xxxxxx</td>
+</tr>
+</tbody>
+</table>
+<p>上面例子在处理buf1时，前面九个元素刚好符合UTF8的编码规则，所以输出无误。当处理到<code>Oxe6</code>时，按照编码规则，后面应该再接上2个字节（一共三个字节）一起进行编码，而此时只有2个字节，所以这两个字节被保留在StringDecoder实例内部，放到后面继续处理。</p>
+<p>目前只能处理UTF-8，Base64，和UCS-2/UTF-16LE这三种编码。所以这种方法也不能从根本上解决问题。</p>
+<h2 id="正确的拼接Buffer"><a href="#正确的拼接Buffer" class="headerlink" title="正确的拼接Buffer"></a>正确的拼接Buffer</h2><p>正确的拼接Buffer方式应该如下面所示：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> rs = fs.createReadStream(<span class="string">'./test.md'</span>, &#123;<span class="attr">highWaterMark</span>: <span class="number">11</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> chunks = []</span><br><span class="line"><span class="keyword">var</span> size = <span class="number">0</span></span><br><span class="line">rs.on(<span class="string">"data"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">  chunks.push(chunk)</span><br><span class="line">  size += chunk.length</span><br><span class="line">&#125;)</span><br><span class="line">rs.on(<span class="string">"end"</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> buf = Buffer.concat(chunks, size)</span><br><span class="line">  <span class="keyword">var</span> str = buf.toString(<span class="string">'utf8'</span>)</span><br><span class="line">  <span class="built_in">console</span>.log(str)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h1 id="Buffer与性能"><a href="#Buffer与性能" class="headerlink" title="Buffer与性能"></a>Buffer与性能</h1><p>通过预先转换静态内容为Buffer对象，可以有效地减少CPU的重复使用，节省服务器资源（我用siege测试发现没什么区别啊）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line"><span class="keyword">var</span> helloworld = <span class="string">""</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; <span class="number">1024</span> * <span class="number">10</span>; i++) &#123;</span><br><span class="line">  helloworld += <span class="string">"a"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">helloworld = <span class="keyword">new</span> Buffer(helloworld)</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  res.writeHead(<span class="number">200</span>)</span><br><span class="line">  res.end(helloworld)</span><br><span class="line">&#125;).listen(<span class="number">8001</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>文件读取</strong><br>highWaterMark设置的大小对性能有两个影响的点：</p>
+<ul>
+<li>对Buffer内存的分配和使用有一定影响</li>
+<li>设置过小会导致系统调用次数过多</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/nodejs/">nodejs</a><a href="/tags/cluster/">cluster</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/nodejs/">nodejs</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2017/06/04/nodejs-buffer/" data-title="nodejs之Buffer | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/06/06/vue-code-analysis/" title="Vue2.1.7源码学习">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  Vue2.1.7源码学习</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/06/01/nodejs-memory/"  title="nodejs内存控制">
+ <strong>NEXT:</strong><br/> 
+ <span>nodejs内存控制
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer结构"><span class="toc-number">1.</span> <span class="toc-text">Buffer结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#Buffer对象"><span class="toc-number">1.1.</span> <span class="toc-text">Buffer对象</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#内存分配"><span class="toc-number">1.2.</span> <span class="toc-text">内存分配</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer的转换"><span class="toc-number">2.</span> <span class="toc-text">Buffer的转换</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#字符串转Buffer"><span class="toc-number">2.1.</span> <span class="toc-text">字符串转Buffer</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Buffer转字符串"><span class="toc-number">2.2.</span> <span class="toc-text">Buffer转字符串</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#不支持的编码类型"><span class="toc-number">2.3.</span> <span class="toc-text">不支持的编码类型</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer的拼接"><span class="toc-number">3.</span> <span class="toc-text">Buffer的拼接</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#乱码产生的原因"><span class="toc-number">3.1.</span> <span class="toc-text">乱码产生的原因</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#setEncoding-与string-decoder"><span class="toc-number">3.2.</span> <span class="toc-text">setEncoding()与string_decoder()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#正确的拼接Buffer"><span class="toc-number">3.3.</span> <span class="toc-text">正确的拼接Buffer</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Buffer与性能"><span class="toc-number">4.</span> <span class="toc-text">Buffer与性能</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>8</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>2</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 11.67px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,502 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>高性能MySQL(第3版)第一章-MySQL架构与历史 | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="高性能MySQL(第3版)第一章-MySQL架构与历史">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/05/24/hpMysql1/" title="高性能MySQL(第3版)第一章-MySQL架构与历史" itemprop="url">高性能MySQL(第3版)第一章-MySQL架构与历史</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-05-24T06:11:53.000Z" itemprop="datePublished">2017-05-24</time>
+    更新日期:<time datetime="2018-03-13T08:29:06.000Z" itemprop="dateModified">2018-03-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#逻辑架构"><span class="toc-number">1.</span> <span class="toc-text">逻辑架构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#连接管理与安全性"><span class="toc-number">1.1.</span> <span class="toc-text">连接管理与安全性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优化与执行"><span class="toc-number">1.2.</span> <span class="toc-text">优化与执行</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#并发控制"><span class="toc-number">2.</span> <span class="toc-text">并发控制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#读写锁"><span class="toc-number">2.1.</span> <span class="toc-text">读写锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#锁粒度"><span class="toc-number">2.2.</span> <span class="toc-text">锁粒度</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#事务"><span class="toc-number">3.</span> <span class="toc-text">事务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#隔离级别"><span class="toc-number">3.1.</span> <span class="toc-text">隔离级别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实例"><span class="toc-number">3.1.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#READ-UNCOMMITTED-未提交读"><span class="toc-number">3.1.1.1.</span> <span class="toc-text">READ UNCOMMITTED(未提交读)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#READ-COMMITTED-提交读"><span class="toc-number">3.1.1.2.</span> <span class="toc-text">READ COMMITTED(提交读)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#REPEATABLE-READ-可重复读"><span class="toc-number">3.1.1.3.</span> <span class="toc-text">REPEATABLE READ(可重复读)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SERIALIZABLE-串行化"><span class="toc-number">3.1.1.4.</span> <span class="toc-text">SERIALIZABLE(串行化)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#死锁"><span class="toc-number">3.2.</span> <span class="toc-text">死锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务日志"><span class="toc-number">3.3.</span> <span class="toc-text">事务日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysql中的事务"><span class="toc-number">3.4.</span> <span class="toc-text">mysql中的事务</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#多版本并发控制（MVCC）"><span class="toc-number">4.</span> <span class="toc-text">多版本并发控制（MVCC）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#mysql的存储引擎"><span class="toc-number">5.</span> <span class="toc-text">mysql的存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#InnoDB"><span class="toc-number">5.1.</span> <span class="toc-text">InnoDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MyISAM"><span class="toc-number">5.2.</span> <span class="toc-text">MyISAM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-number">5.3.</span> <span class="toc-text">其他</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#转换表的引擎"><span class="toc-number">5.4.</span> <span class="toc-text">转换表的引擎</span></a></li></ol></li></ol>
+		</div>
+		
+		<h1 id="逻辑架构"><a href="#逻辑架构" class="headerlink" title="逻辑架构"></a>逻辑架构</h1><p><img src="/2017/05/24/hpMysql1/1.png" alt=""></p>
+<h2 id="连接管理与安全性"><a href="#连接管理与安全性" class="headerlink" title="连接管理与安全性"></a>连接管理与安全性</h2><ul>
+<li>客户端连接都会在服务器进程中拥有一个线程</li>
+<li>服务器会负责缓存线程，不需要为每一个新建的连接创建或者销毁线程</li>
+</ul>
+<h2 id="优化与执行"><a href="#优化与执行" class="headerlink" title="优化与执行"></a>优化与执行</h2><ul>
+<li>mysql会解析查询，创建内部数据结构，然后进行优化（重写查询，决定表的读取顺序，选择合适的索引）</li>
+<li>可以通过特殊关键字提示优化器，影响其决策</li>
+<li>可以请求优化器解释优化过程</li>
+<li>对于select语句，在解析查询前，会先检查查询缓存</li>
+</ul>
+<h1 id="并发控制"><a href="#并发控制" class="headerlink" title="并发控制"></a>并发控制</h1><h2 id="读写锁"><a href="#读写锁" class="headerlink" title="读写锁"></a>读写锁</h2><ul>
+<li>共享锁，读锁</li>
+<li>排他锁，写锁</li>
+</ul>
+<h2 id="锁粒度"><a href="#锁粒度" class="headerlink" title="锁粒度"></a>锁粒度</h2><ul>
+<li>表锁<ul>
+<li>开销最小的策略，锁定整张表，阻塞其他用户的读写操作</li>
+</ul>
+</li>
+<li>行级锁<ul>
+<li>可最大程度地支持并发处理（最大锁开销）</li>
+<li>只在存储引擎层实现</li>
+</ul>
+</li>
+</ul>
+<h1 id="事务"><a href="#事务" class="headerlink" title="事务"></a>事务</h1><ul>
+<li>原子性：要么全做，要么全不做</li>
+<li>一致性：从一个一致性的状态转换到另外一个一致性的状态</li>
+<li>隔离性：一个事务所做的修改在最终提交前，对其他事务是不可见的</li>
+<li>持久性：一旦提交，则事务所做的修改就会永久保存到数据库中</li>
+</ul>
+<h2 id="隔离级别"><a href="#隔离级别" class="headerlink" title="隔离级别"></a>隔离级别</h2><ul>
+<li><p>READ UNCOMMITTED (未提交读)：事务中的修改，即使没有提交，对其他事务也都是可见的。可能出现脏度，由于其不会比其他级别好太多，但却缺乏其他级别带来的好处，故一般很少使用。</p>
+</li>
+<li><p>READ COMMITTED (提交读)：这个是大多数数据库的默认级别。一个事务从开始直到结束，所做的任何修改对其他事务都是不可见的。这个级别又叫不可重复读。</p>
+</li>
+<li><p>REPEATABLE READ (可重复读)：这个是mysql的默认级别。该级别保证了在同一个事务中多次读取同样的记录结果是一致的。但是无法解决幻读的问题（指当某个事务在读取某个范围内的记录时，另外一个事务又在该范围内插入了新的记录，当之前的事务再次读取该范围的记录时，会产生幻行）。InnoDB通过多版本并发控制解决了幻行的问题。</p>
+</li>
+<li><p>SERIALIZABLE (串行化)：强制事务串行执行，避免了前面的幻读。会在读取的每一行数据都加锁，所以可能导致大量的超时和锁争用的问题。实际很少用，除非有非常强烈的一致性要求。</p>
+</li>
+</ul>
+<h3 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> <span class="string">`test`</span>;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`test`</span> (</span><br><span class="line">  <span class="string">`id`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span> AUTO_INCREMENT,</span><br><span class="line">  <span class="string">`num`</span> <span class="built_in">int</span>(<span class="number">11</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span> (<span class="string">`id`</span>)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=latin1;</span><br></pre></td></tr></table></figure>
+<h4 id="READ-UNCOMMITTED-未提交读"><a href="#READ-UNCOMMITTED-未提交读" class="headerlink" title="READ UNCOMMITTED(未提交读)"></a>READ UNCOMMITTED(未提交读)</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 设置隔离级别为READ UNCOMMITTED并查询</span></span><br><span class="line">SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED;</span><br><span class="line">SELECT @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:启动事务，查询数据</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line"></span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">1</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># B:启动事务，更新数据，不提交</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">update test set num=<span class="number">10</span> where id=<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:再次查询数据，查询到了B事务未提交的更新</span></span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">10</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br></pre></td></tr></table></figure>
+<h4 id="READ-COMMITTED-提交读"><a href="#READ-COMMITTED-提交读" class="headerlink" title="READ COMMITTED(提交读)"></a>READ COMMITTED(提交读)</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 隔离级别为READ COMMITTED并查询</span></span><br><span class="line">SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;</span><br><span class="line">SELECT @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:启动事务，查询数据</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line"></span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">1</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># B:启动事务，更新数据，不提交</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">update test set num=<span class="number">10</span> where id=<span class="number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:再次查询数据，数据没有发生变化，解决了脏读的问题</span></span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">1</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># B:提交事务</span></span><br><span class="line">commit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:再次查询数据，查询到了B事务提交的更新，与之前所读不一致，即所谓的“不可重复读”</span></span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">10</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br></pre></td></tr></table></figure>
+<h4 id="REPEATABLE-READ-可重复读"><a href="#REPEATABLE-READ-可重复读" class="headerlink" title="REPEATABLE READ(可重复读)"></a>REPEATABLE READ(可重复读)</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 隔离级别为REPEATABLE READ并查询</span></span><br><span class="line">SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;</span><br><span class="line">SELECT @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:启动事务，查询数据</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line"></span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">1</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># B:启动事务，更新数据，并提交</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">update test set num=<span class="number">10</span> where id=<span class="number">1</span>;</span><br><span class="line">commit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:再次查询数据，数据没有发生变化（即使B事务已提交），解决了不可重复读的问题</span></span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">1</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:但是！！！！！！如果我更新数据呢，变啦</span></span><br><span class="line">update test set num=num+<span class="number">1</span> where id=<span class="number">1</span>;</span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">11</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># B:插入一条新的数据</span></span><br><span class="line">INSERT INTO test (num) values(<span class="number">4</span>);</span><br><span class="line">SELECT * FROM test;</span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">10</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line">|<span class="number">4</span>|<span class="number">4</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:再次查询数据，没有变化，发生了幻读</span></span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">1</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br></pre></td></tr></table></figure>
+<h4 id="SERIALIZABLE-串行化"><a href="#SERIALIZABLE-串行化" class="headerlink" title="SERIALIZABLE(串行化)"></a>SERIALIZABLE(串行化)</h4><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 隔离级别为SERIALIZABLE并查询</span></span><br><span class="line">SET SESSION TRANSACTION ISOLATION LEVEL SERIALIZABLE;</span><br><span class="line">SELECT @@tx_isolation;</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:启动事务，查询数据</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">SELECT * <span class="keyword">from</span> test;</span><br><span class="line"></span><br><span class="line">|id|num|</span><br><span class="line">|<span class="number">1</span>|<span class="number">1</span>|</span><br><span class="line">|<span class="number">2</span>|<span class="number">2</span>|</span><br><span class="line">|<span class="number">3</span>|<span class="number">3</span>|</span><br><span class="line"></span><br><span class="line"><span class="comment"># B:启动事务，更新数据，并提交，此时事务B会等待</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">update test set num=<span class="number">10</span> where id=<span class="number">1</span>;</span><br><span class="line">......</span><br><span class="line"></span><br><span class="line"><span class="comment"># A:提交事务</span></span><br><span class="line">commit;</span><br><span class="line"></span><br><span class="line"><span class="comment"># B:完成刚才的更新</span></span><br></pre></td></tr></table></figure>
+<h2 id="死锁"><a href="#死锁" class="headerlink" title="死锁"></a>死锁</h2><p>多个事务在同一资源上相互占用，并请求锁定对方占用的资源，从而导致恶性循环的现象。例如：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 事务1</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">UPDATE StockPrice SET close = <span class="number">45.5</span> WHERE stock_id = <span class="number">4</span> <span class="keyword">and</span> date = <span class="string">'2002-05-01'</span>;</span><br><span class="line">UPDATE StockPrice SET close = <span class="number">19.8</span> WHERE stock_id = <span class="number">3</span> <span class="keyword">and</span> date = <span class="string">'2002-05-02'</span>;</span><br><span class="line">COMMIT;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 事务2</span></span><br><span class="line">START TRANSACTION;</span><br><span class="line">UPDATE StockPrice SET high = <span class="number">20.12</span> WHERE stock_id = <span class="number">3</span> <span class="keyword">and</span> date = <span class="string">'2002-05-02'</span>;</span><br><span class="line">UPDATE StockPrice SET high = <span class="number">45.5</span> WHERE stock_id = <span class="number">4</span> <span class="keyword">and</span> date = <span class="string">'2002-05-01'</span>;</span><br><span class="line">COMMIT;</span><br></pre></td></tr></table></figure>
+<p>如果凑巧，两个事务刚好都执行了第一条语句，同时也锁定了该行数据，接着都去尝试执行第二条语句，发现该行已经被对方锁定，然后两个事务都等待对方释放锁，同时又都持有对方需要的锁，陷入死循环。</p>
+<ul>
+<li>死锁检测</li>
+<li>死锁超时</li>
+<li>innodb处理死锁的方法：将持有最少行级排他锁的事务进行回滚</li>
+</ul>
+<h2 id="事务日志"><a href="#事务日志" class="headerlink" title="事务日志"></a>事务日志</h2><ul>
+<li>修改表的时候，只需要修改内存中的拷贝，而不用马上持久化到硬盘，可以在事务日志持久化后，在后台慢慢刷回到磁盘</li>
+<li>事务日志采用追加的方式，写到磁盘小块区域的顺序I/O，相对于持久化数据来说要快得多</li>
+<li>如果事务日志持久化，但数据本身还没有写回时系统崩溃了，存储引擎在重启时能够自动恢复这部分的数据</li>
+</ul>
+<h2 id="mysql中的事务"><a href="#mysql中的事务" class="headerlink" title="mysql中的事务"></a>mysql中的事务</h2><ul>
+<li>innodb</li>
+<li>ndb cluster</li>
+<li>自动提交</li>
+<li>在事务中混合使用存储引擎不可靠，非事务性的表无法回滚</li>
+<li>隐式和显式锁定（建议：除了事务中禁用了AUTOCOMMIT，可以使用LOCK TABLES之外，其他任何时候都不要显式地执行LOCK TABLES，不管使用的是什么存储引擎）</li>
+</ul>
+<h1 id="多版本并发控制（MVCC）"><a href="#多版本并发控制（MVCC）" class="headerlink" title="多版本并发控制（MVCC）"></a>多版本并发控制（MVCC）</h1><ul>
+<li>保存数据在某个时间点的快照</li>
+<li>innodb的MVCC，是通过在每行记录后面保存两个隐藏的列来实现的，一个保存了行的“创建时间”，一个保存行的“过期时间”（或“删除时间”），不是真的时间，而是系统版本号。</li>
+<li>每开始一个新的事务，系统版本号+1</li>
+</ul>
+<p>REPEATABLE READ隔离级别下，MVCC的工作模式：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span></span><br><span class="line">	a.查找早于等于当前事务版本的数据行，保证事务读取的行，要么是在事务开始前已经存在的，要么是事务自身插入或者修改过的。</span><br><span class="line">	b.行的删除版本要么未定义，要么大于当前事务版本号。保证事务读取到的行，在事务开始之前未被删除</span><br><span class="line"><span class="keyword">INSERT</span></span><br><span class="line">	为新插入的每一行保存当前系统版本号作为行版本号</span><br><span class="line"><span class="keyword">DELETE</span></span><br><span class="line">	为删除的每一行保存当前系统版本号作为行删除标识</span><br><span class="line"><span class="keyword">UPDATE</span></span><br><span class="line">	插入一条新记录，保存当前系统版本号作为行版本号，同时保存当前系统版本号到原来的行作为删除标识</span><br></pre></td></tr></table></figure>
+<ul>
+<li>这样就不用加锁了</li>
+<li>只在REPEATABLE READ和READ COMMITTED两个隔离级别下工作<ul>
+<li>READ UNCOMMITTED总是读取新的数据行</li>
+<li>SERIALIZABLE则会对所有读取的行都加锁</li>
+</ul>
+</li>
+</ul>
+<h1 id="mysql的存储引擎"><a href="#mysql的存储引擎" class="headerlink" title="mysql的存储引擎"></a>mysql的存储引擎</h1><h2 id="InnoDB"><a href="#InnoDB" class="headerlink" title="InnoDB"></a>InnoDB</h2><ul>
+<li>mysql默认</li>
+<li>间隙锁防止幻读</li>
+<li>热备份</li>
+</ul>
+<h2 id="MyISAM"><a href="#MyISAM" class="headerlink" title="MyISAM"></a>MyISAM</h2><ul>
+<li>不支持事务和行级锁</li>
+<li>指针长度6个字节，通过<code>MAX_ROWS</code>和<code>AVG_ROW_LENGTH</code>来修改</li>
+<li>表锁</li>
+<li>支持全文索引</li>
+<li>压缩表</li>
+</ul>
+<h2 id="其他"><a href="#其他" class="headerlink" title="其他"></a>其他</h2><p>暂略</p>
+<h2 id="转换表的引擎"><a href="#转换表的引擎" class="headerlink" title="转换表的引擎"></a>转换表的引擎</h2><ul>
+<li><p>ALTER TABLE</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> mytable <span class="keyword">ENGINE</span> = <span class="keyword">InnoDB</span>;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>执行时间长，mysql会按行复制到一个新表，原表加读锁</li>
+<li>InnoDB-&gt;MyISAM-&gt;InnoDB，原InnoDB上所有的外键将丢失</li>
+</ul>
+</li>
+<li><p>导出导入</p>
+</li>
+<li><p>创建与查询</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> innodb_table <span class="keyword">LIKE</span> myisam_table;</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> innodb_table <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> innodb_table <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> myisam_table;</span><br></pre></td></tr></table></figure>
+<p>  数据太大时，分批处理</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">START</span> <span class="keyword">TRANSACTION</span>;</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> innodb_table <span class="keyword">SELECT</span> * <span class="keyword">FROM</span> myisam_table <span class="keyword">WHERE</span> <span class="keyword">id</span> <span class="keyword">BETWEEN</span> x <span class="keyword">AND</span> y;</span><br><span class="line"><span class="keyword">COMMIT</span>;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/读书笔记/">读书笔记</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2017/05/24/hpMysql1/" data-title="高性能MySQL(第3版)第一章-MySQL架构与历史 | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/05/25/hpMysql4/" title="高性能MySQL(第3版)第四章-Schema与数据类型优化">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  高性能MySQL(第3版)第四章-Schema与数据类型优化</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/05/23/ml-bayes/"  title="机器学习实战-朴素贝叶斯算法">
+ <strong>NEXT:</strong><br/> 
+ <span>机器学习实战-朴素贝叶斯算法
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#逻辑架构"><span class="toc-number">1.</span> <span class="toc-text">逻辑架构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#连接管理与安全性"><span class="toc-number">1.1.</span> <span class="toc-text">连接管理与安全性</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#优化与执行"><span class="toc-number">1.2.</span> <span class="toc-text">优化与执行</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#并发控制"><span class="toc-number">2.</span> <span class="toc-text">并发控制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#读写锁"><span class="toc-number">2.1.</span> <span class="toc-text">读写锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#锁粒度"><span class="toc-number">2.2.</span> <span class="toc-text">锁粒度</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#事务"><span class="toc-number">3.</span> <span class="toc-text">事务</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#隔离级别"><span class="toc-number">3.1.</span> <span class="toc-text">隔离级别</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#实例"><span class="toc-number">3.1.1.</span> <span class="toc-text">实例</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#READ-UNCOMMITTED-未提交读"><span class="toc-number">3.1.1.1.</span> <span class="toc-text">READ UNCOMMITTED(未提交读)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#READ-COMMITTED-提交读"><span class="toc-number">3.1.1.2.</span> <span class="toc-text">READ COMMITTED(提交读)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#REPEATABLE-READ-可重复读"><span class="toc-number">3.1.1.3.</span> <span class="toc-text">REPEATABLE READ(可重复读)</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#SERIALIZABLE-串行化"><span class="toc-number">3.1.1.4.</span> <span class="toc-text">SERIALIZABLE(串行化)</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#死锁"><span class="toc-number">3.2.</span> <span class="toc-text">死锁</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#事务日志"><span class="toc-number">3.3.</span> <span class="toc-text">事务日志</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#mysql中的事务"><span class="toc-number">3.4.</span> <span class="toc-text">mysql中的事务</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#多版本并发控制（MVCC）"><span class="toc-number">4.</span> <span class="toc-text">多版本并发控制（MVCC）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#mysql的存储引擎"><span class="toc-number">5.</span> <span class="toc-text">mysql的存储引擎</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#InnoDB"><span class="toc-number">5.1.</span> <span class="toc-text">InnoDB</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#MyISAM"><span class="toc-number">5.2.</span> <span class="toc-text">MyISAM</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#其他"><span class="toc-number">5.3.</span> <span class="toc-text">其他</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#转换表的引擎"><span class="toc-number">5.4.</span> <span class="toc-text">转换表的引擎</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>8</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>2</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 11.67px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+

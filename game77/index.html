@@ -1,0 +1,166 @@
+
+    
+    <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>game77 | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" content="一名转行的菜鸡程序员">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/game77.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+    <body>
+
+    
+	<div id="garden">
+		<div class="seconds" id="seconds"></div>
+	</div>
+	<div id="pad">
+		<div class="bow-wrapper">
+			<img id="bow" style="left:0;" class="bow" src="/img/game77/bow.png" alt="">
+		</div>
+		<div class="footer">
+        <span class="button" id="left">
+          <i class="icon iconfont icon-left-circle-true"></i>
+        </span>
+			<span class="button" id="right">
+          <i class="icon iconfont icon-right-circle-true"></i>
+        </span>
+			<span class="button hit" id="hit"></span>
+			<div class="pro-wrapper">
+				<div id="proInner" class="pro-inner"></div>
+				<img id="boy" class="portrait" src="/img/game77/boy.png" alt="">
+				<img id="girl" class="portrait" src="/img/game77/girl.png" alt="">
+			</div>
+		</div>
+	</div>
+	<div class="red-wrapper" id="red" style="display: none">
+		<button class="red-button" id="redBtn"></button>
+		<img id="redImg" src="/img/game77/red.png" alt="">
+	</div>
+	<div id="res" style="display: none">
+		<div id="res-container">
+			<div class="map mask" id="map">
+				<img id="xq" src="/img/game77/xq_big.png" alt="">
+			</div>
+			<div class="mask kiss-outer" id="kiss">
+				<!--<img class="single-kiss" src="/img/game77/single_kiss.png" alt="">-->
+				<div class="kiss-wrapper">
+					<img src="/img/game77/love.png" alt="">
+					<img class="kiss" src="/img/game77/kiss.gif" alt="">
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+
+
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+
+
+
+
+
+
+
+
+<script src="/js/game77/index.js"></script>
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+    </body>
+    </html>
+    
+

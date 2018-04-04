@@ -1,0 +1,559 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>高性能MySQL(第3版)第四章-Schema与数据类型优化 | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="高性能MySQL(第3版)第四章-Schema与数据类型优化">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/05/25/hpMysql4/" title="高性能MySQL(第3版)第四章-Schema与数据类型优化" itemprop="url">高性能MySQL(第3版)第四章-Schema与数据类型优化</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-05-25T02:13:55.000Z" itemprop="datePublished">2017-05-25</time>
+    更新日期:<time datetime="2018-03-13T08:29:06.000Z" itemprop="dateModified">2018-03-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#选择优化的数据类型"><span class="toc-number">1.</span> <span class="toc-text">选择优化的数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#整数类型"><span class="toc-number">1.1.</span> <span class="toc-text">整数类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实数类型"><span class="toc-number">1.2.</span> <span class="toc-text">实数类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#字符串类型"><span class="toc-number">1.3.</span> <span class="toc-text">字符串类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日期和时间类型"><span class="toc-number">1.4.</span> <span class="toc-text">日期和时间类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#位数据类型"><span class="toc-number">1.5.</span> <span class="toc-text">位数据类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#选择标识符"><span class="toc-number">1.6.</span> <span class="toc-text">选择标识符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特殊类型数据"><span class="toc-number">1.7.</span> <span class="toc-text">特殊类型数据</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL-schema-设计中的陷阱"><span class="toc-number">2.</span> <span class="toc-text">MySQL schema 设计中的陷阱</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#范式和反范式"><span class="toc-number">3.</span> <span class="toc-text">范式和反范式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#范式的优点和缺点"><span class="toc-number">3.1.</span> <span class="toc-text">范式的优点和缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反范式的优点和缺点"><span class="toc-number">3.2.</span> <span class="toc-text">反范式的优点和缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一个例子对比"><span class="toc-number">3.3.</span> <span class="toc-text">一个例子对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混用范式化和反范式化"><span class="toc-number">3.4.</span> <span class="toc-text">混用范式化和反范式化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#缓存表和汇总表"><span class="toc-number">4.</span> <span class="toc-text">缓存表和汇总表</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#物化视图"><span class="toc-number">4.1.</span> <span class="toc-text">物化视图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#计数器表"><span class="toc-number">4.2.</span> <span class="toc-text">计数器表</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#加快ALTER-TABLE操作的速度"><span class="toc-number">5.</span> <span class="toc-text">加快ALTER TABLE操作的速度</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#只修改-frm文件"><span class="toc-number">5.1.</span> <span class="toc-text">只修改.frm文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#快速创建MyISAM索引"><span class="toc-number">5.2.</span> <span class="toc-text">快速创建MyISAM索引</span></a></li></ol></li></ol>
+		</div>
+		
+		<h1 id="选择优化的数据类型"><a href="#选择优化的数据类型" class="headerlink" title="选择优化的数据类型"></a>选择优化的数据类型</h1><ul>
+<li>更小的通常更好</li>
+<li>简单的，整型&lt;字符。例如：使用内建的（date，time，datetime）而不是字符串来存储日期和时间，使用整型存储IP</li>
+<li>避免NULL。可为NULL的列使得索引、索引统计和值比较都更复杂，会使用更多的存储空间，需要特殊处理，可能导致固定大小的索引变成可变大小的索引。</li>
+</ul>
+<h2 id="整数类型"><a href="#整数类型" class="headerlink" title="整数类型"></a>整数类型</h2><ul>
+<li>TINYINT 8</li>
+<li>SMALLINT 16</li>
+<li>MEDIUMINT 24</li>
+<li>INT 32</li>
+<li>BIGINT 64</li>
+<li>UNGIGNED：加与不加存储空间一样，只是正数的范围不一样</li>
+<li>INT(11):不会限制值的合法范围，只是规定了一些交互工具用来显示字符的个数，对于存储和计算来说，INT(1)和INT(20)是相同的。</li>
+</ul>
+<h2 id="实数类型"><a href="#实数类型" class="headerlink" title="实数类型"></a>实数类型</h2><ul>
+<li>float</li>
+<li>double</li>
+<li>decimal</li>
+<li><p>float/double运算是不精确的，decimal是精确的：</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> <span class="string">`test_f`</span>;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> <span class="string">`test_f`</span> (</span><br><span class="line">  <span class="string">`f`</span> <span class="built_in">float</span> <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`d`</span> <span class="keyword">double</span> <span class="keyword">DEFAULT</span> <span class="literal">NULL</span>,</span><br><span class="line">  <span class="string">`de`</span> <span class="built_in">decimal</span>(<span class="number">10</span>,<span class="number">2</span>) <span class="keyword">DEFAULT</span> <span class="literal">NULL</span></span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span> <span class="keyword">DEFAULT</span> <span class="keyword">CHARSET</span>=latin1;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test_f <span class="keyword">VALUES</span>(<span class="number">1.23</span>,<span class="number">1.23</span>,<span class="number">1.23</span>);</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> test_f <span class="keyword">VALUES</span>(<span class="number">1.24</span>,<span class="number">1.24</span>,<span class="number">1.24</span>);</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(f), <span class="keyword">SUM</span>(d), <span class="keyword">SUM</span>(de) <span class="keyword">FROM</span> test_f;</span><br><span class="line">...</span><br><span class="line">2.4700000286102295	2.4699999999999998	2.47</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>float和double一般比decimal使用更少的空间，float使用4个字节，double使用8个字节。mysql5.0及更高将decimal打包保存到一个二进制字符串中，每4个字节保存9个数字。例如：DECIMAL(18，9)小数点两边将各存储9个数字，一共使用9个字节：小数点前的数字用4个，小数点后的数字用4个，小数点本身占1个</p>
+</li>
+<li><p>当数据量比较大时，可以使用int来存储小数，同时避免浮点计算不精确和decimal精确计算代价高的问题</p>
+</li>
+</ul>
+<h2 id="字符串类型"><a href="#字符串类型" class="headerlink" title="字符串类型"></a>字符串类型</h2><ul>
+<li>VARCHAR<ul>
+<li>变长空间。例外：<code>ROW_FORMAT=FIXED</code></li>
+<li>需要1（最大长度小于或等于255）或2个额外字节记录字符串的长度。例如：假设采用<code>latin1</code>字符集，VARCHAR(10)使用11个字节，VARCHAR(1000)需要1002个字节</li>
+<li>适合情况：1.字符串列的最大长度比平均长度大很多；2.列的更新很少，碎片不是问题；3.使用了utf-8这样复杂的字符集，每个字符都使用不同的字节数进行存储。</li>
+</ul>
+</li>
+<li><p>CHAR</p>
+<ul>
+<li>定长，适合存储很短或者所有值都接近同一个长度</li>
+<li>会剔除末尾空格</li>
+</ul>
+</li>
+<li><p>BINARY VARBINARY</p>
+<ul>
+<li>存储二进制字符串，存储字节码。</li>
+</ul>
+</li>
+<li>BLOB TEXT<ul>
+<li>存储大数据，分别采用二进制和字符方式存储。</li>
+<li>使用外部存储区域存储，行内存储1~4个字节的指针</li>
+</ul>
+</li>
+<li><p>使用枚举</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> enum_test(</span><br><span class="line">	e ENUM(<span class="string">'fish'</span>,<span class="string">'apple'</span>,<span class="string">'dog'</span>) <span class="keyword">NOT</span> <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> enum_test <span class="keyword">VALUES</span>(<span class="string">'fish'</span>), (<span class="string">'dog'</span>);</span><br></pre></td></tr></table></figure>
+<ul>
+<li><p>内部其实存储的是数字（枚举不要用数字，避免混乱），排序也是按照内部的数字排序的</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> e + <span class="number">0</span> <span class="keyword">FROM</span> enum_test;</span><br><span class="line">...</span><br><span class="line">1</span><br><span class="line">3</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>对于未来可能会改变的字符串，不适用</p>
+</li>
+<li>可以减小数据量</li>
+</ul>
+</li>
+</ul>
+<h2 id="日期和时间类型"><a href="#日期和时间类型" class="headerlink" title="日期和时间类型"></a>日期和时间类型</h2><ul>
+<li>DATETIME<ul>
+<li>1001~9999年，精度为秒</li>
+<li>把日期和时间封装到格式为YYYYMMDDHHMMSS的整数中，与时区无关，使用8个字节存储</li>
+</ul>
+</li>
+<li>TIMESTAMP<ul>
+<li>4个字节</li>
+<li>1970~2038</li>
+<li>FROM_UNIXTIME() UNIX_TIMESTAMP()</li>
+<li>显示的值依赖于系统时区设置</li>
+<li>插入时会自动更新为当前时间</li>
+</ul>
+</li>
+</ul>
+<h2 id="位数据类型"><a href="#位数据类型" class="headerlink" title="位数据类型"></a>位数据类型</h2><ul>
+<li><p>bit</p>
+<ul>
+<li><p>比较费解，避免使用</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> bittest(a <span class="built_in">bit</span>(<span class="number">8</span>));</span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> bittest <span class="keyword">VALUES</span>(b<span class="string">'00111001'</span>);</span><br><span class="line"><span class="keyword">SELECT</span> a, a + <span class="number">0</span> <span class="keyword">FROM</span> bittest;	</span><br><span class="line">...</span><br><span class="line">00111001	57 # 跟书上不一样哦</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li><p>SET</p>
+<ul>
+<li>改变“枚举”时，代价比较昂贵</li>
+</ul>
+</li>
+<li>在整数列上进行按位操作</li>
+</ul>
+<h2 id="选择标识符"><a href="#选择标识符" class="headerlink" title="选择标识符"></a>选择标识符</h2><ul>
+<li>确保关联的字段用同样的类型，包括像UNSIGNED这样的属性</li>
+<li>整数类型</li>
+<li>避免使用ENUM和SET类型</li>
+<li>避免使用字符串类型，包括MD5，SHA1，UUID，这些函数生成的新值会任意分布在很大的空间内，导致INSERT以及一些SELECT语句很慢</li>
+<li>如果使用UUID，应该移除“-”符号；更好的做法：用UNHEX()函数转换UUID值为16字节的数字，并且存储在一个BINARY(16)列中，检索时通过HEX()函数来格式化为十六进制格式。</li>
+<li>小心ORM系统！</li>
+</ul>
+<h2 id="特殊类型数据"><a href="#特殊类型数据" class="headerlink" title="特殊类型数据"></a>特殊类型数据</h2><ul>
+<li>不要用VARCHAR(15)来存储IP地址，用UNSIGNED INT</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="keyword">INET_ATON</span>(<span class="string">'209.207.224.40'</span>); </span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">INET_NTOA</span>(<span class="number">3520061480</span>)</span><br></pre></td></tr></table></figure>
+<h1 id="MySQL-schema-设计中的陷阱"><a href="#MySQL-schema-设计中的陷阱" class="headerlink" title="MySQL schema 设计中的陷阱"></a>MySQL schema 设计中的陷阱</h1><ul>
+<li>太多的列:存储引擎API工作时需要在服务器层和存储引擎层之间通过行缓冲格式拷贝数据，然后在服务器层将缓冲内容解码成各个列。从行缓冲中将编码过的列转换成行数据结构的操作代价是非常高的。</li>
+<li>太多的关联：限制最多只能有61张表关联</li>
+<li>全能的枚举</li>
+<li>变相的枚举：枚举容易与SET混乱，SET可以是多个</li>
+<li><p>非此发明的NULL（到底是用还是不用呢），不要像下面这样：</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> ...（</span><br><span class="line">	dt DATETIME <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">DEFAULT</span> <span class="string">'0000-00-00 00:00:00'</span></span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h1 id="范式和反范式"><a href="#范式和反范式" class="headerlink" title="范式和反范式"></a>范式和反范式</h1><ul>
+<li>范式：每个事实数据会出现并且只出现一次</li>
+<li>反范式：存在信息冗余</li>
+</ul>
+<h2 id="范式的优点和缺点"><a href="#范式的优点和缺点" class="headerlink" title="范式的优点和缺点"></a>范式的优点和缺点</h2><p>优点：</p>
+<ul>
+<li>更新操作快</li>
+<li>重复数据少，修改时，修改的数据少</li>
+<li>表更小，可以更好的放在内存里，执行操作更快</li>
+<li>更少需要DISTINCT或者GROUP BY语句</li>
+</ul>
+<p>缺点：</p>
+<ul>
+<li>需要关联</li>
+</ul>
+<h2 id="反范式的优点和缺点"><a href="#反范式的优点和缺点" class="headerlink" title="反范式的优点和缺点"></a>反范式的优点和缺点</h2><p>优点：</p>
+<ul>
+<li>避免关联</li>
+</ul>
+<h2 id="一个例子对比"><a href="#一个例子对比" class="headerlink" title="一个例子对比"></a>一个例子对比</h2><p>假设有一个网站，允许用户发送消息，并且一些用户是付费用户，现在想查看付费用户最近的10条信息。如果是范式化的结构并且索引了发送日期字段published，这个查询也许看起来像这样：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> message_text, user_name</span><br><span class="line"><span class="keyword">FROM</span> message</span><br><span class="line">	<span class="keyword">INNER</span> <span class="keyword">JOIN</span> <span class="keyword">user</span> <span class="keyword">ON</span> message.user_id=user.id</span><br><span class="line"><span class="keyword">WHERE</span> user.account_type=<span class="string">'premiumv'</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> message.published <span class="keyword">DESC</span> <span class="keyword">LIMIT</span> <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<p>要更有效地执行这个查询，mysql需要扫描message表的published字段的索引。对于每一行找到的数据，将需要到user表里检查这个用户是不是付费用户。如果只有一小部分用户是付费账户，那么这是效率低下的做法。</p>
+<p>如果采用反范式化组织数据，将两个表的字段合并，并且增加一个索引(account, published)，就可以不通过关联写出这个查询，非常高效：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> message_text, user_name</span><br><span class="line"><span class="keyword">FROM</span> user_messages</span><br><span class="line"><span class="keyword">WHERE</span> account_type=<span class="string">'premium'</span></span><br><span class="line"><span class="keyword">ORDER</span> <span class="keyword">BY</span> published <span class="keyword">DESC</span></span><br><span class="line"><span class="keyword">LIMIT</span> <span class="number">10</span>;</span><br></pre></td></tr></table></figure>
+<h2 id="混用范式化和反范式化"><a href="#混用范式化和反范式化" class="headerlink" title="混用范式化和反范式化"></a>混用范式化和反范式化</h2><ul>
+<li>复制或缓存，使用触发器更新缓存值。例如如果需要显示每个用户发了多少消息，可以每次执行一个昂贵的子查询来计算并显示它；也可以在user表中建一个num_messages列，每当用户发新消息时更新这个值。</li>
+</ul>
+<h1 id="缓存表和汇总表"><a href="#缓存表和汇总表" class="headerlink" title="缓存表和汇总表"></a>缓存表和汇总表</h1><ul>
+<li>缓存表：用来存储哪些可以比较简单地从schema其他表获取（但是每次获取的速度比较慢）数据的表</li>
+<li>汇总表：保存是使用GROUP BY语句聚合数据的表</li>
+<li><p>重建汇总表和缓存表</p>
+  <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">DROP</span> <span class="keyword">TABLE</span> <span class="keyword">IF</span> <span class="keyword">EXISTS</span> my_summary_new, my_summary_old;</span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> my_summary_new <span class="keyword">LIKE</span> my_summary;</span><br><span class="line">...填充数据</span><br><span class="line"><span class="keyword">RENAME</span> <span class="keyword">TABLE</span> my_summary <span class="keyword">TO</span> my_summary_old, my_summary_new <span class="keyword">TO</span> my_summary;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<h2 id="物化视图"><a href="#物化视图" class="headerlink" title="物化视图"></a>物化视图</h2><p>略</p>
+<h2 id="计数器表"><a href="#计数器表" class="headerlink" title="计数器表"></a>计数器表</h2><p>假设有一个计数器表，只有一行数据，记录网站的点击次数:</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">CREATE TABLE hit_counter (</span><br><span class="line">	cnt int unsigned <span class="keyword">not</span> null</span><br><span class="line">) ENGINE=InnoDB;</span><br></pre></td></tr></table></figure>
+<p>对于任何想要更新这一行的事务来说，这条记录上都有一个全局的互斥锁，这会使得这些事务智能串行执行。可以将计数器保存在多行中，每次随机选择一行进行更新。</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> hit_counter (</span><br><span class="line">	slot tinyint <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span> primary <span class="keyword">key</span>,</span><br><span class="line">	cnt <span class="built_in">int</span> <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span></span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br><span class="line">...预先增加100行数据，初始化为0</span><br><span class="line"><span class="keyword">UPDATE</span> hit_counter <span class="keyword">SET</span> cnt=cnt+<span class="number">1</span> <span class="keyword">WHERE</span> slot=<span class="keyword">RAND</span>()*<span class="number">100</span>;</span><br><span class="line"><span class="keyword">SELECT</span> <span class="keyword">SUM</span>(cnt) <span class="keyword">FROM</span> hit_counter;</span><br></pre></td></tr></table></figure>
+<p>一个常见的需求是每隔一段时间开始一个新的计数器，可以这样：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> daily_hit_counter (</span><br><span class="line">	<span class="keyword">day</span> <span class="built_in">date</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">	slot tinyint <span class="keyword">unsigned</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">	cnt <span class="built_in">int</span> <span class="keyword">unsigned</span>  <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">	primary <span class="keyword">key</span>(<span class="keyword">day</span>, slot)</span><br><span class="line">) <span class="keyword">ENGINE</span>=<span class="keyword">InnoDB</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> daily_hit_counter(<span class="keyword">day</span>, slot, cnt)</span><br><span class="line">	<span class="keyword">VALUES</span>(<span class="keyword">CURRENT_DATE</span>, <span class="keyword">RAND</span>()*<span class="number">100</span>, <span class="number">1</span>)</span><br><span class="line">	<span class="keyword">ON</span> <span class="keyword">DUPLICATE</span> <span class="keyword">KEY</span> <span class="keyword">UPDATE</span> cnt=cnt+<span class="number">1</span>;</span><br></pre></td></tr></table></figure>
+<p>如果希望减少表的行数，以避免表变得太大，可以写一个周期执行的任务，合并所有结果到0号槽，并且删除所有其他的槽：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">UPDATE daily_hit_count <span class="keyword">as</span> c</span><br><span class="line">	INNER JOIN (</span><br><span class="line">		SELECT day, SUM(cnt) AS cnt, MIN(slot) AS mslot</span><br><span class="line">		FROM daily_hit_counter</span><br><span class="line">		GROUP BY day</span><br><span class="line">	) AS x USING(day)</span><br><span class="line">SET c.cnt = IF(c.slot = x.mslot, x.cnt, <span class="number">0</span>),</span><br><span class="line">	c.slot = IF(c.slot = x.mslot, <span class="number">0</span>, c.slot);</span><br><span class="line"></span><br><span class="line">DELETE FROM daily_hit_counter WHERE slot &lt;&gt; <span class="number">0</span> AND cnt=<span class="number">0</span>;</span><br></pre></td></tr></table></figure>
+<h1 id="加快ALTER-TABLE操作的速度"><a href="#加快ALTER-TABLE操作的速度" class="headerlink" title="加快ALTER TABLE操作的速度"></a>加快ALTER TABLE操作的速度</h1><p>mysql中执行大部分修改表结构操作的方法是：</p>
+<p>1.用新的结构创建一个空表<br>2.复制数据，删除旧表</p>
+<p>这是一个非常耗时的工作！有一些技巧：</p>
+<p>1.在不提供服务的机器上执行，然后与主库切换<br>2.手动创建新表然后重命名和删除</p>
+<p>并不是所有的都很慢，例如，有两种方法可以改变或者删除一个列的默认值：</p>
+<p>1.慢方法：</p>
+<pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE sakila.film</span><br><span class="line">MODIFY COLUMN rental_duration TINYINT(<span class="number">3</span>) NOT NULL DEFAULT <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+</code></pre><p>2.快方法：这个会直接修改.frm文件而不涉及表数据</p>
+<pre><code><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ALTER TABLE sakila.film</span><br><span class="line">ALTER COLUMN rental_duration SET DEFAULT <span class="number">5</span>;</span><br></pre></td></tr></table></figure>
+</code></pre><h2 id="只修改-frm文件"><a href="#只修改-frm文件" class="headerlink" title="只修改.frm文件"></a>只修改.frm文件</h2><p>以下操作是有风险的！！！！</p>
+<p>1.创建一张有相同结构的空表，并进行所需要的修改<br>2.执行FLUSH TABLES WITH READ LOCK。关闭所有正在使用的表，并且禁止任何表被打开。<br>3.交换.frm文件<br>4.执行UNLOCK TABLES来释放第2步的读锁</p>
+<h2 id="快速创建MyISAM索引"><a href="#快速创建MyISAM索引" class="headerlink" title="快速创建MyISAM索引"></a>快速创建MyISAM索引</h2><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> test.load_data <span class="keyword">DISABLE</span> <span class="keyword">KEYS</span>;</span><br><span class="line">...load data</span><br><span class="line"><span class="keyword">ALTER</span> <span class="keyword">TABLE</span> test.load_data <span class="keyword">ENABLE</span> <span class="keyword">KEYS</span>;</span><br></pre></td></tr></table></figure>
+<p>然后通过排序来构建索引，这样会快很多，并且使得索引树的碎片更少、更紧凑，仅对非唯一索引有效。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/mysql/">mysql</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/读书笔记/">读书笔记</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2017/05/25/hpMysql4/" data-title="高性能MySQL(第3版)第四章-Schema与数据类型优化 | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/05/26/ml-logistic/" title="机器学习实战-Logistic回归">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  机器学习实战-Logistic回归</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/05/24/hpMysql1/"  title="高性能MySQL(第3版)第一章-MySQL架构与历史">
+ <strong>NEXT:</strong><br/> 
+ <span>高性能MySQL(第3版)第一章-MySQL架构与历史
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#选择优化的数据类型"><span class="toc-number">1.</span> <span class="toc-text">选择优化的数据类型</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#整数类型"><span class="toc-number">1.1.</span> <span class="toc-text">整数类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实数类型"><span class="toc-number">1.2.</span> <span class="toc-text">实数类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#字符串类型"><span class="toc-number">1.3.</span> <span class="toc-text">字符串类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#日期和时间类型"><span class="toc-number">1.4.</span> <span class="toc-text">日期和时间类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#位数据类型"><span class="toc-number">1.5.</span> <span class="toc-text">位数据类型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#选择标识符"><span class="toc-number">1.6.</span> <span class="toc-text">选择标识符</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#特殊类型数据"><span class="toc-number">1.7.</span> <span class="toc-text">特殊类型数据</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#MySQL-schema-设计中的陷阱"><span class="toc-number">2.</span> <span class="toc-text">MySQL schema 设计中的陷阱</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#范式和反范式"><span class="toc-number">3.</span> <span class="toc-text">范式和反范式</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#范式的优点和缺点"><span class="toc-number">3.1.</span> <span class="toc-text">范式的优点和缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#反范式的优点和缺点"><span class="toc-number">3.2.</span> <span class="toc-text">反范式的优点和缺点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#一个例子对比"><span class="toc-number">3.3.</span> <span class="toc-text">一个例子对比</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#混用范式化和反范式化"><span class="toc-number">3.4.</span> <span class="toc-text">混用范式化和反范式化</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#缓存表和汇总表"><span class="toc-number">4.</span> <span class="toc-text">缓存表和汇总表</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#物化视图"><span class="toc-number">4.1.</span> <span class="toc-text">物化视图</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#计数器表"><span class="toc-number">4.2.</span> <span class="toc-text">计数器表</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#加快ALTER-TABLE操作的速度"><span class="toc-number">5.</span> <span class="toc-text">加快ALTER TABLE操作的速度</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#只修改-frm文件"><span class="toc-number">5.1.</span> <span class="toc-text">只修改.frm文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#快速创建MyISAM索引"><span class="toc-number">5.2.</span> <span class="toc-text">快速创建MyISAM索引</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>8</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>2</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 11.67px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+

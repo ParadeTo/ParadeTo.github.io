@@ -1,0 +1,461 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>nodejs内存控制 | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="关于nodejs内存控制">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/06/01/nodejs-memory/" title="nodejs内存控制" itemprop="url">nodejs内存控制</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-06-01T14:00:54.000Z" itemprop="datePublished">2017-06-01</time>
+    更新日期:<time datetime="2018-03-13T08:29:06.000Z" itemprop="dateModified">2018-03-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#V8的垃圾回收机制与内存限制"><span class="toc-number">1.</span> <span class="toc-text">V8的垃圾回收机制与内存限制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#V8的内存限制"><span class="toc-number">1.1.</span> <span class="toc-text">V8的内存限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#V8的对象分配"><span class="toc-number">1.2.</span> <span class="toc-text">V8的对象分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#V8了垃圾回收机制"><span class="toc-number">1.3.</span> <span class="toc-text">V8了垃圾回收机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分代"><span class="toc-number">1.3.1.</span> <span class="toc-text">内存分代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#scavenge算法"><span class="toc-number">1.3.2.</span> <span class="toc-text">scavenge算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mark-Sweep-标记-清除-amp-Mark-Compact-标记-整理"><span class="toc-number">1.3.3.</span> <span class="toc-text">Mark-Sweep(标记-清除) &amp; Mark-Compact(标记-整理)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Incremental-Marking"><span class="toc-number">1.3.4.</span> <span class="toc-text">Incremental Marking</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#高效使用内存"><span class="toc-number">2.</span> <span class="toc-text">高效使用内存</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存指标"><span class="toc-number">3.</span> <span class="toc-text">内存指标</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存泄漏"><span class="toc-number">4.</span> <span class="toc-text">内存泄漏</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#慎将内存当做缓存"><span class="toc-number">4.1.</span> <span class="toc-text">慎将内存当做缓存</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存泄漏排查"><span class="toc-number">5.</span> <span class="toc-text">内存泄漏排查</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#node-heapdump"><span class="toc-number">5.1.</span> <span class="toc-text">node-heapdump</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#node-memwatch"><span class="toc-number">5.2.</span> <span class="toc-text">node-memwatch</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#大内存应用"><span class="toc-number">6.</span> <span class="toc-text">大内存应用</span></a></li></ol>
+		</div>
+		
+		<p>对于前端工程师而言，很少遇到需要考虑对内存进行精确控制的场景。但是nodejs是服务器端编程，内存控制就显得尤为重要了。</p>
+<h1 id="V8的垃圾回收机制与内存限制"><a href="#V8的垃圾回收机制与内存限制" class="headerlink" title="V8的垃圾回收机制与内存限制"></a>V8的垃圾回收机制与内存限制</h1><h2 id="V8的内存限制"><a href="#V8的内存限制" class="headerlink" title="V8的内存限制"></a>V8的内存限制</h2><p>在node中通过javascript使用内存是会有内存限制：</p>
+<ul>
+<li>64位：1.4G</li>
+<li>32位：0.7G</li>
+</ul>
+<p>要知晓V8为何限制了内存的用量，需要回归到V8在内存使用上的策略。</p>
+<h2 id="V8的对象分配"><a href="#V8的对象分配" class="headerlink" title="V8的对象分配"></a>V8的对象分配</h2><p>V8中，所有的js对象都是通过堆来进行分配的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">youxingzhideMac-mini:blog ayou$ node</span><br><span class="line">&gt; process.memoryUsage()</span><br><span class="line">&#123; <span class="attr">rss</span>: <span class="number">22544384</span>, <span class="attr">heapTotal</span>: <span class="number">10522624</span>, <span class="attr">heapUsed</span>: <span class="number">5131240</span> &#125;</span><br></pre></td></tr></table></figure>
+<p>heapTotal是已经申请到的内存，heapUsed是正在使用的内存。如果已申请的堆空间内存不够分配新的对象，将继续申请堆内存，直到堆得大小超过V8的限制为止。</p>
+<p>为什么要限制内存？垃圾回收机制的限制。以1.5GB的垃圾回收堆内存为例，做一次晓得垃圾回收需要50毫秒以上，做一次非增量式的垃圾回收需要1秒以上。这是引起javascript线程暂停执行的时间，会使得应用的性能和响应能力都下降，所以限制堆内存是一个好的选择。</p>
+<p>可以通过如下方法打开：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">node --max-old-space-size=<span class="number">1700</span> test.js <span class="comment">// MB</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line">node --max-<span class="keyword">new</span>-space-size=<span class="number">1700</span> test.js <span class="comment">// KB</span></span><br></pre></td></tr></table></figure>
+<h2 id="V8了垃圾回收机制"><a href="#V8了垃圾回收机制" class="headerlink" title="V8了垃圾回收机制"></a>V8了垃圾回收机制</h2><p>V8的垃圾回收策略主要基于分代式垃圾回收机制。在自动垃圾回收的演变中，人们发现没有一种垃圾回收算法能够胜任所有场景。因为在实际的应用中，对象的生存周期长短不一。为此，现代的垃圾回收算法中按对象的存活时间将内存的垃圾回收进行不同的分代，然后分别对不同分代的内存施以更高效的算法。</p>
+<h3 id="内存分代"><a href="#内存分代" class="headerlink" title="内存分代"></a>内存分代</h3><ul>
+<li>新生代：由两个reserved_semispace_size_构成，最大值：64位32MB，32位16MB</li>
+<li>老生代</li>
+</ul>
+<p>V8堆的整体大小 = 新生代 + 老生代</p>
+<h3 id="scavenge算法"><a href="#scavenge算法" class="headerlink" title="scavenge算法"></a>scavenge算法</h3><p>这是新生代中的对象主要回收方法，在其具体实现中，主要采用了Cheney：</p>
+<ul>
+<li>将新生代内存一分为二，每一部分成为semispace</li>
+<li>只有一个空间处于使用状态，称为From空间，处于闲置状态的为To空间</li>
+<li>当开始进行垃圾回收时，会检查From空间的存活对象，这些存活对象被复制到To空间中，非活动对象被释放</li>
+<li>完成复制后From空间和To空间的角色对换</li>
+</ul>
+<p>该算法用空间换时间，特别适合应用在新生代中，因为新生代中对象的生命周期较短</p>
+<p>如果一个对象经过多次复制依然存在，则需要对其进行晋升（移到到老生代）。有两个条件</p>
+<ul>
+<li>是否经历过回收</li>
+<li>To空间是否使用超过了25%</li>
+</ul>
+<h3 id="Mark-Sweep-标记-清除-amp-Mark-Compact-标记-整理"><a href="#Mark-Sweep-标记-清除-amp-Mark-Compact-标记-整理" class="headerlink" title="Mark-Sweep(标记-清除) &amp; Mark-Compact(标记-整理)"></a>Mark-Sweep(标记-清除) &amp; Mark-Compact(标记-整理)</h3><ul>
+<li><p>Mark-Sweep：在标记阶段，遍历堆中的所有对象，并标记活着的对象，在随后的清除阶段，清除没有标记的对象。由于死对象（没有标记）在老生代中只占小部分，所以该方法适合老生代。其最大问题是，每次清除后，内存会出现碎片，影响后面的内存分配。</p>
+</li>
+<li><p>Mark-Compact：为了解决上面的碎片问题而提出的，在标记完后，将活着的对象往一端移动，移动完成后，直接清理边界外的内存。</p>
+</li>
+</ul>
+<p>由于Mark-Compact相比Mark-Sweep要慢，所以V8中主要还是以Mark-Sweep为主，在空间不足以对晋升过来的对象进行分配时才使用Mark-Compact。</p>
+<h3 id="Incremental-Marking"><a href="#Incremental-Marking" class="headerlink" title="Incremental Marking"></a>Incremental Marking</h3><p>前三种垃圾回收算法都需要“停顿”，这对新生代还好，但是老生代由于由于比较大，停顿一次的时间就不能忍受了。所以，提出一种“增量式标记”的方法，即每标记一部分就让应用逻辑执行一会，这样交替执行直到标记阶段完成。同理，清除和整理也可以是增量式的。</p>
+<p>为了充分利用多核CPU的性能，还可以采用并行标记和清理的方式。</p>
+<h1 id="高效使用内存"><a href="#高效使用内存" class="headerlink" title="高效使用内存"></a>高效使用内存</h1><p>在js中，无法立即回收的内存有闭包和全局变量引用这两种情况。要十分小心此类变量是否无限制增加，因为它会导致老生代中的对象增多。</p>
+<h1 id="内存指标"><a href="#内存指标" class="headerlink" title="内存指标"></a>内存指标</h1><ul>
+<li>rss是resident set size的缩写，即进程的常驻内存部分。</li>
+<li>node的内存构成主要由通过V8进行分配的部分和Node自行分配的部分。</li>
+<li>受V8的垃圾回收限制的主要是V8的堆内存</li>
+</ul>
+<h1 id="内存泄漏"><a href="#内存泄漏" class="headerlink" title="内存泄漏"></a>内存泄漏</h1><p>一般有如下原因：</p>
+<ul>
+<li>缓存</li>
+<li>队列消费不及时</li>
+<li>作用域未释放</li>
+</ul>
+<h2 id="慎将内存当做缓存"><a href="#慎将内存当做缓存" class="headerlink" title="慎将内存当做缓存"></a>慎将内存当做缓存</h2><ul>
+<li>缓存限制策略</li>
+<li>外部缓存</li>
+</ul>
+<h1 id="内存泄漏排查"><a href="#内存泄漏排查" class="headerlink" title="内存泄漏排查"></a>内存泄漏排查</h1><p>先构造一份包含内存泄漏的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> leakArray = []</span><br><span class="line"><span class="keyword">var</span> leak = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  leakArray.push(<span class="string">"leak"</span> + <span class="built_in">Math</span>.random())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function">(<span class="params">req, res</span>) =&gt;</span> &#123;</span><br><span class="line">  leak()</span><br><span class="line">  res.writeHead(<span class="number">200</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>&#125;)</span><br><span class="line">  res.end(<span class="string">'Hello World\n'</span>)</span><br><span class="line">&#125;).listen(<span class="number">1337</span>)</span><br></pre></td></tr></table></figure>
+<p>下面测试下<code>node-heapdump</code>和<code>node-memwatch</code>这两个工具</p>
+<h2 id="node-heapdump"><a href="#node-heapdump" class="headerlink" title="node-heapdump"></a>node-heapdump</h2><p>在代码头部增加<code>var heapdump = require(&#39;heapdump&#39;)</code>，通过终端发送命令<code>kill -USR2 &lt;pid&gt;</code>，会生成类似<code>heapdump-8030961.310539.heapsnapshot</code>的文件。</p>
+<h2 id="node-memwatch"><a href="#node-memwatch" class="headerlink" title="node-memwatch"></a>node-memwatch</h2><p>暂略</p>
+<h1 id="大内存应用"><a href="#大内存应用" class="headerlink" title="大内存应用"></a>大内存应用</h1><ul>
+<li><p>使用流</p>
+  <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> reader = fs.createReadStream(<span class="string">'in.txt'</span>)</span><br><span class="line"><span class="keyword">var</span> writer = fs.createWriteStream(<span class="string">'out.txt'</span>)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<ul>
+<li>使用Buffer</li>
+</ul>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/nodejs/">nodejs</a><a href="/tags/cluster/">cluster</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/nodejs/">nodejs</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2017/06/01/nodejs-memory/" data-title="nodejs内存控制 | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/06/04/nodejs-buffer/" title="nodejs之Buffer">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  nodejs之Buffer</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/06/01/hpMysql6/"  title="高性能MySQL(第3版)第六章-查询性能优化">
+ <strong>NEXT:</strong><br/> 
+ <span>高性能MySQL(第3版)第六章-查询性能优化
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#V8的垃圾回收机制与内存限制"><span class="toc-number">1.</span> <span class="toc-text">V8的垃圾回收机制与内存限制</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#V8的内存限制"><span class="toc-number">1.1.</span> <span class="toc-text">V8的内存限制</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#V8的对象分配"><span class="toc-number">1.2.</span> <span class="toc-text">V8的对象分配</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#V8了垃圾回收机制"><span class="toc-number">1.3.</span> <span class="toc-text">V8了垃圾回收机制</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#内存分代"><span class="toc-number">1.3.1.</span> <span class="toc-text">内存分代</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#scavenge算法"><span class="toc-number">1.3.2.</span> <span class="toc-text">scavenge算法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Mark-Sweep-标记-清除-amp-Mark-Compact-标记-整理"><span class="toc-number">1.3.3.</span> <span class="toc-text">Mark-Sweep(标记-清除) &amp; Mark-Compact(标记-整理)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Incremental-Marking"><span class="toc-number">1.3.4.</span> <span class="toc-text">Incremental Marking</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#高效使用内存"><span class="toc-number">2.</span> <span class="toc-text">高效使用内存</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存指标"><span class="toc-number">3.</span> <span class="toc-text">内存指标</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存泄漏"><span class="toc-number">4.</span> <span class="toc-text">内存泄漏</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#慎将内存当做缓存"><span class="toc-number">4.1.</span> <span class="toc-text">慎将内存当做缓存</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#内存泄漏排查"><span class="toc-number">5.</span> <span class="toc-text">内存泄漏排查</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#node-heapdump"><span class="toc-number">5.1.</span> <span class="toc-text">node-heapdump</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#node-memwatch"><span class="toc-number">5.2.</span> <span class="toc-text">node-memwatch</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#大内存应用"><span class="toc-number">6.</span> <span class="toc-text">大内存应用</span></a></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>8</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>2</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 11.67px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+

@@ -1,0 +1,460 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>nodejs之模块机制 | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="关于nodejs的模块机制">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2017/06/06/nodejsModule/" title="nodejs之模块机制" itemprop="url">nodejs之模块机制</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2017-06-06T14:44:53.000Z" itemprop="datePublished">2017-06-06</time>
+    更新日期:<time datetime="2018-03-13T08:29:06.000Z" itemprop="dateModified">2018-03-13</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#CommonJS规范"><span class="toc-number">1.</span> <span class="toc-text">CommonJS规范</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Node的模块实现"><span class="toc-number">2.</span> <span class="toc-text">Node的模块实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#优先从缓存加载"><span class="toc-number">2.1.</span> <span class="toc-text">优先从缓存加载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#路径分析和文件定位"><span class="toc-number">2.2.</span> <span class="toc-text">路径分析和文件定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模块编译"><span class="toc-number">2.3.</span> <span class="toc-text">模块编译</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#前后端共用模块"><span class="toc-number">3.</span> <span class="toc-text">前后端共用模块</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#AMD-amp-CMD"><span class="toc-number">3.1.</span> <span class="toc-text">AMD &amp; CMD</span></a></li></ol></li></ol>
+		</div>
+		
+		<h1 id="CommonJS规范"><a href="#CommonJS规范" class="headerlink" title="CommonJS规范"></a>CommonJS规范</h1><p><strong>模块引用</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> math = <span class="built_in">require</span>(<span class="string">'math'</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>模块定义</strong></p>
+<p>上下文提供了exports对象用于导出当前模块的方法或者变量，并且是唯一的出口。在模块中，还存在一个module对象，它代表模块自身，而exports是module的属性。将方法挂载在exports对象上作为属性即可定义导出的方式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exports.add = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>模块标识</strong></p>
+<p>即传递给<code>require()</code>的参数</p>
+<h1 id="Node的模块实现"><a href="#Node的模块实现" class="headerlink" title="Node的模块实现"></a>Node的模块实现</h1><p>引入模块需要经历如下3个步骤</p>
+<ol>
+<li>路径分析</li>
+<li>文件定位</li>
+<li>编译执行</li>
+</ol>
+<p>模块分为两类：</p>
+<ol>
+<li>Node提供的模块，称为核心模块：不需要文件定位和编译执行，在路径分析中优先判断，加载速度最快</li>
+<li>用户编写的模块，称为文件模块</li>
+</ol>
+<p>接下来，详细展开模块加载过程</p>
+<h2 id="优先从缓存加载"><a href="#优先从缓存加载" class="headerlink" title="优先从缓存加载"></a>优先从缓存加载</h2><p>Node对引入过的模块都会进行缓存，缓存的是编译和执行之后的对象。</p>
+<h2 id="路径分析和文件定位"><a href="#路径分析和文件定位" class="headerlink" title="路径分析和文件定位"></a>路径分析和文件定位</h2><p><strong>模块标识符分析</strong></p>
+<p>主要分为以下几类（按加载速度排序）：</p>
+<ul>
+<li>核心模块，如http、fs、path等</li>
+<li>.或..开始的相对路径文件模块</li>
+<li>以/开始的绝对路径文件模块</li>
+<li>非路径形式的文件模块，如node_modules中的模块，例如<code>require(&#39;express&#39;)</code>会依次在当前路径、上一级路径、上上级路径…的<code>node_modules</code>下去找，所以当js文件的路径越深时，该加载速度就越慢</li>
+</ul>
+<p><strong>文件定位</strong></p>
+<ul>
+<li>文件拓展名分析：<code>.js&gt;.json&gt;.node</code>，为了优化如果不是<code>.js</code>的文件，最好加上拓展名</li>
+<li>目录分析和包：如果查找得到的是一个目录的话，会按照如下顺序：package.json(main属性指定的文件)&gt;index.js&gt;index.json&gt;index.node</li>
+</ul>
+<h2 id="模块编译"><a href="#模块编译" class="headerlink" title="模块编译"></a>模块编译</h2><p>node中，每个文件模块都是一个对象，定义如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Module</span>(<span class="params">id, parent</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.id = id;</span><br><span class="line">	<span class="keyword">this</span>.exports = &#123;&#125;;</span><br><span class="line">	<span class="keyword">this</span>.parent = parent;</span><br><span class="line">	<span class="keyword">if</span> (parent &amp;&amp; parent.children) &#123;</span><br><span class="line">		parent.children.push(<span class="keyword">this</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">this</span>.filename = <span class="literal">null</span>;</span><br><span class="line">	<span class="keyword">this</span>.loaded = <span class="literal">false</span>;</span><br><span class="line">	<span class="keyword">this</span>.children = [];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不同的文件拓展名，载入方式不同：</p>
+<ul>
+<li>.js文件。通过fs模块同步读取后编译执行</li>
+<li>.node文件。这是用C/C++编写的拓展文件，通过<code>dlopen()</code>加载编译</li>
+<li>.json。fs模块同步读取，<code>JSON.parse()</code>解析返回结果</li>
+<li>其他。当做.js文件</li>
+</ul>
+<p><strong>js模块的编译</strong></p>
+<p>一个正常的js文件会被包装成如下样子:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">exports, require, module, __filename, __dirname</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> math = <span class="built_in">require</span>(<span class="string">'math'</span>)</span><br><span class="line">  exports.area = <span class="function"><span class="keyword">function</span> (<span class="params">radius</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> math.PI * radius * radius</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>执行之后，模块的<code>exports</code>属性被返回给了调用方，其上的任何方法和属性都可以被外部调用到。</p>
+<h1 id="前后端共用模块"><a href="#前后端共用模块" class="headerlink" title="前后端共用模块"></a>前后端共用模块</h1><h2 id="AMD-amp-CMD"><a href="#AMD-amp-CMD" class="headerlink" title="AMD &amp; CMD"></a>AMD &amp; CMD</h2><ul>
+<li><a href="https://www.zhihu.com/question/20342350" target="_blank" rel="noopener">知乎</a></li>
+<li><a href="https://www.douban.com/note/283566440/" target="_blank" rel="noopener">SeaJS与RequireJS最大的差别</a></li>
+<li><a href="http://qingbob.com/let-us-talk-about-resource-load/" target="_blank" rel="noopener">让我们再聊聊浏览器资源加载优化</a></li>
+</ul>
+<p><strong>AMD</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>([<span class="string">'jquery'</span>,<span class="string">'创建了全局变量的module'</span>],<span class="function"><span class="keyword">function</span>(<span class="params">$,b</span>)</span>&#123;</span><br><span class="line">	<span class="comment">//既然我在开头明确声明依赖需求，那可以确定在执行这个回调函数时，依赖肯定是已经满足了</span></span><br><span class="line">	<span class="comment">//所以，放心地使用吧</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>实际做的事情是：</p>
+<ol>
+<li>require函数检查依赖的模块，根据配置文件，获取js文件的实际路径</li>
+<li>根据js文件实际路径，在dom中插入script节点，并绑定onload事件来获取该模块加载完成的通知。</li>
+<li>依赖script全部加载完成后，调用回调函数</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">define(<span class="function"><span class="keyword">function</span>(<span class="params">require,exports,modules</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> $ = <span class="built_in">require</span>(<span class="string">'jquery'</span>)</span><br><span class="line">	$.get(<span class="string">'http://www.zhihu.com'</span>)</span><br><span class="line">	<span class="comment">//传统JS程序员的思维：</span></span><br><span class="line">	<span class="comment">//“咦，好神奇，JS加载不应该是异步的么，怎么我一说要依赖，jquery就自己跳出来了？”</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>真相是：</p>
+<ol>
+<li>通过回调函数的Function.toString函数，使用正则表达式来捕捉内部的require字段，找到require(‘jquery’)内部依赖的模块jquery</li>
+<li>根据配置文件，找到jquery的js文件的实际路径</li>
+<li>在dom中插入script标签，载入模块指定的js，绑定加载完成的事件，使得加载完成后将js文件绑定到require模块指定的id（这里就是jquery这个字符串）上</li>
+<li>回调函数内部依赖的js全部加载（暂不调用）完后，调用回调函数</li>
+<li>当回调函数调用require(‘jquery’)，即执行绑定在’jquery’这个id上的js文件，即刻执行，并返回</li>
+</ol>
+<p>都会并行加载依赖，但是AMD会解析(执行)完所有的依赖后，再执行回调函数;CMD则是在执行<code>require</code>时才会去解析(执行)，即“懒加载”。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/nodejs/">nodejs</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/nodejs/">nodejs</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2017/06/06/nodejsModule/" data-title="nodejs之模块机制 | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+ <div class="prev" >
+ <a href="/2017/06/07/nodejs-net/" title="nodejs之网络编程">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  nodejs之网络编程</span>
+</a>
+</div>
+
+
+<div class="next">
+<a href="/2017/06/06/vue-code-analysis/"  title="Vue2.1.7源码学习">
+ <strong>NEXT:</strong><br/> 
+ <span>Vue2.1.7源码学习
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#CommonJS规范"><span class="toc-number">1.</span> <span class="toc-text">CommonJS规范</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#Node的模块实现"><span class="toc-number">2.</span> <span class="toc-text">Node的模块实现</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#优先从缓存加载"><span class="toc-number">2.1.</span> <span class="toc-text">优先从缓存加载</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#路径分析和文件定位"><span class="toc-number">2.2.</span> <span class="toc-text">路径分析和文件定位</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#模块编译"><span class="toc-number">2.3.</span> <span class="toc-text">模块编译</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#前后端共用模块"><span class="toc-number">3.</span> <span class="toc-text">前后端共用模块</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#AMD-amp-CMD"><span class="toc-number">3.1.</span> <span class="toc-text">AMD &amp; CMD</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>8</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>2</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 10px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 11.67px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+
