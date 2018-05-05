@@ -1,0 +1,486 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>docker 命令汇总 | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="docker 命令汇总">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/05/05/docker-command/" title="docker 命令汇总" itemprop="url">docker 命令汇总</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2018-05-05T06:01:55.000Z" itemprop="datePublished">2018-05-05</time>
+    更新日期:<time datetime="2018-05-05T07:38:47.000Z" itemprop="dateModified">2018-05-05</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#attach"><span class="toc-number">1.</span> <span class="toc-text">attach</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#build"><span class="toc-number">2.</span> <span class="toc-text">build</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#create"><span class="toc-number">3.</span> <span class="toc-text">create</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#commit"><span class="toc-number">4.</span> <span class="toc-text">commit</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#inspect"><span class="toc-number">5.</span> <span class="toc-text">inspect</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#cp"><span class="toc-number">6.</span> <span class="toc-text">cp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#diff"><span class="toc-number">7.</span> <span class="toc-text">diff</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#events"><span class="toc-number">8.</span> <span class="toc-text">events</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#exec"><span class="toc-number">9.</span> <span class="toc-text">exec</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#export"><span class="toc-number">10.</span> <span class="toc-text">export</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#import"><span class="toc-number">11.</span> <span class="toc-text">import</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#history"><span class="toc-number">12.</span> <span class="toc-text">history</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#info"><span class="toc-number">13.</span> <span class="toc-text">info</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#kill"><span class="toc-number">14.</span> <span class="toc-text">kill</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#stop"><span class="toc-number">15.</span> <span class="toc-text">stop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#start"><span class="toc-number">16.</span> <span class="toc-text">start</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#images"><span class="toc-number">17.</span> <span class="toc-text">images</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#pull"><span class="toc-number">18.</span> <span class="toc-text">pull</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#tag"><span class="toc-number">19.</span> <span class="toc-text">tag</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#push"><span class="toc-number">20.</span> <span class="toc-text">push</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#login"><span class="toc-number">21.</span> <span class="toc-text">login</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#logout"><span class="toc-number">22.</span> <span class="toc-text">logout</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#save"><span class="toc-number">23.</span> <span class="toc-text">save</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#load"><span class="toc-number">24.</span> <span class="toc-text">load</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#logs"><span class="toc-number">25.</span> <span class="toc-text">logs</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rename"><span class="toc-number">26.</span> <span class="toc-text">rename</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rm"><span class="toc-number">27.</span> <span class="toc-text">rm</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rmi"><span class="toc-number">28.</span> <span class="toc-text">rmi</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#top"><span class="toc-number">29.</span> <span class="toc-text">top</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#pause"><span class="toc-number">30.</span> <span class="toc-text">pause</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#unpause"><span class="toc-number">31.</span> <span class="toc-text">unpause</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#restart"><span class="toc-number">32.</span> <span class="toc-text">restart</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#stats"><span class="toc-number">33.</span> <span class="toc-text">stats</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#port"><span class="toc-number">34.</span> <span class="toc-text">port</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#wait"><span class="toc-number">35.</span> <span class="toc-text">wait</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#run"><span class="toc-number">36.</span> <span class="toc-text">run</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#a-–attach"><span class="toc-number">36.1.</span> <span class="toc-text">-a/–attach=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–add-host"><span class="toc-number">36.2.</span> <span class="toc-text">–add-host=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#c-–cpu-shares"><span class="toc-number">36.3.</span> <span class="toc-text">-c/–cpu-shares=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cap-add-and-–cap-drop"><span class="toc-number">36.4.</span> <span class="toc-text">–cap-add=[] and –cap-drop=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cidfile"><span class="toc-number">36.5.</span> <span class="toc-text">–cidfile=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cpu-period"><span class="toc-number">36.6.</span> <span class="toc-text">–cpu-period=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cpu-quota"><span class="toc-number">36.7.</span> <span class="toc-text">–cpu-quota=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#d-–detach-true"><span class="toc-number">36.8.</span> <span class="toc-text">-d/–detach=true</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–device"><span class="toc-number">36.9.</span> <span class="toc-text">–device=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–disable-content-trust-true"><span class="toc-number">36.10.</span> <span class="toc-text">–disable-content-trust=true</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–dns"><span class="toc-number">36.11.</span> <span class="toc-text">–dns=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#e-–env"><span class="toc-number">36.12.</span> <span class="toc-text">-e/–env=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–entrypoint"><span class="toc-number">36.13.</span> <span class="toc-text">–entrypoint=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–env-file"><span class="toc-number">36.14.</span> <span class="toc-text">–env-file=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–expose"><span class="toc-number">36.15.</span> <span class="toc-text">–expose=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–group-add"><span class="toc-number">36.16.</span> <span class="toc-text">–group-add=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#h-–hostname"><span class="toc-number">36.17.</span> <span class="toc-text">-h/–hostname=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–help-false"><span class="toc-number">36.18.</span> <span class="toc-text">–help=false</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#i-–interactive-false"><span class="toc-number">36.19.</span> <span class="toc-text">-i/–interactive=false</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–ipc"><span class="toc-number">36.20.</span> <span class="toc-text">–ipc=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#l-–label-–label-file"><span class="toc-number">36.21.</span> <span class="toc-text">-l/–label=[]/–label-file=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–link-链接到另外一个容器"><span class="toc-number">36.22.</span> <span class="toc-text">–link 链接到另外一个容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–name"><span class="toc-number">36.23.</span> <span class="toc-text">–name=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–net"><span class="toc-number">36.24.</span> <span class="toc-text">–net</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#p-–publish"><span class="toc-number">36.25.</span> <span class="toc-text">-p/–publish=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–rm-false"><span class="toc-number">36.26.</span> <span class="toc-text">–rm=false</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v-–volume"><span class="toc-number">36.27.</span> <span class="toc-text">-v/–volume=[]</span></a></li></ol></li></ol>
+		</div>
+		
+		<h1 id="attach"><a href="#attach" class="headerlink" title="attach"></a>attach</h1><p>重新连接容器的会话</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -idt docker/whalesay</span><br><span class="line"></span><br><span class="line">docker attach &lt;containerId&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="build"><a href="#build" class="headerlink" title="build"></a>build</h1><p>构建一个镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build -t ayou/hello .</span><br></pre></td></tr></table></figure>
+<h1 id="create"><a href="#create" class="headerlink" title="create"></a>create</h1><p>创建但不启动一个新的容器</p>
+<h1 id="commit"><a href="#commit" class="headerlink" title="commit"></a>commit</h1><p>提交当前容器为新的镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker create -it ubuntu /bin/bash</span><br><span class="line">docker start -a -i &lt;containerId&gt;</span><br><span class="line">docker commit &lt;containerId&gt; ayou/test</span><br></pre></td></tr></table></figure>
+<h1 id="inspect"><a href="#inspect" class="headerlink" title="inspect"></a>inspect</h1><p>查看一个镜像的信息<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect &lt;imageId&gt;</span><br></pre></td></tr></table></figure></p>
+<h1 id="cp"><a href="#cp" class="headerlink" title="cp"></a>cp</h1><p>拷贝容器中的文件到宿主机上</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd docker/whalesay</span><br><span class="line">docker cp &lt;containerId&gt;:/cowsay/cowsay ./</span><br></pre></td></tr></table></figure>
+<h1 id="diff"><a href="#diff" class="headerlink" title="diff"></a>diff</h1><p>列出一个容器中被改变的文件或目录<br>A 增加, D 删除, C 改变<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">[vagrant@docker-host ~]$ docker attach d8</span><br><span class="line">root@d8fda83470cd:/cowsay# touch hello.txt</span><br><span class="line">[vagrant@docker-host ~]$ docker diff d8</span><br><span class="line">C /cowsay</span><br><span class="line">A /cowsay/hello.txt</span><br><span class="line">C /root</span><br><span class="line">A /root/.bash_history</span><br></pre></td></tr></table></figure></p>
+<h1 id="events"><a href="#events" class="headerlink" title="events"></a>events</h1><p>从 docker 容器中获取实时的事件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[vagrant@docker-host ~]$ docker events --since=2018-04-30</span><br><span class="line">2018-05-05T06:09:37.836897425Z container create 998de7aa4d2a00d3e3361f12b0a3a309dd80c4a9e57b2087b703e0be7c1a2700 (image=hello-world, name=practical_wing)</span><br><span class="line">2018-05-05T06:09:37.893142337Z network connect 1366370644abf51aa27c087ff52b3f98fe07b5175e9d8e6cac4ab9b4c5b582e2 (container=998de7aa4d2a00d3e3361f12b0a3a309dd80c4a9e57b2087b703e0be7c1a2700, name=bridge, type=bridge)</span><br><span class="line">2018-05-05T06:09:38.157520748Z container start 998de7aa4d2a00d3e3361f12b0a3a309dd80c4a9e57b2087b703e0be7c1a2700 (image=hello-world, name=practical_wing)</span><br></pre></td></tr></table></figure>
+<h1 id="exec"><a href="#exec" class="headerlink" title="exec"></a>exec</h1><p>在一个运行的容器中执行一条命令</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd docker/whalesay</span><br><span class="line">[vagrant@docker-host ~]$ docker exec b6 ls</span><br><span class="line">ChangeLog</span><br><span class="line">INSTALL</span><br><span class="line">LICENSE</span><br><span class="line">MANIFEST</span><br><span class="line">README</span><br><span class="line">Wrap.pm.diff</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h1 id="export"><a href="#export" class="headerlink" title="export"></a>export</h1><p>将容器导出为 tar 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker export -o=./whale_tar b3db</span><br></pre></td></tr></table></figure>
+<h1 id="import"><a href="#import" class="headerlink" title="import"></a>import</h1><p>将 tar 包导入为一个镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cat whale_tar | docker import - test:11.11</span><br></pre></td></tr></table></figure>
+<h1 id="history"><a href="#history" class="headerlink" title="history"></a>history</h1><p>查看镜像的创建历史</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[vagrant@docker-host ~]$ docker history ayou/hello</span><br><span class="line">IMAGE               CREATED             CREATED BY                                      SIZE                COMMENT</span><br><span class="line">acc0e7e830c9        17 hours ago        /bin/sh -c #(nop)  CMD [&quot;/hello&quot;]               0B</span><br><span class="line">726ba4d9b766        17 hours ago        /bin/sh -c #(nop) ADD file:834126d44f4a999f9…   844kB</span><br></pre></td></tr></table></figure>
+<h1 id="info"><a href="#info" class="headerlink" title="info"></a>info</h1><p>列出系统信息</p>
+<h1 id="kill"><a href="#kill" class="headerlink" title="kill"></a>kill</h1><p>杀死一个正在运行的容器</p>
+<h1 id="stop"><a href="#stop" class="headerlink" title="stop"></a>stop</h1><p>停止一个容器</p>
+<p>与 kill 的区别</p>
+<p>docker stop 会向容器发送一个 SIGTERM 信号，然后过一段时间再发送 SIGKILL 信号。<br>我们知道，处理良好的程序可以捕捉 SIGTERM 信号，并进行清理动作然后退出。但是也可能可以忽<br>略该信号。<br>但是经过-t（默认 10S）时间后，会再发送 SIGKILL 信号触发进程的最终的退出。</p>
+<p>docker kill 会向容器发送一个信号（SIGKILL 或者其他信号）。<br>相比来说，docker stop 可以更优雅的关闭容器，容器里的进程可以很好的退出。<br>docker kill 相当于快速地强制关闭容器。但是关闭容器并非是 docker kill 的唯一功能，向容器发送信<br>号也是很有用的功能</p>
+<h1 id="start"><a href="#start" class="headerlink" title="start"></a>start</h1><p>启动一个或多个容器</p>
+<h1 id="images"><a href="#images" class="headerlink" title="images"></a>images</h1><p>查看镜像</p>
+<h1 id="pull"><a href="#pull" class="headerlink" title="pull"></a>pull</h1><p>拉一个镜像</p>
+<h1 id="tag"><a href="#tag" class="headerlink" title="tag"></a>tag</h1><p>给镜像加标签</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker tag &lt;imageId&gt; ayou/test:latest</span><br></pre></td></tr></table></figure>
+<h1 id="push"><a href="#push" class="headerlink" title="push"></a>push</h1><p>推送一个镜像到远程</p>
+<h1 id="login"><a href="#login" class="headerlink" title="login"></a>login</h1><p>登录远程仓库</p>
+<h1 id="logout"><a href="#logout" class="headerlink" title="logout"></a>logout</h1><p>登出远程仓库</p>
+<h1 id="save"><a href="#save" class="headerlink" title="save"></a>save</h1><p>保存一个镜像到 tar 文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save --output=./test_tar ayou/test</span><br></pre></td></tr></table></figure>
+<h1 id="load"><a href="#load" class="headerlink" title="load"></a>load</h1><p>从 tar 文件加载一个镜像</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load --input=./test_tar</span><br></pre></td></tr></table></figure>
+<h1 id="logs"><a href="#logs" class="headerlink" title="logs"></a>logs</h1><p>查看容器的日志</p>
+<h1 id="rename"><a href="#rename" class="headerlink" title="rename"></a>rename</h1><p>重命名一个容器</p>
+<h1 id="rm"><a href="#rm" class="headerlink" title="rm"></a>rm</h1><p>删除一个容器</p>
+<h1 id="rmi"><a href="#rmi" class="headerlink" title="rmi"></a>rmi</h1><p>删除一个镜像</p>
+<h1 id="top"><a href="#top" class="headerlink" title="top"></a>top</h1><p>查看容器中运行的进程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker top &lt;containerId&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="pause"><a href="#pause" class="headerlink" title="pause"></a>pause</h1><p>暂停容器中所有进程</p>
+<ol>
+<li><p>启动一个容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd docker/whalesay</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在另外一个终端中 attach 这个容器</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker attach 82</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>暂停所有进程</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pause 82</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>现在 attach 的终端里面无法进行输入</p>
+<ol start="4">
+<li>恢复进程<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker unpause 82</span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>现在可以输入了</p>
+<ol start="5">
+<li>restart 这个容器</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dokcer restart 82</span><br></pre></td></tr></table></figure>
+<p>attach 的终端也会自动退出</p>
+<h1 id="unpause"><a href="#unpause" class="headerlink" title="unpause"></a>unpause</h1><p>恢复容器中所有进程</p>
+<h1 id="restart"><a href="#restart" class="headerlink" title="restart"></a>restart</h1><p>重启一个容器</p>
+<h1 id="stats"><a href="#stats" class="headerlink" title="stats"></a>stats</h1><p>显示容器使用资源的情况</p>
+<h1 id="port"><a href="#port" class="headerlink" title="port"></a>port</h1><p>查看容器的端口信息</p>
+<h1 id="wait"><a href="#wait" class="headerlink" title="wait"></a>wait</h1><p>阻塞一个容器，直到它停止</p>
+<h1 id="run"><a href="#run" class="headerlink" title="run"></a>run</h1><p>在一个新的容器中运行镜像</p>
+<h2 id="a-–attach"><a href="#a-–attach" class="headerlink" title="-a/–attach=[]"></a>-a/–attach=[]</h2><p>如果在执行 run 命令时没有指定 -a 参数，那么 docker 默认会挂载所有标准数据流，包括输入输出和错误<br> (stdin, stdout, stderr)，你可以单独指定挂载哪个标准流</p>
+<h2 id="–add-host"><a href="#–add-host" class="headerlink" title="–add-host=[]"></a>–add-host=[]</h2><p>动态添加到 /etc/hosts 里面的数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[vagrant@docker-host ~]$ docker run --add-host youxingzhi:127.0.0.1 docker/whalesay cat /etc/hosts</span><br><span class="line">127.0.0.1	localhost</span><br><span class="line">::1	localhost ip6-localhost ip6-loopback</span><br><span class="line">fe00::0	ip6-localnet</span><br><span class="line">ff00::0	ip6-mcastprefix</span><br><span class="line">ff02::1	ip6-allnodes</span><br><span class="line">ff02::2	ip6-allrouters</span><br><span class="line">127.0.0.1	youxingzhi</span><br><span class="line">172.17.0.2	f152d55abd0e</span><br></pre></td></tr></table></figure>
+<h2 id="c-–cpu-shares"><a href="#c-–cpu-shares" class="headerlink" title="-c/–cpu-shares="></a>-c/–cpu-shares=</h2><p>通过-c 可以调整 container<br>的 cpu 优先级。默认情况下，所有的 container 享有相同的 cpu 优先级和 cpu 调度周期。但你可以通过<br>Docker 来通知内核给予某个或某几个 container 更多的 cpu 计算周期。<br>默认情况下，使用-c 或者–cpu-shares 参数值为 0，可以赋予当前活动 container 1024 个 cpu 共享周期。<br>这个 0 值可以针对活动的 container 进行修改来调整不同的 cpu 循环周期。<br>比如，我们使用-c 或者–cpu-shares =0 启动了 C0，C1，C2 三个 container，使用-c/–cpu-shares=512<br>启动了 C3.这时，C0，C1，C2 可以 100%的使用 CPU 资源(1024)，但 C3 只能使用 50%的 CPU 资源<br>(512)。如果这个 host 的 OS 是时序调度类型的，每个 CPU 时间片是 100 微秒，那么 C0，C1，C2 将<br>完全使用掉这 100 微秒，而 C3 只能使用 50 微秒</p>
+<h2 id="–cap-add-and-–cap-drop"><a href="#–cap-add-and-–cap-drop" class="headerlink" title="–cap-add=[] and –cap-drop=[]"></a>–cap-add=[] and –cap-drop=[]</h2><p>权限控制</p>
+<h2 id="–cidfile"><a href="#–cidfile" class="headerlink" title="–cidfile="></a>–cidfile=</h2><p>将容器 id 保存到文件中</p>
+<h2 id="–cpu-period"><a href="#–cpu-period" class="headerlink" title="–cpu-period="></a>–cpu-period=</h2><p>cpu 使用周期</p>
+<h2 id="–cpu-quota"><a href="#–cpu-quota" class="headerlink" title="–cpu-quota="></a>–cpu-quota=</h2><p>cpu 配额</p>
+<h2 id="d-–detach-true"><a href="#d-–detach-true" class="headerlink" title="-d/–detach=true"></a>-d/–detach=true</h2><p>后台运行</p>
+<h2 id="–device"><a href="#–device" class="headerlink" title="–device=[]"></a>–device=[]</h2><p>容器中使用某个设备</p>
+<h2 id="–disable-content-trust-true"><a href="#–disable-content-trust-true" class="headerlink" title="–disable-content-trust=true"></a>–disable-content-trust=true</h2><p>是否启用镜像合法性检查</p>
+<h2 id="–dns"><a href="#–dns" class="headerlink" title="–dns=[]"></a>–dns=[]</h2><p>#设置添加到/etc/resolv.conf 文件中的 DNS 服<br>务器 IP 地址。容器运行过程中，当遇到一个主机名不在/etc/hosts 中，将连接这些 IP 的 53 端口上寻找<br>域名解析服务</p>
+<h2 id="e-–env"><a href="#e-–env" class="headerlink" title="-e/–env=[]"></a>-e/–env=[]</h2><p>设置环境变量</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">docker run -e &quot;ayou=shuai&quot; -it docker/whalesay /bin/bash</span><br><span class="line">root@5024b6b08cf9:/cowsay# echo $ayou</span><br><span class="line">shuai</span><br></pre></td></tr></table></figure>
+<h2 id="–entrypoint"><a href="#–entrypoint" class="headerlink" title="–entrypoint="></a>–entrypoint=</h2><p>入口</p>
+<h2 id="–env-file"><a href="#–env-file" class="headerlink" title="–env-file=[]"></a>–env-file=[]</h2><p>从一个文件中读取环境变量</p>
+<h2 id="–expose"><a href="#–expose" class="headerlink" title="–expose=[]"></a>–expose=[]</h2><p>对外暴露端口</p>
+<h2 id="–group-add"><a href="#–group-add" class="headerlink" title="–group-add=[]"></a>–group-add=[]</h2><p>添加组</p>
+<h2 id="h-–hostname"><a href="#h-–hostname" class="headerlink" title="-h/–hostname="></a>-h/–hostname=</h2><h2 id="–help-false"><a href="#–help-false" class="headerlink" title="–help=false"></a>–help=false</h2><h2 id="i-–interactive-false"><a href="#i-–interactive-false" class="headerlink" title="-i/–interactive=false"></a>-i/–interactive=false</h2><p>即使没有 attach 也保持 stdin</p>
+<h2 id="–ipc"><a href="#–ipc" class="headerlink" title="–ipc="></a>–ipc=</h2><p>ipc 命名空间</p>
+<h2 id="l-–label-–label-file"><a href="#l-–label-–label-file" class="headerlink" title="-l/–label=[]/–label-file=[]"></a>-l/–label=[]/–label-file=[]</h2><p>设置元数据</p>
+<h2 id="–link-链接到另外一个容器"><a href="#–link-链接到另外一个容器" class="headerlink" title="–link 链接到另外一个容器"></a>–link 链接到另外一个容器</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --link my-mysql:db --rm mysql sh -c &apos;exec mysql -h&quot;db&quot; -P&quot;3306&quot; -uroot -p&apos; // db 是 my-mysql 的别名</span><br></pre></td></tr></table></figure>
+<h2 id="–name"><a href="#–name" class="headerlink" title="–name="></a>–name=</h2><p>容器的名字</p>
+<h2 id="–net"><a href="#–net" class="headerlink" title="–net"></a>–net</h2><p>网络模式</p>
+<h2 id="p-–publish"><a href="#p-–publish" class="headerlink" title="-p/–publish=[]"></a>-p/–publish=[]</h2><p>指定端口映射</p>
+<h2 id="–rm-false"><a href="#–rm-false" class="headerlink" title="–rm=false"></a>–rm=false</h2><p>设置容器结束后是否自动删除</p>
+<h2 id="v-–volume"><a href="#v-–volume" class="headerlink" title="-v/–volume=[]"></a>-v/–volume=[]</h2><p>挂载本地目录</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/docker/">docker</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/docker/">docker</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2018/05/05/docker-command/" data-title="docker 命令汇总 | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2018/04/18/react-nginx/"  title="create-react-app 项目生产环境部署之 nginx 配置">
+ <strong>NEXT:</strong><br/> 
+ <span>create-react-app 项目生产环境部署之 nginx 配置
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#attach"><span class="toc-number">1.</span> <span class="toc-text">attach</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#build"><span class="toc-number">2.</span> <span class="toc-text">build</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#create"><span class="toc-number">3.</span> <span class="toc-text">create</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#commit"><span class="toc-number">4.</span> <span class="toc-text">commit</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#inspect"><span class="toc-number">5.</span> <span class="toc-text">inspect</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#cp"><span class="toc-number">6.</span> <span class="toc-text">cp</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#diff"><span class="toc-number">7.</span> <span class="toc-text">diff</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#events"><span class="toc-number">8.</span> <span class="toc-text">events</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#exec"><span class="toc-number">9.</span> <span class="toc-text">exec</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#export"><span class="toc-number">10.</span> <span class="toc-text">export</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#import"><span class="toc-number">11.</span> <span class="toc-text">import</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#history"><span class="toc-number">12.</span> <span class="toc-text">history</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#info"><span class="toc-number">13.</span> <span class="toc-text">info</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#kill"><span class="toc-number">14.</span> <span class="toc-text">kill</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#stop"><span class="toc-number">15.</span> <span class="toc-text">stop</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#start"><span class="toc-number">16.</span> <span class="toc-text">start</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#images"><span class="toc-number">17.</span> <span class="toc-text">images</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#pull"><span class="toc-number">18.</span> <span class="toc-text">pull</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#tag"><span class="toc-number">19.</span> <span class="toc-text">tag</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#push"><span class="toc-number">20.</span> <span class="toc-text">push</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#login"><span class="toc-number">21.</span> <span class="toc-text">login</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#logout"><span class="toc-number">22.</span> <span class="toc-text">logout</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#save"><span class="toc-number">23.</span> <span class="toc-text">save</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#load"><span class="toc-number">24.</span> <span class="toc-text">load</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#logs"><span class="toc-number">25.</span> <span class="toc-text">logs</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rename"><span class="toc-number">26.</span> <span class="toc-text">rename</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rm"><span class="toc-number">27.</span> <span class="toc-text">rm</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#rmi"><span class="toc-number">28.</span> <span class="toc-text">rmi</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#top"><span class="toc-number">29.</span> <span class="toc-text">top</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#pause"><span class="toc-number">30.</span> <span class="toc-text">pause</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#unpause"><span class="toc-number">31.</span> <span class="toc-text">unpause</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#restart"><span class="toc-number">32.</span> <span class="toc-text">restart</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#stats"><span class="toc-number">33.</span> <span class="toc-text">stats</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#port"><span class="toc-number">34.</span> <span class="toc-text">port</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#wait"><span class="toc-number">35.</span> <span class="toc-text">wait</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#run"><span class="toc-number">36.</span> <span class="toc-text">run</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#a-–attach"><span class="toc-number">36.1.</span> <span class="toc-text">-a/–attach=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–add-host"><span class="toc-number">36.2.</span> <span class="toc-text">–add-host=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#c-–cpu-shares"><span class="toc-number">36.3.</span> <span class="toc-text">-c/–cpu-shares=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cap-add-and-–cap-drop"><span class="toc-number">36.4.</span> <span class="toc-text">–cap-add=[] and –cap-drop=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cidfile"><span class="toc-number">36.5.</span> <span class="toc-text">–cidfile=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cpu-period"><span class="toc-number">36.6.</span> <span class="toc-text">–cpu-period=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–cpu-quota"><span class="toc-number">36.7.</span> <span class="toc-text">–cpu-quota=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#d-–detach-true"><span class="toc-number">36.8.</span> <span class="toc-text">-d/–detach=true</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–device"><span class="toc-number">36.9.</span> <span class="toc-text">–device=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–disable-content-trust-true"><span class="toc-number">36.10.</span> <span class="toc-text">–disable-content-trust=true</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–dns"><span class="toc-number">36.11.</span> <span class="toc-text">–dns=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#e-–env"><span class="toc-number">36.12.</span> <span class="toc-text">-e/–env=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–entrypoint"><span class="toc-number">36.13.</span> <span class="toc-text">–entrypoint=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–env-file"><span class="toc-number">36.14.</span> <span class="toc-text">–env-file=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–expose"><span class="toc-number">36.15.</span> <span class="toc-text">–expose=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–group-add"><span class="toc-number">36.16.</span> <span class="toc-text">–group-add=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#h-–hostname"><span class="toc-number">36.17.</span> <span class="toc-text">-h/–hostname=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–help-false"><span class="toc-number">36.18.</span> <span class="toc-text">–help=false</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#i-–interactive-false"><span class="toc-number">36.19.</span> <span class="toc-text">-i/–interactive=false</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–ipc"><span class="toc-number">36.20.</span> <span class="toc-text">–ipc=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#l-–label-–label-file"><span class="toc-number">36.21.</span> <span class="toc-text">-l/–label=[]/–label-file=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–link-链接到另外一个容器"><span class="toc-number">36.22.</span> <span class="toc-text">–link 链接到另外一个容器</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–name"><span class="toc-number">36.23.</span> <span class="toc-text">–name=</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–net"><span class="toc-number">36.24.</span> <span class="toc-text">–net</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#p-–publish"><span class="toc-number">36.25.</span> <span class="toc-text">-p/–publish=[]</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#–rm-false"><span class="toc-number">36.26.</span> <span class="toc-text">–rm=false</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#v-–volume"><span class="toc-number">36.27.</span> <span class="toc-text">-v/–volume=[]</span></a></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/docker/" title="docker">docker<sup>1</sup></a></li>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>9</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>2</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 11.67px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 13.33px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+
