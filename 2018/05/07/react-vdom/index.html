@@ -1,0 +1,493 @@
+
+ <!DOCTYPE HTML>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  
+    <title>实现一个简单的 React Virtual Dom | Ayou</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
+    
+    <meta name="author" content="Ayou">
+    
+    <meta name="description" itemprop="description" content="实现一个简单的 virtual dom">
+    
+    
+    
+    
+    
+    <link rel="icon" href="/img/favicon.ico">
+    
+    
+    <link rel="apple-touch-icon" href="/img/yaht.jpg">
+    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
+    
+    
+        <link rel="stylesheet" href="/css/style.css">
+    
+    
+    
+<script type="text/javascript">
+  var _hmt = _hmt || [];
+  (function() {
+    var hm = document.createElement("script");
+    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
+    var s = document.getElementsByTagName("script")[0];
+    s.parentNode.insertBefore(hm, s);
+  })();
+</script>
+
+
+</head>
+
+  <body>
+    <header>
+      <canvas id="headerCanvas">
+
+</canvas>
+<div>
+		
+			<div id="imglogo">
+				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
+			</div>
+			
+			<div id="textlogo">
+				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
+				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
+			</div>
+			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
+			</a></div>
+			<nav class="animated">
+				<ul>
+					<ul>
+					 
+						<li><a href="/">Home</a></li>
+					
+						<li><a href="/archives">Archives</a></li>
+					
+						<li><a href="/resume">Resume</a></li>
+					
+						<li><a href="/demo">Demo</a></li>
+					
+					<li>
+					
+					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
+						<!--<label>Search</label>-->
+						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
+						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
+					<!--</form>-->
+					
+					</li>
+				</ul>
+			</nav>			
+</div>
+
+    </header>
+    <div id="container">
+      <div id="main" class="post" itemscope itemprop="blogPost">
+	<article itemprop="articleBody"> 
+		<header class="article-info clearfix">
+  <h1 itemprop="name">
+    
+      <a href="/2018/05/07/react-vdom/" title="实现一个简单的 React Virtual Dom" itemprop="url">实现一个简单的 React Virtual Dom</a>
+  </h1>
+  <p class="article-author">By
+    
+      <a href="http://www.paradeto.com" title="Ayou">Ayou</a>
+    </p>
+  <p class="article-time">
+    <time datetime="2018-05-07T06:22:19.000Z" itemprop="datePublished">2018-05-07</time>
+    更新日期:<time datetime="2018-05-07T07:01:31.000Z" itemprop="dateModified">2018-05-07</time>
+    
+  </p>
+</header>
+	<div class="article-content">
+		
+		
+		<div id="toc" class="toc-article">
+			<strong class="toc-title">文章目录</strong>
+		<ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#什么是-VDOM"><span class="toc-number">1.</span> <span class="toc-text">什么是 VDOM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么要用-VDOM"><span class="toc-number">2.</span> <span class="toc-text">为什么要用 VDOM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#我们的设计蓝图"><span class="toc-number">3.</span> <span class="toc-text">我们的设计蓝图</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#项目结构"><span class="toc-number">4.</span> <span class="toc-text">项目结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现首次渲染"><span class="toc-number">5.</span> <span class="toc-text">实现首次渲染</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#index-js"><span class="toc-number">5.1.</span> <span class="toc-text">index.js</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现更新渲染"><span class="toc-number">6.</span> <span class="toc-text">实现更新渲染</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#改写-view"><span class="toc-number">6.1.</span> <span class="toc-text">改写 view()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改写-render"><span class="toc-number">6.2.</span> <span class="toc-text">改写 render()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常量"><span class="toc-number">6.3.</span> <span class="toc-text">常量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#diff"><span class="toc-number">6.4.</span> <span class="toc-text">diff()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#changed"><span class="toc-number">6.4.1.</span> <span class="toc-text">changed()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#diffProps"><span class="toc-number">6.4.2.</span> <span class="toc-text">diffProps()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#diffChildren"><span class="toc-number">6.4.3.</span> <span class="toc-text">diffChildren()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#patch"><span class="toc-number">6.5.</span> <span class="toc-text">patch()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#patchProps"><span class="toc-number">6.5.1.</span> <span class="toc-text">patchProps()</span></a></li></ol></li></ol></li></ol>
+		</div>
+		
+		<p>转自：<a href="https://segmentfault.com/a/1190000014572815" target="_blank" rel="noopener">https://segmentfault.com/a/1190000014572815</a></p>
+<h1 id="什么是-VDOM"><a href="#什么是-VDOM" class="headerlink" title="什么是 VDOM"></a>什么是 VDOM</h1><p>首先我们都知道什么是DOM(Document Object Model)，简单说就是将一个HTML文档抽象表达为树结构。VDOM则是将DOM再抽象一层生成的简化版js对象，这个对象也拥有DOM上的一些属性，比如id, class等，但它是完全脱离于浏览器而存在的。</p>
+<h1 id="为什么要用-VDOM"><a href="#为什么要用-VDOM" class="headerlink" title="为什么要用 VDOM"></a>为什么要用 VDOM</h1><p>随着前端技术的发展，现在的网页应用变得越来越庞大，DOM树也随之变得复杂。当我们要修改DOM的某个元素时，我们需要先遍历找个这个元素，然后才修改能修改。而且如果我们大量地去修改DOM，每次DOM修改浏览器就得重绘（repaint）页面，有的时候甚至还得重排(reflow)页面，浏览器的重排重绘是很损耗性能的。</p>
+<p>React是怎么用VDOM解决这个问题的呢？</p>
+<ol>
+<li>首先，在React当我们要去修改数据的时候，我们会调用React提供的setState方法来修改数据；<br>React根据新的数据生成一个新的VDOM，因为VDOM本质上只是一个普通的js对象，所以这个过程是很快的；</li>
+<li>然后React拿着新生成VDOM和之前的VDOM进行对比（diff算法），找出不同的地方(新增，删除，修改)，生成一个个的补丁（patches）;</li>
+<li>最后React把这些补丁一次性打到DOM上，完成视图的修改。</li>
+</ol>
+<p>原理其实还是很直观的，但React到底是怎么用代码实现的呢？其中最关键的一步是React是怎么diff的？如果搞清楚了内部的实现原理，对于我们使用React来写出性能更高的代码至关重要。所以今天我要手把手教大家怎么从零开始实现VDOM。</p>
+<h1 id="我们的设计蓝图"><a href="#我们的设计蓝图" class="headerlink" title="我们的设计蓝图"></a>我们的设计蓝图</h1><p>我们将采用跟React类似的方式</p>
+<ol>
+<li>使用JSX来编写组件；</li>
+<li>用Babel将JSX转化为纯js(类似hyperscript)；</li>
+<li>将hyperscript转化成我们的VDOM；</li>
+<li>将VDOM渲染到页面，形成真实的DOM；</li>
+<li>手动更新数据并手动触发更新视图操作(这部分是react做的，跟VDOM的实现无关，所以我们手动模拟一下)；</li>
+<li>重复步骤二和步骤三，得到新的VDOM；</li>
+<li>diff新VDOM和旧VDOM，得到需要修改真实DOM的patches；</li>
+<li>把patches一次性打到DOM上，只更新DOM上需要更改的地方。</li>
+</ol>
+<p><img src="/2018/05/07/react-vdom/1.png" alt=""></p>
+<h1 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h1><ol>
+<li>index.html</li>
+<li>index.js（所有的逻辑都写在这个文件里）</li>
+<li>.babelrc（babel的配置页）</li>
+<li>package.json</li>
+<li>compiled.js（这个文件是babel打包自己生成的，不需要自己写）</li>
+</ol>
+<p>详情见 <a href="https://github.com/ParadeTo/vdom-demo" target="_blank" rel="noopener">Github</a></p>
+<h1 id="实现首次渲染"><a href="#实现首次渲染" class="headerlink" title="实现首次渲染"></a>实现首次渲染</h1><h2 id="index-js"><a href="#index-js" class="headerlink" title="index.js"></a>index.js</h2><p>首先，我们用 JSX 来编写“模板”：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">view</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &lt;ul id="filmList" className="list"&gt;</span><br><span class="line">    &lt;li className="main"&gt;Detective Chinatown Vol 2&lt;/li&gt;</span><br><span class="line">    &lt;li&gt;Ferdinand&lt;/li&gt;</span><br><span class="line">    &lt;li&gt;Paddington 2&lt;/li&gt;</span><br><span class="line">  &lt;/ul&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来，我们要将 JSX 编译成 js, 也就是 hyperscript。我们先用 Babel 编译一下，看这段 JSX 转成 js 会是什么样子，打开命令行，输入 <code>npm run compile</code>,得到的 compile.js：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">view</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> h(</span><br><span class="line">    <span class="string">"ul"</span>,</span><br><span class="line">    &#123; <span class="attr">id</span>: <span class="string">"filmList"</span>, <span class="attr">className</span>: <span class="string">"list"</span> &#125;,</span><br><span class="line">    h(</span><br><span class="line">      <span class="string">"li"</span>,</span><br><span class="line">      &#123; <span class="attr">className</span>: <span class="string">"main"</span> &#125;,</span><br><span class="line">      <span class="string">"Detective Chinatown Vol 2"</span></span><br><span class="line">    ),</span><br><span class="line">    h(</span><br><span class="line">      <span class="string">"li"</span>,</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      <span class="string">"Ferdinand"</span></span><br><span class="line">    ),</span><br><span class="line">    h(</span><br><span class="line">      <span class="string">"li"</span>,</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      <span class="string">"Paddington 2"</span></span><br><span class="line">    )</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看出 <code>h</code> 函数接收的参数，第一个参数是 node 的类型，比如 ul,li，第二个参数是 node 的属性，之后的参数是 node 的 children，假如 child 又是一个 node 的话，就会继续调用 <code>h</code> 函数。</p>
+<p>清楚了 Babel 会将我们的JSX编译成什么样子后，接下来我们就可以继续在 index.js 中来写 <code>h</code> 函数了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">flatten</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> [].concat(...arr)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">h</span>(<span class="params">type, props, ...children</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    type,</span><br><span class="line">    props: props || &#123;&#125;,</span><br><span class="line">    children: flatten(children)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们的 <code>h</code> 函数主要的工作就是返回我们真正需要的 hyperscript 对象，只有三个参数，第一个参数是节点类型，第二个参数是属性对象，第三个是子节点的数组。</p>
+<p><code>flatten(children)</code> 这个操作是因为 children 这个数组里的元素有可能也是个数组，那样就成了一个二维数组，所以我们需要将数组拍平成一维数组。</p>
+<p>我们现在可以先来看一下 <code>h</code> 函数最终返回的对象长什么样子。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(view())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们在render函数中打印出执行完 view() 的结果，再 <code>npm run compile</code> 后，用浏览器打开我们的 index.html，看控制台输出的结果。</p>
+<p><img src="/2018/05/07/react-vdom/2.png" alt=""></p>
+<p>可以，很完美！这个对象就是我们的 VDOM 了！</p>
+<p>下面我们就可以根据VDOM, 来渲染真实 DOM 了。先改写 render 函数:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params">el</span>) </span>&#123;</span><br><span class="line">  el.appendChild(createElement(view(<span class="number">0</span>)))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>createElement 函数生成 DOM，然后再插入到我们在 index.html 中写的根节点 app。注意 render 函数式在 index.html 中被调用的。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createElement</span>(<span class="params">node</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span>(node) === <span class="string">'string'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">document</span>.createTextNode(node)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> &#123; type, props, children &#125; = node</span><br><span class="line">  <span class="keyword">const</span> el = <span class="built_in">document</span>.createElement(type)</span><br><span class="line">  setProps(el, props)</span><br><span class="line">  children.map(createElement)</span><br><span class="line">    .forEach(el.appendChild.bind(el))</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> el</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setProp</span>(<span class="params">target, name, value</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (name === <span class="string">'className'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> target.setAttribute(<span class="string">'class'</span>, value)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  target.setAttribute(name, value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setProps</span>(<span class="params">target, props</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(props).forEach(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">    setProp(target, key, props[key])</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们来仔细看下 createElement 函数。假如说 node，即 VDOM 的类型是文本，我们直接返回一个创建好的文本节点。否则的话，我们取出 node 中类型，属性和子节点, 先根据类型创建相应的目标节点，然后再调用 setProps 函数依次设置好目标节点的属性，最后遍历子节点，递归调用 createElement 方法，将返回的子节点插入到刚刚创建的目标节点里。最后返回这个目标节点。</p>
+<p>还需要注意的一点是，jsx 中 class 的写成了 className，所以我需要特殊处理一下。</p>
+<p>大功告成，complie 后浏览器打开 index.html 看看结果吧。</p>
+<h1 id="实现更新渲染"><a href="#实现更新渲染" class="headerlink" title="实现更新渲染"></a>实现更新渲染</h1><h2 id="改写-view"><a href="#改写-view" class="headerlink" title="改写 view()"></a>改写 view()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">view</span>(<span class="params">count</span>) </span>&#123; </span><br><span class="line">  <span class="keyword">const</span> r = [...Array(count).keys()]</span><br><span class="line">  <span class="keyword">return</span> &lt;ul id="filmList" className=&#123;`list-$&#123;count % 3&#125;`&#125;&gt;</span><br><span class="line">    &#123; r.map(n =&gt; &lt;li&gt;item &#123;(count * n).toString()&#125;&lt;/li&gt;) &#125;</span><br><span class="line">  &lt;/ul&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们的 view 函数接收一个参数 count，变量 r 表示从 0 到 count-1 的一个数组。假如 count=3, r=[0, 1, 2]。ul 的 className 的值有三种可能：list-0, list-1, list-2。li 的数量取决于count。</p>
+<h2 id="改写-render"><a href="#改写-render" class="headerlink" title="改写 render()"></a>改写 render()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params">el</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> initialCount = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  el.appendChild(createElement(view(initialCount)))</span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> tick(el, initialCount), <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">tick</span>(<span class="params">el, count</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> patches = diff(view(count + <span class="number">1</span>), view(count))</span><br><span class="line">  patch(el, patches)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span>(count &gt; <span class="number">5</span>) &#123; <span class="keyword">return</span> &#125;</span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> tick(el, count + <span class="number">1</span>), <span class="number">1000</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>render 函数有两个修改，首先调用 view() 的时候传入 count=0。其次，写了一个定时器，1 秒后执行tick 函数。tick 函数接收两个参数，el 代表节点元素，count 是当前计数值。</p>
+<p>tick 函数依次做了这几件事：</p>
+<ol>
+<li>调用diff函数，对比新旧两个 VDOM，根据两者的不同得到需要修改的补丁</li>
+<li>将补丁 patch 到真实 DOM 上</li>
+<li>当计数器小于等于 5 的时候，将 count 加 1，再继续下一次 tick</li>
+<li>当计数器大于 5 的时候，结束</li>
+</ol>
+<p>下面我们来实现 diff 函数和 patch 函数。</p>
+<h2 id="常量"><a href="#常量" class="headerlink" title="常量"></a>常量</h2><p>我们先列出来新旧两个 VDOM 对比，会有哪些不同。在 index.js 文件的最前面声明一下几个常量。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> CREATE = <span class="string">'CREATE'</span>   <span class="comment">//新增一个节点</span></span><br><span class="line"><span class="keyword">const</span> REMOVE = <span class="string">'REMOVE'</span>   <span class="comment">//删除原节点</span></span><br><span class="line"><span class="keyword">const</span> REPLACE = <span class="string">'REPLACE'</span>  <span class="comment">//替换原节点</span></span><br><span class="line"><span class="keyword">const</span> UPDATE = <span class="string">'UPDATE'</span>    <span class="comment">//检查属性或子节点是否有变化</span></span><br><span class="line"><span class="keyword">const</span> SET_PROP = <span class="string">'SET_PROP'</span>  <span class="comment">//新增或替换属性</span></span><br><span class="line"><span class="keyword">const</span> REMOVE_PROP = <span class="string">'REMOVE PROP'</span>  <span class="comment">//删除属性</span></span><br></pre></td></tr></table></figure>
+<h2 id="diff"><a href="#diff" class="headerlink" title="diff()"></a>diff()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">diff</span>(<span class="params">newNode, oldNode</span>) </span>&#123;</span><br><span class="line">   <span class="keyword">if</span> (!oldNode) &#123;</span><br><span class="line">     <span class="keyword">return</span> &#123; <span class="attr">type</span>: CREATE, newNode &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (!newNode) &#123;</span><br><span class="line">     <span class="keyword">return</span> &#123; <span class="attr">type</span>: REMOVE &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (changed(newNode, oldNode)) &#123;</span><br><span class="line">     <span class="keyword">return</span> &#123; <span class="attr">type</span>: REPLACE, newNode &#125;</span><br><span class="line">   &#125;</span><br><span class="line"></span><br><span class="line">   <span class="keyword">if</span> (newNode.type) &#123;</span><br><span class="line">     <span class="keyword">return</span> &#123;</span><br><span class="line">       type: UPDATE,</span><br><span class="line">       props: diffProps(newNode, oldNode),</span><br><span class="line">       children: diffChildren(newNode, oldNode)</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>假如旧节点不存在，我们返回的 patches 对象, 类型为新增节点；</li>
+<li>假如新节点不存在，表示是删除节点；</li>
+<li>假如两者都存在的话，调用 changed 函数判断他们是不是有变动；</li>
+<li>假如两者都存在，且 changed() 返回 false 的话，判断新节点是否是 VDOM（根据 type 是否存在来判断的，因为 type 不存在的话，newNode 要么是空节点，要么是字符串）。假如新节点是 VDOM，则返回一个 patches 对象，类型是 UPDATE，同时对 props 和 children 分别进行 diffProps 和diffChildren 操作。</li>
+</ol>
+<p>下面我们一次看一下 changed, diffProps, diffChildren 函数。</p>
+<h3 id="changed"><a href="#changed" class="headerlink" title="changed()"></a>changed()</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">changed</span>(<span class="params">node1, node2</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">typeof</span>(node1) !== <span class="keyword">typeof</span>(node2) ||</span><br><span class="line">         <span class="keyword">typeof</span>(node1) === <span class="string">'string'</span> &amp;&amp; node1 !== node2 ||</span><br><span class="line">         node1.type !== node2.type</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>检查新旧 VDOM 是否有变动的方法很简单，</p>
+<ol>
+<li>首先假如数据类型都不一样，那肯定是变动了；</li>
+<li>其次假如两者的类型都是纯文本，则直接比较两者是否相等；</li>
+<li>最后比较两者的类型是否相等。</li>
+</ol>
+<h3 id="diffProps"><a href="#diffProps" class="headerlink" title="diffProps()"></a>diffProps()</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">diffProps</span>(<span class="params">newNode, oldNode</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> patches = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> props = <span class="built_in">Object</span>.assign(&#123;&#125;, newNode.props, oldNode.props)</span><br><span class="line">  <span class="built_in">Object</span>.keys(props).forEach(<span class="function"><span class="params">key</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> newVal = newNode.props[key]</span><br><span class="line">    <span class="keyword">const</span> oldVal = oldNode.props[key]</span><br><span class="line">    <span class="keyword">if</span> (!newVal) &#123;</span><br><span class="line">      patches.push(&#123;<span class="attr">type</span>: REMOVE_PROP, key, <span class="attr">value</span>: oldVal&#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!oldVal || newVal !== oldVal) &#123;</span><br><span class="line">      patches.push(&#123; <span class="attr">type</span>: SET_PROP, key, <span class="attr">value</span>: newVal&#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> patches</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>比较新旧 VDOM 的属性的变化，并返回相应的 patches。</p>
+<ol>
+<li>首先我们采用最大可能性原则，将新旧 VDOM 的所有属性都合并赋值给一个新的变量 props</li>
+<li>遍历 props 变量的所有 Keys，依次比较新旧 VDOM 对于这个KEY的值</li>
+<li>假如新值不存在，表示这个属性被删除了</li>
+<li>假如旧值不存在，或者新旧值不同，则表示我们需要重新设置这个属性</li>
+</ol>
+<h3 id="diffChildren"><a href="#diffChildren" class="headerlink" title="diffChildren()"></a>diffChildren()</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">diffChildren</span>(<span class="params">newNode, oldNode</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> patches = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> maximumLength = <span class="built_in">Math</span>.max(</span><br><span class="line">    newNode.children.length,</span><br><span class="line">    oldNode.children.length</span><br><span class="line">  )</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; maximumLength; i++) &#123;</span><br><span class="line">    patches[i] = diff(</span><br><span class="line">      newNode.children[i],</span><br><span class="line">      oldNode.children[i]</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> patches</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>同样采用最大可能性原则，取新旧 VDOM 的 children 的最长值作为遍历 children 的长度。然后依次比较新旧 VDOM 的在相同 INDEX 下的每一个 child。</p>
+<p><strong>这里需要强烈注意一下</strong></p>
+<p>为了简化，我们没有引入 key 的概念，直接比较的是相同 index 下的 child。所以假如说一个列表 ul 有5 项，分别是 li1, li2, li3, li4, li5; 如果我们删掉了第一项，新的变成了 li2, li3, li4, li5。那么 diffchildren 的时候，我们会拿 li1 和 li2 比较，依次类推。这样一来，本来只是删除了li1, 而 li2, li3, li4, li5 没有任何变化，我们得出的 diff 结论却是 [li替换，li2替换, li3替换, li4替换, li5删除]。所以react让大家渲染列表的时候，必须添加 Key。</p>
+<p>截止到现在，我们已经得到了我们需要的补丁。下面我们要将补丁 Patch 到 DOM 里。</p>
+<h2 id="patch"><a href="#patch" class="headerlink" title="patch()"></a>patch()</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">patch</span>(<span class="params">parent, patches, index = <span class="number">0</span></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!patches) &#123;</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> el = parent.childNodes[index]</span><br><span class="line">  <span class="keyword">switch</span> (patches.type) &#123;</span><br><span class="line">    <span class="keyword">case</span> CREATE: &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123; newNode &#125; = patches</span><br><span class="line">      <span class="keyword">const</span> newEl = createElement(newNode)</span><br><span class="line">      parent.appendChild(newEl)</span><br><span class="line">      <span class="keyword">break</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> REMOVE: &#123;</span><br><span class="line">      parent.removeChild(el)</span><br><span class="line">      <span class="keyword">break</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> REPLACE: &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123;newNode&#125; = patches</span><br><span class="line">      <span class="keyword">const</span> newEl = createElement(newNode)</span><br><span class="line">      <span class="keyword">return</span> parent.replaceChild(newEl, el)</span><br><span class="line">      <span class="keyword">break</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">case</span> UPDATE: &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123;props, children&#125; = patches</span><br><span class="line">      patchProps(el, props)</span><br><span class="line">      <span class="keyword">for</span>(<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; children.length; i++) &#123;</span><br><span class="line">        patch(el, children[i], i)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li>首先当 patches 不存在时，直接 return，不进行任何操作</li>
+<li>利用 childNodes 和 Index 取出当前正在处理的这个节点，赋值为 el</li>
+<li>开始判断补丁的类型</li>
+<li>当类型是 CREATE 时，生成一个新节点，并 append 到根节点</li>
+<li>当类型是 REMOVE 时，直接删除当前节点 el</li>
+<li>当类型是 REPLACE 时，生成新节点，同时替换掉原节点</li>
+<li>当类型是 UPDATE 时，需要我们特殊处理</li>
+<li>调用 patchProps 将我们之前 diffProps 得到的补丁渲染到节点上</li>
+<li>遍历之前 diffChildren 得到的补丁列表，再依次递归调用 patch</li>
+</ol>
+<p>最后我们再补充一下 patchProps 函数</p>
+<h3 id="patchProps"><a href="#patchProps" class="headerlink" title="patchProps()"></a>patchProps()</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">patchProps</span>(<span class="params">parent, patches</span>) </span>&#123;</span><br><span class="line">  patches.forEach(<span class="function"><span class="params">patch</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123; type, key, value &#125; = patch</span><br><span class="line">    <span class="keyword">if</span> (type === <span class="string">'SET_PROP'</span>) &#123;</span><br><span class="line">      setProp(parent, key, value)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (type === <span class="string">'REMOVE_PROP'</span>) &#123;</span><br><span class="line">      removeProp(parent, key, value)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">removeProp</span>(<span class="params">target, name, value</span>) </span>&#123; <span class="comment">//@</span></span><br><span class="line">  <span class="keyword">if</span> (name === <span class="string">'className'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> target.removeAttribute(<span class="string">'class'</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  target.removeAttribute(name)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个就不用我解释了，代码很直观，setProp 函数在上一集我们已经定义过了。这样一来，我们就完成了整个数据更新导致 DOM 更新的完整过程。<br>npm run compile 后打开浏览器查看效果，你应该看到是一个背景颜色在不同变化，同时列表项在逐渐增加的列表。</p>
+  
+	</div>
+		<footer class="article-footer clearfix">
+
+  <div class="article-tags">
+  
+  <span></span> <a href="/tags/react/">react</a>
+  </div>
+
+
+<div class="article-categories">
+  <span></span>
+  <a class="article-category-link" href="/categories/转载/">转载</a>
+</div>
+
+
+
+<div class="article-share" id="share">
+
+  <div data-url="http://www.paradeto.com/2018/05/07/react-vdom/" data-title="实现一个简单的 React Virtual Dom | Ayou" data-tsina="2290700255" class="share clearfix">
+  </div>
+
+</div>
+</footer>   	       
+	</article>
+	
+<nav class="article-nav clearfix">
+ 
+
+<div class="next">
+<a href="/2018/05/05/docker-command/"  title="docker 命令汇总">
+ <strong>NEXT:</strong><br/> 
+ <span>docker 命令汇总
+</span>
+</a>
+</div>
+
+</nav>
+
+	
+
+
+</div>  
+      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
+
+  <div id="toc" class="toc-aside">
+  <strong class="toc-title">文章目录</strong>
+  <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#什么是-VDOM"><span class="toc-number">1.</span> <span class="toc-text">什么是 VDOM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#为什么要用-VDOM"><span class="toc-number">2.</span> <span class="toc-text">为什么要用 VDOM</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#我们的设计蓝图"><span class="toc-number">3.</span> <span class="toc-text">我们的设计蓝图</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#项目结构"><span class="toc-number">4.</span> <span class="toc-text">项目结构</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现首次渲染"><span class="toc-number">5.</span> <span class="toc-text">实现首次渲染</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#index-js"><span class="toc-number">5.1.</span> <span class="toc-text">index.js</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#实现更新渲染"><span class="toc-number">6.</span> <span class="toc-text">实现更新渲染</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#改写-view"><span class="toc-number">6.1.</span> <span class="toc-text">改写 view()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#改写-render"><span class="toc-number">6.2.</span> <span class="toc-text">改写 render()</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#常量"><span class="toc-number">6.3.</span> <span class="toc-text">常量</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#diff"><span class="toc-number">6.4.</span> <span class="toc-text">diff()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#changed"><span class="toc-number">6.4.1.</span> <span class="toc-text">changed()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#diffProps"><span class="toc-number">6.4.2.</span> <span class="toc-text">diffProps()</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#diffChildren"><span class="toc-number">6.4.3.</span> <span class="toc-text">diffChildren()</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#patch"><span class="toc-number">6.5.</span> <span class="toc-text">patch()</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#patchProps"><span class="toc-number">6.5.1.</span> <span class="toc-text">patchProps()</span></a></li></ol></li></ol></li></ol>
+  </div>
+
+<div id="asidepart">
+<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
+<aside class="clearfix">
+
+  
+<div class="categorieslist">
+	<p class="asidetitle">分类</p>
+		<ul>
+		
+			<li><a href="/categories/docker/" title="docker">docker<sup>1</sup></a></li>
+		
+			<li><a href="/categories/go/" title="go">go<sup>1</sup></a></li>
+		
+			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
+		
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>9</sup></a></li>
+		
+			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
+		
+			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
+		
+			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
+		
+			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
+		
+			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
+		
+			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
+		
+			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
+		
+			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
+		
+			<li><a href="/categories/转载/" title="转载">转载<sup>3</sup></a></li>
+		
+			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
+		
+		</ul>
+</div>
+
+
+  
+  <div class="tagcloudlist">
+    <p class="asidetitle">标签云</p>
+    <div class="tagcloudlist clearfix">
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 11.67px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 13.33px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 15px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+    </div>
+  </div>
+
+
+</aside>
+</div>
+    </div>
+    <footer><div id="footer" >
+	
+	<div class="line">
+		<span></span>
+		<div class="author"></div>
+	</div>
+	
+	
+	<section class="info">
+		<p> Hello, I&#39;m ayou! <br/>
+			This is my blog, believe it or not</p>
+	</section>
+	 
+	<div class="social-font" class="clearfix">
+		
+		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
+		
+		
+		
+		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
+		
+		
+	</div>
+		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
+		
+		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
+		
+		</p>
+</div>
+</footer>
+    <script src="/js/jquery-2.1.0.min.js"></script>
+<!--公式-->
+
+<!--canvas-->
+
+<script src="/js/canvas.js"></script>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $('.navbar').click(function(){
+      $('header nav').toggleClass('shownav');
+    });
+    var myWidth = 0;
+    function getSize(){
+      if( typeof( window.innerWidth ) == 'number' ) {
+        myWidth = window.innerWidth;
+      } else if( document.documentElement && document.documentElement.clientWidth) {
+        myWidth = document.documentElement.clientWidth;
+      };
+    };
+    var m = $('#main'),
+    a = $('#asidepart'),
+    c = $('.closeaside'),
+    o = $('.openaside');
+    $(window).resize(function(){
+      getSize();
+      if (myWidth >= 1024) {
+        $('header nav').removeClass('shownav');
+      }else
+      {
+        m.removeClass('moveMain');
+        a.css('display', 'block').removeClass('fadeOut');
+        o.css('display', 'none');
+        
+            $('#toc.toc-aside').css('display', 'none');
+          
+      }
+    });
+    c.click(function(){
+      a.addClass('fadeOut').css('display', 'none');
+      o.css('display', 'block').addClass('fadeIn');
+      m.addClass('moveMain');
+    });
+    o.click(function(){
+      o.css('display', 'none').removeClass('beforeFadeIn');
+      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
+      m.removeClass('moveMain');
+    });
+    $(window).scroll(function(){
+      o.css("top",Math.max(80,260-$(this).scrollTop()));
+    });
+  });
+</script>
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var ai = $('.article-content>iframe'),
+      ae = $('.article-content>embed'),
+      t  = $('#toc'),
+      h  = $('article h2')
+      ah = $('article h2'),
+      ta = $('#toc.toc-aside'),
+      o  = $('.openaside'),
+      c  = $('.closeaside');
+      if(ai.length>0){
+        ai.wrap('<div class="video-container" />');
+      };
+      if(ae.length>0){
+        ae.wrap('<div class="video-container" />');
+      };
+      if(ah.length==0){
+        t.css('display','none');
+      }else{
+        c.click(function(){
+          ta.css('display', 'block').addClass('fadeIn');
+        });
+        o.click(function(){
+          ta.css('display', 'none');
+        });
+        $(window).scroll(function(){
+          ta.css("top",Math.max(140,320-$(this).scrollTop()));
+        });
+      };
+    });
+  </script>
+
+
+  <script type="text/javascript">
+    $(document).ready(function(){
+      var $this = $('.share'),
+      url = $this.attr('data-url'),
+      encodedUrl = encodeURIComponent(url),
+      title = $this.attr('data-title'),
+      tsina = $this.attr('data-tsina');
+      var html = [
+        '<a href="#" class="overlay" id="qrcode"></a>',
+        '<div class="qrcode clearfix"><span>扫描二维码分享到微信朋友圈</span><a class="qrclose" href="#share"></a><strong>Loading...Please wait</strong><img id="qrcode-pic" data-src="http://s.jiathis.com/qrcode.php?url=' + encodedUrl + '"/></div>',
+        '<a href="#textlogo" class="article-back-to-top" title="Top"></a>',
+        '<a href="https://www.facebook.com/sharer.php?u=' + encodedUrl + '" class="article-share-facebook" target="_blank" title="Facebook"></a>',
+        '<a href="#qrcode" class="article-share-qrcode" title="QRcode"></a>',
+        '<a href="https://twitter.com/intent/tweet?url=' + encodedUrl + '" class="article-share-twitter" target="_blank" title="Twitter"></a>',
+        '<a href="http://service.weibo.com/share/share.php?title='+title+'&url='+encodedUrl +'&ralateUid='+ tsina +'&searchPic=true&style=number' +'" class="article-share-weibo" target="_blank" title="Weibo"></a>',
+        '<span title="Share to"></span>'
+        ].join('');
+        $this.append(html);
+        $('.article-share-qrcode').click(function(){
+          var imgSrc = $('#qrcode-pic').attr('data-src');
+          $('#qrcode-pic').attr('src', imgSrc);
+          $('#qrcode-pic').load(function(){
+            $('.qrcode strong').text(' ');
+          });
+        });
+    });
+  </script>
+
+
+  
+  
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <div id="back-to-top">
+    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
+  </div>
+  <script src="/js/back_to_top.js"></script>
+
+
+
+  </body>
+</html>
+
