@@ -96,7 +96,7 @@
     </p>
   <p class="article-time">
     <time datetime="2018-06-15T11:08:23.000Z" itemprop="datePublished">2018-06-15</time>
-    更新日期:<time datetime="2018-06-17T03:39:26.000Z" itemprop="dateModified">2018-06-17</time>
+    更新日期:<time datetime="2018-07-02T03:30:41.944Z" itemprop="dateModified">2018-07-02</time>
     
   </p>
 </header>
@@ -127,7 +127,7 @@
 <p>无缓冲的通道保证进行发送和接收的 goroutine 会在同一时间进行数据交换;有缓冲的 通道没有这种保证</p>
 <p><img src="/2018/06/15/go-shopee-share-advance/2.png" alt=""></p>
 <p><img src="/2018/06/15/go-shopee-share-advance/3.png" alt=""></p>
-<p>可以理解为无缓存的通道是容量为 1 的缓冲通道。</p>
+<p>可以理解为无缓存的通道是容量为 0 的缓冲通道。</p>
 <p>一个例子：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, <span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		c &lt;- <span class="number">1</span></span><br><span class="line">		fmt.Println(<span class="string">"a"</span>)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	time.Sleep(time.Second)</span><br><span class="line">  fmt.Println(&lt;-c)</span><br><span class="line"></span><br><span class="line"><span class="comment">//</span></span><br><span class="line">a</span><br><span class="line"><span class="number">1</span></span><br><span class="line"></span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		c &lt;- <span class="number">1</span></span><br><span class="line">		fmt.Println(<span class="string">"a"</span>)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	time.Sleep(time.Second)</span><br><span class="line">  fmt.Println(&lt;-c)</span><br><span class="line"></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
 <ul>
@@ -246,6 +246,14 @@
 	
 <nav class="article-nav clearfix">
  
+ <div class="prev" >
+ <a href="/2018/07/11/webpack-bundle-dive-into/" title="浅析 webpack 打包机制">
+  <strong>PREVIOUS:</strong><br/>
+  <span>
+  浅析 webpack 打包机制</span>
+</a>
+</div>
+
 
 <div class="next">
 <a href="/2018/05/07/react-vdom/"  title="实现一个简单的 React Virtual Dom">
@@ -283,7 +291,7 @@
 		
 			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
 		
-			<li><a href="/categories/javascript/" title="javascript">javascript<sup>9</sup></a></li>
+			<li><a href="/categories/javascript/" title="javascript">javascript<sup>10</sup></a></li>
 		
 			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
 		
@@ -313,7 +321,7 @@
   <div class="tagcloudlist">
     <p class="asidetitle">标签云</p>
     <div class="tagcloudlist clearfix">
-       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 11.67px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 15px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 11.67px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 11.67px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 15px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 13.33px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
     </div>
   </div>
 
