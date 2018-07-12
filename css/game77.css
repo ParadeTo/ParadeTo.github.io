@@ -13,7 +13,7 @@ body {
 }
 body {
   height: 100%;
-  background: url("/img/game77/bg.jpg");
+  background: url("/images/game77/bg.jpg");
   background-size: cover;
   background-repeat: no-repeat;
 }
@@ -143,7 +143,7 @@ body {
   right: -100px;
 }
 #map {
-  background: url("/img/game77/map.jpeg");
+  background: url("/images/game77/map.jpeg");
   background-size: cover;
 }
 #map img {
@@ -182,7 +182,7 @@ body {
 .kiss-outer {
   width: 100%;
   height: 100%;
-  background-image: url("/img/game77/flower.png");
+  background-image: url("/images/game77/flower.png");
   background-repeat: no-repeat;
   background-size: cover;
 }

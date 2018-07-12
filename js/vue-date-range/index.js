@@ -78,7 +78,7 @@ Vue.component('datepicker', {
 })
 
 new Vue({
-  el: '#app',
+  el: '#vue-date-range-page',
   components: {
     'daterange': daterange.DateRange,
     'calendar': daterange.Calendar

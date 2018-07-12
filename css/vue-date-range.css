@@ -1,9 +1,8 @@
-html,
-body {
+#vue-date-range-page {
   background: linear-gradient(to bottom right, #00ebcb, #dafffa) !important;
   background-color: transparent !important;
 }
-.container {
+#vue-date-range-page .container {
   max-width: 1024px !important;
   background-color: #fff;
   padding: 0 0.5rem;
@@ -11,40 +10,40 @@ body {
   margin-top: 1rem;
 /*box-shadow: ;*/
 }
-.date-container,
-.selected-container {
+#vue-date-range-page .date-container,
+#vue-date-range-page .selected-container {
   margin: 1rem auto;
   padding: 0 !important;
   min-width: 300px;
   max-width: 400px !important;
 }
-.demo-page {
+#vue-date-range-page .demo-page {
   min-height: 100vh;
   padding: 0 0.5rem;
 }
-.column {
+#vue-date-range-page .column {
   padding-top: 0;
   padding-bottom: 0.5rem;
 }
 @media screen and (min-width: 768px) {
-  .control:not(:last-child) {
+  #vue-date-range-page .control:not(:last-child) {
     margin-bottom: 0.2rem;
   }
-  .is-full {
+  #vue-date-range-page .is-full {
     flex: 1;
   }
-  .is-horizontal {
+  #vue-date-range-page .is-horizontal {
     display: flex;
     align-items: center;
   }
-  .label {
+  #vue-date-range-page .label {
     margin-right: 1rem;
   }
 }
-.date-picker {
+#vue-date-range-page .date-picker {
   position: relative;
 }
-.calendar-wrapper {
+#vue-date-range-page .calendar-wrapper {
   border: 1px solid #bbb;
   position: absolute;
   min-width: 300px;
@@ -52,14 +51,14 @@ body {
   z-index: 999;
 }
 @media all and (max-width: 375px) {
-  .calendar-wrapper {
+  #vue-date-range-page .calendar-wrapper {
     width: 120%;
     max-width: 120%;
     left: 50%;
     transform: translateX(-50%);
   }
 }
-.mask {
+#vue-date-range-page .mask {
   position: fixed;
   top: 0;
   left: 0;

@@ -17,7 +17,7 @@ function isMobile() {
 }
 
 new Vue({
-  el: '#app',
+  el: '#vue-tree-list-page',
   components: {
     'VueTreeList': VueTreeList.VueTreeList
   },

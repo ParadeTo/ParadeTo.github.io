@@ -12,9 +12,9 @@
   var SCORE = 3
   var V = {max: 0.5, min: 0.1}
   var ARROW_V = 20
-  var WY_IMG = '/img/game77/wy.png'
-  var XQ_IMG = '/img/game77/xq.png'
-  var ARROW_IMG = '/img/game77/arrow.png'
+  var WY_IMG = '/images/game77/wy.png'
+  var XQ_IMG = '/images/game77/xq.png'
+  var ARROW_IMG = '/images/game77/arrow.png'
   var GARDEN = document.getElementById('garden')
   var SECONDS = document.getElementById('seconds')
   var BOY = document.getElementById('boy')
@@ -94,7 +94,7 @@
       div.style.top = y
       var img = document.createElement('img')
       img.className = 'single-kiss'
-      img.src = "/img/game77/single_kiss.png"
+      img.src = "/images/game77/single_kiss.png"
       img.style.animationDelay = Math.random() * 5 + 's'
       div.appendChild(img)
       frag.appendChild(div)
@@ -107,7 +107,7 @@
   }
 
   function getGifPath (isPraise) {
-    return isPraise ? '/img/game77/praise_1.gif' : '/img/game77/hit_1.gif'
+    return isPraise ? '/images/game77/praise_1.gif' : '/images/game77/hit_1.gif'
   }
 
   function showGif (isPraise) {

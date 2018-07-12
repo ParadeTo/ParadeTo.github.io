@@ -1,371 +1,1879 @@
+<!DOCTYPE html>
 
- <!DOCTYPE HTML>
-<html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
+
+
   
-    <title>Ayou</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=3, minimum-scale=1">
-    
-    <meta name="author" content="Ayou">
-    
-    <meta name="description" content="一名转行的菜鸡程序员">
-    
-    
-    
-    
-    
-    <link rel="icon" href="/img/favicon.ico">
-    
-    
-    <link rel="apple-touch-icon" href="/img/yaht.jpg">
-    <link rel="apple-touch-icon-precomposed" href="/img/yaht.jpg">
-    
-    
-        <link rel="stylesheet" href="/css/style.css">
-    
-    
-    
-<script type="text/javascript">
-  var _hmt = _hmt || [];
-  (function() {
-    var hm = document.createElement("script");
-    hm.src = "//hm.baidu.com/hm.js?bc27adb5eec6cd3b858ecca2a190876a";
-    var s = document.getElementsByTagName("script")[0];
-    s.parentNode.insertBefore(hm, s);
-  })();
+
+
+<html class="theme-next mist use-motion" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Shopee DP FE" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一名转行的菜鸡程序员">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Ayou">
+<meta property="og:url" content="http://www.paradeto.com/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="一名转行的菜鸡程序员">
+<meta property="og:locale" content="zh-CN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ayou">
+<meta name="twitter:description" content="一名转行的菜鸡程序员">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
 </script>
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/"/>
+
+
+
+
+
+  <title>Ayou</title>
+  
+
+
+
+
+
+
 
 
 </head>
 
-  <body>
-    <header>
-      <canvas id="headerCanvas">
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
 
-</canvas>
-<div>
-		
-			<div id="imglogo">
-				<a href="/"><img src="/img/logo.png" alt="Ayou" title="Ayou"/></a>
-			</div>
-			
-			<div id="textlogo">
-				<h1 class="site-name"><a href="/" title="Ayou">Ayou</a></h1>
-				<h2 class="blog-motto">Good Good Study, Day Day Up!</h2>
-			</div>
-			<div class="navbar"><a class="navbutton navmobile" href="#" title="菜单">
-			</a></div>
-			<nav class="animated">
-				<ul>
-					<ul>
-					 
-						<li><a href="/">Home</a></li>
-					
-						<li><a href="/archives">Archives</a></li>
-					
-						<li><a href="/resume">Resume</a></li>
-					
-						<li><a href="/demo">Demo</a></li>
-					
-					<li>
-					
-					<!--<form class="search" action="//google.com/search" method="get" accept-charset="utf-8">-->
-						<!--<label>Search</label>-->
-						<!--<input type="text" id="search" name="q" autocomplete="off" maxlength="20" placeholder="搜索" />-->
-						<!--<input type="hidden" name="q" value="site:www.paradeto.com">-->
-					<!--</form>-->
-					
-					</li>
-				</ul>
-			</nav>			
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left 
+  page-home">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
 </div>
 
-    </header>
-    <div id="container">
-      <div id="main">
+<nav class="site-nav">
+  
 
-  <section class="post" itemscope itemprop="blogPost">
   
-    <a href="/2018/07/11/webpack-bundle-dive-into/" title="浅析 webpack 打包机制" itemprop="url">
-  
-    <h1 itemprop="name">浅析 webpack 打包机制</h1>
-    
-     
-      <p itemprop="description" >简单的分析一下 webpack 打包后的结果</p>
+    <ul id="menu" class="menu">
       
-    
-    <time datetime="2018-07-11T03:01:36.000Z" itemprop="datePublished">2018-07-11</time>
-  </a>
-</section>
-
-  <section class="post" itemscope itemprop="blogPost">
-  
-    <a href="/2018/06/15/go-shopee-share-advance/" title="Golang 进阶分享" itemprop="url">
-  
-    <h1 itemprop="name">Golang 进阶分享</h1>
-    
-     
-      <p itemprop="description" >组内分享</p>
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
       
-    
-    <time datetime="2018-06-15T11:08:23.000Z" itemprop="datePublished">2018-06-15</time>
-  </a>
-</section>
-
-  <section class="post" itemscope itemprop="blogPost">
-  
-    <a href="/2018/05/07/react-vdom/" title="实现一个简单的 React Virtual Dom" itemprop="url">
-  
-    <h1 itemprop="name">实现一个简单的 React Virtual Dom</h1>
-    
-     
-      <p itemprop="description" >实现一个简单的 virtual dom</p>
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            demo
+          </a>
+        </li>
       
-    
-    <time datetime="2018-05-07T06:22:19.000Z" itemprop="datePublished">2018-05-07</time>
-  </a>
-</section>
-
-  <section class="post" itemscope itemprop="blogPost">
-  
-    <a href="/2018/05/05/docker-command/" title="docker 命令汇总" itemprop="url">
-  
-    <h1 itemprop="name">docker 命令汇总</h1>
-    
-     
-      <p itemprop="description" >docker 命令汇总</p>
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
       
-    
-    <time datetime="2018-05-05T06:01:55.000Z" itemprop="datePublished">2018-05-05</time>
-  </a>
-</section>
-
-  <section class="post" itemscope itemprop="blogPost">
-  
-    <a href="/2018/04/18/react-nginx/" title="create-react-app 项目生产环境部署之 nginx 配置" itemprop="url">
-  
-    <h1 itemprop="name">create-react-app 项目生产环境部署之 nginx 配置</h1>
-    
-     
-      <p itemprop="description" >create-react-app 项目配置 nginx</p>
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
       
-    
-    <time datetime="2018-04-18T08:38:21.000Z" itemprop="datePublished">2018-04-18</time>
-  </a>
-</section>
-
-  <section class="post" itemscope itemprop="blogPost">
-  
-    <a href="/2018/03/09/vue-ssr-1/" title="vue 服务端渲染折腾记录" itemprop="url">
-  
-    <h1 itemprop="name">vue 服务端渲染折腾记录</h1>
-    
-     
-      <p itemprop="description" >vue ssr 尝试</p>
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
       
-    
-    <time datetime="2018-03-09T01:56:34.000Z" itemprop="datePublished">2018-03-09</time>
-  </a>
-</section>
 
-  <section class="post" itemscope itemprop="blogPost">
-  
-    <a href="/2018/02/22/translate-go-docker/" title="为 Go Web-apps 编写 Dockerfiles 的终极指南（译）" itemprop="url">
-  
-    <h1 itemprop="name">为 Go Web-apps 编写 Dockerfiles 的终极指南（译）</h1>
-    
-     
-      <p itemprop="description" >为 Go Web-apps 编写 Dockerfiles 的终极指南</p>
       
-    
-    <time datetime="2018-02-22T01:33:34.000Z" itemprop="datePublished">2018-02-22</time>
-  </a>
-</section>
+    </ul>
+  
 
-  <section class="post" itemscope itemprop="blogPost">
   
-    <a href="/2018/02/22/translate-fe-performance/" title="2018 前端性能优化清单 - 第 4 部分（译）" itemprop="url">
-  
-    <h1 itemprop="name">2018 前端性能优化清单 - 第 4 部分（译）</h1>
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+  <section id="posts" class="posts-expand">
     
-     
-      <p itemprop="description" >2018 前端性能优化清单 - 第 4 部分</p>
       
-    
-    <time datetime="2018-02-22T01:19:18.000Z" itemprop="datePublished">2018-02-22</time>
-  </a>
-</section>
 
-  <section class="post" itemscope itemprop="blogPost">
   
-    <a href="/2018/01/27/go-slice1/" title="Go 切片使用注意事项" itemprop="url">
+
   
-    <h1 itemprop="name">Go 切片使用注意事项</h1>
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
     
-     
-      <p itemprop="description" >关于 Go 中切片使用的注意点</p>
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/07/11/webpack-bundle-dive-into/" itemprop="url">浅析 webpack 打包机制</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-07-11T11:01:36+08:00">
+                2018-07-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
       
-    
-    <time datetime="2018-01-27T01:41:44.000Z" itemprop="datePublished">2018-01-27</time>
-  </a>
-</section>
-
-  <section class="post" itemscope itemprop="blogPost">
-  
-    <a href="/2018/01/24/go-interface/" title="如何在 Go 中使用接口（译）" itemprop="url">
-  
-    <h1 itemprop="name">如何在 Go 中使用接口（译）</h1>
-    
-     
-      <p itemprop="description" >关于 Go 中接口的一篇好文章</p>
       
+
+      
+        
+          简单的分析一下 webpack 打包后的结果
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/07/11/webpack-bundle-dive-into/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
     
-    <time datetime="2018-01-24T15:45:01.000Z" itemprop="datePublished">2018-01-24</time>
-  </a>
-</section>
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
 
 
-  <nav id="page-nav" class="clearfix">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/06/15/go-shopee-share-advance/" itemprop="url">Golang 进阶分享</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-06-15T19:08:23+08:00">
+                2018-06-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          组内分享
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/06/15/go-shopee-share-advance/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/05/07/react-vdom/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/07/react-vdom/" itemprop="url">实现一个简单的 React Virtual Dom</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-05-07T14:22:19+08:00">
+                2018-05-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/转载/" itemprop="url" rel="index">
+                    <span itemprop="name">转载</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          实现一个简单的 virtual dom
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/07/react-vdom/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/05/05/docker-command/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/05/05/docker-command/" itemprop="url">docker 命令汇总</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-05-05T14:01:55+08:00">
+                2018-05-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/docker/" itemprop="url" rel="index">
+                    <span itemprop="name">docker</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          docker 命令汇总
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/05/05/docker-command/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/04/18/react-nginx/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/04/18/react-nginx/" itemprop="url">create-react-app 项目生产环境部署之 nginx 配置</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-04-18T16:38:21+08:00">
+                2018-04-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          create-react-app 项目配置 nginx
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/04/18/react-nginx/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/03/09/vue-ssr-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/03/09/vue-ssr-1/" itemprop="url">vue 服务端渲染折腾记录</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-03-09T09:56:34+08:00">
+                2018-03-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          vue ssr 尝试
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/03/09/vue-ssr-1/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/02/22/translate-go-docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/22/translate-go-docker/" itemprop="url">为 Go Web-apps 编写 Dockerfiles 的终极指南（译）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-22T09:33:34+08:00">
+                2018-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/翻译/" itemprop="url" rel="index">
+                    <span itemprop="name">翻译</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          为 Go Web-apps 编写 Dockerfiles 的终极指南
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/02/22/translate-go-docker/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/02/22/translate-fe-performance/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/02/22/translate-fe-performance/" itemprop="url">2018 前端性能优化清单 - 第 4 部分（译）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-22T09:19:18+08:00">
+                2018-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/翻译/" itemprop="url" rel="index">
+                    <span itemprop="name">翻译</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          2018 前端性能优化清单 - 第 4 部分
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/02/22/translate-fe-performance/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/01/27/go-slice1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/27/go-slice1/" itemprop="url">Go 切片使用注意事项</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-01-27T09:41:44+08:00">
+                2018-01-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          关于 Go 中切片使用的注意点
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/01/27/go-slice1/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/01/24/go-interface/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/01/24/go-interface/" itemprop="url">如何在 Go 中使用接口（译）</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-01-24T23:45:01+08:00">
+                2018-01-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/翻译/" itemprop="url" rel="index">
+                    <span itemprop="name">翻译</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          关于 Go 中接口的一篇好文章
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2018/01/24/go-interface/">
+              Read more &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+  </section>
+
+  
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
-</div>
-      <div class="openaside"><a class="navbutton" href="#" title="显示侧边栏"></a></div>
 
-<div id="asidepart">
-<div class="closeaside"><a class="closebutton" href="#" title="隐藏侧边栏"></a></div>
-<aside class="clearfix">
 
+            </div>
+            
+
+
+            
+
+          </div>
+          
+            
   
-<div class="categorieslist">
-	<p class="asidetitle">分类</p>
-		<ul>
-		
-			<li><a href="/categories/docker/" title="docker">docker<sup>1</sup></a></li>
-		
-			<li><a href="/categories/go/" title="go">go<sup>2</sup></a></li>
-		
-			<li><a href="/categories/html-css/" title="html/css">html/css<sup>3</sup></a></li>
-		
-			<li><a href="/categories/javascript/" title="javascript">javascript<sup>10</sup></a></li>
-		
-			<li><a href="/categories/mongodb/" title="mongodb">mongodb<sup>1</sup></a></li>
-		
-			<li><a href="/categories/nodejs/" title="nodejs">nodejs<sup>9</sup></a></li>
-		
-			<li><a href="/categories/python/" title="python">python<sup>6</sup></a></li>
-		
-			<li><a href="/categories/前端理论/" title="前端理论">前端理论<sup>2</sup></a></li>
-		
-			<li><a href="/categories/机器学习/" title="机器学习">机器学习<sup>4</sup></a></li>
-		
-			<li><a href="/categories/算法/" title="算法">算法<sup>16</sup></a></li>
-		
-			<li><a href="/categories/翻译/" title="翻译">翻译<sup>4</sup></a></li>
-		
-			<li><a href="/categories/读书笔记/" title="读书笔记">读书笔记<sup>11</sup></a></li>
-		
-			<li><a href="/categories/转载/" title="转载">转载<sup>3</sup></a></li>
-		
-			<li><a href="/categories/项目实战/" title="项目实战">项目实战<sup>3</sup></a></li>
-		
-		</ul>
-</div>
-
-
-  
-  <div class="tagcloudlist">
-    <p class="asidetitle">标签云</p>
-    <div class="tagcloudlist clearfix">
-       <a href="/tags/WEB安全/" style="font-size: 11.67px;">WEB安全</a> <a href="/tags/angularjs2/" style="font-size: 10px;">angularjs2</a> <a href="/tags/bigpipe/" style="font-size: 10px;">bigpipe</a> <a href="/tags/canvas/" style="font-size: 13.33px;">canvas</a> <a href="/tags/chrome插件/" style="font-size: 10px;">chrome插件</a> <a href="/tags/cluster/" style="font-size: 13.33px;">cluster</a> <a href="/tags/css/" style="font-size: 10px;">css</a> <a href="/tags/docker/" style="font-size: 11.67px;">docker</a> <a href="/tags/es6/" style="font-size: 11.67px;">es6</a> <a href="/tags/event/" style="font-size: 10px;">event</a> <a href="/tags/go/" style="font-size: 15px;">go</a> <a href="/tags/helmet/" style="font-size: 10px;">helmet</a> <a href="/tags/html/" style="font-size: 11.67px;">html</a> <a href="/tags/http/" style="font-size: 13.33px;">http</a> <a href="/tags/https/" style="font-size: 10px;">https</a> <a href="/tags/javascript/" style="font-size: 16.67px;">javascript</a> <a href="/tags/jquery插件/" style="font-size: 10px;">jquery插件</a> <a href="/tags/mysql/" style="font-size: 15px;">mysql</a> <a href="/tags/nodejs/" style="font-size: 18.33px;">nodejs</a> <a href="/tags/promise/" style="font-size: 10px;">promise</a> <a href="/tags/python/" style="font-size: 15px;">python</a> <a href="/tags/react/" style="font-size: 15px;">react</a> <a href="/tags/replica/" style="font-size: 10px;">replica</a> <a href="/tags/scrapy/" style="font-size: 11.67px;">scrapy</a> <a href="/tags/sharding/" style="font-size: 10px;">sharding</a> <a href="/tags/slb/" style="font-size: 10px;">slb</a> <a href="/tags/vue/" style="font-size: 11.67px;">vue</a> <a href="/tags/webpack/" style="font-size: 13.33px;">webpack</a> <a href="/tags/事件/" style="font-size: 10px;">事件</a> <a href="/tags/仿原生APP/" style="font-size: 10px;">仿原生APP</a> <a href="/tags/堆/" style="font-size: 11.67px;">堆</a> <a href="/tags/字典树/" style="font-size: 11.67px;">字典树</a> <a href="/tags/字符串匹配/" style="font-size: 10px;">字符串匹配</a> <a href="/tags/密码/" style="font-size: 10px;">密码</a> <a href="/tags/异步编程/" style="font-size: 10px;">异步编程</a> <a href="/tags/搜索/" style="font-size: 10px;">搜索</a> <a href="/tags/最大子序列/" style="font-size: 10px;">最大子序列</a> <a href="/tags/机器学习/" style="font-size: 15px;">机器学习</a> <a href="/tags/矩阵/" style="font-size: 10px;">矩阵</a> <a href="/tags/算法/" style="font-size: 20px;">算法</a> <a href="/tags/自动机/" style="font-size: 10px;">自动机</a> <a href="/tags/计算机系统/" style="font-size: 10px;">计算机系统</a> <a href="/tags/质数/" style="font-size: 10px;">质数</a> <a href="/tags/贪心/" style="font-size: 10px;">贪心</a> <a href="/tags/面试/" style="font-size: 10px;">面试</a>
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
     </div>
   </div>
 
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
 
-</aside>
-</div>
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
     </div>
-    <footer><div id="footer" >
-	
-	<div class="line">
-		<span></span>
-		<div class="author"></div>
-	</div>
-	
-	
-	<section class="info">
-		<p> Hello, I&#39;m ayou! <br/>
-			This is my blog, believe it or not</p>
-	</section>
-	 
-	<div class="social-font" class="clearfix">
-		
-		<a href="http://weibo.com/2290700255" target="_blank" name="weibo"></a>
-		
-		
-		
-		<a href="https://github.com/paradeto" target="_blank" name="github"></a>
-		
-		
-	</div>
-		<p class="copyright">Powered by <a href="http://hexo.io" target="_blank" title="hexo">hexo</a> and Theme by <a href="https://github.com/zhyu/yaht" target="_blank" title="YAHT">YAHT</a> © 2018 
-		
-		<a href="http://www.paradeto.com" target="_blank" title="Ayou">Ayou</a>
-		
-		</p>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
 </div>
-</footer>
-    <script src="/js/jquery-2.1.0.min.js"></script>
-<!--公式-->
 
-<!--canvas-->
 
-<script src="/js/canvas.js"></script>
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
 
 <script type="text/javascript">
-  $(document).ready(function(){
-    $('.navbar').click(function(){
-      $('header nav').toggleClass('shownav');
-    });
-    var myWidth = 0;
-    function getSize(){
-      if( typeof( window.innerWidth ) == 'number' ) {
-        myWidth = window.innerWidth;
-      } else if( document.documentElement && document.documentElement.clientWidth) {
-        myWidth = document.documentElement.clientWidth;
-      };
-    };
-    var m = $('#main'),
-    a = $('#asidepart'),
-    c = $('.closeaside'),
-    o = $('.openaside');
-    $(window).resize(function(){
-      getSize();
-      if (myWidth >= 1024) {
-        $('header nav').removeClass('shownav');
-      }else
-      {
-        m.removeClass('moveMain');
-        a.css('display', 'block').removeClass('fadeOut');
-        o.css('display', 'none');
-        
-      }
-    });
-    c.click(function(){
-      a.addClass('fadeOut').css('display', 'none');
-      o.css('display', 'block').addClass('fadeIn');
-      m.addClass('moveMain');
-    });
-    o.click(function(){
-      o.css('display', 'none').removeClass('beforeFadeIn');
-      a.css('display', 'block').removeClass('fadeOut').addClass('fadeIn');
-      m.removeClass('moveMain');
-    });
-    $(window).scroll(function(){
-      o.css("top",Math.max(80,260-$(this).scrollTop()));
-    });
-  });
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
 </script>
 
 
@@ -376,19 +1884,132 @@
 
 
 
+  
+
+
+  
 
 
 
 
 
 
-  <div id="back-to-top">
-    <a title="返回顶部"><img src="/img/scrollup.png"/></a>
-  </div>
-  <script src="/js/back_to_top.js"></script>
 
 
 
-  </body>
- </html>
 
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

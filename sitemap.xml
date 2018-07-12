@@ -2,6 +2,27 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://www.paradeto.com/categories/index.html</loc>
+    
+    <lastmod>2018-07-12T10:45:19.275Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/demo/index.html</loc>
+    
+    <lastmod>2018-07-12T09:10:09.409Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/tags/index.html</loc>
+    
+    <lastmod>2018-07-12T04:16:18.355Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/</loc>
     
     <lastmod>2018-07-11T04:25:00.186Z</lastmod>
@@ -40,27 +61,6 @@
     <loc>http://www.paradeto.com/2018/04/18/react-nginx/</loc>
     
     <lastmod>2018-04-18T09:03:47.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2017/08/01/js-hld-eventjs/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2016/06/06/algo-dcsort/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
@@ -156,6 +156,13 @@
   </url>
   
   <url>
+    <loc>http://www.paradeto.com/2017/08/14/css-secrets/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.paradeto.com/2016/07/01/demo-app-pwd/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -164,13 +171,6 @@
   
   <url>
     <loc>http://www.paradeto.com/2016/09/13/demo-chrome-plugin/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2017/08/14/css-secrets/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -191,14 +191,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/06/29/demo-webpack/</loc>
+    <loc>http://www.paradeto.com/2018/01/13/500lines-interpreter/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2018/01/13/500lines-interpreter/</loc>
+    <loc>http://www.paradeto.com/2016/06/29/demo-webpack/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -254,14 +254,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/06/01/hpMysql6/</loc>
+    <loc>http://www.paradeto.com/2017/10/27/js-es6-produce-consumer/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/10/27/js-es6-produce-consumer/</loc>
+    <loc>http://www.paradeto.com/2017/06/01/hpMysql6/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -275,14 +275,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/08/15/js-hld-13/</loc>
+    <loc>http://www.paradeto.com/2017/08/08/js-hld-22/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/08/08/js-hld-22/</loc>
+    <loc>http://www.paradeto.com/2016/08/15/js-hld-13/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -296,14 +296,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2018/01/04/500lines-template-engine/</loc>
+    <loc>http://www.paradeto.com/2017/08/01/js-hld-eventjs/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/05/23/ml-bayes/</loc>
+    <loc>http://www.paradeto.com/2018/01/04/500lines-template-engine/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -373,13 +373,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/05/27/nodejs-cluster/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/2016/06/17/nodejs-helmet/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -388,6 +381,13 @@
   
   <url>
     <loc>http://www.paradeto.com/2017/06/01/nodejs-memory/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2017/05/27/nodejs-cluster/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -464,13 +464,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2018/02/22/translate-go-docker/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/2018/02/22/translate-fe-performance/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -478,7 +471,21 @@
   </url>
   
   <url>
+    <loc>http://www.paradeto.com/2018/02/22/translate-go-docker/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.paradeto.com/2018/03/09/vue-ssr-1/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2016/09/10/web-cors-cookie/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -499,13 +506,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/09/10/web-cors-cookie/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/2016/06/17/web-hsts/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -520,7 +520,7 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/10/31/algo-fast-power-matrix/</loc>
+    <loc>http://www.paradeto.com/2016/06/06/algo-dcsort/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -534,13 +534,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/cubilose/index.html</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/birthday/index.html</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -548,7 +541,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/demo/index.html</loc>
+    <loc>http://www.paradeto.com/cubilose/index.html</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2017/10/31/algo-fast-power-matrix/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -569,13 +569,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/vue-date-range/index.html</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/resume/index.html</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -583,7 +576,28 @@
   </url>
   
   <url>
+    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/vue-date-range/index.html</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.paradeto.com/vue-tree-list/index.html</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2017/05/23/ml-bayes/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
