@@ -1,6 +1,7 @@
 #vue-date-range-page {
   background: linear-gradient(to bottom right, #00ebcb, #dafffa) !important;
   background-color: transparent !important;
+  padding-bottom: 50px;
 }
 #vue-date-range-page .container {
   max-width: 1024px !important;
@@ -9,6 +10,12 @@
   background-color: #fff;
   margin-top: 1rem;
 /*box-shadow: ;*/
+}
+#vue-date-range-page a {
+  border-bottom: none;
+}
+#vue-date-range-page img {
+  display: inline;
 }
 #vue-date-range-page .date-container,
 #vue-date-range-page .selected-container {
@@ -49,6 +56,9 @@
   min-width: 300px;
   max-width: 400px;
   z-index: 999;
+}
+#vue-date-range-page .calendar-wrapper .v-date-calendar {
+  height: 400px;
 }
 @media all and (max-width: 375px) {
   #vue-date-range-page .calendar-wrapper {
