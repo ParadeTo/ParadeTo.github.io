@@ -89,17 +89,17 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="mongodb replica sharding 实战">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/mongo-replica-sharding/outline.jpg">
-<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/mongo-replica-sharding/host1.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/mongo-replica-sharding/host2.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/mongo-replica-sharding/host3.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/mongo-replica-sharding/sharding1.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/mongo-replica-sharding/sharding2.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/outline.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/host1.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/host2.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/host3.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/sharding1.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/sharding2.png">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mongodb replica sharding 实战">
 <meta name="twitter:description" content="mongodb replica sharding 实战">
-<meta name="twitter:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/mongo-replica-sharding/outline.jpg">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/12/22/mongo-replica-sharding/outline.jpg">
 
 
 
@@ -206,7 +206,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -241,12 +241,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -382,7 +382,7 @@
 <li>host3 192.168.1.203</li>
 </ul>
 <h2 id="mongdb版本"><a href="#mongdb版本" class="headerlink" title="mongdb版本"></a>mongdb版本</h2><p>2.4.0</p>
-<h2 id="服务规划"><a href="#服务规划" class="headerlink" title="服务规划"></a>服务规划</h2><p><img src="mongo-replica-sharding/outline.jpg" alt="outline.jpg"></p>
+<h2 id="服务规划"><a href="#服务规划" class="headerlink" title="服务规划"></a>服务规划</h2><p><img src="/2016/12/22/mongo-replica-sharding/outline.jpg" alt="outline.jpg"></p>
 <ul>
 <li>shard1 28017：shard1的数据服务</li>
 <li>shard2 28018：shard2的数据服务</li>
@@ -418,9 +418,9 @@
 <h2 id="host2-1"><a href="#host2-1" class="headerlink" title="host2"></a>host2</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mongod --config /home/ayou/mongodb/shard12.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/shard22.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/arbiter1.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/arbiter2.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/config2.conf</span><br><span class="line">mongos --config /home/ayou/mongodb/mongos2.conf</span><br></pre></td></tr></table></figure>
 <h2 id="host3-1"><a href="#host3-1" class="headerlink" title="host3"></a>host3</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mongod --config /home/ayou/mongodb/shard13.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/shard23.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/arbiter1.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/arbiter2.conf</span><br><span class="line">mongod --config /home/ayou/mongodb/config3.conf</span><br><span class="line">mongos --config /home/ayou/mongodb/mongos3.conf</span><br></pre></td></tr></table></figure>
 <h1 id="启动路由"><a href="#启动路由" class="headerlink" title="启动路由"></a>启动路由</h1><p>任选一台机器，执行如下命令<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">cat &gt; <span class="regexp">/home/</span>ayou/mongodb/mongos.conf &lt;&lt;EOF</span><br><span class="line">configdb=host1:<span class="number">20000</span>,<span class="attr">host2</span>:<span class="number">20000</span>,<span class="attr">host3</span>:<span class="number">20000</span></span><br><span class="line">port=<span class="number">41000</span></span><br><span class="line">chunkSize=<span class="number">100</span></span><br><span class="line">logpath=<span class="regexp">/home/</span>ayou/mongodb/mongos.log</span><br><span class="line">logappend=<span class="literal">true</span></span><br><span class="line">fork=<span class="literal">true</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">mongos --config /home/ayou/mongodb/mongos.conf</span><br></pre></td></tr></table></figure></p>
-<h1 id="查看运行状态"><a href="#查看运行状态" class="headerlink" title="查看运行状态"></a>查看运行状态</h1><p><img src="mongo-replica-sharding/host1.png" alt="host1.png"></p>
-<p><img src="mongo-replica-sharding/host2.png" alt="host2.png"></p>
-<p><img src="mongo-replica-sharding/host3.png" alt="host3.png"></p>
+<h1 id="查看运行状态"><a href="#查看运行状态" class="headerlink" title="查看运行状态"></a>查看运行状态</h1><p><img src="/2016/12/22/mongo-replica-sharding/host1.png" alt="host1.png"></p>
+<p><img src="/2016/12/22/mongo-replica-sharding/host2.png" alt="host2.png"></p>
+<p><img src="/2016/12/22/mongo-replica-sharding/host3.png" alt="host3.png"></p>
 <h1 id="配置分片"><a href="#配置分片" class="headerlink" title="配置分片"></a>配置分片</h1><ul>
 <li>可以在任意台机器上进行如下操作</li>
 <li>可能需要关闭防火墙</li>
@@ -430,8 +430,8 @@
 <h1 id="添加分片"><a href="#添加分片" class="headerlink" title="添加分片"></a>添加分片</h1><p>任选一台机器<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">mongo host3:<span class="number">28885</span>/admin</span><br><span class="line">db.runCommand(&#123;<span class="string">"addshard"</span> : <span class="string">"shard1/host1:28017,host2:28017"</span>&#125;)</span><br><span class="line"></span><br><span class="line">db.runCommand(&#123;<span class="string">"addshard"</span> : <span class="string">"shard2/host1:28018,host2:28018"</span>&#125;)</span><br><span class="line"></span><br><span class="line">db.runCommand( &#123; <span class="string">"enablesharding"</span> : <span class="string">"test-shard"</span>&#125;)</span><br><span class="line"></span><br><span class="line">db.runCommand( &#123; <span class="attr">shardcollection</span> : <span class="string">"test-shard.test"</span>,<span class="attr">key</span> : &#123;<span class="attr">_id</span>: <span class="number">1</span>&#125; &#125; )</span><br></pre></td></tr></table></figure></p>
 <h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>往test-shard.test中插入大量数据<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">for(var i=0;i&lt;1000000;i++) db.test.insert(&#123;name:&quot;no&quot;+i&#125;)</span><br></pre></td></tr></table></figure></p>
 <p>查看分片状态</p>
-<p><img src="mongo-replica-sharding/sharding1.png" alt="sharding1.png"></p>
-<p><img src="mongo-replica-sharding/sharding2.png" alt="sharding2.png"></p>
+<p><img src="/2016/12/22/mongo-replica-sharding/sharding1.png" alt="sharding1.png"></p>
+<p><img src="/2016/12/22/mongo-replica-sharding/sharding2.png" alt="sharding2.png"></p>
 
       
     </div>

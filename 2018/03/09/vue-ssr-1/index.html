@@ -89,14 +89,14 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="vue ssr 尝试">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-1/vue-ssr-1.png">
-<meta property="og:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-1/vue-ssr-2.png">
-<meta property="og:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-1/vue-ssr-3.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-1.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-2.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-3.png">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="vue 服务端渲染折腾记录">
 <meta name="twitter:description" content="vue ssr 尝试">
-<meta name="twitter:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-1/vue-ssr-1.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2018/03/09/vue-ssr-1/vue-ssr-1.png">
 
 
 
@@ -203,7 +203,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -238,12 +238,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -394,7 +394,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"> const &#123; createBundleRenderer &#125; = require(&apos;vue-server-renderer&apos;)</span><br><span class="line"> const bundle = require(&apos;./dist/vue-ssr-server-bundle.json&apos;)</span><br><span class="line"></span><br><span class="line"> const renderer = createBundleRenderer(bundle, &#123;</span><br><span class="line">   template: fs.readFileSync(&apos;./index.template.html&apos;, &apos;utf-8&apos;)</span><br><span class="line"> &#125;)</span><br><span class="line">...</span><br><span class="line">// 服务端渲染</span><br><span class="line">server.get(&apos;*&apos;, (req, res) =&gt; &#123;</span><br><span class="line">  const context = &#123; url: req.originalUrl &#125;</span><br><span class="line">  renderer.renderToString(context, (err, html) =&gt; &#123;</span><br><span class="line">    if (err) &#123;</span><br><span class="line">      if (err.code === 404) &#123;</span><br><span class="line">        res.status(404).end(&apos;Page not found&apos;)</span><br><span class="line">      &#125; else &#123;</span><br><span class="line">        res.status(500).end(&apos;Internal Server Error&apos;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; else &#123;</span><br><span class="line">      res.end(html)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 <p>新增代码不多，首先使用上面生成的文件创建了一个 <code>renderer</code> 对象，然后调用其 <code>renderToString</code> 方法并传入包含请求路径的对象作为参数来进行渲染，最后将渲染好的数据即 <code>html</code> 返回。</p>
 <p>运行 <code>npm run server</code> 启动服务端，打开 <code>http://localhost:8081</code> 就可以看到效果了：</p>
-<p><img src="vue-ssr-1/vue-ssr-1.png" alt="image.png"></p>
+<p><img src="/2018/03/09/vue-ssr-1/vue-ssr-1.png" alt="image.png"></p>
 <h2 id="关于-asyncData"><a href="#关于-asyncData" class="headerlink" title="关于 asyncData"></a>关于 asyncData</h2><p>前面提到了 <code>asyncData</code> ，现在以该例子来梳理一下。首先，看看组件中的代码：</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">&lt;script&gt;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> &#123;</span><br><span class="line">  asyncData (&#123; store, route &#125;) &#123;</span><br><span class="line">    <span class="comment">// 触发 action 后，会返回 Promise</span></span><br><span class="line">    <span class="keyword">return</span> store.dispatch(<span class="string">'fetchItems'</span>)</span><br><span class="line">  &#125;,</span><br><span class="line">  data () &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      title: <span class="string">""</span>,</span><br><span class="line">      content: <span class="string">""</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  computed: &#123;</span><br><span class="line">    <span class="comment">// 从 store 的 state 对象中的获取 item。</span></span><br><span class="line">    itemList () &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.$store.state.items</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  methods: &#123;</span><br><span class="line">    submit () &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123;title, content&#125; = <span class="keyword">this</span></span><br><span class="line">      <span class="keyword">this</span>.$store.dispatch(<span class="string">'addItem'</span>, &#123;title, content&#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure>
 <p>这是一个很简单的组件，包括一个列表，该列表的内容通过请求从后端获取，一个表单，用于提交新的记录到后端保存。其中 <code>asyncData</code> 是我们约定的函数名，表示渲染组件需要预先执行它获取初始数据，它返回一个 <code>Promise</code>，以便我们在后端渲染的时候可以知道什么时候该操作完成。这里，该函数触发了 <code>fetchItems</code> 以更新 <code>store</code> 中的状态。还记得我们的 entry-server.js 文件吗，里面正是调用了组件的 <code>asyncData</code> 方法来进行数据预取的。</p>
@@ -412,8 +412,8 @@
 <p>最后，<code>server.js</code> 中，稍微做一点点修改：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">const clientManifest = require(&apos;./dist/vue-ssr-client-manifest.json&apos;)</span><br><span class="line"></span><br><span class="line">const renderer = createBundleRenderer(bundle, &#123;</span><br><span class="line">  template: fs.readFileSync(&apos;./index.template.html&apos;, &apos;utf-8&apos;),</span><br><span class="line">  clientManifest</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 <p>然后 <code>npm run server</code> 启动服务，再打开 <code>http://localhost:8081</code>，可以看到渲染后的 html 文件中已经引入了 js 资源了。</p>
-<p><img src="vue-ssr-1/vue-ssr-2.png" alt="image.png"><br>列表页中也可以提交新记录了：</p>
-<p><img src="vue-ssr-1/vue-ssr-3.png" alt="image.png"></p>
+<p><img src="/2018/03/09/vue-ssr-1/vue-ssr-2.png" alt="image.png"><br>列表页中也可以提交新记录了：</p>
+<p><img src="/2018/03/09/vue-ssr-1/vue-ssr-3.png" alt="image.png"></p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文先从搭建一个简单的 vue 开发环境开始，然后基于此实现了服务端渲染，并引入了客户端渲染所需的资源。通过这个过程跑通了 vue 服务端渲染的大致流程，但很多地方还需更进一步深入：</p>
 <ul>
 <li><p>样式的处理<br>本文并没有对样式进行处理，需进一步研究</p>

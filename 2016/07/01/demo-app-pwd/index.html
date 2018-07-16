@@ -89,12 +89,12 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="用H5仿造的原生APP密码输入控件">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2016/07/01/demo-app-pwd/demo-app-pwd/pwd.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2016/07/01/demo-app-pwd/pwd.jpg">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="H5仿原生APP密码输入">
 <meta name="twitter:description" content="用H5仿造的原生APP密码输入控件">
-<meta name="twitter:image" content="http://www.paradeto.com/2016/07/01/demo-app-pwd/demo-app-pwd/pwd.jpg">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/07/01/demo-app-pwd/pwd.jpg">
 
 
 
@@ -201,7 +201,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -236,12 +236,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -371,7 +371,7 @@
       
 
       
-        <h2 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h2><p><img src="demo-app-pwd/pwd.jpg" alt="pwd.jpg"></p>
+        <h2 id="效果图"><a href="#效果图" class="headerlink" title="效果图"></a>效果图</h2><p><img src="/2016/07/01/demo-app-pwd/pwd.jpg" alt="pwd.jpg"></p>
 <h2 id="实现方式"><a href="#实现方式" class="headerlink" title="实现方式"></a>实现方式</h2><p>将input框移出屏幕，用label来代替其捕捉输入动作，监听input的input事件，根据input的值来绘制圆点，具体见下面的代码：</p>
 <h3 id="html"><a href="#html" class="headerlink" title="html"></a>html</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&lt;div class=&quot;contain&quot; id=&quot;setTradePwd&quot;&gt;</span><br><span class="line">  &lt;h2&gt;请设置&lt;em&gt;交易密码&lt;/em&gt;&lt;/h2&gt;</span><br><span class="line">  &lt;span class=&quot;note&quot;&gt;交易密码用于理财产品的购买与赎回操作&lt;/span&gt;</span><br><span class="line">  &lt;input class=&quot;pwd-input&quot; type=&quot;tel&quot; id=&quot;pwdInput1&quot;&gt;</span><br><span class="line">  &lt;label class=&quot;pwd-input-fake&quot; id=&quot;pwdInput1Fake&quot; for=&quot;pwdInput1&quot;&gt;</span><br><span class="line">    &lt;span id=&quot;pwdInput1P1&quot;&gt;&lt;/span&gt;</span><br><span class="line">    &lt;span id=&quot;pwdInput1P2&quot;&gt;&lt;/span&gt;</span><br><span class="line">    &lt;span id=&quot;pwdInput1P3&quot;&gt;&lt;/span&gt;</span><br><span class="line">    &lt;span id=&quot;pwdInput1P4&quot;&gt;&lt;/span&gt;</span><br><span class="line">    &lt;span id=&quot;pwdInput1P5&quot;&gt;&lt;/span&gt;</span><br><span class="line">    &lt;span id=&quot;pwdInput1P6&quot;&gt;&lt;/span&gt;</span><br><span class="line">  &lt;/label&gt;</span><br><span class="line">&lt;/div&gt;</span><br></pre></td></tr></table></figure>
 <h3 id="less"><a href="#less" class="headerlink" title="less"></a>less</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line">@baseFontSize: 20px;</span><br><span class="line">.px2rem(@which, @size) &#123;  </span><br><span class="line">  @&#123;which&#125;: 1rem * ( @size / @baseFontSize )</span><br><span class="line">&#125;</span><br><span class="line">.pwd-input &#123;</span><br><span class="line">  transform: translateY(-500px);//移出屏幕</span><br><span class="line">  .px2rem(height, 25px);</span><br><span class="line">&#125;</span><br><span class="line">.pwd-input-fake &#123;</span><br><span class="line">  display: inline-block;</span><br><span class="line">  .px2rem(height, 42px);</span><br><span class="line">  .px2rem(width, 252px);</span><br><span class="line">  span &#123;</span><br><span class="line">    display: inline-block;</span><br><span class="line">    margin: 0;</span><br><span class="line">    .px2rem(height, 42px);</span><br><span class="line">    .px2rem(width, 42px);</span><br><span class="line">    border-top: 1px solid #bcbcbc;</span><br><span class="line">    border-bottom: 1px solid #bcbcbc;</span><br><span class="line">    border-left: 1px solid #e3e3e3;</span><br><span class="line">    position: relative;</span><br><span class="line">    &amp;.active:after &#123;</span><br><span class="line">      content:&apos;&apos;;</span><br><span class="line">      .px2rem(height, 10px);</span><br><span class="line">      .px2rem(width, 10px);</span><br><span class="line">      display: inline-block;</span><br><span class="line">      top: 50%;</span><br><span class="line">      left: 50%;</span><br><span class="line">      transform: translateX(-50%) translateY(-50%);</span><br><span class="line">      border-radius: 1rem;</span><br><span class="line">      background-color: #000011;</span><br><span class="line">      position: absolute;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  span:first-child &#123;</span><br><span class="line">    border-left: 1px solid #bcbcbc;</span><br><span class="line">  &#125;</span><br><span class="line">  span:last-child &#123;</span><br><span class="line">    border-right: 1px solid #bcbcbc;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>

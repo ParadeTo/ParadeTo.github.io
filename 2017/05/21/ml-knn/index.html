@@ -89,12 +89,12 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="机器学习实战k近邻算法">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/21/ml-knn/ml-knn/Figure_1.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/21/ml-knn/Figure_1.png">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="机器学习实战-k近邻算法">
 <meta name="twitter:description" content="机器学习实战k近邻算法">
-<meta name="twitter:image" content="http://www.paradeto.com/2017/05/21/ml-knn/ml-knn/Figure_1.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2017/05/21/ml-knn/Figure_1.png">
 
 
 
@@ -201,7 +201,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -236,12 +236,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -509,7 +509,7 @@
 <h2 id="解析数据"><a href="#解析数据" class="headerlink" title="解析数据"></a>解析数据</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">file2matrix</span><span class="params">(filename)</span>:</span></span><br><span class="line">    fr = open(filename)</span><br><span class="line">    numberOfLines = len(fr.readlines())         <span class="comment">#get the number of lines in the file</span></span><br><span class="line">    returnMat = zeros((numberOfLines,<span class="number">3</span>))        <span class="comment">#prepare matrix to return</span></span><br><span class="line">    classLabelVector = []                       <span class="comment">#prepare labels return</span></span><br><span class="line">    fr = open(filename)</span><br><span class="line">    index = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fr.readlines():</span><br><span class="line">        line = line.strip()</span><br><span class="line">        listFromLine = line.split(<span class="string">'\t'</span>)</span><br><span class="line">        returnMat[index,:] = listFromLine[<span class="number">0</span>:<span class="number">3</span>]</span><br><span class="line">        classLabelVector.append(int(listFromLine[<span class="number">-1</span>]))</span><br><span class="line">        index += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> returnMat,classLabelVector</span><br></pre></td></tr></table></figure>
 <h2 id="分析数据：绘图"><a href="#分析数据：绘图" class="headerlink" title="分析数据：绘图"></a>分析数据：绘图</h2><h3 id="安装matplotlib"><a href="#安装matplotlib" class="headerlink" title="安装matplotlib"></a>安装matplotlib</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pip install matplotlibrc</span><br><span class="line"></span><br><span class="line">vi ~/.matplotlib/matplotlibrc</span><br><span class="line"></span><br><span class="line">backend: TkAgg</span><br></pre></td></tr></table></figure>
 <h3 id="绘图"><a href="#绘图" class="headerlink" title="绘图"></a>绘图</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">plt.figure()</span><br><span class="line">l = plt.scatter(datingDataMat[:,<span class="number">1</span>], datingDataMat[:,<span class="number">2</span>], <span class="number">6</span>*array(datingLabels), (datingLabels), label=<span class="string">'1'</span>)</span><br><span class="line">plt.axis([<span class="number">-2</span>,<span class="number">25</span>,<span class="number">-0.2</span>,<span class="number">2.0</span>])</span><br><span class="line">plt.xlabel(<span class="string">'Percentage of Time Spent Playing Video Games'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Liters of Ice Cream Consumed Per Week'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-<p><img src="ml-knn/Figure_1.png" alt="1.jpg"></p>
+<p><img src="/2017/05/21/ml-knn/Figure_1.png" alt="1.jpg"></p>
 <h2 id="数据归一化"><a href="#数据归一化" class="headerlink" title="数据归一化"></a>数据归一化</h2><p>数据中不同的属性之间量程相差很大，需要对数据进行归一化处理，常用的<br>归一化公式为：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newValue = (oldValue-min)/(max-min)</span><br></pre></td></tr></table></figure>
 <p>实现代码：</p>

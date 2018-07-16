@@ -89,16 +89,16 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="自己测试了下CSRF">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/web-csrf/router.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/web-csrf/attack.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/web-csrf/login.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/web-csrf/open-attack.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/web-csrf/result.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/router.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/attack.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/login.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/open-attack.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/04/web-csrf/result.png">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CSRF亲测">
 <meta name="twitter:description" content="自己测试了下CSRF">
-<meta name="twitter:image" content="http://www.paradeto.com/2016/06/04/web-csrf/web-csrf/router.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/06/04/web-csrf/router.png">
 
 
 
@@ -205,7 +205,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -240,12 +240,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -376,11 +376,11 @@
 
       
         <p>前端时间小小的研究了下网络安全，基于Express框架并亲身测试了一下CSRF(Cross-site request forgery跨站请求伪造)，以下是过程：</p>
-<h2 id="测试路由"><a href="#测试路由" class="headerlink" title="测试路由"></a>测试路由</h2><p><img src="web-csrf/router.png" alt="router"><br>这个路由添加了一个验证登录的中间件，客户端若是未登录会重定向到登录页。</p>
-<h2 id="攻击页面"><a href="#攻击页面" class="headerlink" title="攻击页面"></a>攻击页面</h2><p><img src="web-csrf/attack.png" alt="attack"><br>发送了一个请求，并带上了名为money的参数</p>
-<h2 id="模拟受害者登录"><a href="#模拟受害者登录" class="headerlink" title="模拟受害者登录"></a>模拟受害者登录</h2><p><img src="web-csrf/login.png" alt="login"><br>受害者首先登录了测试网站</p>
-<h2 id="模拟受害者无意中打开了攻击页面"><a href="#模拟受害者无意中打开了攻击页面" class="headerlink" title="模拟受害者无意中打开了攻击页面"></a>模拟受害者无意中打开了攻击页面</h2><p><img src="web-csrf/open-attack.png" alt="open-attack"></p>
-<h2 id="中招了"><a href="#中招了" class="headerlink" title="中招了"></a>中招了</h2><p><img src="web-csrf/result.png" alt="result"></p>
+<h2 id="测试路由"><a href="#测试路由" class="headerlink" title="测试路由"></a>测试路由</h2><p><img src="/2016/06/04/web-csrf/router.png" alt="router"><br>这个路由添加了一个验证登录的中间件，客户端若是未登录会重定向到登录页。</p>
+<h2 id="攻击页面"><a href="#攻击页面" class="headerlink" title="攻击页面"></a>攻击页面</h2><p><img src="/2016/06/04/web-csrf/attack.png" alt="attack"><br>发送了一个请求，并带上了名为money的参数</p>
+<h2 id="模拟受害者登录"><a href="#模拟受害者登录" class="headerlink" title="模拟受害者登录"></a>模拟受害者登录</h2><p><img src="/2016/06/04/web-csrf/login.png" alt="login"><br>受害者首先登录了测试网站</p>
+<h2 id="模拟受害者无意中打开了攻击页面"><a href="#模拟受害者无意中打开了攻击页面" class="headerlink" title="模拟受害者无意中打开了攻击页面"></a>模拟受害者无意中打开了攻击页面</h2><p><img src="/2016/06/04/web-csrf/open-attack.png" alt="open-attack"></p>
+<h2 id="中招了"><a href="#中招了" class="headerlink" title="中招了"></a>中招了</h2><p><img src="/2016/06/04/web-csrf/result.png" alt="result"></p>
 <h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>以上CSRF能成功的原因是因为攻击页面向目标站点发送请求时，浏览器也会发送该站点下的Session Cookie（《白帽子讲WEB安全》）</p>
 <h2 id="防御"><a href="#防御" class="headerlink" title="防御"></a>防御</h2><p>《白帽子讲WEB安全》一书中提到了3种方法：</p>
 <ul>

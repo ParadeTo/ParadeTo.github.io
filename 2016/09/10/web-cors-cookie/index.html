@@ -89,15 +89,15 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="自己亲自测试了下带凭据的跨域请求">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/web-cors-cookie/1.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/web-cors-cookie/2.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/web-cors-cookie/3.png">
-<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/web-cors-cookie/4.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/3.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/4.png">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="带凭据的跨域请求亲测">
 <meta name="twitter:description" content="自己亲自测试了下带凭据的跨域请求">
-<meta name="twitter:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/web-cors-cookie/1.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/09/10/web-cors-cookie/1.png">
 
 
 
@@ -204,7 +204,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -239,12 +239,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -384,17 +384,17 @@
 <li>app.js<br>这里用node起了一个简单的<a href="http://cnodejs.org/topic/4f16442ccae1f4aa27001071" target="_blank" rel="noopener">静态文件服务器</a></li>
 </ul>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> PORT = <span class="number">8000</span>;</span><br><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>);</span><br><span class="line"><span class="keyword">var</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>);</span><br><span class="line"><span class="keyword">var</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>);</span><br><span class="line"><span class="keyword">var</span> url = <span class="built_in">require</span>(<span class="string">"url"</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> server = http.createServer(<span class="function"><span class="keyword">function</span>(<span class="params">request, response</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> pathname = url.parse(request.url).pathname;</span><br><span class="line">    <span class="keyword">var</span> realPath = <span class="string">"."</span> + pathname;</span><br><span class="line">    fs.exists(realPath, <span class="function"><span class="keyword">function</span> (<span class="params">exists</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (!exists) &#123;</span><br><span class="line">            response.writeHead(<span class="number">404</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>&#125;);</span><br><span class="line">            response.write(<span class="string">"This request URL "</span> + pathname + <span class="string">" was not found on this server."</span>);</span><br><span class="line">            response.end();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            fs.readFile(realPath, <span class="string">"binary"</span>, <span class="function"><span class="keyword">function</span>(<span class="params">err, file</span>) </span>&#123;</span><br><span class="line">                <span class="keyword">if</span> (err) &#123;</span><br><span class="line">                    response.writeHead(<span class="number">500</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>&#125;);</span><br><span class="line">                    response.end(err);</span><br><span class="line">                &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                    response.writeHead(<span class="number">200</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'text/html'</span>&#125;);</span><br><span class="line">                    response.write(file, <span class="string">"binary"</span>);</span><br><span class="line">                    response.end();</span><br><span class="line">                &#125;</span><br><span class="line">             &#125;);</span><br><span class="line">          &#125;</span><br><span class="line">      &#125;);</span><br><span class="line">&#125;);</span><br><span class="line">server.listen(PORT);</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">"Server runing at port: "</span> + PORT + <span class="string">"."</span>);</span><br></pre></td></tr></table></figure>
-<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>果然没有发送cookie<br><img src="web-cors-cookie/1.png" alt="Paste_Image.png"></p>
+<h3 id="结果"><a href="#结果" class="headerlink" title="结果"></a>结果</h3><p>果然没有发送cookie<br><img src="/2016/09/10/web-cors-cookie/1.png" alt="Paste_Image.png"></p>
 <h2 id="修改"><a href="#修改" class="headerlink" title="修改"></a>修改</h2><h3 id="远程服务端-1"><a href="#远程服务端-1" class="headerlink" title="远程服务端"></a>远程服务端</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">router.get(<span class="string">'/testCors'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(req.cookies);</span><br><span class="line">  res.setHeader(<span class="string">'Access-Control-Allow-origin'</span>,<span class="string">'http://localhost:8000'</span>); <span class="comment">// 指定了credentials时不能用＊</span></span><br><span class="line">  res.setHeader(<span class="string">'Access-Control-Allow-Credentials'</span>,<span class="string">'true'</span>);</span><br><span class="line">  <span class="comment">// 添加cookie</span></span><br><span class="line">  res.cookie(<span class="string">'id2'</span>,<span class="string">'2'</span>);</span><br><span class="line">  res.send(<span class="string">'跨域了！'</span>)</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
 <h3 id="本地服务端-1"><a href="#本地服务端-1" class="headerlink" title="本地服务端"></a>本地服务端</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">document</span>.cookie = <span class="string">'id=1'</span>;</span><br><span class="line"><span class="built_in">console</span>.log(<span class="built_in">document</span>.cookie);</span><br><span class="line"><span class="keyword">var</span> xhr = <span class="keyword">new</span> XMLHttpRequest();</span><br><span class="line">xhr.onreadystatechange = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (xhr.readyState == <span class="number">4</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (xhr.status &gt;= <span class="number">200</span> &amp;&amp; xhr.status &lt; <span class="number">300</span> || xhr.status===<span class="number">304</span>) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="built_in">document</span>.cookie);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      alert(<span class="string">'error'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">xhr.open(<span class="string">'get'</span>,<span class="string">'http://localhost:3001/testCors'</span>,<span class="literal">true</span>);</span><br><span class="line">xhr.withCredentials = <span class="literal">true</span>;</span><br><span class="line">xhr.send(<span class="literal">null</span>);</span><br></pre></td></tr></table></figure>
 <h3 id="结果-1"><a href="#结果-1" class="headerlink" title="结果"></a>结果</h3><ul>
-<li>浏览器日志<br>发送了<code>id＝1</code>的cookie<br><img src="web-cors-cookie/2.png" alt="Paste_Image.png"></li>
+<li>浏览器日志<br>发送了<code>id＝1</code>的cookie<br><img src="/2016/09/10/web-cors-cookie/2.png" alt="Paste_Image.png"></li>
 </ul>
-<p><img src="web-cors-cookie/3.png" alt="Paste_Image.png"></p>
+<p><img src="/2016/09/10/web-cors-cookie/3.png" alt="Paste_Image.png"></p>
 <ul>
 <li>远程服务端</li>
 </ul>
-<p><img src="web-cors-cookie/4.png" alt="屏幕快照 2016-09-10 22.27.41.png"></p>
+<p><img src="/2016/09/10/web-cors-cookie/4.png" alt="屏幕快照 2016-09-10 22.27.41.png"></p>
 
       
     </div>

@@ -89,12 +89,12 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="jquery轮播图插件">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2016/10/10/demo-page-switch/demo-page-switch/demo.gif">
+<meta property="og:image" content="http://www.paradeto.com/2016/10/10/demo-page-switch/demo.gif">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="jquery轮播图插件">
 <meta name="twitter:description" content="jquery轮播图插件">
-<meta name="twitter:image" content="http://www.paradeto.com/2016/10/10/demo-page-switch/demo-page-switch/demo.gif">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/10/10/demo-page-switch/demo.gif">
 
 
 
@@ -201,7 +201,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -236,12 +236,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -379,7 +379,7 @@
 <li>支持自动播放（鼠标悬停到导航按钮上可暂停）</li>
 <li>支持键盘方向键和鼠标滑轮切换</li>
 </ul>
-<p><img src="demo-page-switch/demo.gif" alt="demo.gif"></p>
+<p><img src="/2016/10/10/demo-page-switch/demo.gif" alt="demo.gif"></p>
 <h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"container"</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"sections"</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"section"</span> <span class="attr">id</span>=<span class="string">"section0"</span>&gt;</span><span class="tag">&lt;<span class="name">h3</span>&gt;</span>this is the page0<span class="tag">&lt;/<span class="name">h3</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"section"</span> <span class="attr">id</span>=<span class="string">"section1"</span>&gt;</span><span class="tag">&lt;<span class="name">h3</span>&gt;</span>this is the page1<span class="tag">&lt;/<span class="name">h3</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"section"</span> <span class="attr">id</span>=<span class="string">"section2"</span>&gt;</span><span class="tag">&lt;<span class="name">h3</span>&gt;</span>this is the page2<span class="tag">&lt;/<span class="name">h3</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"section"</span> <span class="attr">id</span>=<span class="string">"section3"</span>&gt;</span><span class="tag">&lt;<span class="name">h3</span>&gt;</span>this is the page3<span class="tag">&lt;/<span class="name">h3</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"./jquery.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"../dist/pageSwitch.min.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">	$(<span class="string">"#container"</span>).PageSwitch(&#123;</span></span><br><span class="line"><span class="javascript">		direction:<span class="string">'horizontal'</span>,</span></span><br><span class="line"><span class="javascript">		easing:<span class="string">'ease-in'</span>,</span></span><br><span class="line"><span class="undefined">		duration:1000,</span></span><br><span class="line"><span class="javascript">		autoPlay:<span class="literal">true</span>,</span></span><br><span class="line"><span class="javascript">		loop:<span class="string">'false'</span></span></span><br><span class="line"><span class="undefined">	&#125;);</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
 <h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">selectors : &#123;</span><br><span class="line">	sections : <span class="string">".sections"</span>,  <span class="comment">// 容器</span></span><br><span class="line">	section : <span class="string">".section"</span>, <span class="comment">// 每一页</span></span><br><span class="line">	pages : <span class="string">".pages"</span>, <span class="comment">// 分页导航(小圆点)</span></span><br><span class="line">	active : <span class="string">".active"</span> <span class="comment">// 当前激活页</span></span><br><span class="line">&#125;,</span><br><span class="line">index : <span class="number">0</span>, <span class="comment">// 开始位置</span></span><br><span class="line">easing :  <span class="string">"ease"</span>, <span class="comment">// 动画函数</span></span><br><span class="line">duration : <span class="number">500</span>, <span class="comment">// 毫秒</span></span><br><span class="line">loop : <span class="literal">false</span>, <span class="comment">// 是否循环播放，自动播放时该属性为true，设置无效</span></span><br><span class="line">pagination : <span class="literal">true</span>, <span class="comment">// 是否分页处理，是否显示小圆点</span></span><br><span class="line">keyboard : <span class="literal">true</span>, <span class="comment">// 是否支持键盘上下左右切换</span></span><br><span class="line">direction : <span class="string">"vertical"</span>, <span class="comment">// 竖直或水平滑动</span></span><br><span class="line">autoPlay: <span class="literal">true</span>, <span class="comment">// 自动播放</span></span><br><span class="line">interval: <span class="number">3000</span>, <span class="comment">// 自动播放间隔</span></span><br><span class="line">callback :  <span class="string">""</span> <span class="comment">// 切换动画结束后回调函数</span></span><br></pre></td></tr></table></figure>
       

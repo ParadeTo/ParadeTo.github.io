@@ -89,12 +89,12 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="翻译react官网性能优化">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2016/12/15/react-optimize/react-optimize/should-component-update.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/12/15/react-optimize/should-component-update.png">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="React性能优化（译）">
 <meta name="twitter:description" content="翻译react官网性能优化">
-<meta name="twitter:image" content="http://www.paradeto.com/2016/12/15/react-optimize/react-optimize/should-component-update.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/12/15/react-optimize/should-component-update.png">
 
 
 
@@ -201,7 +201,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -236,12 +236,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -387,7 +387,7 @@
 <p>有些情况下，你的组件可以通过重写<a href="http://www.codeceo.com/article/reactjs-life-circle-event.html" target="_blank" rel="noopener">生命周期</a>函数<code>shouldComponentUpdate</code>（组件重新渲染前触发）来进行加速，<br>默认该函数返回<code>true</code>，表示应该更新组件。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">shouldComponentUpdate(nextProps, nextState) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>如果你知道什么情况下你的组件不需要更新，你可以在<code>shouldComponentUpdate</code>中返回<code>false</code>，跳过组件的重新渲染阶段，包括调用<code>render()</code>方法以及其以后的其他方法。</p>
-<h2 id="shouldComponentUpdate-实战"><a href="#shouldComponentUpdate-实战" class="headerlink" title="shouldComponentUpdate 实战"></a>shouldComponentUpdate 实战</h2><p>下图是一个组件树。<code>SCU</code>表示<code>shouldComponentUpdate</code>的返回值，<code>vDOMEq</code>表示前后两次虚拟DOM是否相同，圆圈颜色表示组件是否需要更新。<br><img src="react-optimize/should-component-update.png" alt="should-component-update"></p>
+<h2 id="shouldComponentUpdate-实战"><a href="#shouldComponentUpdate-实战" class="headerlink" title="shouldComponentUpdate 实战"></a>shouldComponentUpdate 实战</h2><p>下图是一个组件树。<code>SCU</code>表示<code>shouldComponentUpdate</code>的返回值，<code>vDOMEq</code>表示前后两次虚拟DOM是否相同，圆圈颜色表示组件是否需要更新。<br><img src="/2016/12/15/react-optimize/should-component-update.png" alt="should-component-update"></p>
 <p>介于C2的<code>shouldComponentUpdate</code>返回<code>false</code>，React不会尝试重新渲染C2，甚至不会调用C4和C5的<code>shouldComponentUpdate</code>方法。</p>
 <p>C1和C3的<code>shouldComponentUpdate</code>返回<code>true</code>，所以React必需往下继续检查。C6的<code>shouldComponentUpdate</code>返回<code>true</code>，并且前后两次虚拟DOM不相同，所以需要更新真实DOM。</p>
 <p>有意思的是C8。虽然<code>shouldComponentUpdate</code>返回<code>true</code>，但是因为比较虚拟DOM发现没有变化，所以该组件不更新。</p>

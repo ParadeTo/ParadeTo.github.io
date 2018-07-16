@@ -89,12 +89,12 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="Angularjs2-下拉列表实现(父子组件通信)">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2016/09/13/ng2-dropdown/ng2-dropdown/demo-new.gif">
+<meta property="og:image" content="http://www.paradeto.com/2016/09/13/ng2-dropdown/demo-new.gif">
 <meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Angularjs2-下拉列表实现(父子组件通信)">
 <meta name="twitter:description" content="Angularjs2-下拉列表实现(父子组件通信)">
-<meta name="twitter:image" content="http://www.paradeto.com/2016/09/13/ng2-dropdown/ng2-dropdown/demo-new.gif">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/09/13/ng2-dropdown/demo-new.gif">
 
 
 
@@ -201,7 +201,7 @@
             
               <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
             
-            demo
+            Demo
           </a>
         </li>
       
@@ -236,12 +236,12 @@
         </li>
       
         
-        <li class="menu-item menu-item-resume">
+        <li class="menu-item menu-item-about">
           <a href="/resume" rel="section">
             
               <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
             
-            resume
+            About
           </a>
         </li>
       
@@ -377,7 +377,7 @@
 <li>子组件选择框发生变化后会通知父组件</li>
 </ul>
 <p><a href="https://github.com/ParadeTo/ng2-dropdown-demo" target="_blank" rel="noopener">项目地址</a></p>
-<h1 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h1><p><img src="ng2-dropdown/demo-new.gif" alt="demo-new.gif"></p>
+<h1 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h1><p><img src="/2016/09/13/ng2-dropdown/demo-new.gif" alt="demo-new.gif"></p>
 <h1 id="列表内容由父组件传递"><a href="#列表内容由父组件传递" class="headerlink" title="列表内容由父组件传递"></a>列表内容由父组件传递</h1><p>这个主要利用到了ng2的<code>Input</code>，在子组件中声明一个变量，该变量的值可以从父组件获取：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; Component,Input,Output,EventEmitter &#125; <span class="keyword">from</span> <span class="string">'@angular/core'</span>;</span><br><span class="line">...</span><br><span class="line"><span class="comment">// 父组件传递进来的参数</span></span><br><span class="line">@Input(<span class="string">'list'</span>) private list:any;</span><br><span class="line">...</span><br></pre></td></tr></table></figure></p>
 <p>父组件中，可以这样传值：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">my-drop-down-cmp</span> [<span class="attr">list</span>]=<span class="string">'list'</span>&gt;</span><span class="tag">&lt;/<span class="name">my-drop-down-cmp</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
 <h1 id="子组件选择框发生变化后会通知父组件"><a href="#子组件选择框发生变化后会通知父组件" class="headerlink" title="子组件选择框发生变化后会通知父组件"></a>子组件选择框发生变化后会通知父组件</h1><p>实现这个用到了ng2的<code>Output</code>，声明一个<code>EventEmit</code>的对象，用于向父组件发送消息<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 当改变了选择时给父组件发送事件</span></span><br><span class="line">@Output(<span class="string">'selectChange'</span>) private selectChange = <span class="keyword">new</span> EventEmitter();</span><br><span class="line">...</span><br><span class="line"><span class="comment">// 当点击了下拉列表中的某一项</span></span><br><span class="line">public changeSelect(id: any,<span class="attr">text</span>: any,<span class="attr">i</span>: any) &#123;</span><br><span class="line">  <span class="keyword">this</span>.text = text;</span><br><span class="line">  <span class="keyword">this</span>.id = id;</span><br><span class="line">  <span class="comment">// 发送事件</span></span><br><span class="line">  <span class="keyword">this</span>._selectChange.emit(&#123;<span class="attr">id</span>:id,<span class="attr">text</span>:text,<span class="attr">index</span>:i&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
