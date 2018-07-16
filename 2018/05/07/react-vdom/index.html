@@ -89,13 +89,13 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="实现一个简单的 virtual dom">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2018/05/07/react-vdom/react-vdom/1.png">
-<meta property="og:image" content="http://www.paradeto.com/2018/05/07/react-vdom/react-vdom/2.png">
-<meta property="og:updated_time" content="2018-05-07T07:01:31.000Z">
+<meta property="og:image" content="http://www.paradeto.com/2018/05/07/react-vdom/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/05/07/react-vdom/2.png">
+<meta property="og:updated_time" content="2018-07-16T03:52:19.082Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="实现一个简单的 React Virtual Dom">
 <meta name="twitter:description" content="实现一个简单的 virtual dom">
-<meta name="twitter:image" content="http://www.paradeto.com/2018/05/07/react-vdom/react-vdom/1.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2018/05/07/react-vdom/1.png">
 
 
 
@@ -393,7 +393,7 @@
 <li>diff新VDOM和旧VDOM，得到需要修改真实DOM的patches；</li>
 <li>把patches一次性打到DOM上，只更新DOM上需要更改的地方。</li>
 </ol>
-<p><img src="react-vdom/1.png" alt=""></p>
+<p><img src="/2018/05/07/react-vdom/1.png" alt=""></p>
 <h1 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h1><ol>
 <li>index.html</li>
 <li>index.js（所有的逻辑都写在这个文件里）</li>
@@ -414,7 +414,7 @@
 <p>我们现在可以先来看一下 <code>h</code> 函数最终返回的对象长什么样子。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(view())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>我们在render函数中打印出执行完 view() 的结果，再 <code>npm run compile</code> 后，用浏览器打开我们的 index.html，看控制台输出的结果。</p>
-<p><img src="react-vdom/2.png" alt=""></p>
+<p><img src="/2018/05/07/react-vdom/2.png" alt=""></p>
 <p>可以，很完美！这个对象就是我们的 VDOM 了！</p>
 <p>下面我们就可以根据VDOM, 来渲染真实 DOM 了。先改写 render 函数:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">render</span>(<span class="params">el</span>) </span>&#123;</span><br><span class="line">  el.appendChild(createElement(view(<span class="number">0</span>)))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -604,7 +604,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

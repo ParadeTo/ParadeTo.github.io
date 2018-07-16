@@ -89,13 +89,13 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="高性能MySQL(第3版)第六章-查询性能优化">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2017/06/01/hpMysql6/hpMysql6/1.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/06/01/hpMysql6/hpMysql6/2.png">
-<meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
+<meta property="og:image" content="http://www.paradeto.com/2017/06/01/hpMysql6/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/06/01/hpMysql6/2.png">
+<meta property="og:updated_time" content="2018-07-16T03:52:16.794Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="高性能MySQL(第3版)第六章-查询性能优化">
 <meta name="twitter:description" content="高性能MySQL(第3版)第六章-查询性能优化">
-<meta name="twitter:image" content="http://www.paradeto.com/2017/06/01/hpMysql6/hpMysql6/1.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2017/06/01/hpMysql6/1.png">
 
 
 
@@ -427,7 +427,7 @@
 <li>能够使用in()方式代替关联查询</li>
 <li>查询中使用同一个数据表</li>
 </ul>
-<h1 id="查询执行的基础"><a href="#查询执行的基础" class="headerlink" title="查询执行的基础"></a>查询执行的基础</h1><p><img src="hpMysql6/1.png" alt=""></p>
+<h1 id="查询执行的基础"><a href="#查询执行的基础" class="headerlink" title="查询执行的基础"></a>查询执行的基础</h1><p><img src="/2017/06/01/hpMysql6/1.png" alt=""></p>
 <p>上图描绘的是一个查询的流程：</p>
 <ol>
 <li>客户端发送一条查询给服务器。</li>
@@ -498,7 +498,7 @@
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> tbl1.col1, tbl2.col2</span><br><span class="line"><span class="keyword">FROM</span> tbl1 <span class="keyword">INNER</span> <span class="keyword">JOIN</span> tbl2 <span class="keyword">USING</span>(col3)</span><br><span class="line"><span class="keyword">WHERE</span> tbl1.col1 <span class="keyword">IN</span> (<span class="number">5</span>,<span class="number">6</span>);</span><br></pre></td></tr></table></figure>
 <p>可以用下面的伪代码表示：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">outer_iter = iterator over tbl1 where col1 IN(5,6)</span><br><span class="line">outer_row = outer_iter.next</span><br><span class="line">while outer_row</span><br><span class="line">	inner_iter = iterator over tbl2 where col3 = outer_row.col3</span><br><span class="line">	inner_row = inner_iter.next</span><br><span class="line">	while inner_row</span><br><span class="line">		output [ outer_row.col1, inner_row.col2 ]</span><br><span class="line">		inner_row = inner_iter.next</span><br><span class="line">	<span class="keyword">end</span></span><br><span class="line">	outer_row = outer_iter.next</span><br><span class="line"><span class="keyword">end</span></span><br></pre></td></tr></table></figure>
-<p><img src="hpMysql6/2.png" alt=""></p>
+<p><img src="/2017/06/01/hpMysql6/2.png" alt=""></p>
 <p><strong>执行计划</strong></p>
 <p>mysql不会生成查询字节码来执行查询，而是生成查询的一棵指令树，然后通过存储引擎执行这棵指令树返回结果。</p>
 <p><strong>关联查询优化器</strong></p>
@@ -627,7 +627,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

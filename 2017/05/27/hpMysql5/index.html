@@ -89,20 +89,20 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="高性能MySQL(第3版)第五章-创建高性能的索引">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/1.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/2.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/3.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/4.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/5.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/6.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/7.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/8.png">
-<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/9.png">
-<meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/3.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/4.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/5.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/6.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/7.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/8.png">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/9.png">
+<meta property="og:updated_time" content="2018-07-16T03:52:16.034Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="高性能MySQL(第3版)第五章-创建高性能的索引">
 <meta name="twitter:description" content="高性能MySQL(第3版)第五章-创建高性能的索引">
-<meta name="twitter:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/hpMysql5/1.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2017/05/27/hpMysql5/1.png">
 
 
 
@@ -379,14 +379,14 @@
       
 
       
-        <h1 id="索引的类型"><a href="#索引的类型" class="headerlink" title="索引的类型"></a>索引的类型</h1><h2 id="B-B-Tree索引"><a href="#B-B-Tree索引" class="headerlink" title="B/B+-Tree索引"></a>B/B+-Tree索引</h2><p><img src="hpMysql5/1.png" alt=""></p>
+        <h1 id="索引的类型"><a href="#索引的类型" class="headerlink" title="索引的类型"></a>索引的类型</h1><h2 id="B-B-Tree索引"><a href="#B-B-Tree索引" class="headerlink" title="B/B+-Tree索引"></a>B/B+-Tree索引</h2><p><img src="/2017/05/27/hpMysql5/1.png" alt=""></p>
 <ul>
 <li>索引列是顺序组织存储的，很适合查找范围数据，所以像“找出所有以I到K开头的名字”这样的查找效率会非常高</li>
 </ul>
 <p>假设有如下数据表：</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> People (</span><br><span class="line">	last_name <span class="built_in">varchar</span>(<span class="number">50</span>) <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">	first_name <span class="built_in">varchar</span>(<span class="number">50</span>) <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">	dob <span class="built_in">date</span> <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">	gender enum(<span class="string">'m'</span>, <span class="string">'f'</span>) <span class="keyword">not</span> <span class="literal">null</span>,</span><br><span class="line">	<span class="keyword">key</span>(last_name, first_name, dob)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
 <p>则其部分索引如下所示：</p>
-<p><img src="hpMysql5/2.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/2.png" alt=""></p>
 <p>B/B+-Tree适用的查询有：</p>
 <ul>
 <li>全值匹配</li>
@@ -485,7 +485,7 @@
 <p>如果在EXPLAIN中看到有索引合并，应该好好检查一下查询和表的结构，看是不是已经是最优的。也可以通过参数optimizer_switch来关闭索引合并功能。也可以使用IGNORE<br>INDEX提升让优化器忽略掉某些索引。</p>
 <h2 id="选择合适的索引列顺序"><a href="#选择合适的索引列顺序" class="headerlink" title="选择合适的索引列顺序"></a>选择合适的索引列顺序</h2><p>经验法则：将选择性最高的列放到索引的最前列（并没有那么重要）。</p>
 <h2 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h2><p>数据行和所以存储在一起，一个表只能有一个聚簇索引。InnoDB将通过主键聚集数据。如果没有定义主键，InnoDB会选择一个唯一的非空索引代替。</p>
-<p><img src="hpMysql5/3.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/3.png" alt=""></p>
 <p>优点：</p>
 <ol>
 <li>可以把相关数据保存在一起。</li>
@@ -504,21 +504,21 @@
 </ol>
 <h3 id="InnoDB和MyISAM的数据分布对比"><a href="#InnoDB和MyISAM的数据分布对比" class="headerlink" title="InnoDB和MyISAM的数据分布对比"></a>InnoDB和MyISAM的数据分布对比</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> layout_test (</span><br><span class="line">	col1 <span class="built_in">int</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">	col2 <span class="built_in">int</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">	PRIMARY <span class="keyword">KEY</span>(col1),</span><br><span class="line">	<span class="keyword">KEY</span>(col2)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
 <p>假设该表的主键取值为1~10000，按照随机顺序插入并使用OPTIMIZE TABLE做了优化。其数据分布如下：</p>
-<p><img src="hpMysql5/4.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/4.png" alt=""></p>
 <p>索引分布：</p>
 <p>MyISAM：</p>
-<p><img src="hpMysql5/5.png" alt=""></p>
-<p><img src="hpMysql5/6.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/5.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/6.png" alt=""></p>
 <p>事实上，MyISAM中主键索引和其他索引在结构上没有什么不同。</p>
 <p>InnoDB：</p>
-<p><img src="hpMysql5/7.png" alt=""></p>
-<p><img src="hpMysql5/8.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/7.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/8.png" alt=""></p>
 <ul>
 <li>innodb的主键索引显示了整个表</li>
 <li>innodb的二级索引的叶子节点中存储的是主键值</li>
 </ul>
 <p>下面这个图更加抽象的显示了两者的区别</p>
-<p><img src="hpMysql5/9.png" alt=""></p>
+<p><img src="/2017/05/27/hpMysql5/9.png" alt=""></p>
 <h2 id="覆盖索引"><a href="#覆盖索引" class="headerlink" title="覆盖索引"></a>覆盖索引</h2><p>如果一个索引包含（或者说覆盖）所有需要查询的字段的值，我们就称之为“覆盖索引”。</p>
 <ul>
 <li>索引条目通常远小于数据行大小</li>
@@ -766,7 +766,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

@@ -89,13 +89,13 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="简单的分析一下 webpack 打包后的结果">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/webpack-bundle-dive-into/1.jpeg">
-<meta property="og:image" content="http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/webpack-bundle-dive-into/2.png">
-<meta property="og:updated_time" content="2018-07-11T04:25:00.186Z">
+<meta property="og:image" content="http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/1.jpeg">
+<meta property="og:image" content="http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/2.png">
+<meta property="og:updated_time" content="2018-07-16T03:48:06.557Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="浅析 webpack 打包机制">
 <meta name="twitter:description" content="简单的分析一下 webpack 打包后的结果">
-<meta name="twitter:image" content="http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/webpack-bundle-dive-into/1.jpeg">
+<meta name="twitter:image" content="http://www.paradeto.com/2018/07/11/webpack-bundle-dive-into/1.jpeg">
 
 
 
@@ -402,11 +402,11 @@
 </li>
 </ol>
 <p>整个过程可以用下图来表示：</p>
-<p><img src="webpack-bundle-dive-into/1.jpeg" alt=""></p>
+<p><img src="/2018/07/11/webpack-bundle-dive-into/1.jpeg" alt=""></p>
 <h1 id="提取公共代码"><a href="#提取公共代码" class="headerlink" title="提取公共代码"></a>提取公共代码</h1><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">src</span><br><span class="line">  js</span><br><span class="line">    components # 公用组件	</span><br><span class="line">      layout.js</span><br><span class="line">    utils # 公用工具模块</span><br><span class="line">      utils.js</span><br><span class="line">    vendor # 基础库</span><br><span class="line">      react.js</span><br><span class="line">      react-dom.js</span><br><span class="line">    pageA.js</span><br><span class="line">    pageB.js</span><br></pre></td></tr></table></figure>
 <p>有时候网站会由多个页面组成，每个页面都是一个独立的单页面应用，这些页面技术栈相同且包含相同的业务代码，如果每个页面的代码都将这些公共的部分包含进去，势必会造成：1) 相同的资源重复加载 2) 每个页面的体积太大</p>
 <p>为了解决这个问题，可以将公共代码提取出来，具体到上面的例子，我们可能希望最终打包的结果像这样：</p>
-<p><img src="webpack-bundle-dive-into/2.png" alt=""></p>
+<p><img src="/2018/07/11/webpack-bundle-dive-into/2.png" alt=""></p>
 <p>为了实现上述要求，可以使用 CommonsChunkPlugin:</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> path = <span class="built_in">require</span>(<span class="string">'path'</span>)</span><br><span class="line"><span class="keyword">const</span> webpack = <span class="built_in">require</span>(<span class="string">'webpack'</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line"> entry: &#123;</span><br><span class="line">   pageA: path.resolve(__dirname, <span class="string">'src/js/pageA.js'</span>),</span><br><span class="line">   pageB: path.resolve(__dirname, <span class="string">'src/js/pageB.js'</span>)</span><br><span class="line"> &#125;,</span><br><span class="line"> output: &#123;</span><br><span class="line">   filename: <span class="string">'[name].[chunkhash:8].js'</span>,</span><br><span class="line">   path: path.resolve(__dirname, <span class="string">'dist'</span>),</span><br><span class="line">   publicPath: <span class="string">'dist/'</span>,</span><br><span class="line">   chunkFilename: <span class="string">'[name].js'</span></span><br><span class="line"> &#125;,</span><br><span class="line"> plugins: [</span><br><span class="line">   <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">     name: <span class="string">'common'</span>,</span><br><span class="line">     minChunks: <span class="number">2</span></span><br><span class="line">   &#125;),</span><br><span class="line">   <span class="keyword">new</span> webpack.optimize.CommonsChunkPlugin(&#123;</span><br><span class="line">     name: <span class="string">'vendor'</span>,</span><br><span class="line">     minChunks: <span class="function">(<span class="params">&#123; resource &#125;</span>) =&gt;</span> (</span><br><span class="line">       resource &amp;&amp; resource.indexOf(<span class="string">'vendor'</span>) &gt;= <span class="number">0</span> &amp;&amp; resource.match(<span class="regexp">/\.js$/</span>)</span><br><span class="line">     )</span><br><span class="line">   &#125;)</span><br><span class="line"> ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
       
@@ -447,6 +447,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/16/go-spider-1/" rel="prev" title="Go 爬虫实战（一）">
+                Go 爬虫实战（一） <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -528,7 +532,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>

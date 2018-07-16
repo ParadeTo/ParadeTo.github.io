@@ -89,14 +89,14 @@
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="组内分享">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/go-shopee-share-advance/1.png">
-<meta property="og:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/go-shopee-share-advance/2.png">
-<meta property="og:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/go-shopee-share-advance/3.png">
-<meta property="og:updated_time" content="2018-07-02T03:30:41.944Z">
+<meta property="og:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/3.png">
+<meta property="og:updated_time" content="2018-07-16T03:52:14.536Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Golang 进阶分享">
 <meta name="twitter:description" content="组内分享">
-<meta name="twitter:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/go-shopee-share-advance/1.png">
+<meta name="twitter:image" content="http://www.paradeto.com/2018/06/15/go-shopee-share-advance/1.png">
 
 
 
@@ -373,7 +373,7 @@
       
 
       
-        <h1 id="go-调度模型"><a href="#go-调度模型" class="headerlink" title="go 调度模型"></a>go 调度模型</h1><p><img src="go-shopee-share-advance/1.png" alt=""></p>
+        <h1 id="go-调度模型"><a href="#go-调度模型" class="headerlink" title="go 调度模型"></a>go 调度模型</h1><p><img src="/2018/06/15/go-shopee-share-advance/1.png" alt=""></p>
 <ul>
 <li><p>抢占式调度</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	<span class="comment">// runtime.GOMAXPROCS(-1) 返回核数</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; runtime.GOMAXPROCS(<span class="number">-1</span>); i++ &#123;</span><br><span class="line">		<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">(num <span class="keyword">int</span>)</span></span> &#123;</span><br><span class="line">			fmt.Printf(<span class="string">"goroutine[%v] started\n"</span>, num)</span><br><span class="line">			<span class="keyword">for</span> &#123;</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;(i)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// 执行不到</span></span><br><span class="line">	time.Sleep(time.Second)</span><br><span class="line">	fmt.Println(<span class="string">"Hello"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -390,8 +390,8 @@
 <li>无缓存 vs 有缓存</li>
 </ul>
 <p>无缓冲的通道保证进行发送和接收的 goroutine 会在同一时间进行数据交换;有缓冲的 通道没有这种保证</p>
-<p><img src="go-shopee-share-advance/2.png" alt=""></p>
-<p><img src="go-shopee-share-advance/3.png" alt=""></p>
+<p><img src="/2018/06/15/go-shopee-share-advance/2.png" alt=""></p>
+<p><img src="/2018/06/15/go-shopee-share-advance/3.png" alt=""></p>
 <p>可以理解为无缓存的通道是容量为 0 的缓冲通道。</p>
 <p>一个例子：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>, <span class="number">1</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		c &lt;- <span class="number">1</span></span><br><span class="line">		fmt.Println(<span class="string">"a"</span>)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	time.Sleep(time.Second)</span><br><span class="line">  fmt.Println(&lt;-c)</span><br><span class="line"></span><br><span class="line"><span class="comment">//</span></span><br><span class="line">a</span><br><span class="line"><span class="number">1</span></span><br><span class="line"></span><br><span class="line">	c := <span class="built_in">make</span>(<span class="keyword">chan</span> <span class="keyword">int</span>)</span><br><span class="line">	<span class="keyword">go</span> <span class="function"><span class="keyword">func</span><span class="params">()</span></span> &#123;</span><br><span class="line">		c &lt;- <span class="number">1</span></span><br><span class="line">		fmt.Println(<span class="string">"a"</span>)</span><br><span class="line">	&#125;()</span><br><span class="line"></span><br><span class="line">	time.Sleep(time.Second)</span><br><span class="line">  fmt.Println(&lt;-c)</span><br><span class="line"></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="number">1</span></span><br></pre></td></tr></table></figure>
@@ -607,7 +607,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">75</span>
+                  <span class="site-state-item-count">76</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
