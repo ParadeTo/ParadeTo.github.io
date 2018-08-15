@@ -90,7 +90,7 @@
 <meta property="og:description" content="各种面试题汇总">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.paradeto.com/2017/04/08/feInterview/sort.png">
-<meta property="og:updated_time" content="2018-07-16T03:52:13.768Z">
+<meta property="og:updated_time" content="2018-08-08T11:13:18.249Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="前端面试题汇总-持续更新">
 <meta name="twitter:description" content="各种面试题汇总">
@@ -720,7 +720,7 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">log1(<span class="number">1</span>, <span class="string">''</span>) <span class="comment">// 1 'world'</span></span><br><span class="line">log2(<span class="number">1</span>, <span class="string">''</span>) <span class="comment">// 1 ''</span></span><br></pre></td></tr></table></figure>
 <h2 id="let-var区别"><a href="#let-var区别" class="headerlink" title="let var区别"></a>let var区别</h2><ul>
 <li>let有块级作用域</li>
-<li>let不存在变量提升</li>
+<li>let不存在变量提升(错！<a href="https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6" target="_blank" rel="noopener">https://stackoverflow.com/questions/31219420/are-variables-declared-with-let-or-const-not-hoisted-in-es6</a>)</li>
 <li>不允许重复声明</li>
 <li>暂时性死区</li>
 </ul>
@@ -776,7 +776,7 @@
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">// 页面先会出现内容，然后js阻塞了后面的css</span><br><span class="line">script(src=&apos;/big.js&apos;)</span><br><span class="line">link(rel=&apos;stylesheet&apos;, href=&apos;/big.css&apos;)</span><br><span class="line">link(rel=&apos;stylesheet&apos;, href=&apos;/big2.css&apos;)</span><br><span class="line">link(rel=&apos;stylesheet&apos;, href=&apos;/big3.css&apos;)</span><br><span class="line"></span><br><span class="line">// 浏览器会把前面两个css文件先加载，这会阻塞dom渲染，然后加载js，这会阻塞后面的css</span><br><span class="line">link(rel=&apos;stylesheet&apos;, href=&apos;/big.css&apos;)</span><br><span class="line">link(rel=&apos;stylesheet&apos;, href=&apos;/big2.css&apos;)</span><br><span class="line">script(src=&apos;/big.js&apos;)</span><br><span class="line">link(rel=&apos;stylesheet&apos;, href=&apos;/big3.css&apos;)</span><br></pre></td></tr></table></figure>
 <ul>
-<li>bigpipe<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Transfer-Encoding: chunked</span><br><span class="line"></span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/plain</span><br><span class="line">Transfer-Encoding: chunked</span><br><span class="line"></span><br><span class="line">7\r\n</span><br><span class="line">Mozilla\r\n</span><br><span class="line">9\r\n</span><br><span class="line">Developer\r\n</span><br><span class="line">7\r\n</span><br><span class="line">Network\r\n</span><br><span class="line">0\r\n</span><br><span class="line">\r\n</span><br></pre></td></tr></table></figure>
+<li>bigpipe<br><a href="https://github.com/lduoduo/bigpipe_demo" target="_blank" rel="noopener">https://github.com/lduoduo/bigpipe_demo</a><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Transfer-Encoding: chunked</span><br><span class="line"></span><br><span class="line">HTTP/1.1 200 OK</span><br><span class="line">Content-Type: text/plain</span><br><span class="line">Transfer-Encoding: chunked</span><br><span class="line"></span><br><span class="line">7\r\n</span><br><span class="line">Mozilla\r\n</span><br><span class="line">9\r\n</span><br><span class="line">Developer\r\n</span><br><span class="line">7\r\n</span><br><span class="line">Network\r\n</span><br><span class="line">0\r\n</span><br><span class="line">\r\n</span><br></pre></td></tr></table></figure>
 </li>
 </ul>
 <ol start="7">
@@ -969,7 +969,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">77</span>
+                  <span class="site-state-item-count">80</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
