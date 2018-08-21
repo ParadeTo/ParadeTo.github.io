@@ -84,7 +84,7 @@
 <meta name="description" content="利用react重构旧项目，并进行前后端分离">
 <meta name="keywords" content="webpack,react">
 <meta property="og:type" content="article">
-<meta property="og:title" content="妈妈送房代码重构方案">
+<meta property="og:title" content="一个 java 项目前端重构方案">
 <meta property="og:url" content="http://www.paradeto.com/2016/11/22/mmsf/index.html">
 <meta property="og:site_name" content="Ayou">
 <meta property="og:description" content="利用react重构旧项目，并进行前后端分离">
@@ -92,9 +92,9 @@
 <meta property="og:image" content="http://www.paradeto.com/2016/11/22/mmsf/project.png">
 <meta property="og:image" content="http://www.paradeto.com/2016/11/22/mmsf/house-web-web.png">
 <meta property="og:image" content="http://www.paradeto.com/2016/11/22/mmsf/index.png">
-<meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
+<meta property="og:updated_time" content="2018-08-21T04:18:21.702Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="妈妈送房代码重构方案">
+<meta name="twitter:title" content="一个 java 项目前端重构方案">
 <meta name="twitter:description" content="利用react重构旧项目，并进行前后端分离">
 <meta name="twitter:image" content="http://www.paradeto.com/2016/11/22/mmsf/project.png">
 
@@ -132,7 +132,7 @@
 
 
 
-  <title>妈妈送房代码重构方案 | Ayou</title>
+  <title>一个 java 项目前端重构方案 | Ayou</title>
   
 
 
@@ -297,7 +297,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">妈妈送房代码重构方案</h1>
+          <h1 class="post-title" itemprop="name headline">一个 java 项目前端重构方案</h1>
         
 
         <div class="post-meta">
@@ -332,8 +332,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/项目实战/" itemprop="url" rel="index">
-                    <span itemprop="name">项目实战</span>
+                  <a href="/categories/优化-重构/" itemprop="url" rel="index">
+                    <span itemprop="name">优化/重构</span>
                   </a>
                 </span>
 
@@ -373,7 +373,7 @@
       
 
       
-        <h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>目前妈妈送房采用的是经典的MVC架构，前端模版使用vm，对于即会java又懂前端的人来说，这种方式没有什么不好，反而开发会很快。</p>
+        <h1 id="起因"><a href="#起因" class="headerlink" title="起因"></a>起因</h1><p>目前项目采用的是经典的MVC架构，前端模版使用vm，对于即会java又懂前端的人来说，这种方式没有什么不好，反而开发会很快。</p>
 <p>但是，现在的互联网是分工协作的，我们现在的方式是前端开发人员负责静态页面样式及交互的开发，后端人员拿到静态页面进行数据的绑定，如果一次能搞定，那当然没什么问题，但是一旦涉及到bug的修改，功能的调整，那就是折磨了。再加上几经人手，前端代码已经丑陋不堪。所以，我萌生出了对项目进行重构并进行前后端分离的想法。<a href="http://2014.jsconf.cn/slides/herman-taobaoweb/index.html#/" target="_blank" rel="noopener">为什么要前后端分离，这篇文章讲得不错</a></p>
 <p>刚好最近学习了react，实战中也尝试了下，并且我们的这个项目特别适合做成一个SPA（single page application，单页面应用），所以就决定利用其进行逐步重构。</p>
 <h1 id="项目路径规划"><a href="#项目路径规划" class="headerlink" title="项目路径规划"></a>项目路径规划</h1><p>因为SPA的代码最后都需要编译打包成一个文件，所以我把我的前端工程跟java工程放在一起，方便文件直接生成到java工程中<br><img src="/2016/11/22/mmsf/project.png" alt="project.png"></p>
@@ -528,7 +528,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">81</span>
+                  <span class="site-state-item-count">83</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -539,7 +539,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">14</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -550,7 +550,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">45</span>
+                  <span class="site-state-item-count">47</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
