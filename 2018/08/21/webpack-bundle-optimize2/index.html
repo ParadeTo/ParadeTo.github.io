@@ -91,7 +91,8 @@
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.paradeto.com/2018/08/21/webpack-bundle-optimize2/2.png">
 <meta property="og:image" content="http://www.paradeto.com/2018/08/21/webpack-bundle-optimize2/1.png">
-<meta property="og:updated_time" content="2018-08-21T04:18:30.228Z">
+<meta property="og:image" content="http://www.paradeto.com/2018/08/21/webpack-bundle-optimize2/2.png">
+<meta property="og:updated_time" content="2018-09-03T08:03:12.804Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="webpack 打包优化（二）">
 <meta name="twitter:description" content="回顾前面我们已经对我们的项目做过了一次优化，优化后的结果如下图所示：  可以看到 main.***.js 中还有 country.js 和 i18n.js 两块大家伙。很明显，这两个东西都跟我们的 i18n 翻译数据有关，下面我们就来优化这一块。 处理 process.envcountry.js 和 i18n.js 中都使用了 process.env 这个对象，也就是说资源被重复的使用了">
@@ -392,6 +393,13 @@
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ServiceItem = (&#123; name, url, icon ...</span><br><span class="line">...</span><br><span class="line">&lt;p&gt;&#123;tUpperCase(name)&#125;&lt;<span class="regexp">/p&gt;</span></span><br><span class="line"><span class="regexp">...</span></span><br></pre></td></tr></table></figure>
 <p>这样，我们就大功告成了，让我们看看最后的杰作：</p>
 <p><img src="/2018/08/21/webpack-bundle-optimize2/1.png" alt=""></p>
+<h1 id="更新（2018-09-03）"><a href="#更新（2018-09-03）" class="headerlink" title="更新（2018-09-03）"></a>更新（2018-09-03）</h1><p>上面的问题不仅仅出现在首页，菜单页也有，这样程序中需要改动的地方就比较多了，而且把翻译的工作放到基础组件中去做显然不合适，那有没有更好的做法呢？答案是有的。既然我们需要保证页面中的资源必须要在翻译文件加载完后才能加载，那么继续使用 webpack 的 <code>import</code> 就行了呀。</p>
+<p>我们在 <code>src</code> 目录下新建一个 <code>app.js</code>，将 <code>index.js</code> 的内容拷贝到该文件中，然后将 <code>index.js</code> 改为：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; getLocale &#125; <span class="keyword">from</span> <span class="string">'./helpers/utils'</span></span><br><span class="line"><span class="keyword">import</span> &#123; loadResource &#125; <span class="keyword">from</span> <span class="string">'./i18n'</span></span><br><span class="line"></span><br><span class="line">loadResource(getLocale())</span><br><span class="line">  .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">import</span>(<span class="string">'./app.js'</span>)</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+<p>这样，就实现了我们的功能。</p>
+<p>不过，<strong><code>index.js</code> 中引入的文件以及他们递归引入的其他文件 (<code>utils.js</code>, <code>env.js</code>) 中不能正常使用新加载的语言，因为他们在 <code>loadResource</code> 执行之前就已经导入了，这里需要格外注意</strong>。</p>
+<p>再次打包看看效果：</p>
+<p><img src="/2018/08/21/webpack-bundle-optimize2/2.png" alt=""></p>
 
       
     </div>
@@ -527,7 +535,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -571,7 +579,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#回顾"><span class="nav-number">1.</span> <span class="nav-text">回顾</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#处理-process-env"><span class="nav-number">2.</span> <span class="nav-text">处理 process.env</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异步加载翻译文件"><span class="nav-number">3.</span> <span class="nav-text">异步加载翻译文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#打包默认语言"><span class="nav-number">3.1.</span> <span class="nav-text">打包默认语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态加载翻译文件"><span class="nav-number">3.2.</span> <span class="nav-text">动态加载翻译文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">3.3.</span> <span class="nav-text">问题</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#回顾"><span class="nav-number">1.</span> <span class="nav-text">回顾</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#处理-process-env"><span class="nav-number">2.</span> <span class="nav-text">处理 process.env</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异步加载翻译文件"><span class="nav-number">3.</span> <span class="nav-text">异步加载翻译文件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#打包默认语言"><span class="nav-number">3.1.</span> <span class="nav-text">打包默认语言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#动态加载翻译文件"><span class="nav-number">3.2.</span> <span class="nav-text">动态加载翻译文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#问题"><span class="nav-number">3.3.</span> <span class="nav-text">问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#更新（2018-09-03）"><span class="nav-number">4.</span> <span class="nav-text">更新（2018-09-03）</span></a></li></ol></div>
             
 
           </div>
