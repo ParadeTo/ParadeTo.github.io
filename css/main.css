@@ -1822,7 +1822,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #415479;
+  background: #05d0ff;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -3102,6 +3102,27 @@ header#game2048 p {
     -o-transform: translateX(-50%);
     transform: translateX(-50%);
   }
+}
+#vue-tree-list-page .vtl .vtl-drag-disabled,
+#vue-tree-list-page .vtl .vtl-drag-disabled:hover {
+  background-color: #dbd7d7;
+  position: relative;
+}
+#vue-tree-list-page .vtl .vtl-drag-disabled::after,
+#vue-tree-list-page .vtl .vtl-disabled::after {
+  content: 'drag disabled';
+  position: absolute;
+  right: 10px;
+  font-size: 12px;
+  font-style: italic;
+}
+#vue-tree-list-page .vtl .vtl-disabled,
+#vue-tree-list-page .vtl .vtl-disabled:hover {
+  background-color: #f00;
+  position: relative;
+}
+#vue-tree-list-page .vtl .vtl-disabled::after {
+  content: 'disabled';
 }
 .resume {
   width: 100% !important;
