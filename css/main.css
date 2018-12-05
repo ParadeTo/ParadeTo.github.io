@@ -1822,7 +1822,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #05d0ff;
+  background: #c43866;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -3123,6 +3123,209 @@ header#game2048 p {
 }
 #vue-tree-list-page .vtl .vtl-disabled::after {
   content: 'disabled';
+}
+#vue-tcp button {
+  padding: 0 5px;
+}
+#vue-tcp #header {
+  height: 100px;
+  text-align: center;
+  padding: 30px 0;
+  display: flex;
+}
+#vue-tcp #header button {
+  height: 30px;
+}
+#vue-tcp #header .sec {
+  flex: 1;
+  text-align: center;
+}
+#vue-tcp #header #timer {
+  width: 90%;
+  display: inline-block;
+  border: 1px solid #808080;
+  height: 30px;
+  padding: 2px;
+}
+#vue-tcp #header #timer div {
+  background-color: #00d1b2;
+  height: 100%;
+}
+#vue-tcp #main {
+  display: flex;
+}
+#vue-tcp #main section {
+  flex: 1;
+  text-align: center;
+  min-height: 500px;
+}
+#vue-tcp #main #client {
+  border-right: 4px solid #808080;
+}
+#vue-tcp #main #server {
+  border-left: 4px solid #808080;
+}
+#vue-tcp #main .btns {
+  padding: 5px 0;
+}
+#vue-tcp #main .packs {
+  display: inline-block;
+  position: relative;
+}
+#vue-tcp #main .packs .pack {
+  color: #aaa;
+}
+#vue-tcp #main .packs .pack.sent {
+  color: #000;
+}
+#vue-tcp #main .packs .server-pack {
+  color: #aaa;
+}
+#vue-tcp #main .packs .server-pack.received {
+  color: #000;
+}
+#vue-tcp #main .packs .window,
+#vue-tcp #main .packs .rcv-buffer {
+  display: inline-block;
+  width: 35px;
+  border: 1px solid #f00;
+  position: absolute;
+  left: 0;
+  transition: top linear 0.3s;
+}
+#vue-tcp #main .packs .rcv-buffer {
+  border: 1px solid #00f;
+  width: 39px;
+  left: -2px;
+}
+#vue-tcp #main .packs .arrow {
+  width: 35px;
+  height: 2px;
+  position: absolute;
+  left: 102%;
+  text-align: right;
+  text-indent: 102%;
+  line-height: 2px;
+  font-size: 12px;
+  transition: top linear 0.3s;
+}
+#vue-tcp #main .packs #lastByteAcked,
+#vue-tcp #main .packs #lastByteRead {
+  background: #00f;
+}
+#vue-tcp #main .packs #lastByteSent,
+#vue-tcp #main .packs #nextByteExpected {
+  background-color: #008000;
+}
+#vue-tcp #main .packs li {
+  width: 35px;
+  height: 35px;
+  line-height: 35px;
+  border: 1px solid #aaa;
+  border-bottom: none;
+}
+#vue-tcp #main .packs li:last-of-type {
+  border-bottom: 1px solid #aaa;
+}
+#vue-tcp #main #path {
+  position: relative;
+}
+#vue-tcp #main #path .sending-pack,
+#vue-tcp #main #path .acking-pack {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  line-height: 50px;
+  border: 1px solid #23d160;
+}
+#vue-tcp #main #path .sending-pack .operation,
+#vue-tcp #main #path .acking-pack .operation {
+  display: flex;
+  position: absolute;
+  width: 100%;
+}
+#vue-tcp #main #path .sending-pack .operation span,
+#vue-tcp #main #path .acking-pack .operation span {
+  flex: 1;
+  height: 12.5px;
+  line-height: 8px;
+  text-align: center;
+}
+#vue-tcp #main #path .sending-pack .operation span::after,
+#vue-tcp #main #path .acking-pack .operation span::after {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+}
+#vue-tcp #main #path .sending-pack .operation span:hover,
+#vue-tcp #main #path .acking-pack .operation span:hover {
+  background-color: #ffa500;
+}
+#vue-tcp #main #path .sending-pack .operation .down::after,
+#vue-tcp #main #path .acking-pack .operation .down::after,
+#vue-tcp #main #path .sending-pack .operation .up::after,
+#vue-tcp #main #path .acking-pack .operation .up::after {
+  border-top: 1px solid #000;
+  border-left: 1px solid #000;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+}
+#vue-tcp #main #path .sending-pack .operation .up::after,
+#vue-tcp #main #path .acking-pack .operation .up::after {
+  -webkit-transform: rotate(135deg);
+  -moz-transform: rotate(135deg);
+  -ms-transform: rotate(135deg);
+  -o-transform: rotate(135deg);
+  transform: rotate(135deg);
+}
+#vue-tcp #main #path .sending-pack .operation .pause::after,
+#vue-tcp #main #path .acking-pack .operation .pause::after {
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
+  -webkit-transform: scaleX(0.5);
+  -moz-transform: scaleX(0.5);
+  -ms-transform: scaleX(0.5);
+  -o-transform: scaleX(0.5);
+  transform: scaleX(0.5);
+}
+#vue-tcp #main #path .sending-pack .operation .remove,
+#vue-tcp #main #path .acking-pack .operation .remove {
+  position: relative;
+}
+#vue-tcp #main #path .sending-pack .operation .remove::after,
+#vue-tcp #main #path .acking-pack .operation .remove::after {
+  position: absolute;
+  width: 1px;
+  height: 8px;
+  background-color: #000;
+  -webkit-transform: rotate(45deg);
+  -moz-transform: rotate(45deg);
+  -ms-transform: rotate(45deg);
+  -o-transform: rotate(45deg);
+  transform: rotate(45deg);
+  top: 2px;
+}
+#vue-tcp #main #path .sending-pack .operation .remove::before,
+#vue-tcp #main #path .acking-pack .operation .remove::before {
+  position: absolute;
+  content: '';
+  display: inline-block;
+  width: 1px;
+  height: 8px;
+  background-color: #000;
+  -webkit-transform: rotate(-45deg);
+  -moz-transform: rotate(-45deg);
+  -ms-transform: rotate(-45deg);
+  -o-transform: rotate(-45deg);
+  transform: rotate(-45deg);
+  top: 2px;
+}
+#vue-tcp #main #path .acking-pack {
+  border: 1px solid #ff3860;
 }
 .resume {
   width: 100% !important;
