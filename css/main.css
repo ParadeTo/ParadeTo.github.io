@@ -1822,7 +1822,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #c43866;
+  background: #a201ff;
 }
 .links-of-blogroll {
   font-size: 13px;
@@ -3183,6 +3183,10 @@ header#game2048 p {
 }
 #vue-tcp #main .packs .server-pack.received {
   color: #000;
+}
+#vue-tcp #main .packs .server-pack.readed {
+  color: #008000;
+  font-weight: bold;
 }
 #vue-tcp #main .packs .window,
 #vue-tcp #main .packs .rcv-buffer {

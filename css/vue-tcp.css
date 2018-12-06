@@ -58,6 +58,10 @@
 #vue-tcp #main .packs .server-pack.received {
   color: #000;
 }
+#vue-tcp #main .packs .server-pack.readed {
+  color: #008000;
+  font-weight: bold;
+}
 #vue-tcp #main .packs .window,
 #vue-tcp #main .packs .rcv-buffer {
   display: inline-block;
