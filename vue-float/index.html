@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link href="https://cdn.bootcss.com/bulma/0.4.2/css/bulma.min.css" rel="stylesheet">
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Shopee DP FE" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一名转行的菜鸡程序员">
+<meta property="og:type" content="website">
+<meta property="og:title" content="vue-float">
+<meta property="og:url" content="http://www.paradeto.com/vue-float/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="一名转行的菜鸡程序员">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2019-07-18T02:08:02.968Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="vue-float">
+<meta name="twitter:description" content="一名转行的菜鸡程序员">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  <script src="//cdn.bootcss.com/vue/2.2.1/vue.min.js"></script>
+  <script>
+    window.Vue.config.delimiters = ['{[', ']}']
+  </script>
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/vue-float/"/>
+
+
+
+
+
+  <title>vue-float | Ayou</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+  <div id="vue-float">
+  <h1>浮点数转换</h1>
+  <div id="feedback">Bug反馈及问题交流: youxingzhi@qq.com</div>
+  <div>
+    <input type="number" id="input" placeholder="输入要转换的数字" v-model="number" />
+    <input type="radio" name="type" value="float" id="float" v-model="type">
+    <label for="float">float</label>
+    <input type="radio" name="type" value="double" id="double" v-model="type">
+    <label for="double">double</label>
+    <button id="start" @click="start">开始</button>
+  </div>
+  <div id="integer" v-if="integerSteps.length > 0 && number !== '0'">
+    <h2>整数部分二进制表示（余数从右到左）</h2>
+    <table>
+      <tr>
+        <td>算式</td>
+        <td v-for="step in integerSteps" v-html="step.dividend + ' / ' + 2 "></td>
+      </tr>
+      <tr>
+        <td>商</td>
+        <td v-for="step in integerSteps" v-html="step.quotient"></td>
+      </tr>
+      <tr>
+        <td>余数</td>
+        <td v-for="step in integerSteps" v-html="step.remainder"></td>
+      </tr>
+    </table>
+  </div>
+  <div id="decimals" v-if="decimalsSteps.length > 0 && number !== '0'">
+    <h2>小数部分二进制表示（当前位从左到右）</h2>
+    <table>
+      <tr>
+        <td>算式</td>
+        <td v-for="(step, i) in decimalsSteps" v-html="step.decimals + ' &times; ' + 2 "></td>
+      </tr>
+      <tr>
+        <td align="center">当前位（小于1为0，否则为1）</td>
+        <td v-for="(step, i) in decimalsSteps" v-html="step.bit"></td>
+      </tr>
+      <tr>
+        <td>剩余</td>
+        <td v-for="(step, i) in decimalsSteps" v-html="step.remainder"></td>
+      </tr>
+    </table>
+  </div>
+  <div id="integerAndDecimals" v-if="f && number !== '0'">
+    <h2>二进制表示</h2>
+    <div v-html="binaryStr"></div>
+  </div>
+  <div id="integerAndDecimals" v-if="f && number !== '0'">
+    <h2>二进制表示（科学计数法）</h2>
+    <div v-html="'1.' + f + '&times;' + '2^(' + originE + ')'"></div>
+  </div>
+  <div id="integerAndDecimals" v-if="f">
+    <h2>浮点数三要素</h2>
+    <table>
+      <tr>
+        <td>s</td>
+        <td v-html="s"></td>
+      </tr>
+      <tr>
+        <td>f</td>
+        <td v-html="f"></td>
+      </tr>
+      <tr>
+        <td>e</td>
+        <td v-if="number !== '0'" v-html="originE + ' + 127 = ' + (originE + 127) + ' = ' + e"></td>
+        <td v-else v-html="originE"></td>
+      </tr>
+    </table>
+  </div>
+  <div id="integerAndDecimals" v-if="f">
+    <h2>浮点数二进制示意图</h2>
+    <div id="bits">
+      <span class="bit sign" v-html="s"></span>
+      <span class="bit e" v-for="_e in e" v-html="_e"></span>
+      <span class="bit" v-for="_f in f" v-html="_f"></span>
+    </div>
+  </div>
+</div>
+
+  
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+   
+  <script src="/js/vue-float/index.js"></script>
+ 
+</body>
+</html>
