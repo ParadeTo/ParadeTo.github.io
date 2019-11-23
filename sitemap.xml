@@ -2,9 +2,23 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://www.paradeto.com/2019/11/20/css-gradient/</loc>
+    
+    <lastmod>2019-11-22T14:39:07.206Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/vue-chinese-chess/index.html</loc>
+    
+    <lastmod>2019-11-21T06:07:15.730Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.paradeto.com/2019/11/15/algo-chinese-chess-2/</loc>
     
-    <lastmod>2019-11-18T14:21:51.974Z</lastmod>
+    <lastmod>2019-11-18T14:43:02.264Z</lastmod>
     
   </url>
   
@@ -12,13 +26,6 @@
     <loc>http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/</loc>
     
     <lastmod>2019-11-13T15:21:10.479Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/chinese-chess/index.html</loc>
-    
-    <lastmod>2019-10-04T04:32:56.232Z</lastmod>
     
   </url>
   
@@ -373,13 +380,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/06/06/algo-dcsort/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/2017/10/31/algo-fast-power-matrix/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -387,7 +387,7 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/03/19/algo-maxsubarr/</loc>
+    <loc>http://www.paradeto.com/2016/06/06/algo-dcsort/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -401,7 +401,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/09/17/algo-stack-1/</loc>
+    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2017/03/19/algo-maxsubarr/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -422,7 +429,21 @@
   </url>
   
   <url>
+    <loc>http://www.paradeto.com/2017/09/17/algo-stack-1/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.paradeto.com/2017/10/31/alog-match-machine/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2016/09/13/demo-chrome-plugin/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -437,13 +458,6 @@
   
   <url>
     <loc>http://www.paradeto.com/2016/07/01/demo-app-pwd/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2016/09/13/demo-chrome-plugin/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -471,14 +485,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/10/27/js-es6-produce-consumer/</loc>
+    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
+    <loc>http://www.paradeto.com/2017/10/27/js-es6-produce-consumer/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -506,20 +520,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/09/13/ng2-dropdown/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2016/06/11/nodejs-1/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/2017/06/26/nodejs-bigpipe/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -534,7 +534,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
+    <loc>http://www.paradeto.com/2016/09/13/ng2-dropdown/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2016/06/11/nodejs-1/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -562,13 +569,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/11/03/python-8queens/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/2016/12/15/react-optimize/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -576,14 +576,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/09/10/web-cors-cookie/</loc>
+    <loc>http://www.paradeto.com/2016/06/17/web-hsts/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/06/17/web-hsts/</loc>
+    <loc>http://www.paradeto.com/2016/09/10/web-cors-cookie/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
