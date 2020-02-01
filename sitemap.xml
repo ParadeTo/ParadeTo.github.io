@@ -2,16 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://www.paradeto.com/resume/index.html</loc>
+    <loc>http://www.paradeto.com/2020/01/01/http-advance-chunked/</loc>
     
-    <lastmod>2020-01-03T07:55:52.997Z</lastmod>
+    <lastmod>2020-01-23T03:54:03.596Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2020/01/01/http-advance-chunked/</loc>
+    <loc>http://www.paradeto.com/resume/index.html</loc>
     
-    <lastmod>2020-01-02T01:52:44.263Z</lastmod>
+    <lastmod>2020-01-03T07:55:52.997Z</lastmod>
     
   </url>
   
@@ -373,13 +373,6 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/12/14/algo-arithmetic/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>http://www.paradeto.com/2017/10/15/algo-btree-1/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -394,7 +387,7 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
+    <loc>http://www.paradeto.com/2016/12/14/algo-arithmetic/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -402,6 +395,20 @@
   
   <url>
     <loc>http://www.paradeto.com/2017/10/31/algo-fast-power-matrix/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2016/06/06/algo-dcsort/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -457,7 +464,7 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/06/06/algo-dcsort/</loc>
+    <loc>http://www.paradeto.com/2016/07/01/demo-app-pwd/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -492,14 +499,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
+    <loc>http://www.paradeto.com/2017/10/27/js-es6-produce-consumer/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/10/27/js-es6-produce-consumer/</loc>
+    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -527,6 +534,13 @@
   </url>
   
   <url>
+    <loc>http://www.paradeto.com/2016/09/13/ng2-dropdown/</loc>
+    
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://www.paradeto.com/2016/06/11/nodejs-1/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
@@ -535,13 +549,6 @@
   
   <url>
     <loc>http://www.paradeto.com/2017/06/26/nodejs-bigpipe/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2016/09/13/ng2-dropdown/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -577,13 +584,6 @@
   
   <url>
     <loc>http://www.paradeto.com/2016/12/15/react-optimize/</loc>
-    
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://www.paradeto.com/2016/07/01/demo-app-pwd/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -667,14 +667,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/08/15/js-hld-13/</loc>
+    <loc>http://www.paradeto.com/2016/06/06/js-hld-6/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2016/06/06/js-hld-6/</loc>
+    <loc>http://www.paradeto.com/2016/08/15/js-hld-13/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
@@ -695,14 +695,14 @@
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2018/02/22/translate-fe-performance/</loc>
+    <loc>http://www.paradeto.com/2017/05/27/nodejs-cluster/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://www.paradeto.com/2017/05/27/nodejs-cluster/</loc>
+    <loc>http://www.paradeto.com/2018/02/22/translate-fe-performance/</loc>
     
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     
