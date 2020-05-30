@@ -4,8 +4,28 @@
 
     
   <url>
+    <loc>http://www.paradeto.com/2020/05/28/js-max-value/</loc>
+    <lastmod>2020-05-30T03:59:41.376Z</lastmod>
+    <data>
+        <display>
+        <title>JS 中的 MAX_VALUE 和 MAX_SAFE_INTEGER 是怎么来的</title>
+        <pubTime>2020-05-28T14:33:28.000Z</pubTime>
+        
+        <tag>javascript</tag>
+         
+         
+           
+             
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.paradeto.com/2020/03/17/float-number-add/</loc>
-    <lastmod>2020-03-17T13:36:20.136Z</lastmod>
+    <lastmod>2020-05-18T10:22:21.254Z</lastmod>
     <data>
         <display>
         <title>也许你知道 0.1 + 0.2 === 0.3 为 false，但是 1.1 + 0.2 === 1.3 呢？</title>
@@ -18,6 +38,41 @@
              
               <breadCrumb title="计算机原理" url="http://www.paradeto.com/categories/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%8E%9F%E7%90%86/"/>
           
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2020/05/15/js-es6-weakmap/</loc>
+    <lastmod>2020-05-15T13:04:35.116Z</lastmod>
+    <data>
+        <display>
+        <title>理解 WeakMap 的 weak</title>
+        <pubTime>2020-05-15T10:05:45.000Z</pubTime>
+        
+        <tag>es6</tag>
+         
+         
+           
+             
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2020/04/19/react-fiber/</loc>
+    <lastmod>2020-04-19T02:57:30.279Z</lastmod>
+    <data>
+        <display>
+        <title>post</title>
+        <pubTime>2020-04-19T01:27:12.000Z</pubTime>
+        
+         
+           
         </display>
     </data>
     </url>
@@ -1102,6 +1157,28 @@
 
     
   <url>
+    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>贪心算法-卡片游戏</title>
+        <pubTime>2017-02-18T04:31:23.000Z</pubTime>
+        
+        <tag>算法</tag>
+         
+        <tag>贪心</tag>
+         
+         
+           
+             
+              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
     <loc>http://www.paradeto.com/2017/10/31/algo-fast-power-matrix/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -1124,16 +1201,16 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
+    <loc>http://www.paradeto.com/2017/03/19/algo-maxsubarr/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>贪心算法-卡片游戏</title>
-        <pubTime>2017-02-18T04:31:23.000Z</pubTime>
+        <title>最大子序列应用－最大在线人数</title>
+        <pubTime>2017-03-19T09:31:23.000Z</pubTime>
         
         <tag>算法</tag>
          
-        <tag>贪心</tag>
+        <tag>最大子序列</tag>
          
          
            
@@ -1188,28 +1265,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/12/31/algo-treenode-heap/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>树节点实现堆</title>
-        <pubTime>2016-12-31T08:36:38.000Z</pubTime>
-        
-        <tag>算法</tag>
-         
-        <tag>堆</tag>
-         
-         
-           
-             
-              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.paradeto.com/2017/03/19/algo-trietree/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -1232,16 +1287,16 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/03/19/algo-maxsubarr/</loc>
+    <loc>http://www.paradeto.com/2016/12/31/algo-treenode-heap/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>最大子序列应用－最大在线人数</title>
-        <pubTime>2017-03-19T09:31:23.000Z</pubTime>
+        <title>树节点实现堆</title>
+        <pubTime>2016-12-31T08:36:38.000Z</pubTime>
         
         <tag>算法</tag>
          
-        <tag>最大子序列</tag>
+        <tag>堆</tag>
          
          
            
@@ -1298,14 +1353,16 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/09/13/demo-chrome-plugin/</loc>
+    <loc>http://www.paradeto.com/2016/07/01/demo-app-pwd/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>chrome插件开发（模拟抢月饼）</title>
-        <pubTime>2016-09-13T11:59:46.000Z</pubTime>
+        <title>H5仿原生APP密码输入</title>
+        <pubTime>2016-07-01T01:07:41.000Z</pubTime>
         
-        <tag>chrome插件</tag>
+        <tag>仿原生APP</tag>
+         
+        <tag>密码</tag>
          
          
            
@@ -1318,16 +1375,14 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/07/01/demo-app-pwd/</loc>
+    <loc>http://www.paradeto.com/2016/09/13/demo-chrome-plugin/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>H5仿原生APP密码输入</title>
-        <pubTime>2016-07-01T01:07:41.000Z</pubTime>
+        <title>chrome插件开发（模拟抢月饼）</title>
+        <pubTime>2016-09-13T11:59:46.000Z</pubTime>
         
-        <tag>仿原生APP</tag>
-         
-        <tag>密码</tag>
+        <tag>chrome插件</tag>
          
          
            
@@ -1422,12 +1477,12 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/08/08/js-hld-22/</loc>
+    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>笔记-javascript高级程序设计（第3版）第22章</title>
-        <pubTime>2017-08-08T08:01:21.000Z</pubTime>
+        <title>笔记-javascript高级程序设计（第3版）第10章</title>
+        <pubTime>2016-06-06T07:56:49.000Z</pubTime>
         
         <tag>javascript</tag>
          
@@ -1442,12 +1497,12 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
+    <loc>http://www.paradeto.com/2017/08/08/js-hld-22/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>笔记-javascript高级程序设计（第3版）第10章</title>
-        <pubTime>2016-06-06T07:56:49.000Z</pubTime>
+        <title>笔记-javascript高级程序设计（第3版）第22章</title>
+        <pubTime>2017-08-08T08:01:21.000Z</pubTime>
         
         <tag>javascript</tag>
          
@@ -1528,26 +1583,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/09/13/ng2-dropdown/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>Angularjs2-下拉列表实现(父子组件通信)</title>
-        <pubTime>2016-09-13T03:06:06.000Z</pubTime>
-        
-        <tag>angularjs2</tag>
-         
-         
-           
-             
-              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.paradeto.com/2017/06/26/nodejs-bigpipe/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -1563,6 +1598,26 @@
            
              
               <breadCrumb title="nodejs" url="http://www.paradeto.com/categories/nodejs/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2016/09/13/ng2-dropdown/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>Angularjs2-下拉列表实现(父子组件通信)</title>
+        <pubTime>2016-09-13T03:06:06.000Z</pubTime>
+        
+        <tag>angularjs2</tag>
+         
+         
+           
+             
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
           
         </display>
     </data>
@@ -1614,16 +1669,14 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/10/10/nodejs-promise-frame/</loc>
+    <loc>http://www.paradeto.com/2017/06/06/nodejsModule/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>实现一个简单的Promise/Deferred框架</title>
-        <pubTime>2016-10-10T08:31:06.000Z</pubTime>
+        <title>nodejs之模块机制</title>
+        <pubTime>2017-06-06T14:44:53.000Z</pubTime>
         
         <tag>nodejs</tag>
-         
-        <tag>promise</tag>
          
          
            
@@ -1636,14 +1689,16 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/06/06/nodejsModule/</loc>
+    <loc>http://www.paradeto.com/2016/10/10/nodejs-promise-frame/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>nodejs之模块机制</title>
-        <pubTime>2017-06-06T14:44:53.000Z</pubTime>
+        <title>实现一个简单的Promise/Deferred框架</title>
+        <pubTime>2016-10-10T08:31:06.000Z</pubTime>
         
         <tag>nodejs</tag>
+         
+        <tag>promise</tag>
          
          
            
@@ -1860,26 +1915,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2018/03/09/vue-ssr-1/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>vue 服务端渲染折腾记录</title>
-        <pubTime>2018-03-09T01:56:34.000Z</pubTime>
-        
-        <tag>vue</tag>
-         
-         
-           
-             
-              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.paradeto.com/2018/02/22/translate-go-docker/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -1895,6 +1930,26 @@
            
              
               <breadCrumb title="翻译" url="http://www.paradeto.com/categories/%E7%BF%BB%E8%AF%91/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2018/03/09/vue-ssr-1/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>vue 服务端渲染折腾记录</title>
+        <pubTime>2018-03-09T01:56:34.000Z</pubTime>
+        
+        <tag>vue</tag>
+         
+         
+           
+             
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
           
         </display>
     </data>
