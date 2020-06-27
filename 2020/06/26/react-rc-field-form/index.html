@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react,antd," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="模仿 antd4 写一个表单组件">
+<meta name="keywords" content="react,antd">
+<meta property="og:type" content="article">
+<meta property="og:title" content="模仿 antd 写一个表单组件">
+<meta property="og:url" content="http://www.paradeto.com/2020/06/26/react-rc-field-form/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="模仿 antd4 写一个表单组件">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-06-26T09:19:20.684Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="模仿 antd 写一个表单组件">
+<meta name="twitter:description" content="模仿 antd4 写一个表单组件">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2020/06/26/react-rc-field-form/"/>
+
+
+
+
+
+
+  <title>模仿 antd 写一个表单组件 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2020/06/26/react-rc-field-form/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">模仿 antd 写一个表单组件</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2020-06-26T10:52:19+08:00">
+                2020-06-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  模仿 antd4 写一个表单组件
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们先来看一段代码，看看我们要实现的组件是怎么使用的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Component, useEffect&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> Form, &#123;Field&#125; <span class="keyword">from</span> <span class="string">'../components/my-rc-field-form/'</span></span><br><span class="line"><span class="keyword">import</span> Input <span class="keyword">from</span> <span class="string">'../components/Input'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> nameRules = &#123;<span class="attr">required</span>: <span class="literal">true</span>, <span class="attr">message</span>: <span class="string">'请输入姓名！'</span>&#125;</span><br><span class="line"><span class="keyword">const</span> passworRules = &#123;<span class="attr">required</span>: <span class="literal">true</span>, <span class="attr">message</span>: <span class="string">'请输入密码！'</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">MyRCFieldForm</span>(<span class="params">props</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [form] = Form.useForm()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> onFinish = <span class="function">(<span class="params">val</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'onFinish'</span>, val)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> onFinishFailed = <span class="function">(<span class="params">val</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'onFinishFailed'</span>, val)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'form'</span>, form)</span><br><span class="line">    form.setFieldsValue(&#123;<span class="attr">username</span>: <span class="string">'default'</span>&#125;)</span><br><span class="line">    <span class="built_in">console</span>.log(form.getFieldValue(<span class="string">'username'</span>))</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;h3&gt;MyRCFieldForm&lt;<span class="regexp">/h3&gt;</span></span><br><span class="line"><span class="regexp">      &lt;Form form=&#123;form&#125; onFinish=&#123;onFinish&#125; onFinishFailed=&#123;onFinishFailed&#125;&gt;</span></span><br><span class="line"><span class="regexp">        &lt;Field name='username' rules=&#123;[nameRules]&#125;&gt;</span></span><br><span class="line"><span class="regexp">          &lt;Input placeholder='input UR Username' /</span>&gt;</span><br><span class="line">        &lt;<span class="regexp">/Field&gt;</span></span><br><span class="line"><span class="regexp">        &lt;Field name='password' rules=&#123;[passworRules]&#125;&gt;</span></span><br><span class="line"><span class="regexp">          &lt;Input placeholder='input UR Password' /</span>&gt;</span><br><span class="line">        &lt;<span class="regexp">/Field&gt;</span></span><br><span class="line"><span class="regexp">        &lt;button&gt;Submit&lt;/</span>button&gt;</span><br><span class="line">      &lt;<span class="regexp">/Form&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="框架搭建"><a href="#框架搭建" class="headerlink" title="框架搭建"></a>框架搭建</h1><p>我们先把我们组件的架子搭起来，新建 <code>my-rc-field-form</code> 目录：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">my-rc-field-form</span><br><span class="line">  - index.js</span><br><span class="line">  - Form.js</span><br><span class="line">  - Field.js</span><br><span class="line">  - useForm.js</span><br></pre></td></tr></table></figure>
+<p>其中，<code>index.js</code> 中内容如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> _Form <span class="keyword">from</span> <span class="string">'./Form'</span></span><br><span class="line"><span class="keyword">import</span> Field <span class="keyword">from</span> <span class="string">'./Field'</span></span><br><span class="line"><span class="keyword">import</span> useForm <span class="keyword">from</span> <span class="string">'./useForm'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Form = _Form</span><br><span class="line">Form.Field = Field</span><br><span class="line">Form.useForm = useForm</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> &#123;Field, useForm&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> Form</span><br></pre></td></tr></table></figure>
+<p>我们先简单的实现下 <code>Field.js</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Field</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  getControled = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;name&#125; = <span class="keyword">this</span>.props</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      value: <span class="string">''</span>, <span class="comment">// TODO</span></span><br><span class="line">      onChange: <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// TODO</span></span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;children&#125; = <span class="keyword">this</span>.props</span><br><span class="line">    <span class="keyword">const</span> returnChildNode = React.cloneElement(children, <span class="keyword">this</span>.getControled())</span><br><span class="line">    <span class="keyword">return</span> returnChildNode</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后是 <code>Form.js</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Form</span>(<span class="params">&#123;form, children, onFinish, onFinishFailed&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">form</span>&gt;</span>&#123;children&#125;<span class="tag">&lt;/<span class="name">form</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再然后是 <code>useForm.js</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">useForm</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> formRef = useRef()</span><br><span class="line">  <span class="keyword">return</span> [formRef.current]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="表单数据仓库"><a href="#表单数据仓库" class="headerlink" title="表单数据仓库"></a>表单数据仓库</h1><p>分析我们的需求，我们发现 <code>useForm</code> 返回的对象上面有 <code>getFieldValue</code>, <code>setFieldsValue</code> 等方法可以来操作我们的表单数据。看来我们需要有个地方存储我们所有的表单数据，我们叫它 <code>FormStore</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FormStore</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(props) &#123;</span><br><span class="line">    <span class="comment">// 用来保存表单数据</span></span><br><span class="line">    <span class="keyword">this</span>.store = &#123;&#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getFieldValue = <span class="function">(<span class="params">name</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.store[name]</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getFieldsValue = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.store</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setFieldsValue = <span class="function">(<span class="params">newStore</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.store = &#123;</span><br><span class="line">      ...this.store,</span><br><span class="line">      ...newStore,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getForm = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      getFieldValue: <span class="keyword">this</span>.getFieldValue,</span><br><span class="line">      getFieldsValue: <span class="keyword">this</span>.getFieldsValue,</span><br><span class="line">      setFieldsValue: <span class="keyword">this</span>.setFieldsValue,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行 <code>useForm</code> 的时候，需要实例化一个 <code>FormStore</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">useForm</span>(<span class="params">form</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> formRef = useRef()</span><br><span class="line">  <span class="keyword">if</span> (!formRef.current) &#123;</span><br><span class="line">    <span class="keyword">if</span> (form) &#123;</span><br><span class="line">      formRef.current = form</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> formStore = <span class="keyword">new</span> FormStore()</span><br><span class="line">      formRef.current = formStore.getForm()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> [formRef.current]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里有个问题，数据更新发生在 <code>Field.js</code> 中，如何能够让其更新 <code>FormStore</code> 中的数据呢，这里我们使用 <code>React.createContext</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Form</span>(<span class="params">&#123;form, children, onFinish, onFinishFailed&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [formInstance] = useForm(form)</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;form&gt;</span><br><span class="line">      &lt;FieldContext.Provider value=&#123;formInstance&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/FieldContext.Provider&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>form&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在就可以在 <code>Field.js</code> 中对数据进行获取和更新了：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Field</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  <span class="keyword">static</span> contextType = FieldContext</span><br><span class="line"></span><br><span class="line">  onStoreChange = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.forceUpdate()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getControled = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;getFieldValue, setFieldsValue&#125; = <span class="keyword">this</span>.context</span><br><span class="line">    <span class="keyword">const</span> &#123;name&#125; = <span class="keyword">this</span>.props</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      value: getFieldValue(name), <span class="comment">//从store中取值</span></span><br><span class="line">      onChange: <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="comment">// 把新的参数值存到store中</span></span><br><span class="line">        <span class="keyword">const</span> newValue = e.target.value</span><br><span class="line">        setFieldsValue(&#123;[name]: newValue&#125;)</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">'newValue'</span>, newValue)</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;children&#125; = <span class="keyword">this</span>.props</span><br><span class="line">    <span class="keyword">const</span> returnChildNode = React.cloneElement(children, <span class="keyword">this</span>.getControled())</span><br><span class="line">    <span class="keyword">return</span> returnChildNode</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过，现在虽然数据得到了更新，但是组件却无法更新。注意到我们这里写了一个函数 <code>onStoreChange</code>，里面调用了 <code>forceUpdate</code>。看样子我们只需要在每次修改 <code>FormStore</code> 的数据时，去调用这个函数就可以了。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">setFieldsValue = <span class="function">(<span class="params">newStore</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.store = &#123;</span><br><span class="line">    ...this.store,</span><br><span class="line">    ...newStore,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 调用 Field 的 onStoreChange</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是，这里又有一个问题了。我们怎么拿到 <code>Field</code> 的引用呢？我们在每个 <code>Field</code> 挂载的时候去 <code>FormStore</code> 中进行注册一下就行了：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">FormStore</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(props) &#123;</span><br><span class="line">    <span class="keyword">this</span>.store = &#123;&#125;</span><br><span class="line">    <span class="keyword">this</span>.fieldEntities = []</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  registerField = <span class="function">(<span class="params">field</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.fieldEntities.push(field)</span><br><span class="line">    <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.fieldEntities = <span class="keyword">this</span>.fieldEntities.filter(<span class="function">(<span class="params">item</span>) =&gt;</span> item != field)</span><br><span class="line">      <span class="keyword">delete</span> <span class="keyword">this</span>.store[field.props.name]</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  getForm = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      registerField: <span class="keyword">this</span>.registerField,</span><br><span class="line">      getFieldValue: <span class="keyword">this</span>.getFieldValue,</span><br><span class="line">      getFieldsValue: <span class="keyword">this</span>.getFieldsValue,</span><br><span class="line">      setFieldsValue: <span class="keyword">this</span>.setFieldsValue,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Field</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.cancelRegister = <span class="keyword">this</span>.context.registerField(<span class="keyword">this</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.cancelRegister) &#123;</span><br><span class="line">      <span class="keyword">this</span>.cancelRegister()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在，我们可以在 <code>setFieldsValue</code> 中调用 <code>Filed</code> 的 <code>onStoreChange</code> 了：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">setFieldsValue = <span class="function">(<span class="params">newStore</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">this</span>.store = &#123;</span><br><span class="line">    ...this.store,</span><br><span class="line">    ...newStore,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.fieldEntities.forEach(<span class="function">(<span class="params">enetity</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;name&#125; = enetity.props</span><br><span class="line">    <span class="built_in">Object</span>.keys(newStore).forEach(<span class="function">(<span class="params">key</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (key === name) &#123;</span><br><span class="line">        enetity.onStoreChange()</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，我们就实现了数据更新的时候去更新组件。</p>
+<h1 id="表单验证"><a href="#表单验证" class="headerlink" title="表单验证"></a>表单验证</h1><p>有了之前的基础，表单验证也好做了，我们增加 <code>submit</code> 和 <code>validate</code> 方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">validate = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> err = []</span><br><span class="line">  <span class="keyword">this</span>.fieldEntities.forEach(<span class="function">(<span class="params">entity</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;name, rules&#125; = entity.props</span><br><span class="line">    <span class="keyword">let</span> value = <span class="keyword">this</span>.store[name]</span><br><span class="line">    <span class="keyword">let</span> rule = rules &amp;&amp; rules[<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">if</span> (rule &amp;&amp; rule.required &amp;&amp; (value === <span class="literal">undefined</span> || value === <span class="string">''</span>)) &#123;</span><br><span class="line">      err.push(&#123;</span><br><span class="line">        [name]: rule.message,</span><br><span class="line">        value,</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> err</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">submit = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> err = <span class="keyword">this</span>.validate()</span><br><span class="line">  <span class="keyword">if</span> (err.length === <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.calllbacks.onFinish(<span class="keyword">this</span>.store)</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (err.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.calllbacks.onFinishFailed(err)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后修改一下 <code>Form</code> 组件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Form</span>(<span class="params">&#123;form, children, onFinish, onFinishFailed&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [formInstance] = useForm(form)</span><br><span class="line">  formInstance.setCallback(&#123;</span><br><span class="line">    onFinish,</span><br><span class="line">    onFinishFailed,</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;form</span><br><span class="line">      onSubmit=&#123;(e) =&gt; &#123;</span><br><span class="line">        e.preventDefault()</span><br><span class="line">        formInstance.submit()</span><br><span class="line">      &#125;&#125;&gt;</span><br><span class="line">      &lt;FieldContext.Provider value=&#123;formInstance&#125;&gt;</span><br><span class="line">        &#123;children&#125;</span><br><span class="line">      &lt;<span class="regexp">/FieldContext.Provider&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>form&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="在类组件中使用"><a href="#在类组件中使用" class="headerlink" title="在类组件中使用"></a>在类组件中使用</h1><p>注意到 antd4 中的 <code>Form</code> 是可以在类组件中使用的：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line">  formRef = React.createRef()</span><br><span class="line"></span><br><span class="line">  onFinish = <span class="function">(<span class="params">val</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'onFinish'</span>, val)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  onFinishFailed = <span class="function">(<span class="params">val</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'onFinishFailed'</span>, val)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>.formRef.current.setFieldsValue(&#123;<span class="attr">username</span>: <span class="string">'default'</span>&#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">        &lt;h3&gt;MyRCFieldForm&lt;<span class="regexp">/h3&gt;</span></span><br><span class="line"><span class="regexp">        &lt;Form</span></span><br><span class="line"><span class="regexp">          ref=&#123;this.formRef&#125;</span></span><br><span class="line"><span class="regexp">          onFinish=&#123;this.onFinish&#125;</span></span><br><span class="line"><span class="regexp">          onFinishFailed=&#123;this.onFinishFailed&#125;&gt;</span></span><br><span class="line"><span class="regexp">          &lt;Field name='username' rules=&#123;[nameRules]&#125;&gt;</span></span><br><span class="line"><span class="regexp">            &lt;Input placeholder='input UR Username' /</span>&gt;</span><br><span class="line">          &lt;<span class="regexp">/Field&gt;</span></span><br><span class="line"><span class="regexp">          &lt;Field name='password' rules=&#123;[passworRules]&#125;&gt;</span></span><br><span class="line"><span class="regexp">            &lt;Input placeholder='input UR Password' /</span>&gt;</span><br><span class="line">          &lt;<span class="regexp">/Field&gt;</span></span><br><span class="line"><span class="regexp">          &lt;button&gt;Submit&lt;/</span>button&gt;</span><br><span class="line">        &lt;<span class="regexp">/Form&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>div&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是，我们自己实现的 <code>Form</code> 组件是函数式组件，怎么获取到 <code>ref</code> 呢？这就需要 <code>React.forwardRef</code> 和 <code>React.useImperativeHandle</code> 来帮忙了，我们改造下 <code>Form</code> 组件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> React.forwardRef(</span><br><span class="line">  (&#123;form, children, onFinish, onFinishFailed&#125;, ref) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> [formInstance] = useForm(form)</span><br><span class="line">    React.useImperativeHandle(ref, () =&gt; formInstance)</span><br><span class="line">    formInstance.setCallback(&#123;</span><br><span class="line">      onFinish,</span><br><span class="line">      onFinishFailed,</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;form</span><br><span class="line">        onSubmit=&#123;(e) =&gt; &#123;</span><br><span class="line">          e.preventDefault()</span><br><span class="line">          formInstance.submit()</span><br><span class="line">        &#125;&#125;&gt;</span><br><span class="line">        &lt;FieldContext.Provider value=&#123;formInstance&#125;&gt;</span><br><span class="line">          &#123;children&#125;</span><br><span class="line">        &lt;<span class="regexp">/FieldContext.Provider&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>form&gt;</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>从这个例子当中，我们学到以下几点：</p>
+<ul>
+<li>数据集中管理的思想</li>
+<li>Context 的使用</li>
+<li>组件注册的思想</li>
+<li><code>React.forwardRef</code> 和 <code>React.useImperativeHandle</code> 的用法</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+            <a href="/tags/antd/" rel="tag"># antd</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/06/14/vuex-diy/" rel="next" title="手写一个简单的 vuex">
+                <i class="fa fa-chevron-left"></i> 手写一个简单的 vuex
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/26/vue-source-2/" rel="prev" title="Vue 源码解读之二响应式数据原理">
+                Vue 源码解读之二响应式数据原理 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">105</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">57</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#框架搭建"><span class="nav-number">1.</span> <span class="nav-text">框架搭建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#表单数据仓库"><span class="nav-number">2.</span> <span class="nav-text">表单数据仓库</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#表单验证"><span class="nav-number">3.</span> <span class="nav-text">表单验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#在类组件中使用"><span class="nav-number">4.</span> <span class="nav-text">在类组件中使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
