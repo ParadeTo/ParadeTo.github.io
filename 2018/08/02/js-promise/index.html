@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="promise," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="一步一步实现一个 promise">
+<meta name="keywords" content="promise">
+<meta property="og:type" content="article">
+<meta property="og:title" content="自己手写一个 promise">
+<meta property="og:url" content="http://www.paradeto.com/2018/08/02/js-promise/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="一步一步实现一个 promise">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-08-06T06:22:49.960Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="自己手写一个 promise">
+<meta name="twitter:description" content="一步一步实现一个 promise">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2018/08/02/js-promise/"/>
+
+
+
+
+
+
+  <title>自己手写一个 promise | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/08/02/js-promise/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">自己手写一个 promise</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-08-02T09:53:46+08:00">
+                2018-08-02
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  一步一步实现一个 promise
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本文代码参考 <a href="https://tech.meituan.com/promise_insight.html" target="_blank" rel="noopener">https://tech.meituan.com/promise_insight.html</a><br>主要是为了分析实现一个 promise 的步骤</p>
+</blockquote>
+<h1 id="乞丐版"><a href="#乞丐版" class="headerlink" title="乞丐版"></a>乞丐版</h1><p>话不多说，一个最简单的 <code>Promise</code> 很简单就出来了：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">YouPromise</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> deferreds = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span> (<span class="params">onFulfilled</span>) </span>&#123;</span><br><span class="line">    deferreds.push(onFulfilled)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">value</span>) </span>&#123;</span><br><span class="line">    deferreds.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">      deferred(value)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fn(resolve)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = YouPromise</span><br></pre></td></tr></table></figure>
+<p>测试一下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">it(<span class="string">'support chain'</span>, cb =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> times = <span class="number">0</span></span><br><span class="line">  <span class="keyword">new</span> YouPromise(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      resolve()</span><br><span class="line">      expect(times).toBe(<span class="number">2</span>)</span><br><span class="line">      cb()</span><br><span class="line">    &#125;, <span class="number">10</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> times++)</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> times++)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>但是一旦传入 <code>YouPromise</code> 的函数里面 <code>resolve</code> 是同步执行的话，问题就来了。因为 <code>resolve</code> 先于 <code>then</code> 执行，而 <code>resolve</code> 执行时 <code>deferreds</code> 数组中还没有函数，而等到 <code>then</code> 里面的函数放到数组中时，<code>resolve</code> 都已经执行完了，这些函数也就没有机会再执行了。所以，下面的测试用例会报错</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">it(<span class="string">'support promise synchronous'</span>, cb =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> times = <span class="number">0</span></span><br><span class="line">  <span class="keyword">new</span> YouPromise(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">    resolve()</span><br><span class="line">  &#125;)</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> times++)</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> times++)</span><br><span class="line">    .then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      expect(times).toBe(<span class="number">2</span>)</span><br><span class="line">      cb()</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h1 id="支持同步-resolve"><a href="#支持同步-resolve" class="headerlink" title="支持同步 resolve"></a>支持同步 resolve</h1><p>为了解决上面的问题，我们可以想到在 <code>YouPromise</code> 中，将 <code>resolve</code> 中的代码延迟执行：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">value</span>) </span>&#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    deferreds.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">      deferred(value)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;, <span class="number">0</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，就解决了上面的问题。不过，现在的 <code>YouPromise</code> 有个问题是，在 <code>resolve</code> 执行完之后使用 <code>then</code> 加入的函数不会执行，但是标准的 <code>Promise</code> 是可以的，比如下面这样：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">it(<span class="string">'can call then after promise resolve'</span>, cb =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> times = <span class="number">0</span></span><br><span class="line">  <span class="keyword">const</span> p = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    resolve()</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  p.then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    times++</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    p.then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      times++</span><br><span class="line">      expect(times).toBe(<span class="number">2</span>)</span><br><span class="line">      cb()</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;, <span class="number">100</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>把上面的 <code>Promise</code> 替换成 <code>YouPromise</code> 则测试用例无法通过。</p>
+<h1 id="支持-resolve-后还能执行-then"><a href="#支持-resolve-后还能执行-then" class="headerlink" title="支持 resolve 后还能执行 then"></a>支持 resolve 后还能执行 then</h1><p>为了支持 <code>resolve</code> 后还能执行 <code>then</code> 里面的函数，我们需要引入状态的概念：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">YouPromise</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line">  <span class="keyword">let</span> state = <span class="string">'pending'</span></span><br><span class="line">  <span class="keyword">const</span> deferreds = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span> (<span class="params">onFulfilled</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state === <span class="string">'pending'</span>) &#123;</span><br><span class="line">      deferreds.push(onFulfilled)</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">    &#125;</span><br><span class="line">    onFulfilled(value)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">newValue</span>) </span>&#123;</span><br><span class="line">    value = newValue</span><br><span class="line">    state = <span class="string">'fulfilled'</span></span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      deferreds.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">        deferred(value)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;, <span class="number">0</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fn(resolve)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一个 <code>YouPromise</code> 对象的状态初始化为 pending, 当其状态为 pending 时调用 <code>then</code> 会继续往 <code>deferreds</code> 数组中存放函数，否则说明该对象已经 fulfilled 了，可以直接执行 <code>then</code> 传入的函数。<code>resolve</code> 会将该对象的状态置为 fulfilled。现在再运行上面的测试用例就没问题了。</p>
+<h1 id="then-传递结果"><a href="#then-传递结果" class="headerlink" title="then 传递结果"></a>then 传递结果</h1><p>为了支持 <code>then</code> 中返回的数据可以传递到下一个 <code>then</code>，我们的代码要稍作改动：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">newValue</span>) </span>&#123;</span><br><span class="line">  value = newValue</span><br><span class="line">  state = <span class="string">'fulfilled'</span></span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    deferreds.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">      value = deferred(value)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;, <span class="number">0</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，下面的测试用例就可以顺利通过啦：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    resolve(<span class="number">1</span>)</span><br><span class="line">  &#125;, <span class="number">10</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">p1</span><br><span class="line">  .then(<span class="function"><span class="params">val</span> =&gt;</span> &#123;</span><br><span class="line">    expect(val).toBe(<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">2</span></span><br><span class="line">  &#125;)</span><br><span class="line">  .then(<span class="function"><span class="params">val</span> =&gt;</span> &#123;</span><br><span class="line">    expect(val).toBe(<span class="number">2</span>)</span><br><span class="line">    cb()</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+<h1 id="串行-promise"><a href="#串行-promise" class="headerlink" title="串行 promise"></a>串行 promise</h1><p>接下来就是我们最难的功能了，我们想串行化 <code>promise</code>，比如像下面这样：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> user = &#123;&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getUserId</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> YouPromise(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      user.id = <span class="number">9876</span></span><br><span class="line">      resolve(<span class="number">9876</span>)</span><br><span class="line">    &#125;, <span class="number">10</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getUserMobileById</span> (<span class="params">id</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> YouPromise(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      expect(id).toBe(<span class="number">9876</span>)</span><br><span class="line">      user.mobile = <span class="string">'18611110000'</span></span><br><span class="line">      resolve(user)</span><br><span class="line">    &#125;, <span class="number">20</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">printUser</span> (<span class="params">user</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(user)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getUserId()</span><br><span class="line">  .then(getUserMobileById)</span><br><span class="line">  .then(printUser)</span><br></pre></td></tr></table></figure>
+<p>首先，直接把代码贴出来，然后我们再分析一下这个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">YouPromise</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line">  <span class="keyword">let</span> state = <span class="string">'pending'</span></span><br><span class="line">  <span class="keyword">const</span> deferreds = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span> (<span class="params">onFulfilled</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> YouPromise(<span class="function"><span class="keyword">function</span> (<span class="params">resolve</span>) </span>&#123;</span><br><span class="line">      handle(&#123;</span><br><span class="line">        onFulfilled: onFulfilled || <span class="literal">null</span>,</span><br><span class="line">        resolve: resolve</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handle</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state === <span class="string">'pending'</span>) &#123;</span><br><span class="line">      deferreds.push(deferred)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> ret = deferred.onFulfilled(value)</span><br><span class="line">    deferred.resolve(ret)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">newValue</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (newValue &amp;&amp; (<span class="keyword">typeof</span> newValue === <span class="string">'object'</span> || <span class="keyword">typeof</span> newValue === <span class="string">'function'</span>)) &#123;</span><br><span class="line">      <span class="keyword">var</span> then = newValue.then</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> then === <span class="string">'function'</span>) &#123;</span><br><span class="line">        then.call(newValue, resolve)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    state = <span class="string">'fulfilled'</span></span><br><span class="line">    value = newValue</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      deferreds.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">        handle(deferred)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;, <span class="number">0</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fn(resolve)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol>
+<li><p><code>getUserId()</code> 生成了一个 promise，我们把它叫做 promiseGetUserId, <code>promiseGetUserId.then(getUserMobileById)</code> 返回了一个新的 promise，这个 promise 我们把它叫做 promiseBridge1，意思就是作为一个桥梁，连接两个 promise。后面那个 <code>.then(printUser)</code> 的调用者，自然就是 promiseBridge1 了，这里又会生成一个 promise，我们叫它 promiseBridge2。两个 <code>then</code> 执行完后，此时各 promise 的状态如下所示：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">promiseGetUserId: &#123;</span><br><span class="line">  value: <span class="literal">null</span>,</span><br><span class="line">  state: <span class="string">'pending'</span>,</span><br><span class="line">  deferreds: [&#123;</span><br><span class="line">    onFulfilled: getUserMobileById,</span><br><span class="line">    resolve: resolve <span class="comment">// 这里的 resolve 是属于 promiseBridge1 的</span></span><br><span class="line">  &#125;]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">promiseBridge1: &#123;</span><br><span class="line">  value: <span class="literal">null</span>,</span><br><span class="line">  state: <span class="string">'pending'</span>,</span><br><span class="line">  deferreds: [&#123;</span><br><span class="line">    onFulfilled: printUser,</span><br><span class="line">    resolve: resolve <span class="comment">// 这里的 resolve 是属于 promiseBridge2 的</span></span><br><span class="line">  &#125;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>10 毫秒后 promiseGetUserId 执行 <code>resolve</code>，会依次将 <code>deferreds</code> 中的数据放到 <code>handle</code> 中执行，该函数中首先执行 <code>deferred.onFulfilled(value)</code> 方法，即 <code>getUserMobileById</code>，返回的 <code>ret</code> 为一个 promise，我们叫它 promiseGetUserMobileById。</p>
+</li>
+<li><p>然后执行 <code>deferred.resolve(ret)</code>。我们看 <code>resolve</code> 方法，此时 <code>newValue</code> 即为 promiseGetUserMobileById，<code>if</code> 中的判断生效，我们调用 promiseGetUserMobileById 的 <code>then</code> 方法，并将 <code>resolve</code> 作为回调函数传入，这里的 <code>resolve</code> 仍然是属于 promiseBridge1 的，同时直接返回。这样就必须等到 promiseGetUserMobileById <code>resolve</code> 后才能再次执行 promiseBridge1 的 <code>resolve</code> 方法了。此时 promiseGetUserMobileById 的状态如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">promiseBridge1: &#123;</span><br><span class="line">  value: null,</span><br><span class="line">  state: &apos;pending&apos;,</span><br><span class="line">  deferreds: [&#123;</span><br><span class="line">    onFulfilled: resolve, // 这里的 resolve 是这段代码传入的 then.call(newValue, resolve) 属于 promiseBridge1</span><br><span class="line">    resolve: resolve // 这是另外一个 bidgePromise 的 resolve 了</span><br><span class="line">  &#125;]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>20 毫秒后 promiseGetUserMobileById 执行 <code>resolve</code> 方法，此时会依次将 <code>deferreds</code> 中的数据放到 <code>handle</code> 中执行，最终会执行到 promiseBridge1 的 <code>resolve</code>。</p>
+</li>
+<li><p>再次执行到 promiseBridge1 的 <code>resolve</code> 时，此时 <code>newValue</code> 是 <code>user</code> 对象，则会执行 <code>if</code> 后面的流程，最终会执行 <code>printUser</code>。</p>
+</li>
+</ol>
+<h1 id="失败处理"><a href="#失败处理" class="headerlink" title="失败处理"></a>失败处理</h1><p>还是直接贴上代码然后我们再分析一下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">YouPromise</span> (<span class="params">fn</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> value = <span class="literal">null</span></span><br><span class="line">  <span class="keyword">let</span> state = <span class="string">'pending'</span></span><br><span class="line">  <span class="keyword">const</span> deferreds = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.then = <span class="function"><span class="keyword">function</span> (<span class="params">onFulfilled, onRejected</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> YouPromise(<span class="function"><span class="keyword">function</span> (<span class="params">resolve, reject</span>) </span>&#123;</span><br><span class="line">      handle(&#123;</span><br><span class="line">        onFulfilled: onFulfilled || <span class="literal">null</span>,</span><br><span class="line">        onRejected: onRejected || <span class="literal">null</span>,</span><br><span class="line">        resolve: resolve,</span><br><span class="line">        reject: reject</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">handle</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state === <span class="string">'pending'</span>) &#123;</span><br><span class="line">      deferreds.push(deferred)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> cb = state === <span class="string">'fulfilled'</span> ? deferred.onFulfilled : deferred.onRejected</span><br><span class="line">    <span class="keyword">let</span> ret</span><br><span class="line">    <span class="keyword">if</span> (cb === <span class="literal">null</span>) &#123;</span><br><span class="line">      cb = state === <span class="string">'fulfilled'</span> ? deferred.resolve : deferred.reject</span><br><span class="line">      cb(value)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    ret = cb(value)</span><br><span class="line">    deferred.resolve(ret)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">resolve</span> (<span class="params">newValue</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (newValue &amp;&amp; (<span class="keyword">typeof</span> newValue === <span class="string">'object'</span> || <span class="keyword">typeof</span> newValue === <span class="string">'function'</span>)) &#123;</span><br><span class="line">      <span class="keyword">const</span> then = newValue.then</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> then === <span class="string">'function'</span>) &#123;</span><br><span class="line">        then.call(newValue, resolve, reject)</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    state = <span class="string">'fulfilled'</span></span><br><span class="line">    value = newValue</span><br><span class="line">    finale()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">reject</span> (<span class="params">reason</span>) </span>&#123;</span><br><span class="line">    state = <span class="string">'rejected'</span></span><br><span class="line">    value = reason</span><br><span class="line">    finale()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">finale</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      deferreds.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">        handle(deferred)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;, <span class="number">0</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  fn(resolve, reject)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们以下面这个例子为例进行分析：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">getUserId = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> YouPromise(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      user.id = <span class="number">9876</span></span><br><span class="line">      reject(<span class="string">'user id is null'</span>)</span><br><span class="line">    &#125;, <span class="number">10</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getUserId()</span><br><span class="line">  .then(getUserMobileById, err =&gt; &#123;</span><br><span class="line">    expect(err).toBe(<span class="string">'user id is null'</span>)</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+<p>前面创建 promise，然后执行 <code>then</code> 的过程是一样的，我们来看看 <code>reject</code> 以后发生了什么：</p>
+<ol>
+<li>将当前 promise 的状态置为 <code>rejected</code>，然后将失败原因复制为 <code>value</code>，最后调用了 <code>finale()</code></li>
+<li>该函数其实就是封装了前面的延迟执行 <code>deferreds</code> 的逻辑，执行 <code>handle()</code> 发现此时状态不为 <code>fulfilled</code>，且<br><code>deferred.onRejected</code> 不为空（其实就是 err =&gt; {…}），将函数赋值给 <code>cb</code>，然后执行。</li>
+<li>最后执行 promiseBridge1 的 <code>resolve()</code> 方法</li>
+</ol>
+<p>这里，这段代码是为了处理没有传入错误处理函数的情况：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (cb === <span class="literal">null</span>) &#123;</span><br><span class="line">  cb = state === <span class="string">'fulfilled'</span> ? deferred.resolve : deferred.reject</span><br><span class="line">  cb(value)</span><br><span class="line">  <span class="keyword">return</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当 <code>then()</code> 中没有传入错误处理函数时，会直接执行 promiseBridge1 的 <code>reject()</code> 方法，将错误往下传递:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">getUserId()</span><br><span class="line">  .then(getUserMobileById)</span><br><span class="line">  .then(printUser, err =&gt; &#123;</span><br><span class="line">    expect(err).toBe(<span class="string">'user id is null'</span>)</span><br><span class="line">    cb()</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+<h1 id="异常处理"><a href="#异常处理" class="headerlink" title="异常处理"></a>异常处理</h1><p>如果在执行成功回调、失败回调时代码出错怎么办？对于这类异常，可以使用 <code>try-catch</code> 捕获错误，并将 bridgePromise 设为 <code>rejected</code> 状态。<code>handle()</code> 方法改造如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">handle</span>(<span class="params">deferred</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (state === <span class="string">'pending'</span>) &#123;</span><br><span class="line">        deferreds.push(deferred);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> cb = state === <span class="string">'fulfilled'</span> ? deferred.onFulfilled : deferred.onRejected,</span><br><span class="line">        ret;</span><br><span class="line">    <span class="keyword">if</span> (cb === <span class="literal">null</span>) &#123;</span><br><span class="line">        cb = state === <span class="string">'fulfilled'</span> ? deferred.resolve : deferred.reject;</span><br><span class="line">        cb(value);</span><br><span class="line">        <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">        ret = cb(value);</span><br><span class="line">        deferred.resolve(ret);</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">        deferred.reject(e);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样就可以处理这种情况了:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">getUserId()</span><br><span class="line">  .then(<span class="function"><span class="params">val</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'err'</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">  .then(<span class="literal">null</span>, err =&gt; &#123;</span><br><span class="line">    expect(err).toEqual(<span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'err'</span>))</span><br><span class="line">    cb()</span><br><span class="line">  &#125;)</span><br></pre></td></tr></table></figure>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/promise/" rel="tag"># promise</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/20/go-spider-3/" rel="next" title="Go语言爬虫（三）：使用 elasticsearch 保存 item">
+                <i class="fa fa-chevron-left"></i> Go语言爬虫（三）：使用 elasticsearch 保存 item
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/08/13/webpack-bundle-optimize1/" rel="prev" title="webpack 打包优化（一）">
+                webpack 打包优化（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">111</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">58</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#乞丐版"><span class="nav-number">1.</span> <span class="nav-text">乞丐版</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持同步-resolve"><span class="nav-number">2.</span> <span class="nav-text">支持同步 resolve</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#支持-resolve-后还能执行-then"><span class="nav-number">3.</span> <span class="nav-text">支持 resolve 后还能执行 then</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#then-传递结果"><span class="nav-number">4.</span> <span class="nav-text">then 传递结果</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#串行-promise"><span class="nav-number">5.</span> <span class="nav-text">串行 promise</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#失败处理"><span class="nav-number">6.</span> <span class="nav-text">失败处理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#异常处理"><span class="nav-number">7.</span> <span class="nav-text">异常处理</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

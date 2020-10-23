@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="html,canvas," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="canvas创建、基本绘图">
+<meta name="keywords" content="html,canvas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="cavas基本绘图">
+<meta property="og:url" content="http://www.paradeto.com/2016/06/07/canvas-basis/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="canvas创建、基本绘图">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/07/canvas-basis/canvas-1-1.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/07/canvas-basis/canvas-1-2-1.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/07/canvas-basis/canvas-1-2-2.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/07/canvas-basis/canvas-1-3.png">
+<meta property="og:image" content="http://www.paradeto.com/2016/06/07/canvas-basis/canvas-1-4.png">
+<meta property="og:updated_time" content="2018-07-16T03:52:10.672Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="cavas基本绘图">
+<meta name="twitter:description" content="canvas创建、基本绘图">
+<meta name="twitter:image" content="http://www.paradeto.com/2016/06/07/canvas-basis/canvas-1-1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2016/06/07/canvas-basis/"/>
+
+
+
+
+
+
+  <title>cavas基本绘图 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2016/06/07/canvas-basis/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">cavas基本绘图</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2016-06-07T09:29:36+08:00">
+                2016-06-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/html-css/" itemprop="url" rel="index">
+                    <span itemprop="name">html/css</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  canvas创建、基本绘图
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="创建canvas"><a href="#创建canvas" class="headerlink" title="创建canvas"></a>创建canvas</h2><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">canvas</span> <span class="attr">id</span>=<span class="string">"canvas"</span> <span class="attr">width</span>=<span class="string">"800"</span> <span class="attr">height</span>=<span class="string">"600"</span> <span class="attr">style</span>=<span class="string">"border:1px solid black;margin:10px auto;display:block;"</span>&gt;</span><span class="tag">&lt;/<span class="name">canvas</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>不要使用css给canvas设置宽高，会出现奇怪的效果(<a href="http://wangxiaalwy.blog.163.com/blog/static/1552508182013106112418455/" target="_blank" rel="noopener">关于使用Css设置Canvas画布大小的问题</a>),可以在js中设置宽高：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">    <span class="keyword">var</span> canvas = <span class="built_in">document</span>.getElementById(<span class="string">"canvas"</span>);</span><br><span class="line">    canvas.height = <span class="number">500</span>;</span><br><span class="line">    canvas.width = <span class="number">500</span>;</span><br><span class="line">    <span class="keyword">var</span> context = canvas.getContext(<span class="string">"2d"</span>);</span><br><span class="line">&lt;<span class="regexp">/script&gt;</span></span><br></pre></td></tr></table></figure></p>
+<h2 id="简单的绘制"><a href="#简单的绘制" class="headerlink" title="简单的绘制"></a>简单的绘制</h2><ul>
+<li>直线、多边形</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">context.moveTo(<span class="number">50</span>,<span class="number">50</span>);</span><br><span class="line">context.lineTo(<span class="number">200</span>,<span class="number">200</span>);</span><br><span class="line">context.lineWidth = <span class="number">5</span>; <span class="comment">// 线条宽度</span></span><br><span class="line">content.strokeStyle = <span class="string">"#005588"</span> <span class="comment">// 线条颜色</span></span><br><span class="line">context.stroke();</span><br></pre></td></tr></table></figure>
+<ul>
+<li>多变形着色</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">context.moveTo(<span class="number">50</span>,<span class="number">50</span>);</span><br><span class="line">context.lineTo(<span class="number">200</span>,<span class="number">200</span>);</span><br><span class="line">context.lineTo(<span class="number">50</span>,<span class="number">200</span>);</span><br><span class="line">context.lineTo(<span class="number">50</span>,<span class="number">50</span>);</span><br><span class="line">context.fillStyle = <span class="string">"rgb(2,100,24)"</span>;</span><br><span class="line">context.fill();</span><br><span class="line"><span class="comment">// 给多边形加上外边框</span></span><br><span class="line">context.lineWidth = <span class="number">5</span>;</span><br><span class="line">context.strokeStyle = <span class="string">"red"</span>;</span><br><span class="line">context.stroke();</span><br></pre></td></tr></table></figure>
+<ul>
+<li>绘制两条不同颜色的直线</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">context.moveTo(<span class="number">50</span>,<span class="number">50</span>);</span><br><span class="line">context.lineTo(<span class="number">200</span>,<span class="number">200</span>);</span><br><span class="line">context.strokeStyle = <span class="string">"blue"</span>;</span><br><span class="line">context.stroke();</span><br><span class="line"></span><br><span class="line">context.moveTo(<span class="number">60</span>,<span class="number">50</span>);</span><br><span class="line">context.lineTo(<span class="number">300</span>,<span class="number">200</span>);</span><br><span class="line">context.strokeStyle = <span class="string">"black"</span>;</span><br><span class="line">context.stroke();</span><br></pre></td></tr></table></figure>
+<p><img src="/2016/06/07/canvas-basis/canvas-1-1.png" alt=""><br>这里与教程不同，教程中两条直线都是黑色，需要用context.beginPath()和context.closePath()来区分不同的绘制路径（<strong>closePath会自动封闭图形</strong>）。但是，当绘制填充多边形时，会有如下问题：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// context.beginPath();</span></span><br><span class="line">   context.moveTo(<span class="number">50</span>,<span class="number">50</span>);</span><br><span class="line">   context.lineTo(<span class="number">200</span>,<span class="number">200</span>);</span><br><span class="line">   context.lineTo(<span class="number">50</span>,<span class="number">200</span>);</span><br><span class="line">   context.lineTo(<span class="number">50</span>,<span class="number">50</span>);</span><br><span class="line">   <span class="comment">// context.closePath();</span></span><br><span class="line">   context.fillStyle = <span class="string">"blue"</span>;</span><br><span class="line">   context.fill();</span><br><span class="line"></span><br><span class="line"><span class="comment">// context.beginPath();</span></span><br><span class="line">   context.moveTo(<span class="number">50</span>,<span class="number">250</span>);</span><br><span class="line">   context.lineTo(<span class="number">200</span>,<span class="number">400</span>);</span><br><span class="line">   context.lineTo(<span class="number">50</span>,<span class="number">400</span>);</span><br><span class="line">   context.lineTo(<span class="number">50</span>,<span class="number">250</span>);</span><br><span class="line">   <span class="comment">// context.closePath();</span></span><br><span class="line">   context.fillStyle = <span class="string">"black"</span>;</span><br><span class="line">   context.fill();</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2016/06/07/canvas-basis/canvas-1-2-1.png" alt=""><br>去掉代码中的注释，可以达到我们的预期效果<br><img src="/2016/06/07/canvas-basis/canvas-1-2-2.png" alt=""></p>
+<ul>
+<li>绘制一个七巧板<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tangram = [</span><br><span class="line">  &#123;<span class="attr">p</span>:[&#123;<span class="attr">x</span>:<span class="number">0</span>,<span class="attr">y</span>:<span class="number">0</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">800</span>,<span class="attr">y</span>:<span class="number">0</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">400</span>,<span class="attr">y</span>:<span class="number">400</span>&#125;],<span class="attr">color</span>:<span class="string">"#caff67"</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">p</span>:[&#123;<span class="attr">x</span>:<span class="number">0</span>,<span class="attr">y</span>:<span class="number">0</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">400</span>,<span class="attr">y</span>:<span class="number">400</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0</span>,<span class="attr">y</span>:<span class="number">800</span>&#125;],<span class="attr">color</span>:<span class="string">"#67becf"</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">p</span>:[&#123;<span class="attr">x</span>:<span class="number">800</span>,<span class="attr">y</span>:<span class="number">0</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">800</span>,<span class="attr">y</span>:<span class="number">400</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">600</span>,<span class="attr">y</span>:<span class="number">600</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">600</span>,<span class="attr">y</span>:<span class="number">200</span>&#125;],<span class="attr">color</span>:<span class="string">"#ef3d61"</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">p</span>:[&#123;<span class="attr">x</span>:<span class="number">600</span>,<span class="attr">y</span>:<span class="number">200</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">600</span>,<span class="attr">y</span>:<span class="number">600</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">400</span>,<span class="attr">y</span>:<span class="number">400</span>&#125;],<span class="attr">color</span>:<span class="string">"#f9f51a"</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">p</span>:[&#123;<span class="attr">x</span>:<span class="number">400</span>,<span class="attr">y</span>:<span class="number">400</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">600</span>,<span class="attr">y</span>:<span class="number">600</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">400</span>,<span class="attr">y</span>:<span class="number">800</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">200</span>,<span class="attr">y</span>:<span class="number">600</span>&#125;],<span class="attr">color</span>:<span class="string">"#a594c0"</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">p</span>:[&#123;<span class="attr">x</span>:<span class="number">200</span>,<span class="attr">y</span>:<span class="number">600</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">400</span>,<span class="attr">y</span>:<span class="number">800</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0</span>,<span class="attr">y</span>:<span class="number">800</span>&#125;],<span class="attr">color</span>:<span class="string">"#fa8ccc"</span>&#125;,</span><br><span class="line">  &#123;<span class="attr">p</span>:[&#123;<span class="attr">x</span>:<span class="number">800</span>,<span class="attr">y</span>:<span class="number">400</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">800</span>,<span class="attr">y</span>:<span class="number">800</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">400</span>,<span class="attr">y</span>:<span class="number">800</span>&#125;],<span class="attr">color</span>:<span class="string">"#f6ca29"</span>&#125;,</span><br><span class="line">]</span><br><span class="line"><span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> canvas = <span class="built_in">document</span>.getElementById(<span class="string">"canvas"</span>);</span><br><span class="line">  canvas.height = <span class="number">800</span>;</span><br><span class="line">  canvas.width = <span class="number">800</span>;</span><br><span class="line">  <span class="keyword">var</span> context = canvas.getContext(<span class="string">"2d"</span>);</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i=<span class="number">0</span>;i &lt; tangram.length;i++) &#123;</span><br><span class="line">    draw(tangram[i], context);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">draw</span>(<span class="params">piece, cxt</span>) </span>&#123;</span><br><span class="line">  cxt.beginPath();</span><br><span class="line">  cxt.moveTo(piece.p[<span class="number">0</span>].x, piece.p[<span class="number">0</span>].y);</span><br><span class="line">  <span class="keyword">for</span>(<span class="keyword">var</span> i=<span class="number">1</span>;i&lt;piece.p.length;i++)&#123;</span><br><span class="line">    cxt.lineTo(piece.p[i].x,piece.p[i].y);</span><br><span class="line">  &#125;</span><br><span class="line">  cxt.closePath();</span><br><span class="line">  cxt.fillStyle = piece.color;</span><br><span class="line">  cxt.strokeStyle = <span class="string">"black"</span>;</span><br><span class="line">  cxt.fill();</span><br><span class="line">  cxt.stroke();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p><img src="/2016/06/07/canvas-basis/canvas-1-3.png" alt=""></p>
+<ul>
+<li>画圆<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">context.arc(</span><br><span class="line">	centerx, <span class="comment">// 圆心x</span></span><br><span class="line">    centery, <span class="comment">// 圆心y</span></span><br><span class="line">    radius,  <span class="comment">// 半径</span></span><br><span class="line">    startingAngle,  <span class="comment">// 起始的角度</span></span><br><span class="line">    endingAngle,    <span class="comment">// 结束的角度</span></span><br><span class="line">    anticlockwise   <span class="comment">// 是否逆时针</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>例：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">context.lineWidth = <span class="number">5</span>;</span><br><span class="line">context.strokeStyle = <span class="string">"#005588"</span>;</span><br><span class="line">context.beginPath();</span><br><span class="line">context.arc(<span class="number">200</span>,<span class="number">200</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1.5</span>*<span class="built_in">Math</span>.PI);</span><br><span class="line">context.closePath(); <span class="comment">// 去掉以后不会封闭图形 beginPath与closePath不需要成对出现</span></span><br><span class="line">context.stroke();</span><br><span class="line"></span><br><span class="line">context.lineWidth = <span class="number">5</span>;</span><br><span class="line">context.fillStyle = <span class="string">"green"</span>;</span><br><span class="line">context.beginPath();</span><br><span class="line">context.arc(<span class="number">500</span>,<span class="number">200</span>,<span class="number">100</span>,<span class="number">0</span>,<span class="number">1.5</span>*<span class="built_in">Math</span>.PI);</span><br><span class="line">context.closePath(); <span class="comment">// 对fill没什么用 </span></span><br><span class="line">context.fill();</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2016/06/07/canvas-basis/canvas-1-4.png" alt=""></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/html/" rel="tag"># html</a>
+          
+            <a href="/tags/canvas/" rel="tag"># canvas</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/06/06/js-hld-10/" rel="next" title="笔记-javascript高级程序设计（第3版）第10章">
+                <i class="fa fa-chevron-left"></i> 笔记-javascript高级程序设计（第3版）第10章
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/06/10/canvas-clock/" rel="prev" title="canvas倒计时效果">
+                canvas倒计时效果 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">111</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">58</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#创建canvas"><span class="nav-number">1.</span> <span class="nav-text">创建canvas</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#简单的绘制"><span class="nav-number">2.</span> <span class="nav-text">简单的绘制</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
