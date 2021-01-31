@@ -81,13 +81,13 @@
 
 
 
-<meta name="description" content="介绍 React Concurrent 模式下高优先级更新打断低优先级更新的实现原理">
+<meta name="description" content="介绍 React Concurrent 模式下更新插队的实现原理">
 <meta name="keywords" content="react">
 <meta property="og:type" content="article">
-<meta property="og:title" content="React 源码解读之 Concurrent 模式（二）">
+<meta property="og:title" content="React 源码解读之 Concurrent 模式之更新插队">
 <meta property="og:url" content="http://www.paradeto.com/2021/01/10/react-concurrent-2/index.html">
 <meta property="og:site_name" content="Ayou">
-<meta property="og:description" content="介绍 React Concurrent 模式下高优先级更新打断低优先级更新的实现原理">
+<meta property="og:description" content="介绍 React Concurrent 模式下更新插队的实现原理">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.paradeto.com/2021/01/10/react-concurrent-2/legacy.gif">
 <meta property="og:image" content="http://www.paradeto.com/2021/01/10/react-concurrent-2/concurrent.gif">
@@ -95,10 +95,10 @@
 <meta property="og:image" content="http://www.paradeto.com/2021/01/10/react-concurrent-2/merge-queue.png">
 <meta property="og:image" content="http://www.paradeto.com/2021/01/10/react-concurrent-2/merge-queue-demo.png">
 <meta property="og:image" content="http://www.paradeto.com/2021/01/10/react-concurrent-2/update-reducer.png">
-<meta property="og:updated_time" content="2021-01-16T10:40:15.658Z">
+<meta property="og:updated_time" content="2021-01-16T10:55:12.115Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="React 源码解读之 Concurrent 模式（二）">
-<meta name="twitter:description" content="介绍 React Concurrent 模式下高优先级更新打断低优先级更新的实现原理">
+<meta name="twitter:title" content="React 源码解读之 Concurrent 模式之更新插队">
+<meta name="twitter:description" content="介绍 React Concurrent 模式下更新插队的实现原理">
 <meta name="twitter:image" content="http://www.paradeto.com/2021/01/10/react-concurrent-2/legacy.gif">
 
 
@@ -138,7 +138,7 @@
 
 
 
-  <title>React 源码解读之 Concurrent 模式（二） | Ayou</title>
+  <title>React 源码解读之 Concurrent 模式之更新插队 | Ayou</title>
   
 
 
@@ -313,7 +313,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">React 源码解读之 Concurrent 模式（二）</h1>
+          <h1 class="post-title" itemprop="name headline">React 源码解读之 Concurrent 模式之更新插队</h1>
         
 
         <div class="post-meta">
@@ -372,7 +372,7 @@
 
           
               <div class="post-description">
-                  介绍 React Concurrent 模式下高优先级更新打断低优先级更新的实现原理
+                  介绍 React Concurrent 模式下更新插队的实现原理
               </div>
           
 
@@ -389,8 +389,8 @@
       
 
       
-        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p><a href="/2020/12/30/react-concurrent-1/">上篇</a>讲述了 Concurrent 模式中关于时间切片的实现方式，本文来讲讲 Concurrent 模式中另外一个特性：高优先级更新打断低优先级更新。我们先来看一个例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;useRef, useState, useEffect&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Item = <span class="function">(<span class="params">&#123;i, children&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i&lt; <span class="number">999999</span>;i++)&#123;&#125;</span><br><span class="line">  <span class="keyword">return</span> &lt;span key=&#123;i&#125;&gt;&#123;children&#125;&lt;/span&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateFn</span>(<span class="params">count</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> count + <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> buttonRef = useRef(<span class="literal">null</span>);</span><br><span class="line">  <span class="keyword">const</span> [count, updateCount] = useState(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> onClick = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    updateCount(updateFn);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> button = buttonRef.current;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> updateCount(<span class="number">1</span>), <span class="number">1000</span>);</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> button.click(), <span class="number">1040</span>);</span><br><span class="line">  &#125;, []);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;button ref=&#123;buttonRef&#125; onClick=&#123;onClick&#125;&gt;</span><br><span class="line">        增加<span class="number">2</span></span><br><span class="line">      &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div style=&#123;&#123;wordWrap: 'break-word'&#125;&#125;&gt;</span></span><br><span class="line"><span class="regexp">        &#123;Array.from(new Array(4000)).map((v, index) =&gt; (</span></span><br><span class="line"><span class="regexp">          &lt;Item i=&#123;index&#125;&gt;&#123;count&#125;&lt;/</span>Item&gt;</span><br><span class="line">        ))&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p><a href="/2020/12/30/react-concurrent-1/">上篇</a>讲述了 Concurrent 模式中关于时间切片的实现方式，本文来讲讲 Concurrent 模式中另外一个特性：更新插队。我们先来看一个例子：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;useRef, useState, useEffect&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Item = <span class="function">(<span class="params">&#123;i, children&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i&lt; <span class="number">999999</span>;i++)&#123;&#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">span</span> <span class="attr">key</span>=<span class="string">&#123;i&#125;</span>&gt;</span>&#123;children&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateFn</span>(<span class="params">count</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> count + <span class="number">2</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> () =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> buttonRef = useRef(<span class="literal">null</span>);</span><br><span class="line">  <span class="keyword">const</span> [count, updateCount] = useState(<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> onClick = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    updateCount(updateFn);</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> button = buttonRef.current;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> updateCount(<span class="number">1</span>), <span class="number">1000</span>);</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> button.click(), <span class="number">1040</span>);</span><br><span class="line">  &#125;, []);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;button ref=&#123;buttonRef&#125; onClick=&#123;onClick&#125;&gt;</span><br><span class="line">        增加<span class="number">2</span></span><br><span class="line">      &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;div style=&#123;&#123;wordWrap: 'break-word'&#125;&#125;&gt;</span></span><br><span class="line"><span class="regexp">        &#123;Array.from(new Array(4000)).map((v, index) =&gt; (</span></span><br><span class="line"><span class="regexp">          &lt;Item i=&#123;index&#125;&gt;&#123;count&#125;&lt;/</span>Item&gt;</span><br><span class="line">        ))&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  );</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>我们的页面中渲染了一个按钮以及 4000 个 <code>Item</code> 函数组件，每个函数组件中添加了一段比较耗时的循环语句。<code>useEffect</code> 中有两个 <code>setTimout</code> 定时器，第一个定时器延迟 <code>1000</code> 毫秒执行 <code>updateCount(1)</code>，第二个定时器延迟 <code>1040</code> 毫秒执行 <code>button.click()</code>，即点击按钮。需要注意的是，4000 个 <code>Item</code> 组件更新过程中的 <code>Render</code> （参考<a href="/2020/07/26/react-first-render/">React 源码解读之首次渲染流程</a>） 阶段肯定远超 40 毫秒。我们来看看，Legacy 和 Concurrent 两种模式的区别：</p>
 <p><strong><em>Legacy</em></strong><br><img src="/2021/01/10/react-concurrent-2/legacy.gif" alt=""></p>
 <p><strong><em>Concurrent</em></strong><br><img src="/2021/01/10/react-concurrent-2/concurrent.gif" alt=""></p>
@@ -454,8 +454,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2020/12/30/react-concurrent-1/" rel="next" title="React 源码解读之 Concurrent 模式（一）">
-                <i class="fa fa-chevron-left"></i> React 源码解读之 Concurrent 模式（一）
+              <a href="/2020/12/30/react-concurrent-1/" rel="next" title="React 源码解读之 Concurrent 模式之时间切片">
+                <i class="fa fa-chevron-left"></i> React 源码解读之 Concurrent 模式之时间切片
               </a>
             
           </div>
@@ -463,6 +463,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/01/28/react-custom-renderer/" rel="prev" title="React 源码解析之 Custom Renderer">
+                React 源码解析之 Custom Renderer <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -544,7 +548,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">114</span>
+                  <span class="site-state-item-count">115</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
