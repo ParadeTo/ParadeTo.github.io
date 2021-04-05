@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍 React 协调过程中 beginWork 阶段中的 Diff 算法">
+<meta name="keywords" content="react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 源码解析之协调过程（二）">
+<meta property="og:url" content="http://www.paradeto.com/2021/03/08/react-reconcile-diff/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍 React 协调过程中 beginWork 阶段中的 Diff 算法">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2021/03/08/react-reconcile-diff/diff-what.png">
+<meta property="og:image" content="http://www.paradeto.com/2021/03/08/react-reconcile-diff/diff-2-types.png">
+<meta property="og:image" content="http://www.paradeto.com/2021/03/08/react-reconcile-diff/diff-single.png">
+<meta property="og:image" content="http://www.paradeto.com/2021/03/08/react-reconcile-diff/diff-multi.png">
+<meta property="og:image" content="http://www.paradeto.com/2021/03/08/react-reconcile-diff/diff-multi-2.png">
+<meta property="og:updated_time" content="2021-03-13T14:07:33.009Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React 源码解析之协调过程（二）">
+<meta name="twitter:description" content="介绍 React 协调过程中 beginWork 阶段中的 Diff 算法">
+<meta name="twitter:image" content="http://www.paradeto.com/2021/03/08/react-reconcile-diff/diff-what.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2021/03/08/react-reconcile-diff/"/>
+
+
+
+
+
+
+  <title>React 源码解析之协调过程（二） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2021/03/08/react-reconcile-diff/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React 源码解析之协调过程（二）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-03-08T22:24:16+08:00">
+                2021-03-08
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍 React 协调过程中 beginWork 阶段中的 Diff 算法
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>说明：本文结论均基于 React 17.0.2 得出，若有出入请参考对应版本源码</p>
+</blockquote>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p><a href="/2021/02/08/react-reconcile-bailout/">上篇文章</a>介绍了 React 协调过程中 <code>beginWork</code> 阶段的前半部分，这篇文章我们来介绍后半部分。</p>
+<h1 id="beginWork"><a href="#beginWork" class="headerlink" title="beginWork"></a>beginWork</h1><p>同样的，我们还是精简一下代码，只关注感兴趣的部分：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">beginWork</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderLanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Fiber</span> | <span class="title">null</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  workInProgress.lanes = NoLanes;</span><br><span class="line">  <span class="keyword">switch</span> (workInProgress.tag) &#123;</span><br><span class="line">    <span class="keyword">case</span> IndeterminateComponent:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> LazyComponent:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> FunctionComponent:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> ClassComponent:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> HostRoot:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> HostComponent:</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">case</span> HostText:</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先会通过 <code>workInProgress.tag</code> 来判断当前处理的 <code>FiberNode</code> 是哪种类型，并针对不同的类型调用不同的 update 方法。这些方法虽然名字差别很大，但是最后都逃不过这两句代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">reconcileChildren(current, workInProgress, nextChildren, renderLanes);</span><br><span class="line"><span class="keyword">return</span> workInProgress.child;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>workInProgress</code> 为当前正在处理的 <code>FiberNode</code>，<code>current</code> 即为上一次更新的与 <code>workInProgress</code> 配对的 <code>FiberNode</code>（有可能不存在），<code>nextChildren</code> 是这次更新的 <code>workInProgress</code> 下新的子节点（ <code>ReactElement</code> 数组），<code>renderLanes</code> 则是跟更新优先级相关。</p>
+<p>接下来看看 <code>reconcileChildren</code> 做了什么：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">reconcileChildren</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  nextChildren: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderLanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (current === <span class="literal">null</span>) &#123;</span><br><span class="line">    workInProgress.child = mountChildFibers(</span><br><span class="line">      workInProgress,</span><br><span class="line">      <span class="literal">null</span>,</span><br><span class="line">      nextChildren,</span><br><span class="line">      renderLanes,</span><br><span class="line">    );</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    workInProgress.child = reconcileChildFibers(</span><br><span class="line">      workInProgress,</span><br><span class="line">      current.child,</span><br><span class="line">      nextChildren,</span><br><span class="line">      renderLanes,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>reconcileChildren</code> 中根据 <code>current</code> 是否存在来决定是应该 <code>mountChildFibers</code> 还是 <code>reconcileChildFibers</code>，这两个方法其实是类似的，只是 <code>reconcileChildFibers</code> 时 <code>shouldTrackSideEffects</code> 为 true，会多做一些事情：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ChildReconciler</span>(<span class="params">shouldTrackSideEffects</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span> reconcileChildFibers;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> reconcileChildFibers = ChildReconciler(<span class="literal">true</span>);</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> mountChildFibers = ChildReconciler(<span class="literal">false</span>);</span><br></pre></td></tr></table></figure>
+<p>我们这里暂时只看 <code>reconcileChildFibers</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">reconcileChildFibers</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  returnFiber: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  currentFirstChild: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  newChild: any,</span></span></span><br><span class="line"><span class="function"><span class="params">  lanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Fiber</span> | <span class="title">null</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// Handle object types</span></span><br><span class="line">  <span class="keyword">const</span> isObject = <span class="keyword">typeof</span> newChild === <span class="string">'object'</span> &amp;&amp; newChild !== <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (isObject) &#123;</span><br><span class="line">    <span class="keyword">switch</span> (newChild.$$<span class="keyword">typeof</span>) &#123;</span><br><span class="line">      <span class="keyword">case</span> REACT_ELEMENT_TYPE:</span><br><span class="line">        <span class="keyword">return</span> placeSingleChild(</span><br><span class="line">          reconcileSingleElement(</span><br><span class="line">            returnFiber,</span><br><span class="line">            currentFirstChild,</span><br><span class="line">            newChild,</span><br><span class="line">            lanes,</span><br><span class="line">          ),</span><br><span class="line">        );</span><br><span class="line">      ...</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (isArray(newChild)) &#123;</span><br><span class="line">    <span class="keyword">return</span> reconcileChildrenArray(</span><br><span class="line">      returnFiber,</span><br><span class="line">      currentFirstChild,</span><br><span class="line">      newChild,</span><br><span class="line">      lanes,</span><br><span class="line">    );</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// Remaining cases are all treated as empty.</span></span><br><span class="line">  <span class="keyword">return</span> deleteRemainingChildren(returnFiber, currentFirstChild);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>reconcileChildFibers</code> 中根据 <code>newChild</code> 的类型来进行不同的处理，我们这里去掉了暂时不关心的部分，仅分析 <code>newChild</code> 为对象且是 <code>REACT_ELEMENT_TYPE</code> 或者 <code>newChild</code> 为数组的情形。事实上 <code>reconcileChildFibers</code> 就涉及到了 React 中面试常考的 Diff 算法，接下来我们深入研究一下。</p>
+<h1 id="Diff-算法"><a href="#Diff-算法" class="headerlink" title="Diff 算法"></a>Diff 算法</h1><h2 id="Diff-的是什么？"><a href="#Diff-的是什么？" class="headerlink" title="Diff 的是什么？"></a>Diff 的是什么？</h2><p>首先，需要知道的第一个问题是：Diff 算法到底 Diff 的是哪两个东西？是旧的 <code>FiberNode</code> 和 新的 <code>FiberNode</code>？答案是 No。</p>
+<p>从上面的代码可知，传入 <code>reconcileChildFibers</code> 的是 <code>current.child</code> 和 <code>nextChildren</code>，所以 Diff 算法 其实是比较旧的 <code>FiberNode</code> 和新的 <code>ReactElement</code> 来生成新的 <code>FiberNode</code> 的一个过程：</p>
+<p><img src="/2021/03/08/react-reconcile-diff/diff-what.png" alt=""></p>
+<h2 id="Diff-分类"><a href="#Diff-分类" class="headerlink" title="Diff 分类"></a>Diff 分类</h2><p>根据 Diff 时 <code>ReactElement</code> 的类型，我们可以把 Diff 算法分为：</p>
+<ul>
+<li>单节点 Diff（reconcileSingleElement）：<code>ReactElement</code> 是对象。</li>
+<li>多节点 Diff（reconcileChildrenArray）：<code>ReactElement</code> 是数组。</li>
+</ul>
+<p><img src="/2021/03/08/react-reconcile-diff/diff-2-types.png" alt=""></p>
+<h3 id="单节点-Diff"><a href="#单节点-Diff" class="headerlink" title="单节点 Diff"></a>单节点 Diff</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">reconcileSingleElement</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">    returnFiber: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">    currentFirstChild: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">    element: ReactElement,</span></span></span><br><span class="line"><span class="function"><span class="params">    lanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params">  </span>): <span class="title">Fiber</span> </span>&#123;</span><br><span class="line">    <span class="keyword">const</span> key = element.key;</span><br><span class="line">    <span class="keyword">let</span> child = currentFirstChild;</span><br><span class="line">    <span class="keyword">while</span> (child !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (child.key === key) &#123;</span><br><span class="line">        <span class="keyword">const</span> elementType = element.type;</span><br><span class="line">        <span class="keyword">if</span> (elementType === REACT_FRAGMENT_TYPE) &#123;</span><br><span class="line">          ...</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (</span><br><span class="line">            child.elementType === elementType ||</span><br><span class="line">            <span class="comment">// Keep this check inline so it only runs on the false path:</span></span><br><span class="line">            (__DEV__</span><br><span class="line">              ? isCompatibleFamilyForHotReloading(child, element)</span><br><span class="line">              : <span class="literal">false</span>) ||</span><br><span class="line">            (enableLazyElements &amp;&amp;</span><br><span class="line">              <span class="keyword">typeof</span> elementType === <span class="string">'object'</span> &amp;&amp;</span><br><span class="line">              elementType !== <span class="literal">null</span> &amp;&amp;</span><br><span class="line">              elementType.$$<span class="keyword">typeof</span> === REACT_LAZY_TYPE &amp;&amp;</span><br><span class="line">              resolveLazy(elementType) === child.type)</span><br><span class="line">          ) &#123;</span><br><span class="line">            deleteRemainingChildren(returnFiber, child.sibling);</span><br><span class="line">            <span class="keyword">const</span> existing = useFiber(child, element.props);</span><br><span class="line">            existing.ref = coerceRef(returnFiber, child, element);</span><br><span class="line">            existing.return = returnFiber;</span><br><span class="line">            <span class="keyword">return</span> existing;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// Didn't match.</span></span><br><span class="line">        deleteRemainingChildren(returnFiber, child);</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        deleteChild(returnFiber, child);</span><br><span class="line">      &#125;</span><br><span class="line">      child = child.sibling;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (element.type === REACT_FRAGMENT_TYPE) &#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> created = createFiberFromElement(element, returnFiber.mode, lanes);</span><br><span class="line">      created.ref = coerceRef(returnFiber, currentFirstChild, element);</span><br><span class="line">      created.return = returnFiber;</span><br><span class="line">      <span class="keyword">return</span> created;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>去掉一些调试代码以及类型为 <code>Fragment</code> 的代码，分析剩下的代码，发现可以分为四种场景：</p>
+<ol>
+<li>原来的 <code>FiberNode</code> 不存在。只需要创建新的 <code>FiberNode</code> 并标记为 <code>Placement</code> 即可。</li>
+<li>新的 <code>ReactElement</code> 和 旧的 <code>FiberNode</code> 的 <code>type</code> 和 <code>key</code> 都相同。可以复用旧的 <code>FiberNode</code>，并将旧的 <code>FiberNode</code> 的所有兄弟节点标记为。</li>
+<li>新的 <code>ReactElement</code> 和 旧的 <code>FiberNode</code> 的 <code>key</code> 相同，<code>type</code> 不同。需要将旧的 <code>FiberNode</code> 及其兄弟节点都标记为删除，然后创建新的 <code>FiberNode</code> 并标记为 <code>Placement</code>。</li>
+<li>新的 <code>ReactElement</code> 和 旧的 <code>FiberNode</code> 的 <code>key</code> 不同。将当前 <code>FiberNode</code> 标记为删除，继续按照 2，3，4 的策略对比其兄弟节点和 <code>ReactElement</code> 直到遍历完成。</li>
+</ol>
+<p><img src="/2021/03/08/react-reconcile-diff/diff-single.png" alt=""></p>
+<h3 id="多节点-Diff"><a href="#多节点-Diff" class="headerlink" title="多节点 Diff"></a>多节点 Diff</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">reconcileChildrenArray</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  returnFiber: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  currentFirstChild: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  newChildren: Array&lt;*&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  lanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Fiber</span> | <span class="title">null</span> </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> resultingFirstChild: Fiber | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">let</span> previousNewFiber: Fiber | <span class="literal">null</span> = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">let</span> oldFiber = currentFirstChild;</span><br><span class="line">  <span class="keyword">let</span> lastPlacedIndex = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> newIdx = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">let</span> nextOldFiber = <span class="literal">null</span>;</span><br><span class="line">  <span class="comment">// 第一轮循环，依次对比新旧节点，当 key 不同时就会退出</span></span><br><span class="line">  <span class="keyword">for</span> (; oldFiber !== <span class="literal">null</span> &amp;&amp; newIdx &lt; newChildren.length; newIdx++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (oldFiber.index &gt; newIdx) &#123;</span><br><span class="line">      nextOldFiber = oldFiber;</span><br><span class="line">      oldFiber = <span class="literal">null</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      nextOldFiber = oldFiber.sibling;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">const</span> newFiber = updateSlot(</span><br><span class="line">      returnFiber,</span><br><span class="line">      oldFiber,</span><br><span class="line">      newChildren[newIdx],</span><br><span class="line">      lanes,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">if</span> (newFiber === <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (oldFiber === <span class="literal">null</span>) &#123;</span><br><span class="line">        oldFiber = nextOldFiber;</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (shouldTrackSideEffects) &#123;</span><br><span class="line">      <span class="comment">// 新旧节点 key 相同，type 不同</span></span><br><span class="line">      <span class="keyword">if</span> (oldFiber &amp;&amp; newFiber.alternate === <span class="literal">null</span>) &#123;</span><br><span class="line">        deleteChild(returnFiber, oldFiber);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);</span><br><span class="line">    <span class="keyword">if</span> (previousNewFiber === <span class="literal">null</span>) &#123;</span><br><span class="line">      resultingFirstChild = newFiber;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      previousNewFiber.sibling = newFiber;</span><br><span class="line">    &#125;</span><br><span class="line">    previousNewFiber = newFiber;</span><br><span class="line">    oldFiber = nextOldFiber;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 第二轮循环</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// ReactElement 数组遍历完了，需要把剩下的旧的节点都标记为删除</span></span><br><span class="line">  <span class="keyword">if</span> (newIdx === newChildren.length) &#123;</span><br><span class="line">    deleteRemainingChildren(returnFiber, oldFiber);</span><br><span class="line">    <span class="keyword">return</span> resultingFirstChild;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 旧的 FiberNode 链表遍历完了，则通过 ReactElement 数组中剩下的节点创建 FiberNode，并标记为 Placement</span></span><br><span class="line">  <span class="keyword">if</span> (oldFiber === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (; newIdx &lt; newChildren.length; newIdx++) &#123;</span><br><span class="line">      <span class="keyword">const</span> newFiber = createChild(returnFiber, newChildren[newIdx], lanes);</span><br><span class="line">      <span class="keyword">if</span> (newFiber === <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="keyword">continue</span>;</span><br><span class="line">      &#125;</span><br><span class="line">      lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);</span><br><span class="line">      <span class="keyword">if</span> (previousNewFiber === <span class="literal">null</span>) &#123;</span><br><span class="line">        <span class="comment">// <span class="doctag">TODO:</span> Move out of the loop. This only happens for the first run.</span></span><br><span class="line">        resultingFirstChild = newFiber;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        previousNewFiber.sibling = newFiber;</span><br><span class="line">      &#125;</span><br><span class="line">      previousNewFiber = newFiber;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> resultingFirstChild;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将旧的未处理完的 FiberNode 节点保存到 map 中</span></span><br><span class="line">  <span class="keyword">const</span> existingChildren = mapRemainingChildren(returnFiber, oldFiber);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 遍历新的 ReactElement 数组中的元素，到 map 中找 key 相同的节点</span></span><br><span class="line">  <span class="keyword">for</span> (; newIdx &lt; newChildren.length; newIdx++) &#123;</span><br><span class="line">    <span class="keyword">const</span> newFiber = updateFromMap(</span><br><span class="line">      existingChildren,</span><br><span class="line">      returnFiber,</span><br><span class="line">      newIdx,</span><br><span class="line">      newChildren[newIdx],</span><br><span class="line">      lanes,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">if</span> (newFiber !== <span class="literal">null</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (shouldTrackSideEffects) &#123;</span><br><span class="line">        <span class="keyword">if</span> (newFiber.alternate !== <span class="literal">null</span>) &#123;</span><br><span class="line">          existingChildren.delete(</span><br><span class="line">            newFiber.key === <span class="literal">null</span> ? newIdx : newFiber.key,</span><br><span class="line">          );</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      lastPlacedIndex = placeChild(newFiber, lastPlacedIndex, newIdx);</span><br><span class="line">      <span class="keyword">if</span> (previousNewFiber === <span class="literal">null</span>) &#123;</span><br><span class="line">        resultingFirstChild = newFiber;</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        previousNewFiber.sibling = newFiber;</span><br><span class="line">      &#125;</span><br><span class="line">      previousNewFiber = newFiber;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (shouldTrackSideEffects) &#123;</span><br><span class="line">    existingChildren.forEach(<span class="function">(<span class="params">child</span>) =&gt;</span> deleteChild(returnFiber, child));</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> resultingFirstChild;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为实际应用场景中列表更新时大部分都是追加或者节点本身的更新，节点位置发生变化的情况相对少见，所以 React 在多节点 Diff 过程中分成了两轮：</p>
+<p>第一轮从前往后一一比对，这里分为三种情况：</p>
+<ol>
+<li>如果新旧节点 <code>key</code> 和 <code>type</code> 相同则说明可以复用旧节点，继续往下遍历。</li>
+<li><code>key</code> 相同 <code>type</code> 不同，将旧节点标记为删除，新节点标记为 <code>Placement</code>，继续往下遍历。</li>
+<li><code>key</code> 不同，退出循环。</li>
+</ol>
+<p>第一轮结束后，开始第二轮遍历，这里又分为三种情况：</p>
+<ol>
+<li>新节点即 <code>ReactElement</code> 数组遍历完成了，此时只需要把旧的剩下的节点标记为删除，然后返回。</li>
+<li>旧节点链表遍历完成了，此时只需要处理 <code>ReactElement</code> 数组中剩下的元素，即通过他们创建新的 <code>FiberNode</code> 并标记为 <code>Placement</code>，然后返回。</li>
+<li><p>都没有遍历完成，说明第一轮遍历中提前终止了。接下来详细讨论该步骤：</p>
+<p>3.1. 将未遍历完的旧节点以保存为 Map，用 <code>key</code> 作为索引。<br>3.2. 遍历新节点，通过新节点去 Map 中寻找是否有可以复用的节点。如果没有找到则通过 <code>ReactElement</code> 创建新的节点，找到了则复用旧节点来创建新的节点。最后得到的都是 <code>newFiber</code>。<br>3.3. 调用 <code>placeChild</code> 来处理 <code>newFiber</code>。这里分三种情形：a. 它是通过 <code>ReactElement</code> 创建来的，将其标记为 <code>Placement</code>；b. 它是通过复用旧节点而得到的且旧节点的位置小于 <code>lastPlacedIndex</code>，将其标记为 <code>Placement</code>；c. 它是通过复用旧节点而得到的且旧节点的位置 <code>oldIndex</code> 大于 <code>lastPlacedIndex</code>，无需标记，更新 <code>lastPlacedIndex</code> 为 <code>oldIndex</code>。</p>
+</li>
+</ol>
+<p>上面的步骤肯定看了很懵逼，尤其是涉及到 <code>lastPlacedIndex</code> 的更新这一块。不妨看下面两个例子：</p>
+<p>例一:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">旧列表：abcde</span><br><span class="line">新列表：abdec</span><br></pre></td></tr></table></figure></p>
+<p><img src="/2021/03/08/react-reconcile-diff/diff-multi.png" alt=""></p>
+<p>该例子最后得到的结果是要把 c 移到最后面。</p>
+<p>例二：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">旧列表：abcde</span><br><span class="line">新列表：abecd</span><br></pre></td></tr></table></figure>
+<p><img src="/2021/03/08/react-reconcile-diff/diff-multi-2.png" alt=""></p>
+<p>该例子最后得到的结果是要把 c 和 d 移到最后面。</p>
+<p>同样都只是移动了一个元素，得到的结果却不大一样，例二的代价明显要大，原因就在于 React 的 Diff 算法。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文介绍了 <code>beginWork</code> 函数的后半部分并引出了 Diff 算法，讨论了 Diff 算法的作用、分类以及详细步骤，并结合案例进行了对比。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/02/08/react-reconcile-bailout/" rel="next" title="React 源码解析之协调过程（一）">
+                <i class="fa fa-chevron-left"></i> React 源码解析之协调过程（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/03/19/react-context/" rel="prev" title="React 源码解读之 Context（一）">
+                React 源码解读之 Context（一） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">120</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">59</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#beginWork"><span class="nav-number">2.</span> <span class="nav-text">beginWork</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Diff-算法"><span class="nav-number">3.</span> <span class="nav-text">Diff 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Diff-的是什么？"><span class="nav-number">3.1.</span> <span class="nav-text">Diff 的是什么？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Diff-分类"><span class="nav-number">3.2.</span> <span class="nav-text">Diff 分类</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#单节点-Diff"><span class="nav-number">3.2.1.</span> <span class="nav-text">单节点 Diff</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#多节点-Diff"><span class="nav-number">3.2.2.</span> <span class="nav-text">多节点 Diff</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
