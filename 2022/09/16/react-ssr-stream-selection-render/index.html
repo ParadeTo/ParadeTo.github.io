@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react,ssr," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="聊一聊 React SSR 的流式渲染以及选择性注水">
+<meta name="keywords" content="react,ssr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React SSR 之 Streaming Render &amp; Selective Hydration">
+<meta property="og:url" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="聊一聊 React SSR 的流式渲染以及选择性注水">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/string.gif">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/node_stream.gif">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/read.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/node_stream_suspense.gif">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/pipeable_stream_suspense.gif">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/selection_hydration_1.jpeg">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/hydrate-order.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/hydrate-insert.png">
+<meta property="og:updated_time" content="2022-09-26T03:18:24.092Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React SSR 之 Streaming Render &amp; Selective Hydration">
+<meta name="twitter:description" content="聊一聊 React SSR 的流式渲染以及选择性注水">
+<meta name="twitter:image" content="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/string.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/"/>
+
+
+
+
+
+
+  <title>React SSR 之 Streaming Render & Selective Hydration | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2022/09/16/react-ssr-stream-selection-render/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React SSR 之 Streaming Render & Selective Hydration</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-09-16T20:42:38+08:00">
+                2022-09-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  聊一聊 React SSR 的流式渲染以及选择性注水
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>React 团队在<a href="https://github.com/reactwg/react-18/discussions/37" target="_blank" rel="noopener">这篇文章</a>中介绍了 React 18 SSR 的新架构，主要用于解决之前 SSR 的几个问题：</p>
+<ol>
+<li>必须获取到所有数据以后，才能返回内容</li>
+<li>必须加载到所有 JS 代码后，才能开始进行注水</li>
+<li>必须等整个应用注水完成后，才能开始进行交互</li>
+</ol>
+<p>所以 React 团队提出了用流式渲染（Streaming Render）和选择性注水（Selective Hydration）来分别解决第一个和其他两个问题。</p>
+<h1 id="Streaming-Render"><a href="#Streaming-Render" class="headerlink" title="Streaming Render"></a>Streaming Render</h1><blockquote>
+<p>以下 Demo 使用的 react 及 react-dom 版本为 16.14.0</p>
+</blockquote>
+<p>假设我们有如下应用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Item = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> start = <span class="built_in">Date</span>.now()</span><br><span class="line">  <span class="comment">// 人为增加该组件的渲染时间</span></span><br><span class="line">  <span class="keyword">while</span> (<span class="built_in">Date</span>.now() - start &lt; <span class="number">2</span>) &#123;&#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">li</span>&gt;</span>a<span class="tag">&lt;/<span class="name">li</span>&gt;</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      List:</span><br><span class="line">      &#123;[...new <span class="built_in">Array</span>(<span class="number">3700</span>)].map(<span class="function">(<span class="params">_, i</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">Item</span> /&gt;</span></span></span><br><span class="line"><span class="xml">      &#125;)&#125;</span></span><br><span class="line"><span class="xml">    <span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App</span><br></pre></td></tr></table></figure>
+<p>我们使用 <code>renderToString</code> 来进行服务端渲染：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">app.get(<span class="string">'/string'</span>, <span class="keyword">async</span> (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> markup = renderToString(<span class="xml"><span class="tag">&lt;<span class="name">App</span> /&gt;</span>)</span></span><br><span class="line"><span class="xml">  res.end(`</span></span><br><span class="line"><span class="xml">    <span class="meta">&lt;!DOCTYPE html&gt;</span></span></span><br><span class="line">      &lt;html&gt;</span><br><span class="line">        &lt;head&gt;</span><br><span class="line">          &lt;title&gt;Demo&lt;/title&gt;</span><br><span class="line">          &lt;style&gt;</span><br><span class="line">            li &#123;</span><br><span class="line">              display: inline-block;</span><br><span class="line">            &#125;</span><br><span class="line">          &lt;/style&gt;</span><br><span class="line">        &lt;/head&gt;</span><br><span class="line">        &lt;body&gt;</span><br><span class="line">          &lt;div id="root"&gt;$&#123;markup&#125;&lt;/div&gt;</span><br><span class="line">        &lt;/body&gt;</span><br><span class="line"><span class="xml">      <span class="tag">&lt;/<span class="name">html</span>&gt;</span></span></span><br><span class="line"><span class="xml">    `)</span></span><br><span class="line"><span class="xml">&#125;)</span></span><br></pre></td></tr></table></figure>
+<p>通过浏览器访问，可以看到需要等待比较长的诗句页面才显示出所有内容：<br><img src="/2022/09/16/react-ssr-stream-selection-render/string.gif" alt=""></p>
+<p>我们换成 <code>renderToNodeStream</code> 再试一试：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">app.get(<span class="string">'/node_stream'</span>, (req, res, next) =&gt; &#123;</span><br><span class="line">  res.write(<span class="string">`&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="string">      &lt;html&gt;</span></span><br><span class="line"><span class="string">        &lt;head&gt;</span></span><br><span class="line"><span class="string">          &lt;title&gt;Demo&lt;/title&gt;</span></span><br><span class="line"><span class="string">          &lt;style&gt;</span></span><br><span class="line"><span class="string">            li &#123;</span></span><br><span class="line"><span class="string">              display: inline-block;</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">          &lt;/style&gt;</span></span><br><span class="line"><span class="string">        &lt;/head&gt;</span></span><br><span class="line"><span class="string">        &lt;body&gt;</span></span><br><span class="line"><span class="string">          &lt;div id="root"&gt;`</span>)</span><br><span class="line">  <span class="keyword">const</span> stream = renderToNodeStream(<span class="xml"><span class="tag">&lt;<span class="name">App</span> /&gt;</span>)</span></span><br><span class="line"><span class="xml">  stream.pipe(res, &#123;end: false&#125;)</span></span><br><span class="line"><span class="xml">  stream.on('end', () =&gt; &#123;</span></span><br><span class="line"><span class="xml">    res.write(`<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">          &lt;<span class="regexp">/body&gt;</span></span><br><span class="line"><span class="regexp">        &lt;/</span>html&gt;<span class="string">`)</span></span><br><span class="line"><span class="string">    res.end()</span></span><br><span class="line"><span class="string">  &#125;)</span></span><br><span class="line"><span class="string">&#125;)</span></span><br></pre></td></tr></table></figure>
+<p>可以看到浏览器中先显示了一部分内容，然后才显示所有内容：</p>
+<p><img src="/2022/09/16/react-ssr-stream-selection-render/node_stream.gif" alt=""></p>
+<p>这样，当用户访问一个大型的 React 页面时，可以让其尽早的看到一部分内容，从而提供一个比较好的用户体验。</p>
+<p>那么，React 每次返回多少内容呢？通过断点调试可以知道，这个值是 16 KB。但是实际返回的长度可能会略大于 16 KB，因为 React 总是会完整的返回标签，比如 <code>&lt;/li&gt;</code>，而不是拆成两部分 <code>&lt;/</code> 和 <code>li&gt;</code>。</p>
+<p><img src="/2022/09/16/react-ssr-stream-selection-render/read.png" alt=""></p>
+<p>为了能够让开发更好的控制流式渲染每次返回的内容，我们可以结合 <code>Suspense</code>，但是由于 16 版本不支持 SSR 使用 <code>Suspense</code>，所以接下来我们换成 v18.2.0 继续我们的实验。</p>
+<p>假设我们有如下应用，期待的效果是用户先看到 <code>List:Loading</code>，4 秒后显示 <code>List:Loading</code>。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Suspense&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Item = <span class="function">(<span class="params">&#123;index&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'a'</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Comp = React.lazy(</span><br><span class="line">  () =&gt;</span><br><span class="line">    <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        resolve(&#123;<span class="attr">default</span>: Item&#125;)</span><br><span class="line">      &#125;, <span class="number">4000</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      List:</span><br><span class="line">      &lt;Suspense fallback=<span class="string">'Loading'</span>&gt;</span><br><span class="line">        &lt;Comp /&gt;</span><br><span class="line">      &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/u</span>l&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App</span><br></pre></td></tr></table></figure>
+<p>我们先用 <code>renderToNodeStream</code> 试试，可以看到，页面并没有像我们所期待的那样，而是一开始显示空白，4 秒后才显示 <code>List:a</code>，这实际上已经失去 Streaming Render 的功能了，所以这个函数在 React 18 中被标记为了 <code>deprecated</code>，使用 <code>renderToPipeableStream</code> 来替代。更多详情请见 <a href="https://github.com/reactwg/react-18/discussions/22" target="_blank" rel="noopener">Upgrading to React 18 on the server</a>。</p>
+<p><img src="/2022/09/16/react-ssr-stream-selection-render/node_stream_suspense.gif" alt=""></p>
+<p>我们换成 <code>renderToPipealbeStream</code> 就可以看到我们期望的效果了：</p>
+<p><img src="/2022/09/16/react-ssr-stream-selection-render/pipeable_stream_suspense.gif" alt=""></p>
+<p>其原理也很简单，第一次返回的内容为：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">ul</span>&gt;</span></span><br><span class="line">  List:<span class="comment">&lt;!--$?--&gt;</span><span class="tag">&lt;<span class="name">template</span> <span class="attr">id</span>=<span class="string">"B:0"</span>&gt;</span><span class="tag">&lt;/<span class="name">template</span></span></span><br><span class="line"><span class="tag">  &gt;</span>Loading<span class="comment">&lt;!--/$--&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">ul</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>第二次返回的内容为：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">hidden</span> <span class="attr">id</span>=<span class="string">"S:0"</span>&gt;</span>a<span class="comment">&lt;!-- --&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">  <span class="function"><span class="keyword">function</span> <span class="title">$RC</span>(<span class="params">a, b</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">    a = <span class="built_in">document</span>.getElementById(a)</span></span><br><span class="line"><span class="javascript">    b = <span class="built_in">document</span>.getElementById(b)</span></span><br><span class="line"><span class="undefined">    b.parentNode.removeChild(b)</span></span><br><span class="line"><span class="javascript">    <span class="keyword">if</span> (a) &#123;</span></span><br><span class="line"><span class="undefined">      a = a.previousSibling</span></span><br><span class="line"><span class="javascript">      <span class="keyword">var</span> f = a.parentNode,</span></span><br><span class="line"><span class="undefined">        c = a.nextSibling,</span></span><br><span class="line"><span class="undefined">        e = 0</span></span><br><span class="line"><span class="javascript">      <span class="keyword">do</span> &#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">if</span> (c &amp;&amp; <span class="number">8</span> === c.nodeType) &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">var</span> d = c.data</span></span><br><span class="line"><span class="javascript">          <span class="keyword">if</span> (<span class="string">'/$'</span> === d)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">if</span> (<span class="number">0</span> === e) <span class="keyword">break</span></span></span><br><span class="line"><span class="javascript">            <span class="keyword">else</span> e--</span></span><br><span class="line"><span class="javascript">          <span class="keyword">else</span> (<span class="string">'$'</span> !== d &amp;&amp; <span class="string">'$?'</span> !== d &amp;&amp; <span class="string">'$!'</span> !== d) || e++</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined">        d = c.nextSibling</span></span><br><span class="line"><span class="undefined">        f.removeChild(c)</span></span><br><span class="line"><span class="undefined">        c = d</span></span><br><span class="line"><span class="javascript">      &#125; <span class="keyword">while</span> (c)</span></span><br><span class="line"><span class="javascript">      <span class="keyword">for</span> (; b.firstChild; ) f.insertBefore(b.firstChild, c)</span></span><br><span class="line"><span class="javascript">      a.data = <span class="string">'$'</span></span></span><br><span class="line"><span class="undefined">      a._reactRetry &amp;&amp; a._reactRetry()</span></span><br><span class="line"><span class="undefined">    &#125;</span></span><br><span class="line"><span class="undefined">  &#125;</span></span><br><span class="line"><span class="javascript">  $RC(<span class="string">'B:0'</span>, <span class="string">'S:0'</span>)</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>其中 <code>&lt;script&gt;</code> 中的代码主要功能是将 <code>&lt;template id=&quot;B:0&quot;&gt;&lt;/template&gt;Loading</code> 用 <code>a&lt;!-- --&gt;</code> 来替换。</p>
+<p>这样，React 不用等待整个应用的数据全部准备好才开始返回 HTML 内容给用户了，从而解决了第一个问题：“必须获取到所有数据以后，才能返回内容”。</p>
+<h1 id="Selection-Hydration"><a href="#Selection-Hydration" class="headerlink" title="Selection Hydration"></a>Selection Hydration</h1><blockquote>
+<p>以下 Demo 使用的 react 及 react-dom 版本为 18.2.0</p>
+</blockquote>
+<p>我们改写一下我们的例子，来看看 React 是怎么解决第二个问题的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Suspense&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Comp = React.lazy(<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./Item'</span>)) <span class="comment">// Item.js 是一个非常大的文件，大于 600 KB</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &lt;button onClick=&#123;() =&gt; <span class="built_in">window</span>.alert(<span class="string">'click!'</span>)&#125;&gt;Click Me&lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">      &lt;Suspense fallback='Loading'&gt;</span></span><br><span class="line"><span class="regexp">        &lt;Comp /</span>&gt;</span><br><span class="line">      &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/u</span>l&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App</span><br></pre></td></tr></table></figure>
+<p>这个例子中 <code>Item.js</code> 会被单独打包成一个 chunk，我们仍然使用 <code>renderToPipeableStream</code> 来进行渲染，可以看到在 <code>Item.js</code> 这个 chunk 加载完成前，<code>button</code> 已经完成了注水：</p>
+<p><img src="/2022/09/16/react-ssr-stream-selection-render/selection_hydration_1.jpeg" alt=""></p>
+<p>这样，第二个问题：“必须加载到所有 JS 代码后，才能开始进行注水” 也解决了。</p>
+<p>为了说明第三个问题，我们先准备一下我们的 Demo：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// App.js</span></span><br><span class="line"><span class="keyword">import</span> React, &#123;Suspense&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Comp = React.lazy(<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./ExpensiveComp'</span>))</span><br><span class="line"><span class="keyword">const</span> Button = React.lazy(<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./Button'</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;Suspense fallback=&#123;&lt;div&gt;Loading Comp!<span class="xml"><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span>&#125;&gt;</span><br><span class="line">        &lt;Comp /&gt;</span><br><span class="line">      &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">      &lt;Suspense fallback=&#123;&lt;div&gt;Loading Button!&lt;/</span>div&gt;&#125;&gt;</span><br><span class="line">        &lt;Button /&gt;</span><br><span class="line">      &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App</span><br><span class="line"></span><br><span class="line"><span class="comment">// ExpensiveComp.js</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">const</span> ExpensiveComp = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;[...new <span class="built_in">Array</span>(<span class="number">5</span>)].map(<span class="function">(<span class="params">_, i</span>) =&gt;</span> (</span><br><span class="line">        &lt;Item key=&#123;i&#125; index=&#123;i&#125; /&gt;</span><br><span class="line">      ))&#125;</span><br><span class="line">    &lt;<span class="regexp">/ul&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">const Item = (&#123;index&#125;) =&gt; &#123;</span></span><br><span class="line"><span class="regexp">  const start = Date.now()</span></span><br><span class="line"><span class="regexp">  while (Date.now() - start &lt; 1000) &#123;&#125;</span></span><br><span class="line"><span class="regexp">  return &lt;li&gt;Item $&#123;index&#125;&lt;/</span>li&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> ExpensiveComp</span><br><span class="line"></span><br><span class="line"><span class="comment">// Button.js</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Button = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;button</span><br><span class="line">      onClick=&#123;() =&gt; &#123;</span><br><span class="line">        <span class="built_in">window</span>.alert(<span class="string">'click button!'</span>)</span><br><span class="line">      &#125;&#125;&gt;</span><br><span class="line">      Button</span><br><span class="line">    &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default Button</span></span><br></pre></td></tr></table></figure>
+<p>然后，我们在 <code>react-dom</code> 代码中加入一句调试的代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hydrateInstance</span>(<span class="params">instance, type, props, rootContainerInstance, hostContext, internalInstanceHandle, shouldWarnDev</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'hydrateInstance-precacheFiberNode'</span>, internalInstanceHandle, instance)</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<p>正常情况下，React 的注水过程如图所示：<br><img src="/2022/09/16/react-ssr-stream-selection-render/hydrate-order.png" alt=""></p>
+<p>但实际上，我们可以在 <code>button</code> 未注水完成时就点击：<br><img src="/2022/09/16/react-ssr-stream-selection-render/hydrate-insert.png" alt=""></p>
+<p>是不是这样感觉有点奇怪？按照我们平时的理解，“注水”的一个重要作用就是给元素绑定事件，但是这里还未“注水”却可以响应事件。</p>
+<p>其秘诀还是在于 React 的事件委托机制。所有的事件都是绑定到了根元素之上，事件在根元素上触发后可以通过 <code>event.target</code> 获取到事件触发的目标元素，通过该元素可以获取到 <code>&lt;!--$--&gt;</code> 这个注释元素：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--$--&gt;</span><br><span class="line">&lt;button&gt;Button&lt;<span class="regexp">/button&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后通过注释元素上的 <code>&#39;__reactFiber$&#39; + randomKey</code>（更多可参考<a href=""></a>） 这个属性可以获取到其对应的 <code>FiberNode</code>，此例中即为 <code>Suspense</code>。之后会尝试对齐进行 <code>hydrate</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">dispatchEventWithEnableCapturePhaseSelectiveHydrationWithoutDiscreteEventReplay</span>(<span class="params">...</span>) </span>&#123;</span><br><span class="line">attemptSynchronousHydration(fiber)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里会重启一轮新的更新流程，当走到第一个 <code>Suspense</code> 走到了这里，所以会跳过其下面的子节点。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> SuspenseComponent:</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="keyword">var</span> state = workInProgress.memoizedState;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> (state !== <span class="literal">null</span>) &#123;</span><br><span class="line">          <span class="comment">// 表示还未注水完成</span></span><br><span class="line">          <span class="keyword">if</span> (state.dehydrated !== <span class="literal">null</span>) &#123;</span><br><span class="line">            pushSuspenseContext(workInProgress, setDefaultShallowSuspenseContext(suspenseStackCursor.current)); <span class="comment">// We know that this component will suspend again because if it has</span></span><br><span class="line">            <span class="comment">// been unsuspended it has committed as a resolved Suspense component.</span></span><br><span class="line">            <span class="comment">// If it needs to be retried, it should have work scheduled on it.</span></span><br><span class="line"></span><br><span class="line">            workInProgress.flags |= DidCapture; <span class="comment">// We should never render the children of a dehydrated boundary until we</span></span><br><span class="line">            <span class="comment">// upgrade it. We return null instead of bailoutOnAlreadyFinishedWork.</span></span><br><span class="line"></span><br><span class="line">            <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">          &#125; <span class="comment">// I</span></span><br></pre></td></tr></table></figure>
+<p>完成这一轮后，会继续未完成的其他更新任务。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>从上面的几个例子来看，解决这些问题都离不开 <code>Suspense</code> 这个组件，毫无疑问这是一个非常重要的组件，值得后续认真研究一下。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+            <a href="/tags/ssr/" rel="tag"># ssr</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/07/07/react-ssr-rate-limit/" rel="next" title="React SSR 之限流">
+                <i class="fa fa-chevron-left"></i> React SSR 之限流
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">129</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">16</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">61</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Streaming-Render"><span class="nav-number">2.</span> <span class="nav-text">Streaming Render</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Selection-Hydration"><span class="nav-number">3.</span> <span class="nav-text">Selection Hydration</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
