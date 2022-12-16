@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍 React 中 Context 相关的内容">
+<meta name="keywords" content="react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 源码解读之 Context（一）">
+<meta property="og:url" content="http://www.paradeto.com/2021/03/19/react-context/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍 React 中 Context 相关的内容">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2021/03/19/react-context/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2021/03/19/react-context/2.png">
+<meta property="og:updated_time" content="2021-04-05T14:06:21.459Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React 源码解读之 Context（一）">
+<meta name="twitter:description" content="介绍 React 中 Context 相关的内容">
+<meta name="twitter:image" content="http://www.paradeto.com/2021/03/19/react-context/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2021/03/19/react-context/"/>
+
+
+
+
+
+
+  <title>React 源码解读之 Context（一） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2021/03/19/react-context/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React 源码解读之 Context（一）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-03-19T14:12:25+08:00">
+                2021-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍 React 中 Context 相关的内容
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>React 源码系列继续进行，今天来讲讲 <code>Context</code> 相关的内容。从何讲起呢？我们还是先从一个案例开始吧：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123; Component &#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> PropTypes <span class="keyword">from</span> <span class="string">'prop-types'</span>;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Grandson</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'Grandson render'</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">span</span>&gt;</span>&#123;this.context.theme&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Grandson.contextTypes = &#123;</span><br><span class="line">  theme: PropTypes.string</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'Son render'</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">Grandson</span> /&gt;</span></span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">export default class Parent extends Component &#123;</span></span><br><span class="line"><span class="xml">  state = &#123;</span></span><br><span class="line"><span class="xml">    theme: 'blue'</span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">  getChildContext() &#123;</span></span><br><span class="line"><span class="xml">    return this.state</span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">  componentDidMount() &#123;</span></span><br><span class="line"><span class="xml">    setTimeout(() =&gt; &#123;</span></span><br><span class="line"><span class="xml">      this.setState(&#123;</span></span><br><span class="line"><span class="xml">        theme: 'red'</span></span><br><span class="line"><span class="xml">      &#125;)</span></span><br><span class="line"><span class="xml">    &#125;, 1000)</span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">  render() &#123;</span></span><br><span class="line"><span class="xml">    return <span class="tag">&lt;<span class="name">Son</span> /&gt;</span>;</span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br><span class="line"><span class="xml"></span></span><br><span class="line"><span class="xml">Parent.childContextTypes = &#123;</span></span><br><span class="line"><span class="xml">  theme: PropTypes.string</span></span><br><span class="line"><span class="xml">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>上述代码使用了 React 已废弃的 Context API。<code>Parent</code> 组件提供了一个 <code>context</code>，该 <code>context</code> 只在孙组件 <code>Grandson</code> 里面用到了。既然这样，那 <code>context</code> 变化的时候子组件 <code>Son</code> 不应该调用 <code>render</code> 方法（目前是会的）。所以，我们用 <code>PureComponent</code> 来优化一下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Son</span> <span class="keyword">extends</span> <span class="title">PureComponent</span> </span>&#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'Son render'</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">Grandson</span> /&gt;</span></span></span><br><span class="line"><span class="xml">  &#125;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>现在 <code>Son</code> 组件确实不会调用 <code>render</code> 方法了，然而悲剧的是 <code>Grandson</code> 也不会更新了。原因在于 <code>Son</code> 组件协调时进入了 <a href="/2021/02/08/react-reconcile-bailout/"><code>bailout</code></a> 逻辑，阻断了子组件的更新：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bailoutOnAlreadyFinishedWork</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderLanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Fiber</span> | <span class="title">null</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (!includesSomeLane(renderLanes, workInProgress.childLanes)) &#123;</span><br><span class="line">    <span class="comment">// 协调 Son 组件的时候走到了这里</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    cloneChildFibers(current, workInProgress);</span><br><span class="line">    <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但是如果换成新的 API 则不会有这个问题：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Component, PureComponent&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Context = React.createContext()</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Grandson</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'Grandson render'</span>)</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;Context.Consumer&gt;</span><br><span class="line">        &#123;</span><br><span class="line">          value =&gt; <span class="xml"><span class="tag">&lt;<span class="name">span</span>&gt;</span>&#123;value&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line">        &#125;</span><br><span class="line">      &lt;<span class="regexp">/Context.Consumer&gt;</span></span><br><span class="line"><span class="regexp">    )</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">class Son extends PureComponent &#123;</span></span><br><span class="line"><span class="regexp">  render() &#123;</span></span><br><span class="line"><span class="regexp">    console.log('Son render')</span></span><br><span class="line"><span class="regexp">    return &lt;Grandson /</span>&gt;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Parent</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  state = &#123;</span><br><span class="line">    theme: <span class="string">'blue'</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">        theme: <span class="string">'red'</span></span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;, <span class="number">1000</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">return</span> (</span><br><span class="line">      &lt;Context.Provider value=&#123;<span class="keyword">this</span>.state.theme&#125;&gt;</span><br><span class="line">        &lt;Son /&gt;</span><br><span class="line">      &lt;<span class="regexp">/Context.Provider&gt;</span></span><br><span class="line"><span class="regexp">    )</span></span><br><span class="line"><span class="regexp">  &#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>明显新 API 的效果更符合常理，那么它到底是怎么实现的呢？接下来就分析一下新 API 的源码，来解答一下我们的疑惑。</p>
+<h1 id="新的-Context-API-源码分析"><a href="#新的-Context-API-源码分析" class="headerlink" title="新的 Context API 源码分析"></a>新的 Context API 源码分析</h1><h2 id="createContext"><a href="#createContext" class="headerlink" title="createContext"></a>createContext</h2><p>作为使用 <code>Context</code> 的第一步，首先当然要看看 <code>createContext</code> 做了什么：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">createContext</span>&lt;<span class="title">T</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  defaultValue: T,</span></span></span><br><span class="line"><span class="function"><span class="params">  calculateChangedBits: ?(a: T, b: T</span>) =&gt; <span class="title">number</span>,</span></span><br><span class="line"><span class="function">): <span class="title">ReactContext</span>&lt;<span class="title">T</span>&gt; </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (calculateChangedBits === <span class="literal">undefined</span>) &#123;</span><br><span class="line">    calculateChangedBits = <span class="literal">null</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    ....</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> context: ReactContext&lt;T&gt; = &#123;</span><br><span class="line">    $$<span class="keyword">typeof</span>: REACT_CONTEXT_TYPE,</span><br><span class="line">    _calculateChangedBits: calculateChangedBits,</span><br><span class="line">    <span class="comment">// 为了支持多个并发渲染器，我们把渲染器分成了</span></span><br><span class="line">    <span class="comment">// primary 和 secondary。我们只希望</span></span><br><span class="line">    <span class="comment">// 最多有两个并发渲染器:React Native (primary) 和</span></span><br><span class="line">    <span class="comment">// Fabric(secondary);React DOM(primary)和React ART(secondary)。</span></span><br><span class="line">    <span class="comment">// secondary 渲染器将它们的上下文值存储在单独的字段中。</span></span><br><span class="line">    _currentValue: defaultValue,</span><br><span class="line">    _currentValue2: defaultValue,</span><br><span class="line">    _threadCount: <span class="number">0</span>,</span><br><span class="line">    Provider: (<span class="literal">null</span>: any),</span><br><span class="line">    Consumer: (<span class="literal">null</span>: any),</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  context.Provider = &#123;</span><br><span class="line">    $$<span class="keyword">typeof</span>: REACT_PROVIDER_TYPE,</span><br><span class="line">    _context: context,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    context.Consumer = context;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> context;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到， <code>createContext</code> 返回了一个 <code>context</code> 对象，该对象上有 <code>_currentValue</code> 属性（用来存储当前 <code>context</code> 的值）以及 <code>Provider</code>、 <code>Consumer</code> 属性（两种类型的组件）。接下来我们看看 <code>Provider</code> 是怎么处理更新的。</p>
+<h2 id="Provider"><a href="#Provider" class="headerlink" title="Provider"></a>Provider</h2><p>从下面的代码可知，<code>Provider</code> 的更新首先是取到最新的 <code>value</code>，并调用 <code>pushProvider</code> 将其更新到 <code>context</code> 的 <code>_currentValue</code> 之上：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateContextProvider</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderLanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> providerType: ReactProviderType&lt;any&gt; = workInProgress.type;</span><br><span class="line">  <span class="keyword">const</span> context: ReactContext&lt;any&gt; = providerType._context;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> newProps = workInProgress.pendingProps;</span><br><span class="line">  <span class="keyword">const</span> oldProps = workInProgress.memoizedProps;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> newValue = newProps.value;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  pushProvider(workInProgress, context, newValue);</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">pushProvider</span>&lt;<span class="title">T</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  providerFiber: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  context: ReactContext&lt;T&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  nextValue: T,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">void</span> </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (isPrimaryRenderer) &#123;</span><br><span class="line">    push(valueCursor, context._currentValue, providerFiber);</span><br><span class="line"></span><br><span class="line">    context._currentValue = nextValue;</span><br><span class="line">    ...</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    push(valueCursor, context._currentValue2, providerFiber);</span><br><span class="line"></span><br><span class="line">    context._currentValue2 = nextValue;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>剩下的语句我们先不分析，我们来看看 <code>Consumer</code> 更新时是怎么处理的。</p>
+<h2 id="Consumer"><a href="#Consumer" class="headerlink" title="Consumer"></a>Consumer</h2><p>更新 <code>Consumer</code> 时会调用 <code>updateContextConsumer</code>：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateContextConsumer</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderLanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> context: ReactContext&lt;any&gt; = workInProgress.type;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">const</span> newProps = workInProgress.pendingProps;</span><br><span class="line">  <span class="keyword">const</span> render = newProps.children;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  prepareToReadContext(workInProgress, renderLanes);</span><br><span class="line">  <span class="keyword">const</span> newValue = readContext(context, newProps.unstable_observedBits);</span><br><span class="line">  <span class="keyword">let</span> newChildren;</span><br><span class="line">  <span class="keyword">if</span> (__DEV__) &#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    newChildren = render(newValue);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// React DevTools reads this flag.</span></span><br><span class="line">  workInProgress.flags |= PerformedWork;</span><br><span class="line">  reconcileChildren(current, workInProgress, newChildren, renderLanes);</span><br><span class="line">  <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>该函数中的核心方法是 <code>readContext</code>，即从 <code>context</code> 读取最新的值：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">readContext</span>&lt;<span class="title">T</span>&gt;(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  context: ReactContext&lt;T&gt;,</span></span></span><br><span class="line"><span class="function"><span class="params">  observedBits: void | number | boolean,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">T</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (lastContextWithAllBitsObserved === context) &#123;</span><br><span class="line">    <span class="comment">// Nothing to do. We already observe everything in this context.</span></span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (observedBits === <span class="literal">false</span> || observedBits === <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="comment">// Do not observe any updates.</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> resolvedObservedBits; <span class="comment">// Avoid deopting on observable arguments or heterogeneous types.</span></span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      <span class="keyword">typeof</span> observedBits !== <span class="string">'number'</span> ||</span><br><span class="line">      observedBits === MAX_SIGNED_31_BIT_INT</span><br><span class="line">    ) &#123;</span><br><span class="line">      <span class="comment">// Observe all updates.</span></span><br><span class="line">      lastContextWithAllBitsObserved = ((context: any): ReactContext&lt;mixed&gt;);</span><br><span class="line">      resolvedObservedBits = MAX_SIGNED_31_BIT_INT;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      resolvedObservedBits = observedBits;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> contextItem = &#123;</span><br><span class="line">      f: ((context: any): ReactContext&lt;mixed&gt;),</span><br><span class="line">      observedBits: resolvedObservedBits,</span><br><span class="line">      next: <span class="literal">null</span>,</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (lastContextDependency === <span class="literal">null</span>) &#123;</span><br><span class="line">      ...</span><br><span class="line"></span><br><span class="line">      <span class="comment">// This is the first dependency for this component. Create a new list.</span></span><br><span class="line">      lastContextDependency = contextItem;</span><br><span class="line">      currentlyRenderingFiber.dependencies = &#123;</span><br><span class="line">        lanes: NoLanes,</span><br><span class="line">        firstContext: contextItem,</span><br><span class="line">        responders: <span class="literal">null</span>,</span><br><span class="line">      &#125;;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// Append a new context item.</span></span><br><span class="line">      lastContextDependency = lastContextDependency.next = contextItem;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> isPrimaryRenderer ? context._currentValue : context._currentValue2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所谓读取 <code>context</code> 最新的值，也很简单，看当前渲染器是不是 <code>primary</code>，如果是就返回 <code>context._currentValue</code>，不是就返回 <code>context._currentValue2</code>。同时还会标记当前 <code>Fiber</code> 节点对于 <code>context</code> 的依赖，该依赖对于后续 <code>context</code> 的更新非常有用。从代码中可以看到有时 <code>Fiber</code> 节点可能会依赖多个 <code>context</code>，形成一条依赖链表，这种情况出现在函数组件中使用 <code>useContext</code> hooks 时。下图更加直观地表示了各 <code>Fiber</code> 的 <code>dependencies</code>：</p>
+<p><img src="/2021/03/19/react-context/1.png" alt=""></p>
+<h2 id="答案揭晓"><a href="#答案揭晓" class="headerlink" title="答案揭晓"></a>答案揭晓</h2><p>了解了 <code>Provider</code> 和 <code>Consumer</code> 后，接下来我们分析一下文章开始的问题：为什么 <code>Context</code> 更新可以透过经过了 <code>bailout</code> 的组件往下传递？答案还是在 <code>updateContextProvider</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">updateContextProvider</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderLanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> providerType: ReactProviderType&lt;any&gt; = workInProgress.type;</span><br><span class="line">  <span class="keyword">const</span> context: ReactContext&lt;any&gt; = providerType._context;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> newProps = workInProgress.pendingProps;</span><br><span class="line">  <span class="keyword">const</span> oldProps = workInProgress.memoizedProps;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> newValue = newProps.value;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  pushProvider(workInProgress, context, newValue);</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (oldProps !== <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> oldValue = oldProps.value;</span><br><span class="line">    <span class="keyword">const</span> changedBits = calculateChangedBits(context, newValue, oldValue);</span><br><span class="line">    <span class="keyword">if</span> (changedBits === <span class="number">0</span>) &#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// The context value changed. Search for matching consumers and schedule</span></span><br><span class="line">      <span class="comment">// them to update.</span></span><br><span class="line">      propagateContextChange(workInProgress, context, changedBits, renderLanes);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> newChildren = newProps.children;</span><br><span class="line">  reconcileChildren(current, workInProgress, newChildren, renderLanes);</span><br><span class="line">  <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当 <code>context</code> 的新值相对旧值有变化时会执行 <code>propagateContextChange</code>，该函数的作用就是沿着 <code>workInProgress</code> 往下深度优先的遍历子树，找到依赖当前 <code>context</code> 的 <code>Fiber</code>，更新他们的 <code>lanes</code>（<code>lanes</code> 可以理解为更新的优先级），同时更新他们的祖先 <code>Fiber</code> 的 <code>childLanes</code>。比如说下面这个例子：</p>
+<p><img src="/2021/03/19/react-context/2.png" alt=""></p>
+<p>当进入某个 <code>Fiber</code> 的 <code>bailout</code> 时，如果检测到当前 <code>Fiber</code> 的 <code>lanes</code> 和 <code>renderLanes</code> 有交集时，会继续协调其子节点：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">bailoutOnAlreadyFinishedWork</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  current: Fiber | null,</span></span></span><br><span class="line"><span class="function"><span class="params">  workInProgress: Fiber,</span></span></span><br><span class="line"><span class="function"><span class="params">  renderLanes: Lanes,</span></span></span><br><span class="line"><span class="function"><span class="params"></span>): <span class="title">Fiber</span> | <span class="title">null</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (!includesSomeLane(renderLanes, workInProgress.childLanes)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    cloneChildFibers(current, workInProgress);</span><br><span class="line">    <span class="keyword">return</span> workInProgress.child;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文通过一个案例引出了 React 中新旧 <code>Context</code> 处理组件更新的一些不同，并着重分析了新 API 的实现思路并解释了为什么 <code>Context</code> 更新可以透过经过了 <code>bailout</code> 的组件往下传递。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/03/08/react-reconcile-diff/" rel="next" title="React 源码解析之协调过程（二）">
+                <i class="fa fa-chevron-left"></i> React 源码解析之协调过程（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/04/30/react-tiny-rn/" rel="prev" title="实现一个简单的 React Native">
+                实现一个简单的 React Native <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">134</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">65</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#新的-Context-API-源码分析"><span class="nav-number">2.</span> <span class="nav-text">新的 Context API 源码分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#createContext"><span class="nav-number">2.1.</span> <span class="nav-text">createContext</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Provider"><span class="nav-number">2.2.</span> <span class="nav-text">Provider</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Consumer"><span class="nav-number">2.3.</span> <span class="nav-text">Consumer</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#答案揭晓"><span class="nav-number">2.4.</span> <span class="nav-text">答案揭晓</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

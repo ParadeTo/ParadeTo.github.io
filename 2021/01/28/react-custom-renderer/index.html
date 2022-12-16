@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍如何实现一个简单的 Custom React Renderer">
+<meta name="keywords" content="react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 源码解析之 Custom Renderer">
+<meta property="og:url" content="http://www.paradeto.com/2021/01/28/react-custom-renderer/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍如何实现一个简单的 Custom React Renderer">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2021/01/28/react-custom-renderer/1.gif">
+<meta property="og:image" content="http://www.paradeto.com/2021/01/28/react-custom-renderer/2.gif">
+<meta property="og:image" content="http://www.paradeto.com/2021/01/28/react-custom-renderer/canvas-renderer.png">
+<meta property="og:image" content="http://www.paradeto.com/2021/01/28/react-custom-renderer/canvas-renderer-raw.png">
+<meta property="og:updated_time" content="2021-01-31T01:22:26.729Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React 源码解析之 Custom Renderer">
+<meta name="twitter:description" content="介绍如何实现一个简单的 Custom React Renderer">
+<meta name="twitter:image" content="http://www.paradeto.com/2021/01/28/react-custom-renderer/1.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2021/01/28/react-custom-renderer/"/>
+
+
+
+
+
+
+  <title>React 源码解析之 Custom Renderer | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2021/01/28/react-custom-renderer/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React 源码解析之 Custom Renderer</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-01-28T11:43:11+08:00">
+                2021-01-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍如何实现一个简单的 Custom React Renderer
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>从<a href="/2020/07/26/react-first-render/">React的渲染流程</a>我们知道，JSX 会先转为一颗 Fiber Tree，然后通过 <code>Renderer</code> 渲染成页面。对于 Web 平台，这个 <code>Renderer</code> 就是 <code>react-dom</code>，对于 Native 平台，这个 <code>Renderer</code> 就是 <code>react-native</code>。当然，我们也可以创建我们自己的 <code>Renderer</code>，将 React 应用渲染到其他目标平台，比如本文中的 Canvas：</p>
+<p><img src="/2021/01/28/react-custom-renderer/1.gif" alt=""><br><img src="/2021/01/28/react-custom-renderer/2.gif" alt=""></p>
+<p>下面就来剖析下 <code>Canvas</code> <code>Renderer</code> 的实现方式。</p>
+<h1 id="Canvas-Renderer"><a href="#Canvas-Renderer" class="headerlink" title="Canvas Renderer"></a>Canvas Renderer</h1><h2 id="组件"><a href="#组件" class="headerlink" title="组件"></a>组件</h2><p>如图，我们的 <code>Canvas</code> <code>Renderer</code> 包括 <code>Stage</code>，<code>Rect</code>，<code>Circle</code>，<code>Text</code> 这些组件，其中将他们一些公共的特征抽离成了一个父类 <code>Layer</code>。</p>
+<p><img src="/2021/01/28/react-custom-renderer/canvas-renderer.png" alt=""></p>
+<p>不需要 React，现在的 <code>Canvas</code> <code>Renderer</code> 已经可以渲染出内容了，比如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> renderDom = <span class="built_in">document</span>.getElementById(<span class="string">'demo'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> stage = <span class="keyword">new</span> Stage(&#123;</span><br><span class="line">  renderDom,</span><br><span class="line">  width: <span class="number">500</span>,</span><br><span class="line">  height: <span class="number">300</span>,</span><br><span class="line">  style: &#123;<span class="attr">border</span>: <span class="string">'1px solid gray'</span>&#125;,</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">const</span> rect = <span class="keyword">new</span> Rect(&#123;<span class="attr">x</span>: <span class="number">50</span>, <span class="attr">y</span>: <span class="number">50</span>, <span class="attr">width</span>: <span class="number">100</span>, <span class="attr">height</span>: <span class="number">100</span>, <span class="attr">color</span>: <span class="string">'red'</span>&#125;)</span><br><span class="line"><span class="keyword">const</span> circle = <span class="keyword">new</span> Circle(&#123;<span class="attr">x</span>: <span class="number">50</span>, <span class="attr">y</span>: <span class="number">50</span>, <span class="attr">radius</span>: <span class="number">20</span>, <span class="attr">color</span>: <span class="string">'green'</span>&#125;)</span><br><span class="line"><span class="keyword">const</span> text = <span class="keyword">new</span> Text(&#123;</span><br><span class="line">  content: <span class="string">'我是一个 Demo'</span>,</span><br><span class="line">  fillStyle: <span class="string">'blue'</span>,</span><br><span class="line">  x: <span class="number">100</span>,</span><br><span class="line">  y: <span class="number">30</span>,</span><br><span class="line">  font: <span class="string">'20px serif'</span>,</span><br><span class="line">&#125;)</span><br><span class="line">rect.appendChild(circle)</span><br><span class="line">stage.appendChild(text)</span><br><span class="line">stage.appendChild(rect)</span><br><span class="line">stage.render()</span><br></pre></td></tr></table></figure>
+<p><img src="/2021/01/28/react-custom-renderer/canvas-renderer-raw.png" alt=""></p>
+<h2 id="Canvas-Renderer-实现方式"><a href="#Canvas-Renderer-实现方式" class="headerlink" title="Canvas Renderer 实现方式"></a>Canvas Renderer 实现方式</h2><p>我们通过引言中第一个 Demo 来分析 <code>Canvas</code> <code>Renderer</code> 的实现方式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Demo1.jsx</span></span><br><span class="line"><span class="keyword">import</span> &#123;useEffect, useState&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> R = <span class="number">20</span></span><br><span class="line"><span class="keyword">const</span> W = <span class="number">100</span></span><br><span class="line"><span class="keyword">const</span> H = <span class="number">100</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Demo1</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [x, setX] = useState(R)</span><br><span class="line">  <span class="keyword">const</span> [y, setY] = useState(R)</span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (y === R &amp;&amp; x &lt; W - R) &#123;</span><br><span class="line">        setX(x + <span class="number">1</span>)</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (x === W - R &amp;&amp; y &lt; H - R) &#123;</span><br><span class="line">        setY(y + <span class="number">1</span>)</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (y === H - R &amp;&amp; x &gt; R) &#123;</span><br><span class="line">        setX(x - <span class="number">1</span>)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        setY(y - <span class="number">1</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;, <span class="number">10</span>)</span><br><span class="line">  &#125;, [x, y])</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;text x=&#123;<span class="number">10</span>&#125; y=&#123;<span class="number">20</span>&#125; content=<span class="string">'DEMO1'</span> font=<span class="string">'18px serif'</span> fillStyle=<span class="string">'black'</span> /&gt;</span><br><span class="line">      &lt;rect x=&#123;<span class="number">50</span>&#125; y=&#123;<span class="number">50</span>&#125; width=&#123;W&#125; height=&#123;H&#125; color=<span class="string">'blue'</span>&gt;</span><br><span class="line">        &lt;circle x=&#123;x&#125; y=&#123;y&#125; radius=&#123;R&#125; color=<span class="string">'red'</span>&gt;</span><br><span class="line">          &lt;rect x=&#123;<span class="number">-10</span>&#125; y=&#123;<span class="number">-10</span>&#125; width=&#123;<span class="number">20</span>&#125; height=&#123;<span class="number">20</span>&#125; color=<span class="string">'green'</span> /&gt;</span><br><span class="line">        &lt;<span class="regexp">/circle&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>rect&gt;</span><br><span class="line">    &lt;<span class="regexp">/&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">export default Demo1</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">/</span><span class="regexp">/ index.js</span></span><br><span class="line"><span class="regexp">import CanvasRenderer from './</span>CanvasRenderer<span class="string">'</span></span><br><span class="line"><span class="string">import Demo1 from '</span>./Demo1<span class="string">'</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">CanvasRenderer.render(&lt;Demo1 /&gt;, document.getElementById('</span>demo1<span class="string">'), &#123;</span></span><br><span class="line"><span class="string">  width: 400,</span></span><br><span class="line"><span class="string">  height: 200,</span></span><br><span class="line"><span class="string">  style: &#123;</span></span><br><span class="line"><span class="string">    backgroundColor: '</span>white<span class="string">',</span></span><br><span class="line"><span class="string">    border: '</span><span class="number">1</span>px solid gray<span class="string">',</span></span><br><span class="line"><span class="string">  &#125;,</span></span><br><span class="line"><span class="string">&#125;)</span></span><br></pre></td></tr></table></figure>
+<p>Demo1 是一个函数组件，返回了 <code>text</code>、<code>rect</code>、 <code>circle</code> 这些标签，这些标签需要我们 <code>Canvas</code> <code>Renderer</code> 来进行渲染，接下来看看 <code>render</code> 函数做了啥：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> reconcilerInstance = Reconciler(HostConfig)</span><br><span class="line"><span class="keyword">const</span> CanvasRenderer = &#123;</span><br><span class="line">  render(element, renderDom, &#123;width, height, style&#125;, callback) &#123;</span><br><span class="line">    <span class="keyword">const</span> stage = <span class="keyword">new</span> Stage(&#123;renderDom, width, height, style&#125;)</span><br><span class="line">    <span class="keyword">const</span> isAsync = <span class="literal">false</span> <span class="comment">// Disables async rendering</span></span><br><span class="line">    <span class="keyword">const</span> container = reconcilerInstance.createContainer(stage, isAsync) <span class="comment">// Creates root fiber node.</span></span><br><span class="line">    <span class="keyword">const</span> parentComponent = <span class="literal">null</span> <span class="comment">// Since there is no parent (since this is the root fiber). We set parentComponent to null.</span></span><br><span class="line"></span><br><span class="line">    reconcilerInstance.updateContainer(</span><br><span class="line">      element,</span><br><span class="line">      container,</span><br><span class="line">      parentComponent,</span><br><span class="line">      callback</span><br><span class="line">    ) <span class="comment">// Start reconcilation and render the result</span></span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数主要是创建了一个 <code>Stage</code> 对象作为 <code>Reconciler</code> 对象 <code>reconcilerInstance</code> 的 <code>container</code>，最后调用 <code>reconcilerInstance.updateContainer()</code> 将 Demo1 组件通过 <code>Canvas</code> <code>Renderer</code> 进行渲染。我们知道 <code>Reconciler</code> 在 React 渲染流程中充当着非常重要的作用，它会计算出哪些组件需要更新，并会将需要更新的信息提交给 <code>Renderer</code> 来处理，而将 <code>Reconciler</code> 和 <code>Renderer</code> 连接起来的秘诀就在 <code>HostConfig</code> 之中：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> HostConfig = &#123;</span><br><span class="line">  supportsMutation: <span class="literal">true</span>,</span><br><span class="line">  <span class="comment">// 通过 FiberNode 创建 instance，会保存在 FiberNode 的 stateNode 属性上</span></span><br><span class="line">  createInstance(</span><br><span class="line">    type,</span><br><span class="line">    newProps,</span><br><span class="line">    rootContainerInstance,</span><br><span class="line">    currentHostContext,</span><br><span class="line">    workInProgress</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">let</span> element</span><br><span class="line">    <span class="keyword">switch</span> (type) &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="string">'rect'</span>:</span><br><span class="line">        element = <span class="keyword">new</span> Rect(newProps)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      <span class="keyword">case</span> <span class="string">'circle'</span>:</span><br><span class="line">        element = <span class="keyword">new</span> Circle(newProps)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      <span class="keyword">case</span> <span class="string">'text'</span>:</span><br><span class="line">        element = <span class="keyword">new</span> Text(newProps)</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">      <span class="keyword">default</span>:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> element</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 操作子组件相关 */</span></span><br><span class="line">  appendInitialChild(parent, child) &#123;</span><br><span class="line">    parent.appendChild(child)</span><br><span class="line">  &#125;,</span><br><span class="line">  appendChildToContainer(parent, child) &#123;</span><br><span class="line">    parent.appendChild(child)</span><br><span class="line">  &#125;,</span><br><span class="line">  appendChild(parent, child) &#123;</span><br><span class="line">    parent.appendChild(child)</span><br><span class="line">  &#125;,</span><br><span class="line">  insertBefore(parent, child, beforeChild) &#123;</span><br><span class="line">    parent.insertBefore(child, beforeChild)</span><br><span class="line">  &#125;,</span><br><span class="line">  removeChild(parent, child) &#123;</span><br><span class="line">    parent.removeChild(child)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/* 组件属性发生变化时会调用该方法 */</span></span><br><span class="line">  commitUpdate(</span><br><span class="line">    instance,</span><br><span class="line">    updatePayload,</span><br><span class="line">    type,</span><br><span class="line">    oldProps,</span><br><span class="line">    newProps,</span><br><span class="line">    finishedWork</span><br><span class="line">  ) &#123;</span><br><span class="line">    instance.update(newProps)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// react 流程结束后，调用此方法，我们可以在这里触发我们的渲染器重新渲染</span></span><br><span class="line">  <span class="comment">// 此处参考 remax：https://github.com/remaxjs/remax/blob/80606f640b08c79b9fc61d52a03355f0282c5e14/packages/remax-runtime/src/hostConfig/index.ts#L63</span></span><br><span class="line">  resetAfterCommit(container) &#123;</span><br><span class="line">    container.render()</span><br><span class="line">  &#125;,</span><br><span class="line">  getRootHostContext(nextRootInstance) &#123;</span><br><span class="line">    <span class="keyword">const</span> rootContext = &#123;&#125;</span><br><span class="line">    <span class="keyword">return</span> rootContext</span><br><span class="line">  &#125;,</span><br><span class="line">  getChildHostContext(parentContext, fiberType, rootInstance) &#123;</span><br><span class="line">    <span class="keyword">const</span> context = &#123;&#125;</span><br><span class="line">    <span class="keyword">return</span> context</span><br><span class="line">  &#125;,</span><br><span class="line">  prepareForCommit(rootContainerInstance) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;,</span><br><span class="line">  prepareUpdate(</span><br><span class="line">    instance,</span><br><span class="line">    type,</span><br><span class="line">    oldProps,</span><br><span class="line">    newProps,</span><br><span class="line">    rootContainerInstance,</span><br><span class="line">    currentHostContext</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;&#125;</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 暂时不需要实现的接口</span></span><br><span class="line">  finalizeInitialChildren() &#123;&#125;,</span><br><span class="line">  appendAllChildren(...args) &#123;&#125;,</span><br><span class="line">  commitTextUpdate(textInstance, oldText, newText) &#123;&#125;,</span><br><span class="line">  removeChildFromContainer(container, child) &#123;&#125;,</span><br><span class="line">  commitMount(domElement, type, newProps, fiberNode)&#123;&#125;,</span><br><span class="line">  clearContainer(...args) &#123;&#125;,</span><br><span class="line">  createTextInstance(</span><br><span class="line">    newText,</span><br><span class="line">    rootContainerInstance,</span><br><span class="line">    currentHostContext,</span><br><span class="line">    workInProgress</span><br><span class="line">  ) &#123;&#125;,</span><br><span class="line">  shouldSetTextContent(...args) &#123;&#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>HostConfig</code> 中是我们的 <code>Canvas</code> <code>Renderer</code> 需要实现的一些接口，这里来说明一下：</p>
+<p><em>supportsMutation</em></p>
+<p>当前渲染器是否支持修改节点，毫无疑问这里必须是 <code>true</code>。</p>
+<p><em>createInstance</em></p>
+<p>该函数会在通过 <code>FiberNode</code> 创建宿主相关的元素时进行调用，返回的元素会保存在 <code>FiberNode</code> 的 <code>stateNode</code> 属性上，参考<a href="/2020/07/26/react-first-render/">React的渲染流程</a>。对于 <code>Canvas</code> <code>Renderer</code> 来说，这里会根据 <code>type</code> 值创建出不同的组件。</p>
+<p><em>appendInitialChild</em>、<em>appendChild</em>、<em>appendChildToContainer</em>、<em>insertBefore</em></p>
+<p>这几个接口都涉及到元素的插入操作，前三个是把元素插到最后面，其中 <code>appendInitialChild</code> 在首次渲染时调用，<code>appendChild</code> 在更新的时候调用，而 <code>appendChildToContainer</code> 则在把元素插入到 <code>container</code> 时使用，对于 <code>Canvas</code> <code>Renderer</code> 来说，这些接口中均调用 <code>parent.appendChild(child)</code> 即可：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">appendChild(child) &#123;</span><br><span class="line">  <span class="keyword">this</span>.__children.push(child)</span><br><span class="line">  child.parent = <span class="keyword">this</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 <code>insertBefore</code> 则是把元素插入到某个元素前面，同样，<code>Canvas</code> <code>Renderer</code> 也有对应的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">insertBefore(child, beforeChild) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="keyword">this</span>.__children.length; i++) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.__children[i] === beforeChild) &#123;</span><br><span class="line">      <span class="keyword">this</span>.__children.splice(i, <span class="number">0</span>, child)</span><br><span class="line">      child.parent = <span class="keyword">this</span></span><br><span class="line">      <span class="keyword">break</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>commitUpdate</em></p>
+<p>当组件属性发生变化的时候会调用该函数，<code>Canvas</code> <code>Renderer</code> 对应的实现方法也比较简单，即更新 <code>instance</code> 的属性即可：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">update(props) &#123;</span><br><span class="line">  <span class="built_in">Object</span>.keys(props).forEach(<span class="function">(<span class="params">k</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>[k] = props[k]</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>resetAfterCommit</em></p>
+<p>在<a href="/2020/07/26/react-first-render/">React 源码解读之一首次渲染流程</a>这篇文章中已阐明 React 的每次更新过程包括 <code>Render</code> 和 <code>Commit</code> 两大阶段，其中 <code>Render</code> 阶段会计算出 <code>Effect</code> 链表供 <code>Commit</code> 阶段处理，而 <code>resetAfterCommit</code> 这个函数就是在 <code>Commit</code> 阶段执行完 <code>commitMutationEffects</code> 函数后进行调用，此时所有对元素的更新操作已处理完毕，所以这里是一个适合 <code>Canvas</code> <code>Renderer</code> 调用 <code>container.render()</code> 进行重新渲染的地方。该函数中首先清空了整个画布，然后依次调用子组件的 <code>render</code> 方法：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Stage.js</span></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">this</span>.context.clearRect(<span class="number">0</span>, <span class="number">0</span>, <span class="keyword">this</span>.width, <span class="keyword">this</span>.height)</span><br><span class="line">    <span class="keyword">this</span>.renderChildren()</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">// Layer.js</span></span><br><span class="line">  renderChildren() &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> child <span class="keyword">of</span> <span class="keyword">this</span>.__children) &#123;</span><br><span class="line">      child.render()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">// Rect.js</span></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;x, y, stage&#125; = <span class="keyword">this</span>.resolvePosAndStage()</span><br><span class="line">    <span class="keyword">if</span> (!stage) <span class="keyword">return</span></span><br><span class="line">    stage.context.beginPath()</span><br><span class="line">    stage.context.rect(x, y, <span class="keyword">this</span>.width, <span class="keyword">this</span>.height)</span><br><span class="line">    stage.context.strokeStyle = <span class="keyword">this</span>.color</span><br><span class="line">    stage.context.stroke()</span><br><span class="line">    <span class="keyword">this</span>.renderChildren()</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">// Circle.js</span></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;x, y, stage&#125; = <span class="keyword">this</span>.resolvePosAndStage()</span><br><span class="line">    <span class="keyword">if</span> (!stage) <span class="keyword">return</span></span><br><span class="line">    stage.context.beginPath()</span><br><span class="line">    stage.context.arc(x, y, <span class="keyword">this</span>.radius, <span class="number">0</span>, <span class="number">2</span> * <span class="built_in">Math</span>.PI, <span class="literal">true</span>)</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.fill) &#123;</span><br><span class="line">      stage.context.fillStyle = <span class="keyword">this</span>.color</span><br><span class="line">      stage.context.fill()</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      stage.context.strokeStyle = <span class="keyword">this</span>.color</span><br><span class="line">      stage.context.stroke()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.renderChildren()</span><br><span class="line">  &#125;</span><br><span class="line"><span class="comment">// Text.js</span></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;x, y, stage&#125; = <span class="keyword">this</span>.resolvePosAndStage()</span><br><span class="line">    <span class="keyword">if</span> (!stage) <span class="keyword">return</span></span><br><span class="line">    stage.context.font = <span class="keyword">this</span>.font</span><br><span class="line">    stage.context.fillStyle = <span class="keyword">this</span>.fillStyle</span><br><span class="line">    stage.context.fillText(<span class="keyword">this</span>.content, x, y)</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>值得一提的是，<a href="https://remaxjs.org/" target="_blank" rel="noopener">Remax</a> 也是在这里触发了小程序的更新。</p>
+<p>至此，我们的 <code>Canvas</code> <code>Renderer</code> 的核心实现原理就分析完了，更多内容及 Demo 详见<a href="https://github.com/ParadeTo/react-canvas-renderer" target="_blank" rel="noopener">源码</a>。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/01/10/react-concurrent-2/" rel="next" title="React 源码解读之 Concurrent 模式之更新插队">
+                <i class="fa fa-chevron-left"></i> React 源码解读之 Concurrent 模式之更新插队
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/02/07/compile-pegjs/" rel="prev" title="编译原理之 PEG.js">
+                编译原理之 PEG.js <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">134</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">65</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Canvas-Renderer"><span class="nav-number">2.</span> <span class="nav-text">Canvas Renderer</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#组件"><span class="nav-number">2.1.</span> <span class="nav-text">组件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Canvas-Renderer-实现方式"><span class="nav-number">2.2.</span> <span class="nav-text">Canvas Renderer 实现方式</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
