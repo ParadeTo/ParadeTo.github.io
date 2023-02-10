@@ -98,7 +98,7 @@
 <meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/header_frame.png">
 <meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/favicon.png">
 <meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/data1.png">
-<meta property="og:updated_time" content="2023-01-13T07:31:43.288Z">
+<meta property="og:updated_time" content="2023-01-29T08:50:48.867Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="当 Transfer-Encoding chunked 遇上 HTTP2">
 <meta name="twitter:description" content="当 Transfer-Encoding chunked 遇上 HTTP2">
@@ -399,17 +399,18 @@
 <p>一番拉扯之后，运维甩过来一个链接：<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding" target="_blank" rel="noopener">Transfer-Encoding</a>。意思就是，这不是我们的锅呀，这个是 HTTP2 的规定。</p>
 <p>所以现在的问题总结下来就是：</p>
 <p><img src="./http2-chunk/problem.png" alt=""></p>
-<p>问题原因知道了，那就面向 Google 开发呗，可以经过各种组合搜索后也没有找到相关的内容。没方法了，只能灰溜溜的跟 Leader 说做不了了。</p>
-<p>但是这个问题一直萦绕在我脑海，害得我夜不能寐，饭不能食。毕竟，丢了的面子得找回来，而且不可能大家的服务都没有像这样部署过吧，肯定还是自己太菜了。而且，根据上面这个链接所说：“HTTP2 提供了比 <code>chunked</code> 更为高效的数据流传输机制”，所以有可能 HTTP2 已经默默的帮我们做了些什么了。既然这样，我们还是来验证一下吧。</p>
+<p>问题原因知道了，那就面向 Google 开发呗，可是经过各种组合搜索后也没有找到相关的内容。没方法了，只能灰溜溜的跟 Leader 说做不了了。</p>
+<p>但是这个问题一直萦绕在我脑海，害得我夜不能寐，饭不能食。毕竟，丢了的面子得找回来，而且不可能大家的服务都没有像这样部署过吧，肯定还是自己太菜了。</p>
+<p>而且，根据上面这个链接所说：“HTTP2 提供了比 <code>chunked</code> 更为高效的数据流传输机制”，所以有可能 HTTP2 已经默默的帮我们做了些什么了？既然有此疑虑，直接验证一下呗。</p>
 <h1 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h1><p>本文所需要的验证工具包括：</p>
 <ul>
 <li>Nginx：需要开启 HTTP2，需要生成自签名证书，相关内容可自行搜索。这里仅给出配置文件：</li>
 </ul>
-<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">events</span> &#123;</span><br><span class="line">    <span class="attribute">worker_connections</span> <span class="number">2048</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">ssl_certificate</span>      mydomain.crt;</span><br><span class="line">    <span class="attribute">ssl_certificate_key</span>  private.key;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">listen</span> <span class="number">443</span> ssl http2;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">location</span> / &#123;</span><br><span class="line">      <span class="attribute">proxy_http_version</span>      <span class="number">1</span>.<span class="number">1</span>; <span class="comment"># 注意这个参数不能省略，否则默认会用 1.0，1.0 不支持 chunked</span></span><br><span class="line">      <span class="attribute">proxy_pass</span> http://127.0.0.1:2048;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">events &#123;https://juejin.cn/post/7133238781452222472</span><br><span class="line">    <span class="attribute">worker_connections</span> <span class="number">2048</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">ssl_certificate</span>      mydomain.crt;</span><br><span class="line">    <span class="attribute">ssl_certificate_key</span>  private.key;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">listen</span> <span class="number">443</span> ssl http2;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">location</span> / &#123;</span><br><span class="line">      <span class="attribute">proxy_http_version</span>      <span class="number">1</span>.<span class="number">1</span>; <span class="comment"># 注意这个参数不能省略，否则默认会用 1.0，1.0 不支持 chunked</span></span><br><span class="line">      <span class="attribute">proxy_pass</span> http://127.0.0.1:2048;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ul>
 <li>返回 chunked 内容的 server：本文使用 Node.js，代码如下：</li>
 </ul>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = rquire(<span class="string">'express'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = express()</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/chunk_demo'</span>, (req, res, next) =&gt; &#123;</span><br><span class="line">  res.write(<span class="string">`&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="string">      &lt;html&gt;</span></span><br><span class="line"><span class="string">        &lt;head&gt;</span></span><br><span class="line"><span class="string">          &lt;title&gt;Chunk Demo&lt;/title&gt;</span></span><br><span class="line"><span class="string">        &lt;/head&gt;</span></span><br><span class="line"><span class="string">        &lt;body&gt;</span></span><br><span class="line"><span class="string">          &lt;strong&gt;你好`</span>)</span><br><span class="line"></span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    res.end(<span class="string">` World&lt;/strong&gt;</span></span><br><span class="line"><span class="string">    &lt;/body&gt;</span></span><br><span class="line"><span class="string">  &lt;/html&gt;`</span>)</span><br><span class="line">  &#125;, <span class="number">4000</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> listener = app.listen(<span class="number">2048</span>, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Your app is listening on port '</span> + listener.address().port)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = express()</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/chunk_demo'</span>, (req, res, next) =&gt; &#123;</span><br><span class="line">  res.write(<span class="string">`&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="string">      &lt;html&gt;</span></span><br><span class="line"><span class="string">        &lt;head&gt;</span></span><br><span class="line"><span class="string">          &lt;title&gt;Chunk Demo&lt;/title&gt;</span></span><br><span class="line"><span class="string">        &lt;/head&gt;</span></span><br><span class="line"><span class="string">        &lt;body&gt;</span></span><br><span class="line"><span class="string">          &lt;strong&gt;你好`</span>)</span><br><span class="line"></span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    res.end(<span class="string">` World&lt;/strong&gt;</span></span><br><span class="line"><span class="string">    &lt;/body&gt;</span></span><br><span class="line"><span class="string">  &lt;/html&gt;`</span>)</span><br><span class="line">  &#125;, <span class="number">4000</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> listener = app.listen(<span class="number">2048</span>, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Your app is listening on port '</span> + listener.address().port)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 <ul>
 <li>支持 HTTP2 的客户端，这个一般的浏览器应该都支持。</li>
 </ul>
@@ -419,7 +420,7 @@
 <p><img src="./http2-chunk/chunked.gif" alt=""></p>
 <p>看来 HTTP2 确实自动做了些什么。</p>
 <p>我们可以通过 wireshark 进一步的验证我们的想法，使用 wireshark 抓包需要配置其可以解密 HTTP2 流量，可参考<a href="https://imququ.com/post/http2-traffic-in-wireshark.html" target="_blank" rel="noopener">使用 Wireshark 调试 HTTP/2 流量</a>。</p>
-<p>如下所示，<code>chunked</code> 的两部分数据被 HTTP2 作为了了两个 Data 帧进行传输，两个 Data 帧的时间相差 4 秒左右。</p>
+<p>如下所示，<code>chunked</code> 的两部分数据被 HTTP2 作为了两个 Data 帧进行传输，两个 Data 帧的时间相差 4 秒左右。</p>
 <p><img src="./http2-chunk/data1.png" alt=""><br><img src="./http2-chunk/data2.png" alt=""></p>
 <p>看来我们的 SSR 流式渲染可以顺利上线了，这个面子终于找回来了。</p>
 <p>不过好不容易抓到了包，那就再顺手研究下 HTTP2 中 Header 和 Data 帧的数据格式吧。</p>
@@ -445,7 +446,7 @@
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">101000</span> - l</span><br><span class="line"><span class="number">00111</span> - o</span><br><span class="line"><span class="number">00100</span> - c</span><br><span class="line"><span class="number">00011</span> - a</span><br><span class="line"><span class="number">100111</span> - h</span><br><span class="line"><span class="number">01000</span> - s</span><br><span class="line"><span class="number">01001</span> - t</span><br><span class="line"></span><br><span class="line"><span class="number">10100000</span> <span class="number">11100100</span> <span class="number">00011101</span> <span class="number">00010011</span> <span class="number">10011101</span> <span class="number">00001001</span></span><br><span class="line">     |     |    |     |      |      |    |     |    |</span><br><span class="line">     l     o    c     a      l      h    o     s    t</span><br></pre></td></tr></table></figure>
 <p>那么，这里的更新动态字典是啥意思呢？我们来看看另外一个包的数据就知道了，刚好浏览器请求网页的时候会自动发一个请求 <code>GET /favicon.ico</code> 去请求网页图标，我们就来看看这个包的 <code>:authority</code>：</p>
 <p><img src="./http2-chunk/favicon.png" alt=""></p>
-<p>从上图可以看到，<code>:authority</code> 现在也属于“整个头部键值对都在字典中”的情况了，用 1 个字节即可表示，数据进一步得到了压缩。</p>
+<p>从上图可以看到，更新完动态字典后 <code>:authority</code> 现在也属于“整个头部键值对都在字典中”的情况了，用 1 个字节即可表示，数据进一步得到了压缩。</p>
 <p>然后，我们来看看 Data 帧的数据：</p>
 <p><img src="./http2-chunk/data1.png" alt=""></p>
 <p>同样也是 9 个字节的头部，就不赘述了。</p>
@@ -498,6 +499,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/18/nest-microservice-1/" rel="prev" title="Nest.js 微服务实战之搭建系统框架（基于 GraphQL 和 RPC）">
+                Nest.js 微服务实战之搭建系统框架（基于 GraphQL 和 RPC） <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -579,7 +584,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">138</span>
+                  <span class="site-state-item-count">140</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -601,7 +606,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">67</span>
+                  <span class="site-state-item-count">69</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
