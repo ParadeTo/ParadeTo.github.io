@@ -108,7 +108,7 @@
 <meta property="og:image" content="http://www.paradeto.com/2023/02/09/nodejs-stream/chatgpt4.png">
 <meta property="og:image" content="http://www.paradeto.com/2023/02/09/nodejs-stream/chatgpt5.png">
 <meta property="og:image" content="http://www.paradeto.com/2023/02/09/nodejs-stream/chatgpt6.png">
-<meta property="og:updated_time" content="2023-02-10T08:46:17.969Z">
+<meta property="og:updated_time" content="2023-03-01T11:31:00.183Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Node.js 高级编程之 Stream（我是跟 ChatGPT 学会的）">
 <meta name="twitter:description" content="系统的学习下 Node.js 中的流">
@@ -471,7 +471,7 @@
 <h3 id="write-的返回值"><a href="#write-的返回值" class="headerlink" title="write 的返回值"></a>write 的返回值</h3><p><code>write</code> 函数是有返回值的，当返回 <code>false</code> 时，表示池子中的水位超过了 <code>highWaterMark</code>（16 KB），此时正确的做法应该停止继续往池子中注水，等待池子中的水排干了（即触发 <code>drain</code> 事件）再继续注水：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> writeStream = fs.createWriteStream(<span class="string">'./file3'</span>)</span><br><span class="line"><span class="keyword">const</span> ret = writeStream.write(<span class="built_in">Array</span>(<span class="number">20000</span>).fill(<span class="string">'a'</span>).join(<span class="string">''</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (!ret) &#123;</span><br><span class="line">  writeStream.on(<span class="string">'drain'</span>, () =&gt; &#123;</span><br><span class="line">    writeStream.write(<span class="built_in">Array</span>(<span class="number">1</span>).fill(<span class="string">'b'</span>).join(<span class="string">''</span>))</span><br><span class="line">    <span class="built_in">console</span>.log(fs.readFileSync(<span class="string">'./file2'</span>).length) <span class="comment">// 20001</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>但是事实上你也可以什么都不管，一直注水：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> writeStream = fs.createWriteStream(<span class="string">'./file3'</span>)</span><br><span class="line"><span class="keyword">let</span> i = <span class="number">0</span></span><br><span class="line"><span class="keyword">while</span> (i++ &lt; 999999) &#123;</span><br><span class="line">  writeStream.write(Array(999999).fill('a').join(''))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> writeStream = fs.createWriteStream(<span class="string">'./file3'</span>)</span><br><span class="line"><span class="keyword">let</span> i = <span class="number">0</span></span><br><span class="line"><span class="keyword">while</span> (i++ <span class="xml"><span class="tag">&lt; <span class="attr">999999</span>) &#123;</span></span></span><br><span class="line"><span class="xml">  writeStream.write(Array(999999).fill('a').join(''))</span></span><br><span class="line"><span class="xml">&#125;</span></span><br></pre></td></tr></table></figure>
 <p>这样的后果是机器内存会全部占满，注意这里不会受 Node.js 的运行内存限制，因为 <code>write</code> 的数据最后都会转为 <code>Buffer</code>。</p>
 <p>而且 Node.js 还会自动去刷 <code>buffered</code> 中的数据（这一块没有仔细研究，结论是通过实验得出的），比如上面的代码改成如下这样内存就不会一直增长了：</p>
 <figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> writeStream = fs.createWriteStream(<span class="string">'./file3'</span>)</span><br><span class="line"><span class="keyword">let</span> i = <span class="number">0</span></span><br><span class="line"><span class="keyword">const</span> tId = setInterval(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  writeStream.write(<span class="built_in">Array</span>(<span class="number">20000</span>).fill(<span class="string">'a'</span>).join(<span class="string">''</span>))</span><br><span class="line">  <span class="built_in">console</span>.log(writeStream._writableState.buffered.length)</span><br><span class="line">  i++</span><br><span class="line">  <span class="keyword">if</span> (i &gt; <span class="number">999999</span>) clearInterval(tId)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
@@ -546,6 +546,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/12/webpack-hrm-replace/" rel="prev" title="webpack HMR 是怎么更新模块的？">
+                webpack HMR 是怎么更新模块的？ <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -627,7 +631,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">140</span>
+                  <span class="site-state-item-count">146</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -638,7 +642,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">categories</span>
                 </a>
               </div>
@@ -649,7 +653,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">69</span>
+                  <span class="site-state-item-count">73</span>
                   <span class="site-state-item-name">tags</span>
                 </a>
               </div>
