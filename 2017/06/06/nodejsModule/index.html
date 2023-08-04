@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="nodejs," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="关于nodejs的模块机制">
+<meta name="keywords" content="nodejs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nodejs之模块机制">
+<meta property="og:url" content="http://www.paradeto.com/2017/06/06/nodejsModule/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="关于nodejs的模块机制">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="nodejs之模块机制">
+<meta name="twitter:description" content="关于nodejs的模块机制">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2017/06/06/nodejsModule/"/>
+
+
+
+
+
+
+  <title>nodejs之模块机制 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2017/06/06/nodejsModule/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">nodejs之模块机制</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-06T22:44:53+08:00">
+                2017-06-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/nodejs/" itemprop="url" rel="index">
+                    <span itemprop="name">nodejs</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  关于nodejs的模块机制
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="CommonJS规范"><a href="#CommonJS规范" class="headerlink" title="CommonJS规范"></a>CommonJS规范</h1><p><strong>模块引用</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> math = <span class="built_in">require</span>(<span class="string">'math'</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>模块定义</strong></p>
+<p>上下文提供了exports对象用于导出当前模块的方法或者变量，并且是唯一的出口。在模块中，还存在一个module对象，它代表模块自身，而exports是module的属性。将方法挂载在exports对象上作为属性即可定义导出的方式。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">exports.add = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>模块标识</strong></p>
+<p>即传递给<code>require()</code>的参数</p>
+<h1 id="Node的模块实现"><a href="#Node的模块实现" class="headerlink" title="Node的模块实现"></a>Node的模块实现</h1><p>引入模块需要经历如下3个步骤</p>
+<ol>
+<li>路径分析</li>
+<li>文件定位</li>
+<li>编译执行</li>
+</ol>
+<p>模块分为两类：</p>
+<ol>
+<li>Node提供的模块，称为核心模块：不需要文件定位和编译执行，在路径分析中优先判断，加载速度最快</li>
+<li>用户编写的模块，称为文件模块</li>
+</ol>
+<p>接下来，详细展开模块加载过程</p>
+<h2 id="优先从缓存加载"><a href="#优先从缓存加载" class="headerlink" title="优先从缓存加载"></a>优先从缓存加载</h2><p>Node对引入过的模块都会进行缓存，缓存的是编译和执行之后的对象。</p>
+<h2 id="路径分析和文件定位"><a href="#路径分析和文件定位" class="headerlink" title="路径分析和文件定位"></a>路径分析和文件定位</h2><p><strong>模块标识符分析</strong></p>
+<p>主要分为以下几类（按加载速度排序）：</p>
+<ul>
+<li>核心模块，如http、fs、path等</li>
+<li>.或..开始的相对路径文件模块</li>
+<li>以/开始的绝对路径文件模块</li>
+<li>非路径形式的文件模块，如node_modules中的模块，例如<code>require(&#39;express&#39;)</code>会依次在当前路径、上一级路径、上上级路径…的<code>node_modules</code>下去找，所以当js文件的路径越深时，该加载速度就越慢</li>
+</ul>
+<p><strong>文件定位</strong></p>
+<ul>
+<li>文件拓展名分析：<code>.js&gt;.json&gt;.node</code>，为了优化如果不是<code>.js</code>的文件，最好加上拓展名</li>
+<li>目录分析和包：如果查找得到的是一个目录的话，会按照如下顺序：package.json(main属性指定的文件)&gt;index.js&gt;index.json&gt;index.node</li>
+</ul>
+<h2 id="模块编译"><a href="#模块编译" class="headerlink" title="模块编译"></a>模块编译</h2><p>node中，每个文件模块都是一个对象，定义如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Module</span>(<span class="params">id, parent</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">this</span>.id = id;</span><br><span class="line">	<span class="keyword">this</span>.exports = &#123;&#125;;</span><br><span class="line">	<span class="keyword">this</span>.parent = parent;</span><br><span class="line">	<span class="keyword">if</span> (parent &amp;&amp; parent.children) &#123;</span><br><span class="line">		parent.children.push(<span class="keyword">this</span>)</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">this</span>.filename = <span class="literal">null</span>;</span><br><span class="line">	<span class="keyword">this</span>.loaded = <span class="literal">false</span>;</span><br><span class="line">	<span class="keyword">this</span>.children = [];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不同的文件拓展名，载入方式不同：</p>
+<ul>
+<li>.js文件。通过fs模块同步读取后编译执行</li>
+<li>.node文件。这是用C/C++编写的拓展文件，通过<code>dlopen()</code>加载编译</li>
+<li>.json。fs模块同步读取，<code>JSON.parse()</code>解析返回结果</li>
+<li>其他。当做.js文件</li>
+</ul>
+<p><strong>js模块的编译</strong></p>
+<p>一个正常的js文件会被包装成如下样子:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">(<span class="function"><span class="keyword">function</span> (<span class="params">exports, require, module, __filename, __dirname</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> math = <span class="built_in">require</span>(<span class="string">'math'</span>)</span><br><span class="line">  exports.area = <span class="function"><span class="keyword">function</span> (<span class="params">radius</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> math.PI * radius * radius</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>执行之后，模块的<code>exports</code>属性被返回给了调用方，其上的任何方法和属性都可以被外部调用到。</p>
+<h1 id="前后端共用模块"><a href="#前后端共用模块" class="headerlink" title="前后端共用模块"></a>前后端共用模块</h1><h2 id="AMD-amp-CMD"><a href="#AMD-amp-CMD" class="headerlink" title="AMD &amp; CMD"></a>AMD &amp; CMD</h2><ul>
+<li><a href="https://www.zhihu.com/question/20342350" target="_blank" rel="noopener">知乎</a></li>
+<li><a href="https://www.douban.com/note/283566440/" target="_blank" rel="noopener">SeaJS与RequireJS最大的差别</a></li>
+<li><a href="http://qingbob.com/let-us-talk-about-resource-load/" target="_blank" rel="noopener">让我们再聊聊浏览器资源加载优化</a></li>
+</ul>
+<p><strong>AMD</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">require</span>([<span class="string">'jquery'</span>,<span class="string">'创建了全局变量的module'</span>],<span class="function"><span class="keyword">function</span>(<span class="params">$,b</span>)</span>&#123;</span><br><span class="line">	<span class="comment">//既然我在开头明确声明依赖需求，那可以确定在执行这个回调函数时，依赖肯定是已经满足了</span></span><br><span class="line">	<span class="comment">//所以，放心地使用吧</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>实际做的事情是：</p>
+<ol>
+<li>require函数检查依赖的模块，根据配置文件，获取js文件的实际路径</li>
+<li>根据js文件实际路径，在dom中插入script节点，并绑定onload事件来获取该模块加载完成的通知。</li>
+<li>依赖script全部加载完成后，调用回调函数</li>
+</ol>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">define(<span class="function"><span class="keyword">function</span>(<span class="params">require,exports,modules</span>)</span>&#123;</span><br><span class="line">	<span class="keyword">var</span> $ = <span class="built_in">require</span>(<span class="string">'jquery'</span>)</span><br><span class="line">	$.get(<span class="string">'http://www.zhihu.com'</span>)</span><br><span class="line">	<span class="comment">//传统JS程序员的思维：</span></span><br><span class="line">	<span class="comment">//“咦，好神奇，JS加载不应该是异步的么，怎么我一说要依赖，jquery就自己跳出来了？”</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>真相是：</p>
+<ol>
+<li>通过回调函数的Function.toString函数，使用正则表达式来捕捉内部的require字段，找到require(‘jquery’)内部依赖的模块jquery</li>
+<li>根据配置文件，找到jquery的js文件的实际路径</li>
+<li>在dom中插入script标签，载入模块指定的js，绑定加载完成的事件，使得加载完成后将js文件绑定到require模块指定的id（这里就是jquery这个字符串）上</li>
+<li>回调函数内部依赖的js全部加载（暂不调用）完后，调用回调函数</li>
+<li>当回调函数调用require(‘jquery’)，即执行绑定在’jquery’这个id上的js文件，即刻执行，并返回</li>
+</ol>
+<p>都会并行加载依赖，但是AMD会解析(执行)完所有的依赖后，再执行回调函数;CMD则是在执行<code>require</code>时才会去解析(执行)，即“懒加载”。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/06/vue-code-analysis/" rel="next" title="Vue2.1.7源码学习">
+                <i class="fa fa-chevron-left"></i> Vue2.1.7源码学习
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/07/nodejs-net/" rel="prev" title="nodejs之网络编程">
+                nodejs之网络编程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CommonJS规范"><span class="nav-number">1.</span> <span class="nav-text">CommonJS规范</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Node的模块实现"><span class="nav-number">2.</span> <span class="nav-text">Node的模块实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#优先从缓存加载"><span class="nav-number">2.1.</span> <span class="nav-text">优先从缓存加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#路径分析和文件定位"><span class="nav-number">2.2.</span> <span class="nav-text">路径分析和文件定位</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模块编译"><span class="nav-number">2.3.</span> <span class="nav-text">模块编译</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前后端共用模块"><span class="nav-number">3.</span> <span class="nav-text">前后端共用模块</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AMD-amp-CMD"><span class="nav-number">3.1.</span> <span class="nav-text">AMD &amp; CMD</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

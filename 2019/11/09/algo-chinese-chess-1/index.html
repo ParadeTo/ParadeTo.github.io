@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="算法," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="教你写一个简单的象棋 AI 程序">
+<meta name="keywords" content="算法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="前端打工人怎么写一个象棋 AI （一）">
+<meta property="og:url" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="教你写一个简单的象棋 AI 程序">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/chePosWeight.png">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/stupid.png">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/bags-1.png">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/bags-2.png">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/bags-3.png">
+<meta property="og:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/bags-4.png">
+<meta property="og:updated_time" content="2020-12-17T08:07:06.492Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="前端打工人怎么写一个象棋 AI （一）">
+<meta name="twitter:description" content="教你写一个简单的象棋 AI 程序">
+<meta name="twitter:image" content="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/chePosWeight.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/"/>
+
+
+
+
+
+
+  <title>前端打工人怎么写一个象棋 AI （一） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2019/11/09/algo-chinese-chess-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">前端打工人怎么写一个象棋 AI （一）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2019-11-09T10:25:07+08:00">
+                2019-11-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  教你写一个简单的象棋 AI 程序
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>本文代码：<a href="https://github.com/ParadeTo/chinese-chess" target="_blank" rel="noopener">https://github.com/ParadeTo/chinese-chess</a><br>Demo地址：<a href="http://www.paradeto.com/vue-chinese-chess">http://www.paradeto.com/vue-chinese-chess</a></p>
+</blockquote>
+<p>我们都知道，把大象关进冰箱需要三步。同理，写一个象棋 AI 程序也只需要三步：</p>
+<ol>
+<li>遍历出所有可能的走法</li>
+<li>选择出最好的走法</li>
+<li>走</li>
+</ol>
+<p>第三步在这里其实只是凑数而已，可以去掉，这样写一个 AI 程序就更简单了，只需要两步。</p>
+<p>其中，第一步对于稍微有点象棋和编程知识的人来说并不是很难，只要注意一些棋子的特殊规则，如“马”的蹩脚、“炮”需要隔子才能吃等，这一部分不在本文的讨论范围之内。</p>
+<p>第二步才是本文需要讨论的重点，首先我们要解决的第一个问题是，给定一个棋局，如何判断该棋局的好坏呢？</p>
+<h1 id="局势评估"><a href="#局势评估" class="headerlink" title="局势评估"></a>局势评估</h1><p>关于象棋局势的评估已有不少学者做过研究，有静态单子型、未来局势型、象棋知识型、局面附加信息等。本文采取的是静态单子型。</p>
+<p>所谓静态单子型评估，是指对棋盘上的每一个棋子考虑其种类和位置，依种类的重要性与位置的优劣决定它的评估值，然后将棋盘上所有己方棋子的评估值直接累加得到己方战力值，将对手所有棋子的评估值累加得到对手战力值，己方战力值减去对手战力值得到最终的局势评估值。</p>
+<p>比如，根据棋子的重要程度我们可以规定棋子的权重为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">帅/将: 1000000</span><br><span class="line">仕: 110</span><br><span class="line">象/相: 110</span><br><span class="line">马: 300</span><br><span class="line">车: 600</span><br><span class="line">跑: 300</span><br><span class="line">卒/兵: 70</span><br></pre></td></tr></table></figure>
+<p>比如，红“车”的位置权重如下所示：</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/chePosWeight.png" alt=""></p>
+<h1 id="最大最小值算法"><a href="#最大最小值算法" class="headerlink" title="最大最小值算法"></a>最大最小值算法</h1><p>有了局势评估方法后，每次遍历出所有的可能走法，然后从中选取局势分数最高的走法就是一个最简单的象棋 AI 了。不过这个 AI 会有点蠢，有点短视。比如，下面这个棋局：</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/stupid.png" alt=""></p>
+<p>假设现在轮到红方下，按照我们的算法，“车一进七”吃掉黑“炮”，可以获得最大的局势评估值。但是，很明显，这样就输了。问题在于，我们的算法只考虑到了一层，这种只顾当下眼前利益的算法显然靠不住。</p>
+<p>既然这样，那你可能会想到需要多考虑几层后再计算局势得分，然后从所有的分支中选择分数最高的走法。就像下图这样：</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/1.png" alt=""></p>
+<p>我先遍历出所有可能的走法（图中黑色方块），然后基于该层的走法继续遍历（图中最后一排的白色方块），然后计算局势分数，选择最高分数的走法，即选择左边黑色方块的走法。</p>
+<p>但是，你忘记了一点，你走完后，接下来是轮到你对手走了，你如果想得到 100 的分数，就需要你的对手配合你选择分数 100 的走法。很明显你的对手不会那么傻，他会尽量阻止你得到高分，所以他会选择走分数为 1 的那一步。</p>
+<p>而如果你选择右边黑色方块的走法，你的对手会选择分数为 33 的走法，你反而会得到一个高一点的分数。</p>
+<p>人可以很容易做出这样的决策，但是如何教会计算机也这样思考呢？这就需要用到最大最小值算法了。最大最小算法把搜索树分成最大值层和最小值层，AI 处于最大值层，对手处于最小值层，最大值层总是从下一层选取最大的值作为结果，最小值层总是从下一层选择最小值作为结果。如下图所示：</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/2.png" alt=""></p>
+<p>思路清楚了，代码实现起来就很简单了，以下是来自 <a href="https://en.wikipedia.org/wiki/Minimax" target="_blank" rel="noopener">wiki</a> 的一段伪代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">/**</span><br><span class="line"> * node 当前节点</span><br><span class="line"> * depth 当前搜索层数</span><br><span class="line"> * maximizingPlayer 是否为最大值层</span><br><span class="line">**/</span><br><span class="line">function minimax(node, depth, maximizingPlayer) is</span><br><span class="line">    // 到达搜索最底层，或 node 是一个叶子节点</span><br><span class="line">    if depth = 0 or node is a terminal node then</span><br><span class="line">        return the heuristic value of node</span><br><span class="line">    // 最大值层，从下层选择分数最大的</span><br><span class="line">    if maximizingPlayer then</span><br><span class="line">        value := −∞</span><br><span class="line">        for each child of node do</span><br><span class="line">            value := max(value, minimax(child, depth − 1, FALSE))</span><br><span class="line">        return value</span><br><span class="line">    // 最小值层，从下层选择分数最小的</span><br><span class="line">    else (* minimizing player *)</span><br><span class="line">        value := +∞</span><br><span class="line">        for each child of node do</span><br><span class="line">            value := min(value, minimax(child, depth − 1, TRUE))</span><br><span class="line">        return value</span><br></pre></td></tr></table></figure></p>
+<p>这个算法还可以通过一个无聊的游戏来模拟，游戏规则如下：</p>
+<p>有两个大袋子，每个大袋子里面有两个小袋子，每个小袋子里面有数量不一的金币。</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/bags-1.png" alt=""></p>
+<p>现在需要你选择一个大袋子，然后你的对手选择里面的一个小袋子给你。你的任务是尽可能地得到更多的金币，而你对手的任务是尽可能地阻止你得到更多的金币。</p>
+<p>首先，这个游戏一共可以分出四个分支：</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/bags-2.png" alt=""></p>
+<p>在对手这一层（对应算法中的最小值层），会从下一层选择金币最少的袋子：</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/bags-3.png" alt=""></p>
+<p>在你这一层（对应算法中的最大值层），会从下一层选择金币最多的袋子：</p>
+<p><img src="/2019/11/09/algo-chinese-chess-1/bags-4.png" alt=""></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文阐述了实现一个象棋 AI 的基本步骤，引出了最大最小值算法并通过一个无聊的游戏进行了分析。不过该算法比较耗时，假设每次遍历平均产生 30 种走法，则深度为 5 的 AI 的一共需要进行 24300000 次的局势分数计算。事实上该算法通过一定的规则可以进行优化，这个就留在下一篇文中再进行论述吧。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://linjian.org/files/academic/cchess-caai2007.pdf" target="_blank" rel="noopener">中国象棋计算机博弈局面评估技术研究</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Minimax" target="_blank" rel="noopener">Minimax</a></li>
+<li><a href="https://github.com/geeeeeeeeek/IntelligentChineseChessSystem" target="_blank" rel="noopener">IntelligentChineseChessSystem</a></li>
+<li><a href="https://github.com/lihongxun945/gobang" target="_blank" rel="noopener">gobang</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/算法/" rel="tag"># 算法</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/07/18/computer-float/" rel="next" title="实战：浮点数的二进制表示">
+                <i class="fa fa-chevron-left"></i> 实战：浮点数的二进制表示
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/11/15/algo-chinese-chess-2/" rel="prev" title="前端打工人怎么写一个象棋 AI （二）">
+                前端打工人怎么写一个象棋 AI （二） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#局势评估"><span class="nav-number">1.</span> <span class="nav-text">局势评估</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#最大最小值算法"><span class="nav-number">2.</span> <span class="nav-text">最大最小值算法</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">4.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

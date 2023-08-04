@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="实现一个极其微小的 React Native">
+<meta name="keywords" content="react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实现一个简单的 React Native">
+<meta property="og:url" content="http://www.paradeto.com/2021/04/30/react-tiny-rn/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="实现一个极其微小的 React Native">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2021/04/30/react-tiny-rn/demo.gif">
+<meta property="og:image" content="http://www.paradeto.com/2021/04/30/react-tiny-rn/architecture.png">
+<meta property="og:updated_time" content="2021-05-04T07:53:13.221Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实现一个简单的 React Native">
+<meta name="twitter:description" content="实现一个极其微小的 React Native">
+<meta name="twitter:image" content="http://www.paradeto.com/2021/04/30/react-tiny-rn/demo.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2021/04/30/react-tiny-rn/"/>
+
+
+
+
+
+
+  <title>实现一个简单的 React Native | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2021/04/30/react-tiny-rn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实现一个简单的 React Native</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2021-04-30T18:33:42+08:00">
+                2021-04-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  实现一个极其微小的 React Native
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>上一次，我们成功的把 <a href="/2021/01/28/react-custom-renderer/">React 应用渲染到了 Canvas 上面</a>。今天我们野心更大一点，来实现一个简单的 React Native，我们叫他 Extremely Tiny React Native。我们最终实现的效果如下图所示：</p>
+<p><img src="/2021/04/30/react-tiny-rn/demo.gif" alt=""></p>
+<p>所对应的 React 代码如下：</p>
+<figure class="highlight jsx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;View, Text&#125; <span class="keyword">from</span> <span class="string">'./react-native'</span></span><br><span class="line"><span class="keyword">import</span> &#123;useEffect, useState, useRef&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> W = <span class="number">100</span></span><br><span class="line"><span class="keyword">const</span> innerW = <span class="number">50</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">useUpdate</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [_, _update] = useState()</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="params">()</span> =&gt;</span> _update(<span class="built_in">Math</span>.random())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> x = useRef(<span class="number">0</span>)</span><br><span class="line">  <span class="keyword">const</span> y = useRef(<span class="number">0</span>)</span><br><span class="line">  <span class="keyword">const</span> update = useUpdate()</span><br><span class="line">  <span class="keyword">const</span> animate = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">if</span> (y.current === <span class="number">0</span> &amp;&amp; x.current &lt; W - innerW) &#123;</span><br><span class="line">        x.current += <span class="number">1</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (x.current &gt;= W - innerW &amp;&amp; y.current &lt; W - innerW) &#123;</span><br><span class="line">        y.current += <span class="number">1</span></span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (y.current &gt;= W - innerW &amp;&amp; x.current &gt; <span class="number">0</span>) &#123;</span><br><span class="line">        x.current -= <span class="number">1</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        y.current -= <span class="number">1</span></span><br><span class="line">      &#125;</span><br><span class="line">      update()</span><br><span class="line">      animate()</span><br><span class="line">    &#125;, <span class="number">50</span>)</span><br><span class="line">  &#125;</span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    animate()</span><br><span class="line">  &#125;, [])</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;Text x=&#123;<span class="number">50</span>&#125; y=&#123;<span class="number">50</span>&#125; w=&#123;W&#125; h=&#123;W&#125; r=&#123;<span class="number">0</span>&#125; g=&#123;<span class="number">0</span>&#125; b=&#123;<span class="number">0</span>&#125; a=&#123;<span class="number">1</span>&#125; fontSize=&#123;<span class="number">16</span>&#125;&gt;</span><br><span class="line">        Tiny React Native</span><br><span class="line">      &lt;<span class="regexp">/Text&gt;</span></span><br><span class="line"><span class="regexp">      &lt;View x=&#123;50&#125; y=&#123;100&#125; w=&#123;W&#125; h=&#123;W&#125; r=&#123;255&#125; g=&#123;0&#125; b=&#123;0&#125; a=&#123;1&#125;&gt;</span></span><br><span class="line"><span class="regexp">        &lt;View</span></span><br><span class="line"><span class="regexp">          x=&#123;x.current&#125;</span></span><br><span class="line"><span class="regexp">          y=&#123;y.current&#125;</span></span><br><span class="line"><span class="regexp">          w=&#123;innerW&#125;</span></span><br><span class="line"><span class="regexp">          h=&#123;innerW&#125;</span></span><br><span class="line"><span class="regexp">          r=&#123;0&#125;</span></span><br><span class="line"><span class="regexp">          g=&#123;255&#125;</span></span><br><span class="line"><span class="regexp">          b=&#123;0&#125;</span></span><br><span class="line"><span class="regexp">          a=&#123;1&#125;&gt;</span></span><br><span class="line"><span class="regexp">          &lt;Text</span></span><br><span class="line"><span class="regexp">            x=&#123;18&#125;</span></span><br><span class="line"><span class="regexp">            y=&#123;13&#125;</span></span><br><span class="line"><span class="regexp">            w=&#123;50&#125;</span></span><br><span class="line"><span class="regexp">            h=&#123;50&#125;</span></span><br><span class="line"><span class="regexp">            r=&#123;0&#125;</span></span><br><span class="line"><span class="regexp">            g=&#123;0&#125;</span></span><br><span class="line"><span class="regexp">            b=&#123;255&#125;</span></span><br><span class="line"><span class="regexp">            a=&#123;1&#125;</span></span><br><span class="line"><span class="regexp">            fontSize=&#123;20&#125;&gt;</span></span><br><span class="line"><span class="regexp">            S</span></span><br><span class="line"><span class="regexp">          &lt;/</span>Text&gt;</span><br><span class="line">        &lt;<span class="regexp">/View&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>View&gt;</span><br><span class="line">    &lt;<span class="regexp">/&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<h1 id="前置知识准备"><a href="#前置知识准备" class="headerlink" title="前置知识准备"></a>前置知识准备</h1><p>实现这个 Extremely Tiny React Native 所需要的两个核心知识是：</p>
+<ul>
+<li>JavaScriptCore</li>
+<li>React Custom Renderer</li>
+</ul>
+<p>其中 React Custom Renderer 之前已经介绍过了，详见<a href="/2021/01/28/react-custom-renderer/">React 源码解析之 Custom Renderer</a>，所以这里我们只简单的介绍下 JavaScriptCore。</p>
+<h2 id="JavaScriptCore"><a href="#JavaScriptCore" class="headerlink" title="JavaScriptCore"></a>JavaScriptCore</h2><p><code>JavaScriptCore</code> （以下简称 JSCore）是 iOS 上的 JavaScript（以下简称JS）执行引擎，它建立起了 Objective-C（以下简称OC）和 JS 两门语言之间沟通的桥梁。接下来我们举例来看看它的基础用法：</p>
+<p>例一：执行 JS 代码：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">JSContext *jsCtx = [[JSContext alloc] init];</span><br><span class="line">JSValue *value = [jsCtx evaluateScript:<span class="string">@"function hi()&#123; return 'hi' &#125;; hi()"</span>];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"%@"</span>, value); <span class="comment">// hi</span></span><br></pre></td></tr></table></figure>
+<p>例二：JS 调用 Native 的方法：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">jsCtx[<span class="string">@"log"</span>] = ^(<span class="built_in">NSString</span> *msg)&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>(<span class="string">@"js:msg:%@"</span>,msg);</span><br><span class="line">&#125;;</span><br><span class="line">[jsCtx evaluateScript:<span class="string">@"log('hello,i am js side')"</span>];</span><br></pre></td></tr></table></figure>
+<p>如上，我们在 <code>JSContext</code> 对象上挂载了一个 <code>log</code> 方法后，JS 代码中即可直接调用该方法。</p>
+<p>例三：JS 使用 Native 中的对象：</p>
+<ol>
+<li><p>首先自定义个协议 <code>JSPersonProtocol</code> 继承自 <code>JSExprot</code>，并定义需要暴露给 JS 的属性和方法：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">&lt;Foundation/Foundation.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;JavaScriptCore/JavaScriptCore.h&gt;</span></span></span><br><span class="line"><span class="built_in">NS_ASSUME_NONNULL_BEGIN</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 定义一个协议，可以理解为接口</span></span><br><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">JSPersonProtocol</span> &lt;<span class="title">JSExport</span>&gt;</span></span><br><span class="line">- (<span class="built_in">NSString</span> *)whatYouName;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>新建一个<code>Person</code> 对象，实现协议和方法：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 继承 NSObject，实现 JSPersonProtocol 协议</span></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Person</span> : <span class="title">NSObject</span>&lt;<span class="title">JSPersonProtocol</span>&gt;</span></span><br><span class="line"><span class="keyword">@property</span> (<span class="keyword">nonatomic</span>, <span class="keyword">copy</span>)<span class="built_in">NSString</span> *name;</span><br><span class="line">- (<span class="built_in">NSString</span> *)whatYouName;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">NS_ASSUME_NONNULL_END</span></span><br></pre></td></tr></table></figure>
+</li>
+</ol>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#import <span class="meta-string">"Person.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">Person</span></span></span><br><span class="line">-(<span class="built_in">NSString</span> *)whatYouName &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">@"Ayou"</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>使用：</li>
+</ol>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Person *p = [[Person alloc]init];</span><br><span class="line">jsCtx[<span class="string">@"person"</span>] = p;</span><br><span class="line">JSValue *name = [jsCtx evaluateScript:<span class="string">@"person.whatYouName()"</span>];</span><br><span class="line"><span class="built_in">NSLog</span>(<span class="string">@"%@"</span>,name); <span class="comment">// Ayou</span></span><br></pre></td></tr></table></figure>
+<h1 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h1><p><img src="/2021/04/30/react-tiny-rn/architecture.png" alt=""></p>
+<p>在<a href="/2021/04/30/react-tiny-rn/">React 源码解析之 Custom Renderer</a>中介绍过 Custom Renderer 需要实现一些宿主相关的接口，如：<code>createInstance</code>、<code>appendChild</code> 等。</p>
+<p>在我们的 Extremely Tiny React Native 中，这些接口都是通过 JSCore 向 Native 发送 JSON 格式的消息，真正的操作在 Native 侧来完成。而传递消息的实现方法上文例三已经介绍过了，这里简单贴一下代码：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@protocol</span> <span class="title">BridgeProtocol</span> &lt;<span class="title">JSExport</span>&gt;</span></span><br><span class="line"></span><br><span class="line">- (<span class="keyword">void</span>) send:(<span class="built_in">NSString</span> *)msg;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Bridge</span> : <span class="title">NSObject</span>&lt;<span class="title">BridgeProtocol</span>&gt;</span></span><br><span class="line">- (<span class="keyword">void</span>) send:(<span class="built_in">NSString</span> *)msg;</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">NS_ASSUME_NONNULL_END</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>) send:(<span class="built_in">NSString</span> *)msg &#123;</span><br><span class="line">     <span class="comment">// 序列化 json 字符串</span></span><br><span class="line">    <span class="built_in">NSError</span> *jsonError;</span><br><span class="line">    <span class="keyword">id</span> jsonObj = [<span class="built_in">NSJSONSerialization</span> JSONObjectWithData:[msg dataUsingEncoding:<span class="built_in">NSUTF8StringEncoding</span>] options:<span class="number">0</span> error:&amp;jsonError];</span><br><span class="line">    <span class="built_in">NSString</span> *operation = [jsonObj objectForKey:<span class="string">@"operation"</span>];</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">self</span>.jsContext[<span class="string">@"RNBridge"</span>] = [[Bridge alloc] initWithRootViewController:<span class="keyword">self</span>];</span><br></pre></td></tr></table></figure>
+<p>比如调用 <code>createInstance</code> 时，JS 会通知 Native 侧当前的操作是 <code>createView</code>（或 <code>createText</code>），即需要在 Native 侧创建一个 <code>RNView</code>（或 <code>RNText</code>） 的对象：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// RNView</span></span><br><span class="line">[<span class="keyword">self</span>.eleDict setObject:[[RNView alloc] init:props] forKey:_<span class="keyword">id</span>];</span><br><span class="line"><span class="comment">// RNText</span></span><br><span class="line">[<span class="keyword">self</span>.eleDict setObject:[[RNText alloc] init:props] forKey:_<span class="keyword">id</span>];</span><br></pre></td></tr></table></figure>
+<p>同时分配给该对象一个唯一标识符 <code>id</code>，方便后续进行其他操作时通过该 <code>id</code> 来找到相应的对象，且该 <code>id</code> 会挂载在 <code>FiberNode</code> 的 <code>stateNode</code> 属性之上（这一步是 React 为我们实现的）。</p>
+<p>当调用 <code>appendChild</code> 时，React 会传入 <code>parent</code> 和 <code>child</code>（注意这里的 <code>parent</code> 和 <code>child</code> 是前面提到的 <code>id</code>）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">appendChild: <span class="function"><span class="keyword">function</span> (<span class="params">parent, child</span>) </span>&#123;</span><br><span class="line">  RNBridge.send(<span class="built_in">JSON</span>.stringify(&#123;<span class="attr">operation</span>: <span class="string">'appendChild'</span>, parent, child&#125;))</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>剩下的其他接口按部就班实现就可以了，完整代码详见 <a href="https://github.com/ParadeTo/tiny-react-native.git" target="_blank" rel="noopener">tiny-react-native</a>。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>利用 JavaScriptCore 和 React Custom Renderer，我们实现了一个 React Native，不过目前它还非常的简单，后续可以考虑进一步增强如下功能：</p>
+<ul>
+<li>支持 style 属性</li>
+<li>支持 Reload 的功能</li>
+<li>支持 Flexbox 布局</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/03/19/react-context/" rel="next" title="React 源码解读之 Context（一）">
+                <i class="fa fa-chevron-left"></i> React 源码解读之 Context（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2021/06/22/react-auto-batching/" rel="prev" title="React 源码解读之 Automatic Batching">
+                React 源码解读之 Automatic Batching <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前置知识准备"><span class="nav-number">2.</span> <span class="nav-text">前置知识准备</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JavaScriptCore"><span class="nav-number">2.1.</span> <span class="nav-text">JavaScriptCore</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现原理"><span class="nav-number">3.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

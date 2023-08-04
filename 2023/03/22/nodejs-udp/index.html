@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="nodejs," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Node.js 高级编程之 UDP">
+<meta name="keywords" content="nodejs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 高级编程之 UDP（看看它是如何不可靠的）">
+<meta property="og:url" content="http://www.paradeto.com/2023/03/22/nodejs-udp/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="Node.js 高级编程之 UDP">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2023/03/22/nodejs-udp/50drop.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/03/22/nodejs-udp/wireshark.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/03/22/nodejs-udp/receive.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/03/22/nodejs-udp/order.png">
+<meta property="og:updated_time" content="2023-03-26T13:48:45.621Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node.js 高级编程之 UDP（看看它是如何不可靠的）">
+<meta name="twitter:description" content="Node.js 高级编程之 UDP">
+<meta name="twitter:image" content="http://www.paradeto.com/2023/03/22/nodejs-udp/50drop.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2023/03/22/nodejs-udp/"/>
+
+
+
+
+
+
+  <title>Node.js 高级编程之 UDP（看看它是如何不可靠的） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2023/03/22/nodejs-udp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Node.js 高级编程之 UDP（看看它是如何不可靠的）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-03-22T10:30:41+08:00">
+                2023-03-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/nodejs/" itemprop="url" rel="index">
+                    <span itemprop="name">nodejs</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Node.js 高级编程之 UDP
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>UDP 协议是我们平时较少接触到的知识，不同于 TCP，它是“不可靠”的，今天我们就来实战一下看下它到底怎么个不可靠法？</p>
+<h1 id="不可靠的-UDP"><a href="#不可靠的-UDP" class="headerlink" title="不可靠的 UDP"></a>不可靠的 UDP</h1><p>实验前，我们先介绍一下需要用到的工具（Mac 环境，其他环境请自行搜索相关工具）：</p>
+<ul>
+<li>Network Link Conditioner：模拟丢包场景，可以去<a href="https://developer.apple.com/download/all/?q=Additional%20Tools" target="_blank" rel="noopener">苹果开发者网站</a>上下载</li>
+<li>Wireshark：抓包分析工具</li>
+<li>云主机：因为实现发现 Network Link Conditioner 对本地回环地址不起作用，如果有更好的方法求大佬指出</li>
+</ul>
+<p>然后我们准备两段代码，一段作为 UDP Server，一段作为 UDP Client，Client 会向 Server 发送 26 个英文大写字母，Server 会将他们存到文件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// udp-server.js</span></span><br><span class="line"><span class="keyword">const</span> udp = <span class="built_in">require</span>(<span class="string">'dgram'</span>)</span><br><span class="line"><span class="keyword">const</span> server = udp.createSocket(<span class="string">'udp4'</span>)</span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line"></span><br><span class="line">server.on(<span class="string">'listening'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> address = server.address()</span><br><span class="line">  <span class="keyword">var</span> port = address.port</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Server is listening at port '</span> + port)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server.on(<span class="string">'message'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">msg, info</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(</span><br><span class="line">    <span class="string">`Data received from <span class="subst">$&#123;info.address&#125;</span>:<span class="subst">$&#123;info.port&#125;</span>: <span class="subst">$&#123;msg.toString()&#125;</span>`</span></span><br><span class="line">  )</span><br><span class="line">  fs.appendFileSync(<span class="string">'./out'</span>, msg.toString())</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server.on(<span class="string">'error'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Error: '</span> + error)</span><br><span class="line">  server.close()</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server.bind(<span class="number">7788</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// udp-client.js</span></span><br><span class="line"><span class="keyword">const</span> udp = <span class="built_in">require</span>(<span class="string">'dgram'</span>)</span><br><span class="line"><span class="keyword">const</span> client = udp.createSocket(<span class="string">'udp4'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">26</span>; i++) &#123;</span><br><span class="line">  <span class="keyword">const</span> char = <span class="built_in">String</span>.fromCharCode(<span class="number">0x41</span> + i)</span><br><span class="line">  client.send(Buffer.from(char), <span class="number">7788</span>, <span class="string">'********'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">error</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (error) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(error)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着我们按照下面步骤开始实验：</p>
+<ol>
+<li>通过 Network Link Conditioner 把丢包率设置为 50%：</li>
+</ol>
+<p><img src="/2023/03/22/nodejs-udp/50drop.png" alt=""></p>
+<ol start="2">
+<li>设置好 Wireshark 的抓包参数：</li>
+</ol>
+<p><img src="/2023/03/22/nodejs-udp/wireshark.png" alt=""></p>
+<ol start="3">
+<li>在云主机上启动 Server，在本地启动 Client。</li>
+</ol>
+<p>接着，我们来看一下实验结果：</p>
+<ol>
+<li>首先，我们可以看到服务端接收到的字母少了很多，只有 14 个：</li>
+</ol>
+<p><img src="/2023/03/22/nodejs-udp/receive.png" alt=""></p>
+<ol start="2">
+<li>服务端接收到的字母顺序是乱序的，比如 U 跑到了 T 的前面：</li>
+</ol>
+<p><img src="/2023/03/22/nodejs-udp/order.png" alt=""></p>
+<p>为了进行对比，我们可以换成 TCP 试试，代码如下，结果就不贴了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// tcp-server.js</span></span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> server = net.createServer()</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> fs = <span class="built_in">require</span>(<span class="string">'fs'</span>)</span><br><span class="line">server.on(<span class="string">'connection'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">conn</span>) </span>&#123;</span><br><span class="line">  conn.on(<span class="string">'data'</span>, (msg) =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(</span><br><span class="line">      <span class="string">`Data received from <span class="subst">$&#123;conn.address().address&#125;</span>:<span class="subst">$&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">        conn.address().port</span></span></span><br><span class="line"><span class="string"><span class="subst">      &#125;</span>: <span class="subst">$&#123;msg.toString()&#125;</span>`</span></span><br><span class="line">    )</span><br><span class="line">    fs.appendFileSync(<span class="string">'./out'</span>, msg.toString())</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">8899</span>, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'server listening to %j'</span>, server.address().port)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// tcp-client.js</span></span><br><span class="line"><span class="keyword">var</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> client = <span class="keyword">new</span> net.Socket()</span><br><span class="line">client.connect(<span class="number">8899</span>, <span class="string">'********'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">26</span>; i++) &#123;</span><br><span class="line">    <span class="keyword">const</span> char = <span class="built_in">String</span>.fromCharCode(<span class="number">0x41</span> + i)</span><br><span class="line">    client.write(char)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>接下我们试试基于 UDP 来实现一个可靠的传输协议，主要解决上面的丢包和乱序问题。</p>
+<h1 id="基于-UDP-的简单可靠传输协议"><a href="#基于-UDP-的简单可靠传输协议" class="headerlink" title="基于 UDP 的简单可靠传输协议"></a>基于 UDP 的简单可靠传输协议</h1><p>首先，需要设计一下我们的协议格式。为了简单起见，我们只在原来 UDP 的数据部分分别新增 4 个字节的 SEQ 和 ACK：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">+-------------------------------+</span><br><span class="line">|      <span class="number">64</span> 个字节的 UDP 首部       |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|  SEQ(<span class="number">4</span> 个字节) |  ACK(<span class="number">4</span> 个字节) |</span><br><span class="line">+-------------------------------+</span><br><span class="line">|             Data              |</span><br><span class="line">+-------------------------------+</span><br></pre></td></tr></table></figure>
+<p>其中 SEQ 表示当前包的序号，ACK 表示回复序号。</p>
+<p>接下来看看，我们如何解决前面的两个问题。</p>
+<h2 id="乱序问题"><a href="#乱序问题" class="headerlink" title="乱序问题"></a>乱序问题</h2><p>接收方需要维护一个变量 <code>expectedSeq</code> 的变量表示期待接收到的包序号。为了简单起见，我们制定如下规则：如果当前接收到的包序号等于 <code>expectedSeq</code>，则把包交给应用层处理，并发送 ACK 给发送方；否则我们都直接丢弃。当然更好的做法是维护一个接收窗口，这样可以批量的提交数据给应用层，也可以用来缓存大于 <code>expectedSeq</code> 的包。</p>
+<p>假设现在发送方发送了 1 2 3 两个包，但是到达接收方的顺序是 3 2 1，按照我们的规则接收方会丢弃 3 和 2，接收 1。好家伙，顺序倒是不乱了，但是包没了。</p>
+<p>所以还得把丢包问题也解决了才行。</p>
+<h2 id="丢包问题"><a href="#丢包问题" class="headerlink" title="丢包问题"></a>丢包问题</h2><p>发送方维护一个发送窗口用来存储已发送但是还未被确认的包：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+---+---+---+---+</span><br><span class="line">| <span class="number">1</span> | <span class="number">2</span> | <span class="number">3</span> | <span class="number">4</span> |</span><br><span class="line">+---+---+---+---+</span><br></pre></td></tr></table></figure>
+<p>发送方每发送一个包的同时还需要将包放入发送窗口，并设置一个定时器用来重发这个包。当发送方接收到来自接收方的 ACK 时，需要取消掉对应包的定时器，并将发送窗口中小于 ACK 的包都删除。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">+---+---+---+---+</span><br><span class="line">| <span class="number">1</span> | <span class="number">2</span> | <span class="number">3</span> | <span class="number">4</span> |</span><br><span class="line">+---+---+---+---+</span><br><span class="line"></span><br><span class="line"><span class="comment">// ACK = 4，删除 1 2 3，并取消掉他们的定时器</span></span><br><span class="line">+---+</span><br><span class="line">| <span class="number">4</span> |</span><br><span class="line">+---+</span><br></pre></td></tr></table></figure>
+<p>完整代码及使用 Demo 见文末，现在可以正常按顺序输出 26 个字母了，但是离“可靠”协议还差得远。比如第一次输出完 26 个字母后，我们再次启动客户端时发现就没有任何输出了。原因在于此时接收端的 <code>expectedSeq</code> 已经是 20 多了，但是新启动的 client 发送的 SEQ 还是从 1 开始的，结果就是接收端一直丢弃接收到的包，发送端一直重试。</p>
+<p>要解决这个问题，可以参考 TCP 在传输两端建立“连接”的概念，在开始发送前通过“三次握手”建立连接，也就是确定起始 SEQ，初始化窗口等工作，结束前通过“四次挥手”断开连接，即清理窗口定时器等工作。这个就留到以后再说吧。</p>
+<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// packet.js</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Packet</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(&#123;seq, ack, data = <span class="string">''</span>&#125;) &#123;</span><br><span class="line">    <span class="keyword">this</span>.seq = seq <span class="comment">// 序列号</span></span><br><span class="line">    <span class="keyword">this</span>.ack = ack <span class="comment">// 确认号</span></span><br><span class="line">    <span class="keyword">this</span>.data = data <span class="comment">// 数据</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 将 Packet 转换成 Buffer，以便通过网络传输</span></span><br><span class="line">  toBuffer() &#123;</span><br><span class="line">    <span class="keyword">const</span> seqBuffer = Buffer.alloc(<span class="number">4</span>)</span><br><span class="line">    seqBuffer.writeUInt32BE(<span class="keyword">this</span>.seq)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> ackBuffer = Buffer.alloc(<span class="number">4</span>)</span><br><span class="line">    ackBuffer.writeUInt32BE(<span class="keyword">this</span>.ack)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> dataBuffer = Buffer.from(<span class="keyword">this</span>.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> Buffer.concat([seqBuffer, ackBuffer, dataBuffer])</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 从 Buffer 中解析出 Packet</span></span><br><span class="line">  <span class="keyword">static</span> fromBuffer(buffer) &#123;</span><br><span class="line">    <span class="keyword">const</span> seq = buffer.readUInt32BE()</span><br><span class="line">    <span class="keyword">const</span> ack = buffer.readUInt32BE(<span class="number">4</span>)</span><br><span class="line">    <span class="keyword">const</span> data = buffer.slice(<span class="number">8</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Packet(&#123;seq, ack, data&#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = Packet</span><br><span class="line"></span><br><span class="line"><span class="comment">// reliableUDP.js</span></span><br><span class="line"><span class="keyword">const</span> dgram = <span class="built_in">require</span>(<span class="string">'dgram'</span>)</span><br><span class="line"><span class="keyword">const</span> Packet = <span class="built_in">require</span>(<span class="string">'./packet'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ReliableUDP</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.socket = dgram.createSocket(<span class="string">'udp4'</span>)</span><br><span class="line">    <span class="keyword">this</span>.socket.on(<span class="string">'message'</span>, <span class="keyword">this</span>.handleMessage.bind(<span class="keyword">this</span>))</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.sendWindow = [] <span class="comment">// 发送窗口，用于存放待确认的数据包</span></span><br><span class="line">    <span class="keyword">this</span>.receiveWindow = [] <span class="comment">// 接收窗口，用于存放已接收的数据包</span></span><br><span class="line">    <span class="keyword">this</span>.expectedSeq = <span class="number">1</span> <span class="comment">// 期望接收的数据包序列号</span></span><br><span class="line">    <span class="keyword">this</span>.nextSeq = <span class="number">1</span> <span class="comment">// 下一个要发送的数据包序列号</span></span><br><span class="line">    <span class="keyword">this</span>.timeout = <span class="number">100</span> <span class="comment">// 超时时间，单位为毫秒</span></span><br><span class="line">    <span class="keyword">this</span>.timeoutIds = &#123;&#125; <span class="comment">// 用于存放定时器 ID</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  listen(port, address, fn) &#123;</span><br><span class="line">    <span class="keyword">this</span>.socket.bind(port, address, fn)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 发送数据包</span></span><br><span class="line">  sendPacket(packet, address, port) &#123;</span><br><span class="line">    <span class="keyword">const</span> buffer = packet.toBuffer()</span><br><span class="line">    <span class="keyword">this</span>.socket.send(buffer, port, address, (err) =&gt; &#123;</span><br><span class="line">      <span class="keyword">if</span> (err) &#123;</span><br><span class="line">        <span class="built_in">console</span>.error(err)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (packet.ack) <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.sendWindow.includes(<span class="function">(<span class="params">p</span>) =&gt;</span> p.seq === packet.seq))</span><br><span class="line">      <span class="keyword">this</span>.sendWindow.push(packet)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 设置超时定时器</span></span><br><span class="line">    <span class="keyword">const</span> timeoutId = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.handleTimeout(packet.seq, address, port)</span><br><span class="line">    &#125;, <span class="keyword">this</span>.timeout)</span><br><span class="line">    <span class="keyword">this</span>.timeoutIds[packet.seq] = timeoutId</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理接收到的数据包</span></span><br><span class="line">  handleMessage(msg, rinfo) &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;address, port&#125; = rinfo</span><br><span class="line">    <span class="keyword">const</span> packet = Packet.fromBuffer(msg)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 收到的是应答的包</span></span><br><span class="line">    <span class="keyword">if</span> (packet.ack) &#123;</span><br><span class="line">      <span class="keyword">const</span> ackNum = packet.ack - <span class="number">1</span></span><br><span class="line">      <span class="comment">// 处理发送窗口中已经确认的数据包</span></span><br><span class="line">      <span class="keyword">while</span> (<span class="keyword">this</span>.sendWindow.length &gt; <span class="number">0</span> &amp;&amp; <span class="keyword">this</span>.sendWindow[<span class="number">0</span>].seq &lt;= ackNum) &#123;</span><br><span class="line">        <span class="keyword">this</span>.sendWindow.shift()</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="comment">// 清除超时定时器</span></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">this</span>.timeoutIds[ackNum]) &#123;</span><br><span class="line">        clearTimeout(<span class="keyword">this</span>.timeoutIds[ackNum])</span><br><span class="line">        <span class="keyword">delete</span> <span class="keyword">this</span>.timeoutIds[ackNum]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 如果是重复的数据包，则忽略</span></span><br><span class="line">      <span class="keyword">if</span> (packet.seq &lt; <span class="keyword">this</span>.expectedSeq) &#123;</span><br><span class="line">        <span class="keyword">return</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 如果是期望接收的数据包</span></span><br><span class="line">      <span class="keyword">if</span> (packet.seq === <span class="keyword">this</span>.expectedSeq) &#123;</span><br><span class="line">        <span class="keyword">this</span>.receiveWindow.push(packet)</span><br><span class="line">        <span class="keyword">this</span>.expectedSeq++</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 处理接收窗口中已经确认的数据包</span></span><br><span class="line">        <span class="keyword">while</span> (</span><br><span class="line">          <span class="keyword">this</span>.receiveWindow.length &gt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">          <span class="keyword">this</span>.receiveWindow[<span class="number">0</span>].seq &lt;= <span class="keyword">this</span>.expectedSeq</span><br><span class="line">        ) &#123;</span><br><span class="line">          <span class="keyword">const</span> packet = <span class="keyword">this</span>.receiveWindow.shift()</span><br><span class="line">          <span class="keyword">this</span>.onPacketReceived(packet.data)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> ackPacket = <span class="keyword">new</span> Packet(&#123;</span><br><span class="line">          seq: <span class="keyword">this</span>.nextSeq++,</span><br><span class="line">          ack: <span class="keyword">this</span>.expectedSeq,</span><br><span class="line">        &#125;)</span><br><span class="line">        <span class="keyword">this</span>.sendPacket(ackPacket, address, port)</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// 如果是未来的数据包，暂不做处理，更好的做法是缓存起来</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 应用层调用该方法发送数据</span></span><br><span class="line">  send(data, address, port) &#123;</span><br><span class="line">    <span class="keyword">const</span> packet = <span class="keyword">new</span> Packet(&#123;</span><br><span class="line">      seq: <span class="keyword">this</span>.nextSeq,</span><br><span class="line">      ack: <span class="literal">null</span>,</span><br><span class="line">      data,</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">this</span>.sendPacket(packet, address, port)</span><br><span class="line">    <span class="keyword">this</span>.nextSeq++</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 应用层调用该方法注册回调函数，接收数据</span></span><br><span class="line">  onReceive(callback) &#123;</span><br><span class="line">    <span class="keyword">this</span>.onPacketReceived = callback</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理超时</span></span><br><span class="line">  handleTimeout(seq, address, port) &#123;</span><br><span class="line">    <span class="comment">// 重传超时的数据包</span></span><br><span class="line">    <span class="keyword">const</span> packet = <span class="keyword">this</span>.sendWindow.find(<span class="function">(<span class="params">p</span>) =&gt;</span> p.seq === seq)</span><br><span class="line">    <span class="keyword">if</span> (packet) &#123;</span><br><span class="line">      <span class="keyword">this</span>.sendPacket(packet, address, port)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = ReliableUDP</span><br><span class="line"></span><br><span class="line"><span class="comment">// server.js</span></span><br><span class="line"><span class="keyword">const</span> ReliableUDP = <span class="built_in">require</span>(<span class="string">'./reliableUDP'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = <span class="keyword">new</span> ReliableUDP()</span><br><span class="line">server.listen(<span class="number">7788</span>, <span class="string">'localhost'</span>)</span><br><span class="line">server.onReceive(<span class="function">(<span class="params">data</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(data.toString())</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// client.js</span></span><br><span class="line"><span class="keyword">const</span> ReliableUDP = <span class="built_in">require</span>(<span class="string">'./reliableUDP'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> client = <span class="keyword">new</span> ReliableUDP()</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">26</span>; i++) &#123;</span><br><span class="line">  <span class="keyword">const</span> char = <span class="built_in">String</span>.fromCharCode(<span class="number">0x41</span> + i)</span><br><span class="line">  client.send(char, <span class="string">'localhost'</span>, <span class="number">7788</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/03/09/react-ssr-stream-suspense/" rel="next" title="React SSR Stream Rendering & Suspense for Data Fetching">
+                <i class="fa fa-chevron-left"></i> React SSR Stream Rendering & Suspense for Data Fetching
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/04/25/react-server-component/" rel="prev" title="浅析 React Server Component">
+                浅析 React Server Component <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#不可靠的-UDP"><span class="nav-number">2.</span> <span class="nav-text">不可靠的 UDP</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#基于-UDP-的简单可靠传输协议"><span class="nav-number">3.</span> <span class="nav-text">基于 UDP 的简单可靠传输协议</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#乱序问题"><span class="nav-number">3.1.</span> <span class="nav-text">乱序问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#丢包问题"><span class="nav-number">3.2.</span> <span class="nav-text">丢包问题</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码"><span class="nav-number">4.</span> <span class="nav-text">代码</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

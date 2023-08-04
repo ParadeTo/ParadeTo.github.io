@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍 React 中 transition 提出的背景、使用方式、实现原理">
+<meta name="keywords" content="react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 之 transition">
+<meta property="og:url" content="http://www.paradeto.com/2022/04/27/react-transition/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍 React 中 transition 提出的背景、使用方式、实现原理">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/search.gif">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/search-transition.gif">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/update-input.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/update-time-slicing.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/update-input-2.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/performance.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/debounce.gif">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/27/react-transition/debounce.png">
+<meta property="og:updated_time" content="2022-05-03T13:46:07.282Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React 之 transition">
+<meta name="twitter:description" content="介绍 React 中 transition 提出的背景、使用方式、实现原理">
+<meta name="twitter:image" content="http://www.paradeto.com/2022/04/27/react-transition/search.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2022/04/27/react-transition/"/>
+
+
+
+
+
+
+  <title>React 之 transition | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2022/04/27/react-transition/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React 之 transition</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-04-27T18:35:18+08:00">
+                2022-04-27
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍 React 中 transition 提出的背景、使用方式、实现原理
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>React 系列继续，今天来聊一聊 <code>transition</code>。话不多说，我们先用一个例子（React 18）来引入今天的主题：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;useState, memo&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> HeavyItem = memo(<span class="function">(<span class="params">&#123;query&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">99999</span>; i++) &#123;&#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;query&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [inputValue, setInputValue] = useState(<span class="string">''</span>)</span><br><span class="line">  <span class="keyword">const</span> handleChange = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">    setInputValue(e.target.value)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div style=&#123;&#123;<span class="attr">paddingLeft</span>: <span class="number">100</span>, <span class="attr">paddingTop</span>: <span class="number">10</span>&#125;&#125;&gt;</span><br><span class="line">      &lt;input value=&#123;inputValue&#125; onChange=&#123;handleChange&#125; /&gt;</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">        &#123;[...new <span class="built_in">Array</span>(<span class="number">5000</span>)].map(<span class="function">(<span class="params">_, i</span>) =&gt;</span> (</span><br><span class="line">          &lt;HeavyItem key=&#123;i&#125; query=&#123;inputValue&#125; /&gt;</span><br><span class="line">        ))&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面例子模拟了一个关键词搜索的应用，注意到其中的每一项搜索结果 <code>HeavyItem</code> 中，我们都空循环了 10 万次，用于模拟耗时的渲染过程。所以，我们在搜索的时候会感觉到有明显的卡顿现象：<br><img src="/2022/04/27/react-transition/search.gif" alt=""></p>
+<p>根本原因在于搜索列表的渲染是一个非常耗时的操作，整个 React 应用的更新都被其所阻塞。但其实列表的更新可以稍后一些，而搜索关键字在 <code>input</code> 中的更新必须足够及时才能使得用户使用起来感觉比较流畅，也就是两个更新的优先级是有先后的。而 <code>transition</code> 的出现，就是为了解决这一类的问题。</p>
+<h1 id="useTransition"><a href="#useTransition" class="headerlink" title="useTransition"></a>useTransition</h1><h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>我们通过 React 提供的 <code>useTransiton</code> 来优化上面的例子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;useState, useTransition, memo&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> HeavyItem = memo(<span class="function">(<span class="params">&#123;query&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">99999</span>; i++) &#123;&#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;query&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [inputValue, setInputValue] = useState(<span class="string">''</span>)</span><br><span class="line">  <span class="keyword">const</span> [query, setQuery] = useState(<span class="string">''</span>)</span><br><span class="line">  <span class="keyword">const</span> [isPending, startTransition] = useTransition()</span><br><span class="line">  <span class="keyword">const</span> handleChange = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">    setInputValue(e.target.value)</span><br><span class="line">    startTransition(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      setQuery(e.target.value)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div style=&#123;&#123;<span class="attr">paddingLeft</span>: <span class="number">100</span>, <span class="attr">paddingTop</span>: <span class="number">10</span>&#125;&#125;&gt;</span><br><span class="line">      &lt;input value=&#123;inputValue&#125; onChange=&#123;handleChange&#125; /&gt;</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">        &#123;isPending</span><br><span class="line">          ? <span class="string">'Loading'</span></span><br><span class="line">          : [...new <span class="built_in">Array</span>(<span class="number">5000</span>)].map(<span class="function">(<span class="params">_, i</span>) =&gt;</span> (</span><br><span class="line">              &lt;HeavyItem key=&#123;i&#125; query=&#123;query&#125; /&gt;</span><br><span class="line">            ))&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，现在搜索体验非常丝滑了：</p>
+<p><img src="/2022/04/27/react-transition/search-transition.gif" alt=""></p>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><p>当我们在输入框中输入 <code>a</code> 时，会触发 <code>handleChange</code>：</p>
+<ol>
+<li>调用 <code>setInputValue</code> 产生一个更新任务（假设为 <code>inputUpdate1</code>）。</li>
+<li><p>调用 <code>startTransition</code>，首先会以当前优先级 <code>setPending(true)</code> （更新任务假设为 <code>pendingTrueUpdate1</code>），然后将优先级降低并 <code>setPending(false)</code> （更新任务假设为 <code>pendingFalseUpdate1</code>）以及调用回调函数执行 <code>setQuery</code> （更新任务假设为 <code>queryUpdate1</code>）。</p>
+</li>
+<li><p>React 会处理优先级较高的 <code>inputUpdate1</code> 和 <code>pendingTrueUpdate1</code>，此时页面 input 框中的内容得到更新，并显示 loading。</p>
+</li>
+</ol>
+<p><img src="/2022/04/27/react-transition/update-input.png" alt=""></p>
+<ol start="4">
+<li>更新渲染完成后，会开始处理 <code>pendingFalseUpdate1</code> 和 <code>queryUpdate1</code>，由于此时需要渲染非常昂贵的列表，React 的 Render 过程可能会需要若干个时间切片才能处理完。</li>
+</ol>
+<p><img src="/2022/04/27/react-transition/update-time-slicing.png" alt=""></p>
+<ol start="5">
+<li>当用户继续输入 <code>b</code>，由于步骤 4 中 React 是使用时间切片的方式来处理，所以当某个时间切片结束后，React 会把控制权交出，用户输入能够得到相应，此时又会触发如下更新任务：</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// 高优先级</span><br><span class="line">inputUpdate2</span><br><span class="line">pendingTrueUpdate2</span><br><span class="line"></span><br><span class="line">// 低优先级</span><br><span class="line">pendingFalseUpdate2</span><br><span class="line">queryUpdate2</span><br></pre></td></tr></table></figure>
+<p>React 发现有高优先级的更新插入，会取消掉步骤 4 中正在进行的更新任务，开始处理 <code>inputUpdate2</code> 和 <code>pendingTrueUpdate2</code>：</p>
+<p><img src="/2022/04/27/react-transition/update-input-2.png" alt=""></p>
+<p><img src="/2022/04/27/react-transition/performance.png" alt=""></p>
+<ol start="6">
+<li>用户没有继续输入，则会将所有低优先级更新任务继续处理完。</li>
+</ol>
+<h1 id="Why-not-debounce？"><a href="#Why-not-debounce？" class="headerlink" title="Why not debounce？"></a>Why not debounce？</h1><p>在 <code>transition</code> 出现之前，我们很容易会想到用 <code>debounce</code> （防抖）来解决这样的问题：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;useRef, useState, memo&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">fn, wait = <span class="number">300</span></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">...args</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (timer) clearTimeout(timer)</span><br><span class="line">    timer = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'trigger'</span>)</span><br><span class="line">      fn.apply(<span class="keyword">this</span>, args)</span><br><span class="line">    &#125;, wait)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> HeavyItem = memo(<span class="function">(<span class="params">&#123;query&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">99999</span>; i++) &#123;&#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;query&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [inputValue, setInputValue] = useState(<span class="string">''</span>)</span><br><span class="line">  <span class="keyword">const</span> [query, setQuery] = useState(<span class="string">''</span>)</span><br><span class="line">  <span class="keyword">const</span> debouncedSetQuery = useRef(debounce(setQuery))</span><br><span class="line">  <span class="keyword">const</span> handleChange = <span class="function">(<span class="params">e</span>) =&gt;</span> &#123;</span><br><span class="line">    setInputValue(e.target.value)</span><br><span class="line">    debouncedSetQuery.current(e.target.value)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div style=&#123;&#123;<span class="attr">paddingLeft</span>: <span class="number">100</span>, <span class="attr">paddingTop</span>: <span class="number">10</span>&#125;&#125;&gt;</span><br><span class="line">      &lt;input value=&#123;inputValue&#125; onChange=&#123;handleChange&#125; /&gt;</span><br><span class="line">      &lt;div&gt;</span><br><span class="line">        &#123;[...new <span class="built_in">Array</span>(<span class="number">5000</span>)].map(<span class="function">(<span class="params">_, i</span>) =&gt;</span> (</span><br><span class="line">          &lt;HeavyItem key=&#123;i&#125; query=&#123;query&#125; /&gt;</span><br><span class="line">        ))&#125;</span><br><span class="line">      &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但实际上 <code>debounce</code> 并不能解决这个问题。如下所示，我们先输入 <code>a</code>，等到 <code>trigger</code> 打印后，继续输入 <code>bcdef</code>，很明显后面输入的内容并没有立刻渲染出来：</p>
+<p><img src="/2022/04/27/react-transition/debounce.gif" alt=""></p>
+<p>原因在于 <code>debounce</code> 只是减少了 <code>setQuery</code> 的调用，但是治标不治本，一旦 <code>setQuery</code> 调用触发了更新，那 React 的渲染过程还是会阻塞用户交互。</p>
+<p>从 <code>performance</code> 监控面板发现有两个耗时超过 1s 的任务（React 默认不会开启 Concurrent 模式，所以这里没有时间切片），分别对应着输入 <code>a</code> 和 <code>bcdef</code> 触发的更新。</p>
+<p><img src="/2022/04/27/react-transition/debounce.png" alt=""></p>
+<p>俗话说的好，“解铃还须系铃人”。React 通过虚拟 DOM、协调算法等手段给广大前端程序员的开发带来巨大便利的同时也引入了一些成本，通过外部手段很难“根治”病因，还是得官方出马才能解决问题。</p>
+<h1 id="笔记"><a href="#笔记" class="headerlink" title="笔记"></a>笔记</h1><p><a href="https://17.reactjs.org/docs/concurrent-mode-patterns.html" target="_blank" rel="noopener">https://17.reactjs.org/docs/concurrent-mode-patterns.html</a></p>
+<ol>
+<li>第一次渲染，因为 current 为空，complete suspense 的时候走到了 if</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (</span><br><span class="line">  hasInvisibleChildContext ||</span><br><span class="line">  hasSuspenseContext(</span><br><span class="line">    suspenseStackCursor.current,</span><br><span class="line">    InvisibleParentSuspenseContext</span><br><span class="line">  )</span><br><span class="line">) &#123;</span><br><span class="line">  <span class="comment">// If this was in an invisible tree or a new render, then showing</span></span><br><span class="line">  <span class="comment">// this boundary is ok.</span></span><br><span class="line">  renderDidSuspend()</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// Otherwise, we're going to have to hide content so we should</span></span><br><span class="line">  <span class="comment">// suspend for longer if possible.</span></span><br><span class="line">  renderDidSuspendDelayIfPossible()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>先显示 fallback，然后 resolve 后显示内容。</p>
+<ol start="2">
+<li><p>点击 next，startTransition，useTransition 里面其实用到了 updateState，首先 setPening(true)，然后调整更新优先级，setPending(false)，并执行 startTransition 的 callback，会 setResource，后面的两个优先级都较低</p>
+</li>
+<li><p>重新渲染，更新 pending 为 true（跳过了其他两个更新）</p>
+</li>
+<li>再次渲染，更新 pending 为 false，更新 resource，由于 current 不为空，不需要渲染 fallback，也就是下面的 else</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (</span><br><span class="line">  hasInvisibleChildContext ||</span><br><span class="line">  hasSuspenseContext(</span><br><span class="line">    suspenseStackCursor.current,</span><br><span class="line">    InvisibleParentSuspenseContext</span><br><span class="line">  )</span><br><span class="line">) &#123;</span><br><span class="line">  <span class="comment">// If this was in an invisible tree or a new render, then showing</span></span><br><span class="line">  <span class="comment">// this boundary is ok.</span></span><br><span class="line">  renderDidSuspend()</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// Otherwise, we're going to have to hide content so we should</span></span><br><span class="line">  <span class="comment">// suspend for longer if possible.</span></span><br><span class="line">  renderDidSuspendDelayIfPossible()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="5">
+<li>等到 promise resolve 后，再次重新渲染</li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/04/03/react-suspense/" rel="next" title="React 之 Suspense">
+                <i class="fa fa-chevron-left"></i> React 之 Suspense
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/07/07/react-ssr-rate-limit/" rel="prev" title="React SSR 之限流">
+                React SSR 之限流 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">149</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">74</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#useTransition"><span class="nav-number">2.</span> <span class="nav-text">useTransition</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#使用"><span class="nav-number">2.1.</span> <span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">2.2.</span> <span class="nav-text">实现原理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Why-not-debounce？"><span class="nav-number">3.</span> <span class="nav-text">Why not debounce？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#笔记"><span class="nav-number">4.</span> <span class="nav-text">笔记</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
