@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="go," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Go 爬虫系列">
+<meta name="keywords" content="go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Go语言爬虫（一）：构建单任务版爬虫">
+<meta property="og:url" content="http://www.paradeto.com/2018/07/16/go-spider-1/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="Go 爬虫系列">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2018/07/16/go-spider-1/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/07/16/go-spider-1/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2018/07/16/go-spider-1/3.png">
+<meta property="og:updated_time" content="2018-07-16T08:13:40.117Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Go语言爬虫（一）：构建单任务版爬虫">
+<meta name="twitter:description" content="Go 爬虫系列">
+<meta name="twitter:image" content="http://www.paradeto.com/2018/07/16/go-spider-1/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2018/07/16/go-spider-1/"/>
+
+
+
+
+
+
+  <title>Go语言爬虫（一）：构建单任务版爬虫 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/07/16/go-spider-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Go语言爬虫（一）：构建单任务版爬虫</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-07-16T11:25:22+08:00">
+                2018-07-16
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/go/" itemprop="url" rel="index">
+                    <span itemprop="name">go</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Go 爬虫系列
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>最近学习 Go 语言，打算写个爬虫，爬取相亲网站数据</p>
+</blockquote>
+<h1 id="网站分析"><a href="#网站分析" class="headerlink" title="网站分析"></a>网站分析</h1><p>打开网页 <code>http://www.zhenai.com/zhenghun</code>， 这是一个城市列表，进入某个城市后可以看到用户列表（分页），点击用户可以进入用户详情，这个就是我们要爬取的数据。整个的爬取流程可以归结为下图：</p>
+<p><img src="/2018/07/16/go-spider-1/1.png" alt=""></p>
+<h1 id="热身"><a href="#热身" class="headerlink" title="热身"></a>热身</h1><h2 id="爬取网页并打印"><a href="#爬取网页并打印" class="headerlink" title="爬取网页并打印"></a>爬取网页并打印</h2><p>先从简单的开始，让我们爬取网页，并打印出来：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"bufio"</span></span><br><span class="line">	<span class="string">"fmt"</span></span><br><span class="line">	<span class="string">"io"</span></span><br><span class="line">	<span class="string">"io/ioutil"</span></span><br><span class="line">	<span class="string">"net/http"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"golang.org/x/net/html/charset"</span> <span class="comment">// determine type by 1024 bytes</span></span><br><span class="line">	<span class="string">"golang.org/x/text/encoding"</span></span><br><span class="line">	<span class="string">"golang.org/x/text/transform"</span> <span class="comment">// transfer Reader</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 根据文件内容来判断文件的编码格式</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">determineEncoding</span><span class="params">(r *bufio.Reader)</span> <span class="title">encoding</span>.<span class="title">Encoding</span></span> &#123;</span><br><span class="line">	bytes, err := r.Peek(<span class="number">1024</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Panicf(<span class="string">"Fetcher error: %s"</span>, err)</span><br><span class="line">		<span class="keyword">return</span> unicode.UTF8</span><br><span class="line">	&#125;</span><br><span class="line">	e, _, _ := charset.DetermineEncoding(bytes, <span class="string">""</span>)</span><br><span class="line">	<span class="keyword">return</span> e</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	resp, err := http.Get(<span class="string">"http://www.zhenai.com/zhenghun"</span>)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">defer</span> resp.Body.Close()</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> resp.StatusCode != http.StatusOK &#123;</span><br><span class="line">		fmt.Println(<span class="string">"Error: status code"</span>, resp.StatusCode)</span><br><span class="line">		<span class="keyword">return</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	bodyReader := bufio.NewReader(resp.Body)</span><br><span class="line">	e := determineEncoding(bodyReader)</span><br><span class="line">	utf8Reader := transform.NewReader(bodyReader, e.NewDecoder())</span><br><span class="line">	all, err := ioutil.ReadAll(utf8Reader)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="built_in">panic</span>(err)</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">"%s\n"</span>, all)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意到这里使用了一些第三方库来推测并转换编码格式。</p>
+<h2 id="正则表达式提取城市-url"><a href="#正则表达式提取城市-url" class="headerlink" title="正则表达式提取城市 url"></a>正则表达式提取城市 url</h2><p>拿到网页内容后，我们可以利用正则表达式来提取城市的 url:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">printCityList</span><span class="params">(contents []<span class="keyword">byte</span>)</span></span> &#123;</span><br><span class="line">	re := regexp.MustCompile(<span class="string">`&lt;a href="(http://www.zhenai.com/zhenghun/[0-9a-z]+)"[^&gt;]*&gt;([^&lt;]+)&lt;/a&gt;`</span>)</span><br><span class="line">	matches := re.FindAllSubmatch(contents, <span class="number">-1</span>)</span><br><span class="line">	<span class="keyword">for</span> _, m := <span class="keyword">range</span> matches &#123;</span><br><span class="line">		fmt.Printf(<span class="string">"City: %s, URL: %s\n"</span>, m[<span class="number">2</span>], m[<span class="number">1</span>])</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Printf(<span class="string">"Matches found: %d\n"</span>, <span class="built_in">len</span>(matches))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="单任务版爬虫"><a href="#单任务版爬虫" class="headerlink" title="单任务版爬虫"></a>单任务版爬虫</h1><p>热身结束，让我们来构建一个简单的单任务版爬虫。下面是单任务版爬虫的架构图：</p>
+<p><img src="/2018/07/16/go-spider-1/2.png" alt=""></p>
+<ol>
+<li>传入初始的种子到 <code>Engine</code> 中启动整个爬取过程，种子会被保存到任务队列中</li>
+<li><code>Engine</code> 从队列中拿出一个 <code>Request</code> 对象 <code>request</code>，将所要爬取的网页 URL 发送给 <code>Fetcher</code>, <code>Fethcer</code> 将网页下载下来给 <code>Engine</code></li>
+<li>拿到 <code>Fetcher</code> 返回的网页文本后交给 <code>Parser</code>, <code>Parser</code> 从文本中提取出所要爬取的数据 <code>items</code>，或者根据需要提取出需要进一步访问的网页 url 并组装成 <code>Request</code> 对象</li>
+<li><code>Engine</code> 拿到返回的数据后，如果是 <code>items</code> 则保存下来，而如果是 <code>request</code>，则将其添加到任务队列中。然后重复 2 - 4 步，直到任务队列为空。</li>
+</ol>
+<h2 id="项目目录结构"><a href="#项目目录结构" class="headerlink" title="项目目录结构"></a>项目目录结构</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">├── engine</span><br><span class="line">│   ├── simple.go</span><br><span class="line">│   └── types.go</span><br><span class="line">├── fetcher</span><br><span class="line">│   └── fetcher.go</span><br><span class="line">├── model</span><br><span class="line">│   └── profile.go</span><br><span class="line">└── zhenai</span><br><span class="line">    └── parser</span><br><span class="line">        ├── city.go</span><br><span class="line">        ├── citylist.go</span><br><span class="line">        ├── profile.go</span><br><span class="line">├── main.go</span><br></pre></td></tr></table></figure>
+<h3 id="types"><a href="#types" class="headerlink" title="types"></a>types</h3><p>types 里面是用到的数据结构，如下所示：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">type</span> Request <span class="keyword">struct</span> &#123;</span><br><span class="line">	Url        <span class="keyword">string</span> <span class="comment">// 网页 url</span></span><br><span class="line">	ParserFunc <span class="function"><span class="keyword">func</span><span class="params">([]<span class="keyword">byte</span>)</span> <span class="title">ParseResult</span> // 网页的解析器</span></span><br><span class="line"><span class="function">&#125;</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function"><span class="title">type</span> <span class="title">ParseResult</span> <span class="title">struct</span></span> &#123;</span><br><span class="line">	Requests []Request <span class="comment">// 解析器返回的需要继续爬取的 Request 数组</span></span><br><span class="line">	Items    []<span class="keyword">interface</span>&#123;&#125; <span class="comment">// 解析器返回的目标数据，这里使用了 Go 中的“泛型”</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="fetcher"><a href="#fetcher" class="headerlink" title="fetcher"></a>fetcher</h3><p>fetcher 目录下是网页下载器，热身篇中有提到过，这里不赘述，不过实际爬取过程中加入了限制爬取速率的功能：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">var</span> rateLimiter = time.Tick(<span class="number">100</span> * time.Millisecond)</span><br><span class="line"></span><br><span class="line"><span class="comment">// Fetch fetch body from url</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Fetch</span><span class="params">(url <span class="keyword">string</span>)</span> <span class="params">([]<span class="keyword">byte</span>, error)</span></span> &#123;</span><br><span class="line">  &lt;-rateLimiter</span><br><span class="line">  ...</span><br></pre></td></tr></table></figure>
+<h3 id="model"><a href="#model" class="headerlink" title="model"></a>model</h3><p>model 中定义了目标数据的结构：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> model</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Profile <span class="keyword">struct</span> &#123;</span><br><span class="line">	Name       <span class="keyword">string</span></span><br><span class="line">	Gender     <span class="keyword">string</span></span><br><span class="line">	Age        <span class="keyword">int</span></span><br><span class="line">	Height     <span class="keyword">int</span></span><br><span class="line">	Weight     <span class="keyword">int</span></span><br><span class="line">	Income     <span class="keyword">string</span></span><br><span class="line">	Marriage   <span class="keyword">string</span></span><br><span class="line">	Education  <span class="keyword">string</span></span><br><span class="line">	Occupation <span class="keyword">string</span></span><br><span class="line">	Hokou      <span class="keyword">string</span></span><br><span class="line">	Xinzuo     <span class="keyword">string</span></span><br><span class="line">	House      <span class="keyword">string</span></span><br><span class="line">	Car        <span class="keyword">string</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="parser"><a href="#parser" class="headerlink" title="parser"></a>parser</h3><p><code>zhenai/parser</code> 下面定义的是各网页对应的解析器，其中 <code>citylist</code> 用来解析城市列表页，<code>city</code> 用来解析单个城市页，<code>profile</code> 用来解析个人详情页。</p>
+<p><em>citylist</em></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cityListRe = <span class="string">`&lt;a href="(http://www.zhenai.com/zhenghun/[0-9a-z]+)"[^&gt;]*&gt;([^&lt;]+)&lt;/a&gt;`</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseCityList</span><span class="params">(contents []<span class="keyword">byte</span>)</span> <span class="title">engine</span>.<span class="title">ParseResult</span></span> &#123;</span><br><span class="line">	re := regexp.MustCompile(cityListRe)</span><br><span class="line">	matches := re.FindAllSubmatch(contents, <span class="number">-1</span>)</span><br><span class="line"></span><br><span class="line">	result := engine.ParseResult&#123;&#125;</span><br><span class="line">	<span class="keyword">for</span> _, m := <span class="keyword">range</span> matches &#123;</span><br><span class="line">		result.Items = <span class="built_in">append</span>(result.Items, <span class="string">"City "</span>+<span class="keyword">string</span>(m[<span class="number">2</span>]))</span><br><span class="line">		result.Requests = <span class="built_in">append</span>(result.Requests, engine.Request&#123;</span><br><span class="line">			Url:        <span class="keyword">string</span>(m[<span class="number">1</span>]), <span class="comment">// 单个城市页面的 url</span></span><br><span class="line">			ParserFunc: ParseCity, <span class="comment">// 单个城市页面对应的解析器</span></span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>city</em></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cityRe = <span class="string">`&lt;a href="(http://album.zhenai.com/u/[0-9]+)"[^&gt;]*&gt;([^&lt;]+)&lt;/a&gt;`</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseCity</span><span class="params">(contents []<span class="keyword">byte</span>)</span> <span class="title">engine</span>.<span class="title">ParseResult</span></span> &#123;</span><br><span class="line">	re := regexp.MustCompile(cityRe)</span><br><span class="line">	matches := re.FindAllSubmatch(contents, <span class="number">-1</span>)</span><br><span class="line"></span><br><span class="line">	result := engine.ParseResult&#123;&#125;</span><br><span class="line">	<span class="keyword">for</span> _, m := <span class="keyword">range</span> matches &#123; <span class="comment">// every time, m is the same variable</span></span><br><span class="line">		<span class="comment">// every time, username is a new variable</span></span><br><span class="line">		username := <span class="keyword">string</span>(m[<span class="number">2</span>])</span><br><span class="line">		result.Items = <span class="built_in">append</span>(result.Items, <span class="string">"User "</span>+username)</span><br><span class="line">		result.Requests = <span class="built_in">append</span>(result.Requests, engine.Request&#123;</span><br><span class="line">			Url: <span class="keyword">string</span>(m[<span class="number">1</span>]),</span><br><span class="line">			ParserFunc: <span class="function"><span class="keyword">func</span><span class="params">(contents []<span class="keyword">byte</span>)</span> <span class="title">engine</span>.<span class="title">ParseResult</span></span> &#123;</span><br><span class="line">				<span class="comment">// fmt.Printf("Value: %d Value-Addr: %X\n", username, &amp;username)</span></span><br><span class="line">				<span class="comment">// fmt.Printf("Value: %d Value-Addr: %X\n", m, &amp;m)</span></span><br><span class="line">				<span class="keyword">return</span> ParseProfile(contents, username) <span class="comment">// 把姓名字段传给个人详情页解析器</span></span><br><span class="line">			&#125;,</span><br><span class="line">		&#125;)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>profile</em></p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> ageRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;年龄：&lt;/span&gt;(\d+)岁&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> heightRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;身高：&lt;/span&gt;(\d+)CM&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> weightRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;体重：&lt;/span&gt;&lt;span field=""&gt;(\d+)KG&lt;/span&gt;&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> genderRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;性别：&lt;/span&gt;&lt;span field=""&gt;([^&lt;]+)&lt;/span&gt;&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> xinzuoRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;星座：&lt;/span&gt;&lt;span field=""&gt;([^&lt;]+)&lt;/span&gt;&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> incomeRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;月收入：&lt;/span&gt;([^&lt;]+)&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> marriageRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;婚况：&lt;/span&gt;([^&lt;]+)&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> educationRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;学历：&lt;/span&gt;([^&lt;]+)&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> occupationRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;职业： &lt;/span&gt;([^&lt;]+)&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> hokouRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;籍贯：&lt;/span&gt;([^&lt;]+)&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> houseRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;住房条件：&lt;/span&gt;&lt;span field=""&gt;([^&lt;]+)&lt;/span&gt;&lt;/td&gt;`</span>)</span><br><span class="line"><span class="keyword">var</span> carRe = regexp.MustCompile(<span class="string">`&lt;td&gt;&lt;span class="label"&gt;是否购车：&lt;/span&gt;&lt;span field=""&gt;([^&lt;]+)&lt;/span&gt;&lt;/td&gt;`</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">ParseProfile</span><span class="params">(contents []<span class="keyword">byte</span>, name <span class="keyword">string</span>)</span> <span class="title">engine</span>.<span class="title">ParseResult</span></span> &#123;</span><br><span class="line">	profile := model.Profile&#123;&#125;</span><br><span class="line"></span><br><span class="line">	profile.Name = name</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> age, err := strconv.Atoi(extractString(contents, ageRe)); err == <span class="literal">nil</span> &#123;</span><br><span class="line">		profile.Age = age</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> height, err := strconv.Atoi(extractString(contents, heightRe)); err == <span class="literal">nil</span> &#123;</span><br><span class="line">		profile.Height = height</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> weight, err := strconv.Atoi(extractString(contents, weightRe)); err == <span class="literal">nil</span> &#123;</span><br><span class="line">		profile.Weight = weight</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	profile.Gender = extractString(contents, genderRe)</span><br><span class="line">	profile.Xinzuo = extractString(contents, xinzuoRe)</span><br><span class="line">	profile.Income = extractString(contents, incomeRe)</span><br><span class="line">	profile.Marriage = extractString(contents, marriageRe)</span><br><span class="line">	profile.Education = extractString(contents, educationRe)</span><br><span class="line">	profile.Occupation = extractString(contents, occupationRe)</span><br><span class="line">	profile.Hokou = extractString(contents, hokouRe)</span><br><span class="line">	profile.House = extractString(contents, houseRe)</span><br><span class="line">	profile.Car = extractString(contents, carRe)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 没有需要继续访问的网页了，所以这里只返回 Items</span></span><br><span class="line">	result := engine.ParseResult&#123;</span><br><span class="line">		Items: []<span class="keyword">interface</span>&#123;&#125;&#123;profile&#125;,</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">extractString</span><span class="params">(contents []<span class="keyword">byte</span>, re *regexp.Regexp)</span> <span class="title">string</span></span> &#123;</span><br><span class="line">	match := re.FindSubmatch(contents)</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(match) &gt;= <span class="number">2</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="keyword">string</span>(match[<span class="number">1</span>])</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> <span class="string">""</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="engine"><a href="#engine" class="headerlink" title="engine"></a>engine</h3><p>该目录下面是爬虫引擎，目前只有一个单任务版 <code>SimpleEngine</code>：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> engine</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">"log"</span></span><br><span class="line"></span><br><span class="line">	<span class="string">"../fetcher"</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> SimpleEngine <span class="keyword">struct</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(e SimpleEngine)</span> <span class="title">Run</span><span class="params">(seeds ...Request)</span></span> &#123;</span><br><span class="line">	<span class="keyword">var</span> requests []Request</span><br><span class="line">	<span class="keyword">for</span> _, r := <span class="keyword">range</span> seeds &#123;</span><br><span class="line">		requests = <span class="built_in">append</span>(requests, r)</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 每次循环从任务队列里面拿出一个 request 进行处理，直到其为空</span></span><br><span class="line">	<span class="keyword">for</span> <span class="built_in">len</span>(requests) &gt; <span class="number">0</span> &#123;</span><br><span class="line">		r := requests[<span class="number">0</span>]</span><br><span class="line">		requests = requests[<span class="number">1</span>:]</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 下载网页内容并解析交给 worker 去做</span></span><br><span class="line">		parseResult, err := worker(r)</span><br><span class="line">		<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">continue</span></span><br><span class="line">		&#125;</span><br><span class="line">		requests = <span class="built_in">append</span>(requests, parseResult.Requests...)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 暂时没有实现保存</span></span><br><span class="line">		<span class="keyword">for</span> _, item := <span class="keyword">range</span> parseResult.Items &#123;</span><br><span class="line">			log.Printf(<span class="string">"Got item %v"</span>, item)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">worker</span><span class="params">(r Request)</span> <span class="params">(ParseResult, error)</span></span> &#123;</span><br><span class="line">	log.Printf(<span class="string">"Fetching %s"</span>, r.Url)</span><br><span class="line">	body, err := fetcher.Fetch(r.Url)</span><br><span class="line">	<span class="keyword">if</span> err != <span class="literal">nil</span> &#123;</span><br><span class="line">		log.Printf(<span class="string">"Fetcher: error "</span>+<span class="string">"fetching url %s: %v"</span>, r.Url, err)</span><br><span class="line">		<span class="keyword">return</span> ParseResult&#123;&#125;, err</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> r.ParserFunc(body), <span class="literal">nil</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>说了这么多，最后我们来跑一跑吧：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">e := engine.SimpleEngine&#123;&#125;</span><br><span class="line">e.Run(engine.Request&#123;</span><br><span class="line">	Url:        <span class="string">"http://www.zhenai.com/zhenghun"</span>,</span><br><span class="line">	ParserFunc: parser.ParseCityList,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><img src="/2018/07/16/go-spider-1/3.png" alt=""></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文实现了一个简单的单任务版爬虫，整个爬虫的架构还是比较清晰易懂的。而且，通过自定义 parser，可以实现一个比较灵活的工作流。但是这个版本的爬虫爬取的效率很慢，远远达不到实际应用的需求。所以，借助 Go 语言独特的 goroutine，下一节我们要来实现一个多任务版本的爬虫。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/07/11/webpack-bundle-dive-into/" rel="next" title="浅析 webpack 打包机制">
+                <i class="fa fa-chevron-left"></i> 浅析 webpack 打包机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/07/17/go-spider-2/" rel="prev" title="Go语言爬虫（二）：构建并发版爬虫">
+                Go语言爬虫（二）：构建并发版爬虫 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">156</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">80</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#网站分析"><span class="nav-number">1.</span> <span class="nav-text">网站分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#热身"><span class="nav-number">2.</span> <span class="nav-text">热身</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#爬取网页并打印"><span class="nav-number">2.1.</span> <span class="nav-text">爬取网页并打印</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#正则表达式提取城市-url"><span class="nav-number">2.2.</span> <span class="nav-text">正则表达式提取城市 url</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#单任务版爬虫"><span class="nav-number">3.</span> <span class="nav-text">单任务版爬虫</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#项目目录结构"><span class="nav-number">3.1.</span> <span class="nav-text">项目目录结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#types"><span class="nav-number">3.1.1.</span> <span class="nav-text">types</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#fetcher"><span class="nav-number">3.1.2.</span> <span class="nav-text">fetcher</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#model"><span class="nav-number">3.1.3.</span> <span class="nav-text">model</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#parser"><span class="nav-number">3.1.4.</span> <span class="nav-text">parser</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#engine"><span class="nav-number">3.1.5.</span> <span class="nav-text">engine</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

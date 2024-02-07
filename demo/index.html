@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Ayou,paradeto" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="乞丐版 Github Skylinegithub 玩一玩 react Render 动画react Render 阶段的动画玩一玩 2048（私人订制版）一个个性化的 2048 游戏玩一玩 chinese-chess基于最大最小值和 alpha-beta 实现的一个简单的象棋 ai github 玩一玩 浮点数表示演示浮点数的表示方法玩一玩 tcp demo模拟 tcp 协议的一个小玩具，帮助你更">
+<meta property="og:type" content="website">
+<meta property="og:title" content="我的项目">
+<meta property="og:url" content="http://www.paradeto.com/demo/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="乞丐版 Github Skylinegithub 玩一玩 react Render 动画react Render 阶段的动画玩一玩 2048（私人订制版）一个个性化的 2048 游戏玩一玩 chinese-chess基于最大最小值和 alpha-beta 实现的一个简单的象棋 ai github 玩一玩 浮点数表示演示浮点数的表示方法玩一玩 tcp demo模拟 tcp 协议的一个小玩具，帮助你更">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2022-10-21T15:58:58.513Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="我的项目">
+<meta name="twitter:description" content="乞丐版 Github Skylinegithub 玩一玩 react Render 动画react Render 阶段的动画玩一玩 2048（私人订制版）一个个性化的 2048 游戏玩一玩 chinese-chess基于最大最小值和 alpha-beta 实现的一个简单的象棋 ai github 玩一玩 浮点数表示演示浮点数的表示方法玩一玩 tcp demo模拟 tcp 协议的一个小玩具，帮助你更">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/demo/"/>
+
+
+
+
+
+
+  <title>我的项目 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+    
+    
+    <div class="post-block page">
+      <header class="post-header">
+
+	<h1 class="post-title" itemprop="name headline">我的项目</h1>
+
+
+
+</header>
+
+      
+      
+      
+      <div class="post-body">
+        
+        
+          <h1 id="乞丐版-Github-Skyline"><a href="#乞丐版-Github-Skyline" class="headerlink" title="乞丐版 Github Skyline"></a>乞丐版 Github Skyline</h1><p><a href="https://github.com/ParadeTo/webgl-park" target="_blank" rel="noopener">github</a></p>
+<p><a href="/webgl-github-map">玩一玩</a></p>
+<h1 id="react-Render-动画"><a href="#react-Render-动画" class="headerlink" title="react Render 动画"></a>react Render 动画</h1><p>react Render 阶段的动画<br><a href="/react-render">玩一玩</a></p>
+<h1 id="2048（私人订制版）"><a href="#2048（私人订制版）" class="headerlink" title="2048（私人订制版）"></a>2048（私人订制版）</h1><p>一个个性化的 2048 游戏<br><a href="/game2048">玩一玩</a></p>
+<h1 id="chinese-chess"><a href="#chinese-chess" class="headerlink" title="chinese-chess"></a>chinese-chess</h1><p>基于最大最小值和 alpha-beta 实现的一个简单的象棋 ai</p>
+<p><a href="https://github.com/ParadeTo/chinese-chess" target="_blank" rel="noopener">github</a></p>
+<p><a href="/vue-chinese-chess">玩一玩</a></p>
+<h1 id="浮点数表示"><a href="#浮点数表示" class="headerlink" title="浮点数表示"></a>浮点数表示</h1><p>演示浮点数的表示方法<br><a href="/vue-float">玩一玩</a></p>
+<h1 id="tcp-demo"><a href="#tcp-demo" class="headerlink" title="tcp demo"></a>tcp demo</h1><p>模拟 tcp 协议的一个小玩具，帮助你更好的理解 tcp<br><a href="/vue-tcp">玩一玩</a></p>
+<h1 id="vue-date-range"><a href="#vue-date-range" class="headerlink" title="vue-date-range"></a>vue-date-range</h1><p>基于 vue2.0 的日期选择组件</p>
+<p><a href="https://github.com/ParadeTo/vue-date-range" target="_blank" rel="noopener">github</a></p>
+<p><a href="/vue-date-range">玩一玩</a></p>
+<h1 id="vue-tree-list"><a href="#vue-tree-list" class="headerlink" title="vue-tree-list"></a>vue-tree-list</h1><p>基于 vue2.0 的树形结构，支持新增、拖拽、删除</p>
+<p><a href="https://github.com/ParadeTo/vue-tree-list" target="_blank" rel="noopener">github</a></p>
+<p><a href="/vue-tree-list">玩一玩</a></p>
+<h1 id="jquery-分页轮播插件"><a href="#jquery-分页轮播插件" class="headerlink" title="jquery 分页轮播插件"></a>jquery 分页轮播插件</h1><p><a href="https://github.com/ParadeTo/page-switch" target="_blank" rel="noopener">github</a></p>
+
+        
+      </div>
+      
+      
+      
+    </div>
+    
+    
+    
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">156</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">80</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#乞丐版-Github-Skyline"><span class="nav-number">1.</span> <span class="nav-text">乞丐版 Github Skyline</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#react-Render-动画"><span class="nav-number">2.</span> <span class="nav-text">react Render 动画</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2048（私人订制版）"><span class="nav-number">3.</span> <span class="nav-text">2048（私人订制版）</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#chinese-chess"><span class="nav-number">4.</span> <span class="nav-text">chinese-chess</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#浮点数表示"><span class="nav-number">5.</span> <span class="nav-text">浮点数表示</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#tcp-demo"><span class="nav-number">6.</span> <span class="nav-text">tcp demo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vue-date-range"><span class="nav-number">7.</span> <span class="nav-text">vue-date-range</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#vue-tree-list"><span class="nav-number">8.</span> <span class="nav-text">vue-tree-list</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#jquery-分页轮播插件"><span class="nav-number">9.</span> <span class="nav-text">jquery 分页轮播插件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

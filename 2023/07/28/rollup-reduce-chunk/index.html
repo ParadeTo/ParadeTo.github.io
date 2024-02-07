@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rollup," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="对 Rollup 的输出结果进行优化">
+<meta name="keywords" content="rollup">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Vite 打包 Chunks 优化">
+<meta property="og:url" content="http://www.paradeto.com/2023/07/28/rollup-reduce-chunk/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="对 Rollup 的输出结果进行优化">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2023-07-28T08:21:10.444Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Vite 打包 Chunks 优化">
+<meta name="twitter:description" content="对 Rollup 的输出结果进行优化">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2023/07/28/rollup-reduce-chunk/"/>
+
+
+
+
+
+
+  <title>Vite 打包 Chunks 优化 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2023/07/28/rollup-reduce-chunk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Vite 打包 Chunks 优化</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-07-28T14:50:16+08:00">
+                2023-07-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  对 Rollup 的输出结果进行优化
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>项目从 Webpack 迁移到 Vite 后，代码打包出的 chunks 一下增加了很多。老板说这个得优化一下，那自然是在所不辞。</p>
+<p>我们知道 Vite 底层是使用 Rollup 构建的，它的理念跟 Webpack 有一些差别，我们来看这个例子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// index.js</span></span><br><span class="line"><span class="keyword">import</span>(<span class="string">'./a.js'</span>)</span><br><span class="line"><span class="keyword">import</span>(<span class="string">'./b.js'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// a.js</span></span><br><span class="line"><span class="keyword">import</span> c <span class="keyword">from</span> <span class="string">'./c.js'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> fnA = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'a'</span> + c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// b.js</span></span><br><span class="line"><span class="keyword">import</span> c <span class="keyword">from</span> <span class="string">'./c.js'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> fnB = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'b'</span> + c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// c.js</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="string">'c'</span></span><br></pre></td></tr></table></figure>
+<p>默认情况下，Vite（4.3.9）构建出来的结果是这样的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// index-49bb322a.js</span></span><br><span class="line">...</span><br><span class="line">u(</span><br><span class="line">  () =&gt; <span class="keyword">import</span>(<span class="string">'./a-b94a9e8c.js'</span>),</span><br><span class="line">  [<span class="string">'assets/a-b94a9e8c.js'</span>, <span class="string">'assets/c-13f6ff57.js'</span>]</span><br><span class="line">)</span><br><span class="line">u(</span><br><span class="line">  () =&gt; <span class="keyword">import</span>(<span class="string">'./b-281a48d8.js'</span>),</span><br><span class="line">  [<span class="string">'assets/b-281a48d8.js'</span>, <span class="string">'assets/c-13f6ff57.js'</span>]</span><br><span class="line">)</span><br><span class="line"><span class="comment">// a-b94a9e8c.js</span></span><br><span class="line"><span class="keyword">import</span>&#123;c <span class="keyword">as</span> r&#125;<span class="keyword">from</span><span class="string">"./c-13f6ff57.js"</span>;<span class="keyword">const</span> t=<span class="function"><span class="params">()</span>=&gt;</span><span class="string">"a"</span>+r;<span class="keyword">export</span>&#123;t <span class="keyword">as</span> fnA&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// b-281a48d8.js</span></span><br><span class="line"><span class="keyword">import</span>&#123;c <span class="keyword">as</span> r&#125;<span class="keyword">from</span><span class="string">"./c-13f6ff57.js"</span>;<span class="keyword">const</span> t=<span class="function"><span class="params">()</span>=&gt;</span><span class="string">"b"</span>+r;<span class="keyword">export</span>&#123;t <span class="keyword">as</span> fnB&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// c-13f6ff57.js</span></span><br><span class="line"><span class="keyword">const</span> o=<span class="string">"c"</span>;<span class="keyword">export</span>&#123;o <span class="keyword">as</span> c&#125;;</span><br></pre></td></tr></table></figure>
+<p>但是，用 Webpack（5.41.0）构建出来只有三个文件（index，a，b），其中 a 和 b 中都有 c 的代码。</p>
+<p>这样的后果是 Vite 构建出来的文件数量更多，而 Webpack 构建出来的代码量更多（重复代码加上 Webpack 运行时的代码）。那能否针对 Vite 优化一下呢？其实还是可以的。</p>
+<p>通过搜索发现，这个问题其实已经有人给 Rollup 反馈过了（<a href="https://github.com/rollup/rollup/issues/4327）。官方也提供了一个参数" target="_blank" rel="noopener">https://github.com/rollup/rollup/issues/4327）。官方也提供了一个参数</a> <code>output.experimentalMinChunkSize</code> 用来指定 chunk 的最小体积，如果 chunk 小于这个值则会尝试跟其他 chunk 合并，还是上面的例子，我们把这个参数设为 1000，打包出来的结果如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// index-b9ab0c04.js</span></span><br><span class="line">...</span><br><span class="line">u(<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./b-91d5a685.js'</span>).then(<span class="function">(<span class="params">n</span>) =&gt;</span> n.a), [])</span><br><span class="line">u(<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./b-91d5a685.js'</span>).then(<span class="function">(<span class="params">n</span>) =&gt;</span> n.b), [])</span><br><span class="line"><span class="comment">// b-91d5a685.js</span></span><br><span class="line"><span class="keyword">const</span> e = <span class="string">'c'</span>,</span><br><span class="line">  t = <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">'a'</span> + e,</span><br><span class="line">  n = <span class="built_in">Object</span>.freeze(</span><br><span class="line">    <span class="built_in">Object</span>.defineProperty(&#123;<span class="attr">__proto__</span>: <span class="literal">null</span>, <span class="attr">fnA</span>: t&#125;, <span class="built_in">Symbol</span>.toStringTag, &#123;</span><br><span class="line">      value: <span class="string">'Module'</span>,</span><br><span class="line">    &#125;)</span><br><span class="line">  ),</span><br><span class="line">  o = <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">'b'</span> + e,</span><br><span class="line">  r = <span class="built_in">Object</span>.freeze(</span><br><span class="line">    <span class="built_in">Object</span>.defineProperty(&#123;<span class="attr">__proto__</span>: <span class="literal">null</span>, <span class="attr">fn</span>: o&#125;, <span class="built_in">Symbol</span>.toStringTag, &#123;</span><br><span class="line">      value: <span class="string">'Module'</span>,</span><br><span class="line">    &#125;)</span><br><span class="line">  )</span><br><span class="line"><span class="keyword">export</span> &#123;n <span class="keyword">as</span> a, r <span class="keyword">as</span> b&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，a b c 的代码都合并到了一个 chunk 中，看来这个问题就这么简单的搞定了！</p>
+<p>但是，别高兴得太早了，事情没那么简单。比如我现在在 a b c 中都加一行代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(<span class="string">'execute'</span>)</span><br></pre></td></tr></table></figure>
+<p>此时，打包出来的结果就又变成四个 chunk 了。原因在于模块级别的函数调用会被编译器看做是副作用，会影响 chunk 的合并。比如，假设现在 d 依赖 c，引入 c 时会打印 <code>execute</code>。如果把 b 和 c 合并以后，则 d 引入 c 时会把 b 中的 <code>console.log(&#39;execute&#39;)</code> 也执行，这种情况有时候会导致 bug。</p>
+<p>但是，很明显类似于 <code>console.log</code> 这种函数即便意外执行了，也不会有什么大问题，所以 Rollup 还提供了 <code>treeshake.manualPureFunctions</code> 参数来让开发者指定哪些函数是纯函数，所以可以这样配置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">output: &#123;</span><br><span class="line">  experimentalMinChunkSize: <span class="number">1000</span>,</span><br><span class="line">&#125;,</span><br><span class="line">treeshake: &#123;</span><br><span class="line">  preset: <span class="string">'recommended'</span>,</span><br><span class="line">  manualPureFunctions: [<span class="string">'console.log'</span>],</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>这样 chunks 又可以合并了。</p>
+<p>但是这样的配置只适合函数不重名的场景，比如 a b 中都有一个方法 fn 在模块级别调用了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a.js</span></span><br><span class="line"><span class="keyword">const</span> fn = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  localStorage.setItem(<span class="string">'a'</span>, <span class="number">1</span>)</span><br><span class="line">&#125;</span><br><span class="line">fn()</span><br><span class="line"></span><br><span class="line"><span class="comment">// b.js</span></span><br><span class="line"><span class="keyword">const</span> fn = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'b'</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'b'</span></span><br><span class="line">&#125;</span><br><span class="line">fn()</span><br></pre></td></tr></table></figure>
+<p>显然 a 中的有副作用，b 中尽管有 <code>console.log</code> 但是可以当做纯函数。针对这种情况可以使用 <code>annotation</code> 来声明函数是没有副作用的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// @__NO_SIDE_EFFECTS__</span></span><br><span class="line"><span class="keyword">const</span> fn = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'b'</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'b'</span></span><br><span class="line">&#125;</span><br><span class="line">fn()</span><br></pre></td></tr></table></figure>
+<p>也可以在函数调用的时候，通过 <code>@__PURE__</code> 来声明：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> fn = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'b'</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'b'</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">/*@__PURE__*/</span> fn()</span><br></pre></td></tr></table></figure>
+<p>好了，有了以上的这些方法，这个问题看来就轻松解决了。别急，还有一种情况也会产生副作用，比如：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// a.js</span></span><br><span class="line"><span class="keyword">import</span> c <span class="keyword">from</span> <span class="string">'./c.js'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> fnA = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'a'</span> + c</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> a = fnA.a</span><br><span class="line"><span class="comment">// OR</span></span><br><span class="line">fnA.a = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+<p>因为编译器认为读取属性或给属性赋值可能会触发 <code>get</code> 或 <code>set</code> 方法，相当于执行了函数。针对这种代码，可以采取这种“黑科技”：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> a = <span class="comment">/*@__PURE__*/</span>;<span class="function">(<span class="params">(</span>) =&gt;</span> fnA.a)()</span><br><span class="line"><span class="comment">// OR</span></span><br><span class="line"><span class="comment">/*@__PURE__*/</span>;<span class="function">(<span class="params">(</span>) =&gt;</span> fnA.a = <span class="number">1</span>)()</span><br></pre></td></tr></table></figure>
+<p>应用了这些方法后，chunks 减少了一半以上，优化效果还是挺明显的。同时，通过这次优化，也告诉我们在开发 JS 模块的时候要尽量避免模块副作用，将模块级别中的函数调用比如模块的初始化等，交给模块的使用方来做。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rollup/" rel="tag"># rollup</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/04/25/react-server-component/" rel="next" title="浅析 React Server Component">
+                <i class="fa fa-chevron-left"></i> 浅析 React Server Component
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/08/17/react-ssr-promethus/" rel="prev" title="React SSR 之监控">
+                React SSR 之监控 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">156</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">80</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

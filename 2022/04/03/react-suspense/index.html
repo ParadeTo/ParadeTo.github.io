@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍 React 中 Suspense 提出的背景、使用方式、实现原理">
+<meta name="keywords" content="react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React 之 Suspense">
+<meta property="og:url" content="http://www.paradeto.com/2022/04/03/react-suspense/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍 React 中 Suspense 提出的背景、使用方式、实现原理">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/03/react-suspense/refactor-new.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/03/react-suspense/refactor-old.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/03/react-suspense/suspense1.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/03/react-suspense/suspense2.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/03/react-suspense/suspense3.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/04/03/react-suspense/display.png">
+<meta property="og:updated_time" content="2022-04-11T02:48:56.066Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React 之 Suspense">
+<meta name="twitter:description" content="介绍 React 中 Suspense 提出的背景、使用方式、实现原理">
+<meta name="twitter:image" content="http://www.paradeto.com/2022/04/03/react-suspense/refactor-new.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2022/04/03/react-suspense/"/>
+
+
+
+
+
+
+  <title>React 之 Suspense | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2022/04/03/react-suspense/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React 之 Suspense</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-04-03T21:16:55+08:00">
+                2022-04-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍 React 中 Suspense 提出的背景、使用方式、实现原理
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="Suspense-提出的背景"><a href="#Suspense-提出的背景" class="headerlink" title="Suspense 提出的背景"></a>Suspense 提出的背景</h1><p>假设我们现在有如下一个应用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Articles = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> [articles, setArticles] = useState(<span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    getArticles().then(<span class="function">(<span class="params">a</span>) =&gt;</span> setArticles(a))</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (articles === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Loading articles...<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;articles.map(<span class="function">(<span class="params">article</span>) =&gt;</span> (</span><br><span class="line">        &lt;li key=&#123;article.id&#125;&gt;</span><br><span class="line">          &lt;h3&gt;&#123;article.title&#125;&lt;<span class="regexp">/h3&gt;</span></span><br><span class="line"><span class="regexp">          &lt;p&gt;&#123;article.abstract&#125;&lt;/</span>p&gt;</span><br><span class="line">        &lt;<span class="regexp">/li&gt;</span></span><br><span class="line"><span class="regexp">      ))&#125;</span></span><br><span class="line"><span class="regexp">    &lt;/u</span>l&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Profile</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [user, setUser] = useState(<span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    getUser().then(<span class="function">(<span class="params">u</span>) =&gt;</span> setUser(u))</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (user === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Loading user...<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;h2&gt;&#123;user.name&#125;&lt;<span class="regexp">/h2&gt;</span></span><br><span class="line"><span class="regexp">      &lt;Articles articles=&#123;articles&#125; /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>该应用是一个用户的个人主页，包含用户的基本信息（例子中只有名字）以及用户的文章列表，并且规定了必须等待用户获取成功后才能渲染其基本信息以及文章列表。<br>该应用看似简单，但却存在着以下几个问题：</p>
+<ul>
+<li>“Waterfalls”，意思是文章列表必须要等到用户请求成功以后才能开始渲染，从而对于文章列表的请求也会被用户阻塞，但其实对于文章的请求是可以同用户并行的。</li>
+<li>“fetch-on-render”，无论是 <code>Profile</code> 还是 <code>Articles</code> 组件，都是需要等到渲染一次后才能发出请求。</li>
+</ul>
+<p>对于第一个问题，我们可以通过修改代码来优化：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> Articles = <span class="function">(<span class="params">&#123;articles&#125;</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (articles === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Loading articles...<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;articles.map(<span class="function">(<span class="params">article</span>) =&gt;</span> (</span><br><span class="line">        &lt;li key=&#123;article.id&#125;&gt;</span><br><span class="line">          &lt;h3&gt;&#123;article.title&#125;&lt;<span class="regexp">/h3&gt;</span></span><br><span class="line"><span class="regexp">          &lt;p&gt;&#123;article.abstract&#125;&lt;/</span>p&gt;</span><br><span class="line">        &lt;<span class="regexp">/li&gt;</span></span><br><span class="line"><span class="regexp">      ))&#125;</span></span><br><span class="line"><span class="regexp">    &lt;/u</span>l&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Profile</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [user, setUser] = useState(<span class="literal">null</span>)</span><br><span class="line">  <span class="keyword">const</span> [articles, setArticles] = useState(<span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    getUser().then(<span class="function">(<span class="params">u</span>) =&gt;</span> setUser(u))</span><br><span class="line">    getArticles().then(<span class="function">(<span class="params">a</span>) =&gt;</span> setArticles(a))</span><br><span class="line">  &#125;, [])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (user === <span class="literal">null</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">p</span>&gt;</span>Loading user...<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;&gt;</span><br><span class="line">      &lt;h2&gt;&#123;user.name&#125;&lt;<span class="regexp">/h2&gt;</span></span><br><span class="line"><span class="regexp">      &lt;Articles articles=&#123;articles&#125; /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>现在获取用户和获取文章列表的逻辑已经可以并行了，但是这样又导致 <code>Articles</code> 组件同其数据获取相关的逻辑分离，随着应用变得复杂后，这种方式可能会难以维护。同时第二个问题 “fetch-on-render” 还是没有解决。而 Suspense 的出现可以很好的解决这些问题，接下来就来看看是如何解决的。</p>
+<h1 id="Suspense-的使用"><a href="#Suspense-的使用" class="headerlink" title="Suspense 的使用"></a>Suspense 的使用</h1><h2 id="Suspense-用于数据获取"><a href="#Suspense-用于数据获取" class="headerlink" title="Suspense 用于数据获取"></a>Suspense 用于数据获取</h2><p>还是上面的例子，我们使用 Suspense 来改造一下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Profile.js</span></span><br><span class="line"><span class="keyword">import</span> React, &#123;Suspense&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> User <span class="keyword">from</span> <span class="string">'./User'</span></span><br><span class="line"><span class="keyword">import</span> Articles <span class="keyword">from</span> <span class="string">'./Articles'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Profile</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;Suspense fallback=&#123;&lt;p&gt;Loading user...&lt;<span class="regexp">/p&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">      &lt;User /</span>&gt;</span><br><span class="line">      &lt;Suspense fallback=&#123;&lt;p&gt;Loading articles...&lt;<span class="regexp">/p&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">        &lt;Articles /</span>&gt;</span><br><span class="line">      &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>Suspense&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Articles.js</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;getArticlesResource&#125; <span class="keyword">from</span> <span class="string">'./resource'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> articlesResource = getArticlesResource()</span><br><span class="line"><span class="keyword">const</span> Articles = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">debugger</span></span><br><span class="line">  <span class="keyword">const</span> articles = articlesResource.read()</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ul&gt;</span><br><span class="line">      &#123;articles.map(<span class="function">(<span class="params">article</span>) =&gt;</span> (</span><br><span class="line">        &lt;li key=&#123;article.id&#125;&gt;</span><br><span class="line">          &lt;h3&gt;&#123;article.title&#125;&lt;<span class="regexp">/h3&gt;</span></span><br><span class="line"><span class="regexp">          &lt;p&gt;&#123;article.abstract&#125;&lt;/</span>p&gt;</span><br><span class="line">        &lt;<span class="regexp">/li&gt;</span></span><br><span class="line"><span class="regexp">      ))&#125;</span></span><br><span class="line"><span class="regexp">    &lt;/u</span>l&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// User.js</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;getUserResource&#125; <span class="keyword">from</span> <span class="string">'./resource'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> userResource = getUserResource()</span><br><span class="line"><span class="keyword">const</span> User = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> user = userResource.read()</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">h2</span>&gt;</span>&#123;user.name&#125;<span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// resource.js</span></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">wrapPromise</span>(<span class="params">promise</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">let</span> status = <span class="string">'pending'</span></span><br><span class="line">  <span class="keyword">let</span> result</span><br><span class="line">  <span class="keyword">let</span> suspender = promise.then(</span><br><span class="line">    (r) =&gt; &#123;</span><br><span class="line">      <span class="keyword">debugger</span></span><br><span class="line">      status = <span class="string">'success'</span></span><br><span class="line">      result = r</span><br><span class="line">    &#125;,</span><br><span class="line">    (e) =&gt; &#123;</span><br><span class="line">      status = <span class="string">'error'</span></span><br><span class="line">      result = e</span><br><span class="line">    &#125;</span><br><span class="line">  )</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    read() &#123;</span><br><span class="line">      <span class="keyword">if</span> (status === <span class="string">'pending'</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> suspender</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (status === <span class="string">'error'</span>) &#123;</span><br><span class="line">        <span class="keyword">throw</span> result</span><br><span class="line">      &#125; <span class="keyword">else</span> <span class="keyword">if</span> (status === <span class="string">'success'</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> result</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">getArticles</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> list = [...new <span class="built_in">Array</span>(<span class="number">10</span>)].map(<span class="function">(<span class="params">_, index</span>) =&gt;</span> (&#123;</span><br><span class="line">      id: index,</span><br><span class="line">      title: <span class="string">`Title<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>`</span>,</span><br><span class="line">      abstract: <span class="string">`Abstract<span class="subst">$&#123;index + <span class="number">1</span>&#125;</span>`</span>,</span><br><span class="line">    &#125;))</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      resolve(list)</span><br><span class="line">    &#125;, <span class="number">2000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">getUser</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">      resolve(&#123;</span><br><span class="line">        name: <span class="string">'Ayou'</span>,</span><br><span class="line">        age: <span class="number">18</span>,</span><br><span class="line">        vocation: <span class="string">'Program Ape'</span>,</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;, <span class="number">3000</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> getUserResource = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> wrapPromise(getUser())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> getArticlesResource = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> wrapPromise(getArticles())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先，在 <code>Profile.js</code> 中开始引入 <code>User</code> 和 <code>Articles</code> 的时候就已经开始请求数据了，即 “Render-as-You-Fetch”（渲染的时候请求），且两者是并行的。当渲染到 <code>User</code> 组件的时候，由于此时接口请求还未返回，<code>const user = userResource.read()</code> 会抛出异常：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line">  read() &#123;</span><br><span class="line">    <span class="keyword">if</span> (status === <span class="string">'pending'</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> suspender</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (status === <span class="string">'error'</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> result</span><br><span class="line">    &#125; <span class="keyword">else</span> <span class="keyword">if</span> (status === <span class="string">'success'</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> result</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;,</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>而 <code>Suspense</code> 组件的作用是，当发现其包裹的组件抛出异常且异常为 <code>Promise</code> 对象时，会渲染 <code>fallback</code> 中的内容，即 <code>&lt;p&gt;Loading user...&lt;/p&gt;</code>。等到 <code>Promise</code> 对象 <code>resolve</code> 的时候会再次触发重新渲染，显示其包裹的内容，又因为获取文章列表的时间比用户短，所以这里会同时显示用户信息及其文章列表（具体过程后续会再进行分析）。这样，通过 <code>Suspense</code> 组件，我们就解决了前面的两个问题。</p>
+<p>同时，使用 <code>Suspense</code> 还会有另外一个好处，假设我们现在改变我们的需求，允许用户信息和文章列表独立渲染，则使用 <code>Suspense</code> 重构起来会比较简单：</p>
+<p><img src="/2022/04/03/react-suspense/refactor-new.png" alt=""></p>
+<p>而如果使用原来的方式，则需要修改的地方比较多：</p>
+<p><img src="/2022/04/03/react-suspense/refactor-old.png" alt=""></p>
+<p>可见，使用 <code>Suspense</code> 会带来很多好处。当然，上文为了方便说明，写得非常简单，实际开发时会结合 <a href="https://relay.dev/" target="_blank" rel="noopener">Relay</a> 这样的库来使用，由于这一款目前还处于试验阶段，所以暂时先不做过多的讨论。</p>
+<p><code>Suspense</code> 除了可以用于上面的数据获取这种场景外，还可以用来实现 <code>Lazy Component</code>。</p>
+<h2 id="Lazy-Component"><a href="#Lazy-Component" class="headerlink" title="Lazy Component"></a>Lazy Component</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Suspense&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">const</span> MyComp = React.lazy(<span class="function"><span class="params">()</span> =&gt;</span> <span class="keyword">import</span>(<span class="string">'./MyComp'</span>))</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App() &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;Suspense fallback=&#123;&lt;p&gt;Loading Component...&lt;<span class="regexp">/p&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">      &lt;MyComp /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>我们知道 <code>import(&#39;./MyComp&#39;)</code> 返回的是一个 <code>Promise</code> 对象，其 <code>resolve</code> 的是一个模块，既然如此那这样也是可以的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Suspense&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> MyComp = React.lazy(</span><br><span class="line">  () =&gt;</span><br><span class="line">    <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span></span><br><span class="line">      setTimeout(</span><br><span class="line">        () =&gt;</span><br><span class="line">          resolve(&#123;</span><br><span class="line">            <span class="keyword">default</span>: <span class="function"><span class="keyword">function</span> <span class="title">MyComp</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">              <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>My Comp<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;),</span><br><span class="line">        <span class="number">1000</span></span><br><span class="line">      )</span><br><span class="line">    )</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;Suspense fallback=&#123;&lt;p&gt;Loading Component...&lt;<span class="regexp">/p&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">      &lt;MyComp /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>甚至，我们可以通过请求来获取 <code>Lazy Component</code> 的代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Suspense&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> MyComp = React.lazy(</span><br><span class="line">  () =&gt;</span><br><span class="line">    <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="keyword">async</span> (resolve) =&gt; &#123;</span><br><span class="line">      <span class="keyword">const</span> code = <span class="keyword">await</span> fetch(<span class="string">'http://xxxx'</span>)</span><br><span class="line">      <span class="keyword">const</span> <span class="built_in">module</span> = &#123;<span class="attr">exports</span>: &#123;&#125;&#125;</span><br><span class="line">      <span class="built_in">Function</span>(<span class="string">'export, module'</span>, code)(<span class="built_in">module</span>.exports, <span class="built_in">module</span>)</span><br><span class="line">      resolve(&#123;<span class="attr">default</span>: <span class="built_in">module</span>.exports&#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;Suspense fallback=&#123;&lt;p&gt;Loading Component...&lt;<span class="regexp">/p&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">      &lt;MyComp /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>这也是我们实现<a href="/2021/12/10/react-dynamic-component/">远程组件</a>的基本原理。</p>
+<h1 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h1><p>介绍了这么多关于 <code>Suspense</code> 的内容后，你一定很好奇它到底是如何实现的吧，我们先不研究 React 源码，先尝试自己实现一个 <code>Suspense</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React, &#123;Component&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">Suspense</span> <span class="keyword">extends</span> <span class="title">Component</span> </span>&#123;</span><br><span class="line">  state = &#123;</span><br><span class="line">    isLoading: <span class="literal">false</span>,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidCatch(error, info) &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>._mounted) &#123;</span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> error.then === <span class="string">'function'</span>) &#123;</span><br><span class="line">        <span class="keyword">this</span>.setState(&#123;<span class="attr">isLoading</span>: <span class="literal">true</span>&#125;)</span><br><span class="line">        error.then(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">this</span>._mounted) &#123;</span><br><span class="line">            <span class="keyword">this</span>.setState(&#123;<span class="attr">isLoading</span>: <span class="literal">false</span>&#125;)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  componentDidMount() &#123;</span><br><span class="line">    <span class="keyword">this</span>._mounted = <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  componentWillUnmount() &#123;</span><br><span class="line">    <span class="keyword">this</span>._mounted = <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  render() &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;children, fallback&#125; = <span class="keyword">this</span>.props</span><br><span class="line">    <span class="keyword">const</span> &#123;isLoading&#125; = <span class="keyword">this</span>.state</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> isLoading ? fallback : children</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其核心原理就是利用了 “Error Boundary” 来捕获子组件中的抛出的异常，且如果抛出的异常为 <code>Promise</code> 对象，则在传入其 <code>then</code> 方法的回调中改变 <code>state</code> 触发重新渲染。</p>
+<p>接下来，我们还是用上面的例子来分析一下整个过程：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">Profile</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;Suspense fallback=&#123;&lt;p&gt;Loading user...&lt;<span class="regexp">/p&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">      &lt;User /</span>&gt;</span><br><span class="line">      &lt;Suspense fallback=&#123;&lt;p&gt;Loading articles...&lt;<span class="regexp">/p&gt;&#125;&gt;</span></span><br><span class="line"><span class="regexp">        &lt;Articles /</span>&gt;</span><br><span class="line">      &lt;<span class="regexp">/Suspense&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>Suspense&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们知道 React 在渲染时会构建 Fiber Tree，当处理到 <code>User</code> 组件时，React 代码中会捕获到异常：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    workLoopConcurrent()</span><br><span class="line">    <span class="keyword">break</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (thrownValue) &#123;</span><br><span class="line">    handleError(root, thrownValue)</span><br><span class="line">  &#125;</span><br><span class="line">&#125; <span class="keyword">while</span> (<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="/2022/04/03/react-suspense/suspense1.png" alt=""></p>
+<p>其中，异常处理函数 <code>handleError</code> 主要做两件事：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">throwException(</span><br><span class="line">  root,</span><br><span class="line">  erroredWork.return,</span><br><span class="line">  erroredWork,</span><br><span class="line">  thrownValue,</span><br><span class="line">  workInProgressRootRenderLanes</span><br><span class="line">)</span><br><span class="line">completeUnitOfWork(erroredWork)</span><br></pre></td></tr></table></figure>
+<p>其中，<code>throwException</code> 主要是往上找到最近的 <code>Suspense</code> 类型的 Fiber，并更新其 <code>updateQueue</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> wakeables: <span class="built_in">Set</span>&lt;Wakeable&gt; = (workInProgress.updateQueue: any)</span><br><span class="line"><span class="keyword">if</span> (wakeables === <span class="literal">null</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> updateQueue = (<span class="keyword">new</span> <span class="built_in">Set</span>(): any)</span><br><span class="line">  updateQueue.add(wakeable) <span class="comment">// wakeable 是 handleError(root, thrownValue) 中的 thrownValue，是一个 Promise 对象</span></span><br><span class="line">  workInProgress.updateQueue = updateQueue</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  wakeables.add(wakeable)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2022/04/03/react-suspense/suspense2.png" alt=""></p>
+<p>而 <code>completeUnitOfWork(erroredWork)</code> 在<a href="/2020/07/26/react-first-render/">React 源码解读之首次渲染流程</a>中已经介绍过了，此处就不再赘述了。</p>
+<p><code>render</code> 阶段后，会形成如下所示的 Fiber 结构：</p>
+<p><img src="/2022/04/03/react-suspense/suspense3.png" alt=""></p>
+<p>之后会进入 <code>commit</code> 阶段，将 Fiber 对应的 DOM 插入到容器之中：</p>
+<p><img src="/2022/04/03/react-suspense/display.png" alt=""></p>
+<p>注意到 <code>Loading articles...</code> 虽然也被插入了，但是确实不可见的。</p>
+<p>前面提到过 <code>Suspense</code> 的 <code>updateQueue</code> 中保存了 <code>Promise</code> 请求对象，我们需要在其 <code>resolve</code> 以后触发应用的重新渲染，这一步骤仍然是在 <code>commit</code> 阶段实现的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">commitWork</span>(<span class="params">current: Fiber | null, finishedWork: Fiber</span>): <span class="title">void</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">case</span> SuspenseComponent: &#123;</span><br><span class="line">    commitSuspenseComponent(finishedWork);</span><br><span class="line">    attachSuspenseRetryListeners(finishedWork);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">attachSuspenseRetryListeners</span>(<span class="params">finishedWork: Fiber</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// If this boundary just timed out, then it will have a set of wakeables.</span></span><br><span class="line">  <span class="comment">// For each wakeable, attach a listener so that when it resolves, React</span></span><br><span class="line">  <span class="comment">// attempts to re-render the boundary in the primary (pre-timeout) state.</span></span><br><span class="line">  <span class="keyword">const</span> wakeables: <span class="built_in">Set</span>&lt;Wakeable&gt; | <span class="literal">null</span> = (finishedWork.updateQueue: any)</span><br><span class="line">  <span class="keyword">if</span> (wakeables !== <span class="literal">null</span>) &#123;</span><br><span class="line">    finishedWork.updateQueue = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">let</span> retryCache = finishedWork.stateNode</span><br><span class="line">    <span class="keyword">if</span> (retryCache === <span class="literal">null</span>) &#123;</span><br><span class="line">      retryCache = finishedWork.stateNode = <span class="keyword">new</span> PossiblyWeakSet()</span><br><span class="line">    &#125;</span><br><span class="line">    wakeables.forEach(<span class="function">(<span class="params">wakeable</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">// Memoize using the boundary fiber to prevent redundant listeners.</span></span><br><span class="line">      <span class="keyword">let</span> retry = resolveRetryWakeable.bind(<span class="literal">null</span>, finishedWork, wakeable)</span><br><span class="line">      <span class="keyword">if</span> (!retryCache.has(wakeable)) &#123;</span><br><span class="line">        <span class="keyword">if</span> (enableSchedulerTracing) &#123;</span><br><span class="line">          <span class="keyword">if</span> (wakeable.__reactDoNotTraceInteractions !== <span class="literal">true</span>) &#123;</span><br><span class="line">            retry = Schedule_tracing_wrap(retry)</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        retryCache.add(wakeable)</span><br><span class="line">        <span class="comment">// promise resolve 了以后触发 react 的重新渲染</span></span><br><span class="line">        wakeable.then(retry, retry)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文介绍了 <code>Suspense</code> 提出的背景、使用方式以及原理，从文中可看出 <code>Suspense</code> 用于数据获取对我们的开发方式将是一个巨大的影响，但是目前还处在实验阶段，所以留给“中国队”的时间还是很充足的。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/01/29/react-native-split-2/" rel="next" title="React Native 按需加载实战（二）">
+                <i class="fa fa-chevron-left"></i> React Native 按需加载实战（二）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/04/27/react-transition/" rel="prev" title="React 之 transition">
+                React 之 transition <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">156</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">80</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Suspense-提出的背景"><span class="nav-number">1.</span> <span class="nav-text">Suspense 提出的背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Suspense-的使用"><span class="nav-number">2.</span> <span class="nav-text">Suspense 的使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Suspense-用于数据获取"><span class="nav-number">2.1.</span> <span class="nav-text">Suspense 用于数据获取</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lazy-Component"><span class="nav-number">2.2.</span> <span class="nav-text">Lazy Component</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原理"><span class="nav-number">3.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

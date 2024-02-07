@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Chrome 插件," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="实现一个对照翻译插件">
+<meta name="keywords" content="Chrome 插件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Chrome 插件开发实战：实现一个对照翻译插件（一）前端部分">
+<meta property="og:url" content="http://www.paradeto.com/2023/11/05/chrome-plugin-parallel-translate-1/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="实现一个对照翻译插件">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2023/11/05/chrome-plugin-parallel-translate-1/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/11/05/chrome-plugin-parallel-translate-1/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/11/05/chrome-plugin-parallel-translate-1/3.png">
+<meta property="og:updated_time" content="2023-11-07T09:20:06.785Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Chrome 插件开发实战：实现一个对照翻译插件（一）前端部分">
+<meta name="twitter:description" content="实现一个对照翻译插件">
+<meta name="twitter:image" content="http://www.paradeto.com/2023/11/05/chrome-plugin-parallel-translate-1/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2023/11/05/chrome-plugin-parallel-translate-1/"/>
+
+
+
+
+
+
+  <title>Chrome 插件开发实战：实现一个对照翻译插件（一）前端部分 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2023/11/05/chrome-plugin-parallel-translate-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Chrome 插件开发实战：实现一个对照翻译插件（一）前端部分</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-11-05T16:19:51+08:00">
+                2023-11-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  实现一个对照翻译插件
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>Chrome 浏览器自带翻译功能，但是翻译后就看不到原文了，如果能够让原文和译文同时显示，是不是更加友好呢？就像这样：</p>
+<p><img src="/2023/11/05/chrome-plugin-parallel-translate-1/1.png" alt=""></p>
+<p>好的，接下来就让我们来实现这个插件吧。很明显，实现整个插件大致包括两个部分：</p>
+<p>第一部分就是前端部分，需要分析页面，提取出需要翻译的内容，并计算译文显示的位置。第二部分则是翻译功能。</p>
+<p>本文先来实现第一部分。</p>
+<p><em>关于插件开发环境搭建本文略过了，可以使用 vite + @crxjs/vite-plugin 快速搭建</em></p>
+<h1 id="版本一：在所有文本节点后插入译文"><a href="#版本一：在所有文本节点后插入译文" class="headerlink" title="版本一：在所有文本节点后插入译文"></a>版本一：在所有文本节点后插入译文</h1><p>看到这个效果，很容易会想到可以遍历整个文档的 Text node，然后在其后面插入译文。</p>
+<p>我们在 <code>content_script</code> 中先来实现一下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ParallelTranslate</span> </span>&#123;</span><br><span class="line">  findTextNodes() &#123;</span><br><span class="line">    <span class="keyword">const</span> textNodes = []</span><br><span class="line">    <span class="keyword">const</span> walker = <span class="built_in">document</span>.createTreeWalker(</span><br><span class="line">      <span class="built_in">document</span>.body,</span><br><span class="line">      NodeFilter.SHOW_TEXT,</span><br><span class="line">      (node) =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> (node.nodeType === Node.TEXT_NODE) &#123;</span><br><span class="line">          <span class="keyword">return</span> NodeFilter.FILTER_ACCEPT</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> NodeFilter.FILTER_SKIP</span><br><span class="line">      &#125;</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">let</span> node = walker.nextNode()</span><br><span class="line">    <span class="keyword">while</span> (node) &#123;</span><br><span class="line">      <span class="keyword">if</span> (node.textContent?.trim()) &#123;</span><br><span class="line">        textNodes.push(node)</span><br><span class="line">      &#125;</span><br><span class="line">      node = walker.nextNode()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> textNodes</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  translate() &#123;</span><br><span class="line">    <span class="keyword">const</span> textNodes = <span class="keyword">this</span>.findTextNodes()</span><br><span class="line">    textNodes.forEach(<span class="function">(<span class="params">textNode</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> $transltedNode = <span class="built_in">document</span>.createElement(<span class="string">'translation'</span>)</span><br><span class="line">      $transltedNode.innerText = textNode.textContent!</span><br><span class="line">      $transltedNode.style.cssText = <span class="string">`</span></span><br><span class="line"><span class="string">      background-repeat: repeat-x;</span></span><br><span class="line"><span class="string">      background: linear-gradient( to right, #673AB7 0%, #9C27B0 50%, transparent 50%, transparent 100% ) repeat-x left bottom;</span></span><br><span class="line"><span class="string">      background-size: 4px 1px;</span></span><br><span class="line"><span class="string">      padding-bottom: 2px;`</span></span><br><span class="line">      textNode.after($transltedNode)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> ParallelTranslate().translate()</span><br></pre></td></tr></table></figure>
+<p>我们通过 <code>createTreeWalker</code> 来遍历得到文档中的所有 Text 节点，然后在他们的后面插入了一个带有下划线样式的自定义标签 <code>translation</code>，不过目前我们没有实现翻译功能，暂用原文作为该标签的内容。看看效果：</p>
+<p><img src="/2023/11/05/chrome-plugin-parallel-translate-1/2.png" alt=""></p>
+<p>很明显，有几个问题：</p>
+<p>1 不应该翻译的内容，比如 <code>&lt;code&gt;&lt;/code&gt;</code> 中的内容也翻译了。<br>2 有些完整的段落没有作为一个整体被翻译，而是被拆成了好多小段。</p>
+<p>我们来解决这两个问题。</p>
+<h1 id="版本二：过滤掉不需要翻译的节点"><a href="#版本二：过滤掉不需要翻译的节点" class="headerlink" title="版本二：过滤掉不需要翻译的节点"></a>版本二：过滤掉不需要翻译的节点</h1><p>为了解决第一个问题，我们在 <code>this.findTextNodes()</code> 前新增一个 <code>markExclude</code> 的步骤，这里暂时只添加了 <code>code</code>，可以根据需求添加更多的规则，甚至对不同的站点定制特殊的规则：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">excludeSelector = [<span class="string">'code'</span>]</span><br><span class="line">...</span><br><span class="line">setAttr(el: HTMLElement, <span class="attr">attr</span>: string, value = <span class="string">'t'</span>) &#123;</span><br><span class="line">  el.setAttribute(attr, value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">isMarkAttr(el: HTMLElement, <span class="attr">attr</span>: string, value = <span class="string">'t'</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> el.getAttribute(attr) === value</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">markExclude() &#123;</span><br><span class="line">  <span class="keyword">this</span>.excludeSelector.forEach(<span class="function">(<span class="params">selector</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">document</span>.body.querySelectorAll(selector).forEach(<span class="function">(<span class="params">el</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.setAttr(el <span class="keyword">as</span> HTMLElement, <span class="string">'translate-exclude'</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，在 <code>findTextNodes</code> 可以过滤掉被标记的 Node：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> walker = <span class="built_in">document</span>.createTreeWalker(</span><br><span class="line">  <span class="built_in">document</span>.body,</span><br><span class="line">  NodeFilter.SHOW_TEXT | NodeFilter.SHOW_ELEMENT,</span><br><span class="line">  (node) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (node.nodeType === Node.ELEMENT_NODE) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.isMarkAttr(node <span class="keyword">as</span> HTMLElement, <span class="string">'translate-exclude'</span>)</span><br><span class="line">        ? NodeFilter.FILTER_REJECT <span class="comment">// 当前节点如果被标记了，则跳过它和它的子节点</span></span><br><span class="line">        : NodeFilter.FILTER_SKIP <span class="comment">// 否则只跳过当前节点</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> NodeFilter.FILTER_ACCEPT</span><br><span class="line">  &#125;</span><br><span class="line">)</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这样，第一个问题就解决了。我们接着处理第二个问题，第二个问题处理起来比较麻烦，我们需要把分散的文本节点根据某些规则组合成段落作为一个整体来进行翻译。</p>
+<h1 id="版本三：按段落翻译"><a href="#版本三：按段落翻译" class="headerlink" title="版本三：按段落翻译"></a>版本三：按段落翻译</h1><p>我们在 <code>findTextNodes</code> 后新增一个 <code>createParagraphs</code> 的步骤：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">translate() &#123;</span><br><span class="line">  <span class="keyword">this</span>.markExclude()</span><br><span class="line">  <span class="keyword">const</span> textNodes = <span class="keyword">this</span>.findTextNodes()</span><br><span class="line">  <span class="keyword">const</span> paragraphs = <span class="keyword">this</span>.createParagraphs(textNodes)</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>createParagraphs</code> 中会遍历每个 Text 节点，找到 Text 节点最近的块状祖先节点，然后把相同祖先节点的 Text 节点都放到同一个段落的 textNodes 中：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">createParagraphs(textNodes: Node[]) &#123;</span><br><span class="line">  <span class="keyword">const</span> paragraphs: Paragraph[] = []</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> textNode <span class="keyword">of</span> textNodes) &#123;</span><br><span class="line">    <span class="keyword">const</span> blockAncestorEl = <span class="keyword">this</span>.getBlockAncestorEl(textNode.parentElement!)</span><br><span class="line">    <span class="keyword">const</span> paragraph = paragraphs.find(</span><br><span class="line">      (p) =&gt; p.commonAncestorEl === blockAncestorEl</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">if</span> (paragraph) &#123;</span><br><span class="line">      paragraph.textNodes.push(textNode)</span><br><span class="line">      paragraph.text += textNode.textContent</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> translationEl = <span class="keyword">this</span>.createTranslationEl()</span><br><span class="line">      <span class="keyword">this</span>.setAttr(blockAncestorEl, <span class="keyword">this</span>.translationNodeAncestorAttr)</span><br><span class="line">      paragraphs.push(&#123;</span><br><span class="line">        id: uuid(),</span><br><span class="line">        commonAncestorEl: blockAncestorEl, <span class="comment">// 多个 Text 节点的公共祖先节点</span></span><br><span class="line">        textNodes: [textNode], <span class="comment">// 当前段落包含的 Text 节点</span></span><br><span class="line">        text: textNode.textContent!, <span class="comment">// 当前段落的内容，由子节点的内容拼接而成</span></span><br><span class="line">        translationEl, <span class="comment">// 译文会放在这个标签里</span></span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> paragraphs</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，我们遍历 <code>paragraphs</code>，并把段落的 <code>text</code> 设置为 <code>translationEl</code> 的 <code>innerText</code>，然后把 <code>translationEl</code> 插入到 <code>commonAncestorEl</code> 的最后：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">translate() &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">const</span> paragraphs = <span class="keyword">this</span>.createParagraphs(textNodes)</span><br><span class="line">  paragraphs.forEach(</span><br><span class="line">    (&#123;commonAncestorEl, text, translationEl&#125;) =&gt; &#123;</span><br><span class="line">      translationEl.innerText = text.trim()</span><br><span class="line">      translationEl.style.cssText = <span class="string">`</span></span><br><span class="line"><span class="string">    background-repeat: repeat-x;</span></span><br><span class="line"><span class="string">    background: linear-gradient( to right, #673AB7 0%, #9C27B0 50%, transparent 50%, transparent 100% ) repeat-x left bottom;</span></span><br><span class="line"><span class="string">    background-size: 4px 1px;</span></span><br><span class="line"><span class="string">    padding-bottom: 2px;`</span></span><br><span class="line">      commonAncestorEl.appendChild(translationEl)</span><br><span class="line">    &#125;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后的效果是这样：</p>
+<p><img src="/2023/11/05/chrome-plugin-parallel-translate-1/3.png" alt=""></p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文介绍了对照翻译中前端部分的实现思路，不过还有可以优化的空间。比如我们一开始可以只显示可视区域内的译文，然后通过 <code>IntersectionObserver</code> 来监控节点是否可见，这样可以加快翻译的速度，也节省了资源；还有网站在加载的过程中可能会通过 JS 来修改网页的内容，所以我们还需要通过 <code>MutationObserver</code> 来监听节点的变化，从而对新增的内容进行翻译。最后，欢迎关注公众号“前端游”。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Chrome-插件/" rel="tag"># Chrome 插件</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/10/30/jotai/" rel="next" title="浅析状态管理库 Jotai 的实现原理">
+                <i class="fa fa-chevron-left"></i> 浅析状态管理库 Jotai 的实现原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/11/16/chrome-plugin-parallel-translate-2/" rel="prev" title="Chrome 插件开发实战：实现一个对照翻译插件（二）翻译部分">
+                Chrome 插件开发实战：实现一个对照翻译插件（二）翻译部分 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">156</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">80</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#版本一：在所有文本节点后插入译文"><span class="nav-number">2.</span> <span class="nav-text">版本一：在所有文本节点后插入译文</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#版本二：过滤掉不需要翻译的节点"><span class="nav-number">3.</span> <span class="nav-text">版本二：过滤掉不需要翻译的节点</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#版本三：按段落翻译"><span class="nav-number">4.</span> <span class="nav-text">版本三：按段落翻译</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
