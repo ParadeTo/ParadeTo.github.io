@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Design Pattern," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="原型模式（Prototype Pattern）是一种创建型设计模式，它通过复制现有对象来创建新对象，而不是使用常规的实例化过程。当对象创建成本高或创建过程很复杂时，通过复制一个现有的对象，然后基于复制出来的对象进行修改是一个非常好的方法。我们的学渣小明是使用原型模式的高手。期末考试了，学渣小明什么都不会，不慌，使用原型模式即可。 The Prototype Pattern is a creatio">
+<meta name="keywords" content="Design Pattern">
+<meta property="og:type" content="article">
+<meta property="og:title" content="设计模式之原型模式（TypeScript &amp; Rust）">
+<meta property="og:url" content="http://www.paradeto.com/2024/03/19/design-pattern-prototype/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="原型模式（Prototype Pattern）是一种创建型设计模式，它通过复制现有对象来创建新对象，而不是使用常规的实例化过程。当对象创建成本高或创建过程很复杂时，通过复制一个现有的对象，然后基于复制出来的对象进行修改是一个非常好的方法。我们的学渣小明是使用原型模式的高手。期末考试了，学渣小明什么都不会，不慌，使用原型模式即可。 The Prototype Pattern is a creatio">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-03-19T04:07:04.138Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="设计模式之原型模式（TypeScript &amp; Rust）">
+<meta name="twitter:description" content="原型模式（Prototype Pattern）是一种创建型设计模式，它通过复制现有对象来创建新对象，而不是使用常规的实例化过程。当对象创建成本高或创建过程很复杂时，通过复制一个现有的对象，然后基于复制出来的对象进行修改是一个非常好的方法。我们的学渣小明是使用原型模式的高手。期末考试了，学渣小明什么都不会，不慌，使用原型模式即可。 The Prototype Pattern is a creatio">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/03/19/design-pattern-prototype/"/>
+
+
+
+
+
+
+  <title>设计模式之原型模式（TypeScript & Rust） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/03/19/design-pattern-prototype/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">设计模式之原型模式（TypeScript & Rust）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-03-19T10:01:45+08:00">
+                2024-03-19
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>原型模式（Prototype Pattern）是一种创建型设计模式，它通过复制现有对象来创建新对象，而不是使用常规的实例化过程。当对象创建成本高或创建过程很复杂时，通过复制一个现有的对象，然后基于复制出来的对象进行修改是一个非常好的方法。我们的学渣小明是使用原型模式的高手。期末考试了，学渣小明什么都不会，不慌，使用原型模式即可。</p>
+<p>The Prototype Pattern is a creational design pattern that involves creating new objects by copying existing objects, rather than using the regular instantiation process. When the cost of object creation is high or the creation process is complex, it’s a great approach to copy an existing object and modify it as needed. Our student, Xiao Ming, who is not good at studying, is an expert in using the Prototype Pattern. When the final exams come, even if Xiao Ming doesn’t know anything, there’s no need to panic. He can simply use the Prototype Pattern.</p>
+<h1 id="TypeScript"><a href="#TypeScript" class="headerlink" title="TypeScript"></a>TypeScript</h1><p>有一个试卷类 <code>ExaminationPaper</code>，包含名字 <code>string</code>、选择题 <code>Question[]</code> 和简答题 <code>Question[]</code> 三个属性：</p>
+<p>There is a class called <code>ExaminationPaper</code> that contains three properties: name (<code>string</code>), choice questions (<code>Question[]</code>), and simple answer questions (<code>Question[]</code>).</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">interface</span> Prototype &#123;</span><br><span class="line">  clone(): Prototype</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> Question <span class="keyword">implements</span> Prototype &#123;</span><br><span class="line">  <span class="keyword">private</span> answer: <span class="built_in">string</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">answer: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.answer = answer</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  setAnswer(answer: <span class="built_in">string</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.answer = answer</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getAnswer(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.answer</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  clone(): Prototype &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> Question(<span class="keyword">this</span>.answer)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> ExaminationPaper <span class="keyword">implements</span> Prototype &#123;</span><br><span class="line">  choiceQuestions: Question[]</span><br><span class="line">  shortAnswerQuestions: Question[]</span><br><span class="line">  name: <span class="built_in">string</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    name: <span class="built_in">string</span>,</span></span><br><span class="line"><span class="params">    choiceQuestions: Question[],</span></span><br><span class="line"><span class="params">    shortAnswerQuestions: Question[]</span></span><br><span class="line"><span class="params">  </span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.name = name</span><br><span class="line">    <span class="keyword">this</span>.choiceQuestions = choiceQuestions</span><br><span class="line">    <span class="keyword">this</span>.shortAnswerQuestions = shortAnswerQuestions</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  clone(): Prototype &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> ExaminationPaper(</span><br><span class="line">      <span class="keyword">this</span>.name,</span><br><span class="line">      <span class="keyword">this</span>.choiceQuestions.map(<span class="function">(<span class="params">q</span>) =&gt;</span> q.clone() <span class="keyword">as</span> Question),</span><br><span class="line">      <span class="keyword">this</span>.shortAnswerQuestions.map(<span class="function">(<span class="params">q</span>) =&gt;</span> q.clone() <span class="keyword">as</span> Question)</span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  print() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.name, <span class="string">'paper:'</span>)</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.choiceQuestions.map(<span class="function">(<span class="params">q</span>) =&gt;</span> q.getAnswer()))</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="keyword">this</span>.shortAnswerQuestions.map(<span class="function">(<span class="params">q</span>) =&gt;</span> q.getAnswer()))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> xiaohongPaper = <span class="keyword">new</span> ExaminationPaper(</span><br><span class="line">  <span class="string">'xiaohong'</span>,</span><br><span class="line">  [<span class="keyword">new</span> Question(<span class="string">'A'</span>), <span class="keyword">new</span> Question(<span class="string">'B'</span>)],</span><br><span class="line">  [<span class="keyword">new</span> Question(<span class="string">'answer1.'</span>), <span class="keyword">new</span> Question(<span class="string">'answer2.'</span>)]</span><br><span class="line">)</span><br><span class="line">xiaohongPaper.print()</span><br><span class="line"></span><br><span class="line"><span class="comment">// Copy xiaohong's paper</span></span><br><span class="line"><span class="keyword">const</span> xiaomingPager = xiaohongPaper.clone() <span class="keyword">as</span> ExaminationPaper</span><br><span class="line"><span class="comment">// Modify name</span></span><br><span class="line">xiaomingPager.name = <span class="string">'xiaoming'</span></span><br><span class="line"><span class="comment">// For short answer questions, add a closing word to the end</span></span><br><span class="line">xiaomingPager.shortAnswerQuestions.forEach(<span class="function">(<span class="params">q</span>) =&gt;</span></span><br><span class="line">  q.setAnswer(q.getAnswer() + <span class="string">`That's all, thanks!`</span>)</span><br><span class="line">)</span><br><span class="line">xiaomingPager.print()</span><br></pre></td></tr></table></figure>
+<p>首先，小红实例化 <code>ExaminationPaper</code> 完成作答。然后，小明通过调用小红试卷的 <code>clone</code> 方法复制出一份新的实例，修改名字为 <code>xiaoming</code>，同时为了避免雷同，还“机智”地在每道简答题答案后面加上了一段特有结束语。这样，小明不费吹灰之力就白嫖了一份答案。</p>
+<p>First, Xiao Hong instantiates an <code>ExaminationPaper</code> object to complete the answering. Then, Xiao Ming calls the <code>clone</code> method of Xiao Hong’s paper to create a new instance, modifies the name to <code>xiaoming</code>, and cleverly adds a unique ending phrase after each answer to avoid similarities. This way, Xiao Ming effortlessly obtains a set of answers for himself.</p>
+<p>从这个例子来看，原型模式很简单，关键在于实现 <code>Prototype</code> 的 <code>clone</code> 方法，并注意对复杂类型的属性进行深度拷贝。</p>
+<p>From this example, the Prototype Pattern seems simple. The key is to implement the <code>clone</code> method in the <code>Prototype</code> and ensure deep copying of complex-type properties.</p>
+<p>而对于 Rust 来说，借助其强大的宏的特性，实现原型模式则更加方便。</p>
+<p>In the case of Rust, leveraging its powerful macro features makes implementing the Prototype Pattern even more convenient.</p>
+<h1 id="Rust"><a href="#Rust" class="headerlink" title="Rust"></a>Rust</h1><figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Clone)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Question</span></span> &#123;</span><br><span class="line">    answer: <span class="built_in">String</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> Question &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">new</span></span>(answer: &amp;<span class="built_in">str</span>) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">Self</span> &#123;</span><br><span class="line">            answer: answer.to_string(),</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">get_answer</span></span>(&amp;<span class="keyword">self</span>) -&gt; &amp;<span class="built_in">str</span> &#123;</span><br><span class="line">        <span class="keyword">self</span>.answer.as_str()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">set_answer</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, answer: <span class="built_in">String</span>) &#123;</span><br><span class="line">        <span class="keyword">self</span>.answer = answer</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Clone)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">ExaminationPaper</span></span> &#123;</span><br><span class="line">    choice_questions: <span class="built_in">Vec</span>&lt;Question&gt;,</span><br><span class="line">    short_answer_questions: <span class="built_in">Vec</span>&lt;Question&gt;,</span><br><span class="line">    name: <span class="built_in">String</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> ExaminationPaper &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">new</span></span>(</span><br><span class="line">        name: &amp;<span class="built_in">str</span>,</span><br><span class="line">        choice_questions: <span class="built_in">Vec</span>&lt;Question&gt;,</span><br><span class="line">        short_answer_questions: <span class="built_in">Vec</span>&lt;Question&gt;,</span><br><span class="line">    ) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        <span class="keyword">Self</span> &#123;</span><br><span class="line">            name: name.to_string(),</span><br><span class="line">            choice_questions,</span><br><span class="line">            short_answer_questions,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">print</span></span>(&amp;<span class="keyword">self</span>) &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"&#123;&#125; paper:"</span>, <span class="keyword">self</span>.name);</span><br><span class="line">        <span class="built_in">println!</span>(</span><br><span class="line">            <span class="string">"&#123;&#125;"</span>,</span><br><span class="line">            <span class="keyword">self</span>.choice_questions</span><br><span class="line">                .iter()</span><br><span class="line">                .map(|q| q.get_answer())</span><br><span class="line">                .collect::&lt;<span class="built_in">Vec</span>&lt;_&gt;&gt;()</span><br><span class="line">                .join(<span class="string">" "</span>)</span><br><span class="line">        );</span><br><span class="line">        <span class="built_in">println!</span>(</span><br><span class="line">            <span class="string">"&#123;&#125;"</span>,</span><br><span class="line">            <span class="keyword">self</span>.short_answer_questions</span><br><span class="line">                .iter()</span><br><span class="line">                .map(|q| q.get_answer())</span><br><span class="line">                .collect::&lt;<span class="built_in">Vec</span>&lt;_&gt;&gt;()</span><br><span class="line">                .join(<span class="string">" "</span>)</span><br><span class="line">        );</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> xiaohong_paper = &amp;ExaminationPaper::new(</span><br><span class="line">        <span class="string">"xiaohong"</span>,</span><br><span class="line">        <span class="built_in">vec!</span>[Question::new(<span class="string">"A"</span>), Question::new(<span class="string">"B"</span>)],</span><br><span class="line">        <span class="built_in">vec!</span>[Question::new(<span class="string">"answer1."</span>), Question::new(<span class="string">"answer2."</span>)],</span><br><span class="line">    );</span><br><span class="line">    xiaohong_paper.print();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> xiaoming_paper = &amp;<span class="keyword">mut</span> xiaohong_paper.clone();</span><br><span class="line">    xiaoming_paper.name = <span class="string">"xiaoming"</span>.to_string();</span><br><span class="line">    <span class="keyword">for</span> q <span class="keyword">in</span> xiaoming_paper.short_answer_questions.iter_mut() &#123;</span><br><span class="line">        q.set_answer(<span class="built_in">format!</span>(<span class="string">"&#123;&#125; &#123;&#125;"</span>, q.get_answer(), <span class="string">"That's all. Thanks!"</span>));</span><br><span class="line">    &#125;</span><br><span class="line">    xiaoming_paper.print();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们并没有给 <code>ExaminationPaper</code> 和 <code>Question</code> 实现 <code>clone</code> 方法，而只是在类型前面加上了 <code>#[derive(Clone)]</code>。</p>
+<p>As you can see, we didn’t implement the <code>clone</code> method for <code>ExaminationPaper</code> and <code>Question</code>. Instead, we simply added <code>#[derive(Clone)]</code> before the type declarations.</p>
+<p>当在一个结构体或枚举类型上添加 <code>#[derive(Clone)]</code> 派生宏时，Rust 编译器会自动为该类型生成一个 <code>Clone trait</code> 的实现。</p>
+<p>When you add the <code>#[derive(Clone)]</code> derive macro to a struct or enum type in Rust, the compiler automatically generates an implementation of the <code>Clone trait</code> for that type.</p>
+<p>对于结构体类型，自动生成的 <code>Clone trait</code> 实现会逐个克隆每个字段，并返回一个新的结构体对象。这意味着每个字段都必须实现 <code>Clone trait</code> 或是基本类型（如整数、浮点数等），否则编译器会报错。</p>
+<p>For struct types, the automatically generated <code>Clone</code> implementation clones each field one by one and returns a new struct object. This means that each field must implement the <code>Clone trait</code> or be a primitive type (such as integers, floating-point numbers, etc.), otherwise the compiler will throw an error.</p>
+<p>对于枚举类型，自动生成的 <code>Clone trait</code> 实现会逐个克隆每个变体，并返回一个新的枚举对象。同样地，每个变体中的字段都必须实现 <code>Clone trait</code> 或是基本类型。</p>
+<p>For enum types, the automatically generated <code>Clone</code> implementation clones each variant one by one and returns a new enum object. Similarly, each field within each variant must implement the <code>Clone trait</code> or be a primitive type.</p>
+<p>这样通过使用 <code>#[derive(Clone)]</code>，我们可以轻松地为自定义类型生成克隆功能，且无需手动实现 <code>Clone trait</code>，可以减少很多样板代码。</p>
+<p>By using <code>#[derive(Clone)]</code>, we can easily generate the cloning functionality for custom types without manually implementing the <code>Clone trait</code>. This helps reduce a lot of boilerplate code.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Design-Pattern/" rel="tag"># Design Pattern</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/03/13/design-pattern-factory/" rel="next" title="设计模式之各种工厂模式（TypeScript & Rust）">
+                <i class="fa fa-chevron-left"></i> 设计模式之各种工厂模式（TypeScript & Rust）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/04/03/big-react-wasm-1/" rel="prev" title="从零实现 React v18，但 WASM 版 - [1] 项目框架搭建">
+                从零实现 React v18，但 WASM 版 - [1] 项目框架搭建 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">164</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#TypeScript"><span class="nav-number">1.</span> <span class="nav-text">TypeScript</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Rust"><span class="nav-number">2.</span> <span class="nav-text">Rust</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
