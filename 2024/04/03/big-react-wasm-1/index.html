@@ -70,7 +70,7 @@
 
 
 
-  <meta name="keywords" content="react,wasm," />
+  <meta name="keywords" content="wasm,react," />
 
 
 
@@ -81,20 +81,20 @@
 
 
 
-<meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从 0 到 1 实现从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v1  工具Rust：一种安全、高效和现代的编程语言（省略一万字）。按照官网">
-<meta name="keywords" content="react,wasm">
+<meta name="description" content="Implement React v18 from Scratch Using WASM and Rust - [1] Build the Project">
+<meta name="keywords" content="wasm,react">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从零实现 React v18，但 WASM 版 - [1] 项目框架搭建">
 <meta property="og:url" content="http://www.paradeto.com/2024/04/03/big-react-wasm-1/index.html">
 <meta property="og:site_name" content="Ayou">
-<meta property="og:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从 0 到 1 实现从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v1  工具Rust：一种安全、高效和现代的编程语言（省略一万字）。按照官网">
+<meta property="og:description" content="Implement React v18 from Scratch Using WASM and Rust - [1] Build the Project">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:image" content="http://www.paradeto.com/2024/04/03/big-react-wasm-1/1.png">
 <meta property="og:image" content="http://www.paradeto.com/2024/04/03/big-react-wasm-1/2.png">
-<meta property="og:updated_time" content="2024-04-03T10:50:28.640Z">
+<meta property="og:updated_time" content="2024-04-07T13:58:37.558Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [1] 项目框架搭建">
-<meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从 0 到 1 实现从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v1  工具Rust：一种安全、高效和现代的编程语言（省略一万字）。按照官网">
+<meta name="twitter:description" content="Implement React v18 from Scratch Using WASM and Rust - [1] Build the Project">
 <meta name="twitter:image" content="http://www.paradeto.com/2024/04/03/big-react-wasm-1/1.png">
 
 
@@ -369,6 +369,10 @@
           
 
           
+              <div class="post-description">
+                  Implement React v18 from Scratch Using WASM and Rust - [1] Build the Project
+              </div>
+          
 
         </div>
       </header>
@@ -388,43 +392,66 @@
 <p>代码地址：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
 <p>本文对应 tag：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v1" target="_blank" rel="noopener">v1</a></p>
 </blockquote>
-<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><p><a href="https://www.rust-lang.org/" target="_blank" rel="noopener"><strong>Rust</strong></a>：一种安全、高效和现代的编程语言（省略一万字）。按照官网所示开发即可。</p>
+<blockquote>
+<p>Based on <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，I am going to implement React v18 core features from scratch using WASM and Rust.</p>
+<p>Code Repository：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>The tag related to this article：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v1" target="_blank" rel="noopener">v1</a></p>
+</blockquote>
+<h1 id="工具"><a href="#工具" class="headerlink" title="工具"></a>工具</h1><h1 id="Tools"><a href="#Tools" class="headerlink" title="Tools"></a>Tools</h1><p><a href="https://www.rust-lang.org/" target="_blank" rel="noopener"><strong>Rust</strong></a>：一种安全、高效和现代的编程语言（省略一万字）。按照官网所示安装即可。</p>
 <p><a href="https://rustwasm.github.io/wasm-pack/installer/" target="_blank" rel="noopener"><strong>wasm-pack</strong></a>：构建、测试、和发布 Rust WebAssembly 的一站式工具。</p>
 <p><a href="https://github.com/cargo-generate/cargo-generate" target="_blank" rel="noopener"><strong>cargo-generate</strong></a>：通过已有的 Git 仓库作为模版，快速创建 Rust 项目。</p>
 <p>更多介绍可以参考 <a href="https://rustwasm.github.io/docs/book/" target="_blank" rel="noopener">Rust 和 WebAssembly 入门教程</a>。</p>
 <p>其他前端常用的工具自行安装即可，就不赘述了。</p>
-<h1 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h1><p>首先，我们搭建起如下的项目结构：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── Cargo.toml</span><br><span class="line">├── package.json</span><br><span class="line">├── examples</span><br><span class="line">│   └── hello-world <span class="comment">// vite 初始化的 react 项目</span></span><br><span class="line">├── packages</span><br><span class="line">│   ├── react <span class="comment">// 通过 cargo generate --git https://github.com/rustwasm/wasm-pack-template 生成的 WASM 项目</span></span><br><span class="line">│   ├── react-dom <span class="comment">// 通过 cargo generate --git https://github.com/rustwasm/wasm-pack-template 生成的 WASM 项目</span></span><br><span class="line">│   ├── react-reconciler <span class="comment">// cargo new 生成的普通 rust 项目</span></span><br><span class="line">│   └── shared <span class="comment">// cargo new 生成的普通 rust 项目</span></span><br></pre></td></tr></table></figure>
+<p><a href="https://www.rust-lang.org/" target="_blank" rel="noopener"><strong>Rust</strong></a>: A secure, efficient, and modern programming language (omitting ten thousand words). You can simply follow the installation instructions provided on the official website.</p>
+<p><a href="https://rustwasm.github.io/wasm-pack/installer/" target="_blank" rel="noopener"><strong>wasm-pack</strong></a>: A one-stop tool for building, testing, and publishing Rust WebAssembly.</p>
+<p><a href="https://github.com/cargo-generate/cargo-generate" target="_blank" rel="noopener"><strong>cargo-generate</strong></a>: Quickly create Rust projects by using existing Git repositories as templates.</p>
+<p>更多介绍可以参考 <a href="https://rustwasm.github.io/docs/book/" target="_blank" rel="noopener">Rust 和 WebAssembly 入门教程</a>。</p>
+<p>For more information, you can refer to the <a href="https://rustwasm.github.io/docs/book/" target="_blank" rel="noopener">Rust and WebAssembly</a>.</p>
+<h1 id="项目结构"><a href="#项目结构" class="headerlink" title="项目结构"></a>项目结构</h1><h1 id="Project-Structure"><a href="#Project-Structure" class="headerlink" title="Project Structure"></a>Project Structure</h1><p>首先，我们搭建起如下的项目结构：</p>
+<p>First, let’s set up the following project structure:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── Cargo.toml</span><br><span class="line">├── package.json</span><br><span class="line">├── examples</span><br><span class="line">│   └── hello-world <span class="comment">// React project initialized by vite</span></span><br><span class="line">├── packages</span><br><span class="line">│   ├── react <span class="comment">// WASM project created by cargo generate --git https://github.com/rustwasm/wasm-pack-template</span></span><br><span class="line">│   ├── react-dom <span class="comment">// WASM project created by cargo generate --git https://github.com/rustwasm/wasm-pack-template</span></span><br><span class="line">│   ├── react-reconciler <span class="comment">// Rust project created by cargo new</span></span><br><span class="line">│   └── shared <span class="comment">// Rust project created by cargo new</span></span><br></pre></td></tr></table></figure>
 <p><code>Cargo.toml</code> 如下所示，类似于前端中常说的 monorepo 架构。</p>
+<p>The <code>Cargo.toml</code> file is shown below, similar to the commonly mentioned monorepo architecture in frontend development.</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[workspace]</span><br><span class="line"></span><br><span class="line">members = [</span><br><span class="line">    &quot;packages/react&quot;,</span><br><span class="line">    &quot;packages/react-dom&quot;,</span><br><span class="line">    &quot;packages/react-reconciler&quot;,</span><br><span class="line">    &quot;packages/shared&quot;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
 <p>因为 react 和 react-dom 会导出方法供 JS 侧进行调用，所以需要通过 <code>cargo generate --git https://github.com/rustwasm/wasm-pack-template</code> 创建 WASM 项目，另外两个使用 <code>cargon new</code> 创建普通的 Rust 项目即可。</p>
-<h1 id="构建调试环境"><a href="#构建调试环境" class="headerlink" title="构建调试环境"></a>构建调试环境</h1><p>我们先删掉 <code>hello-world/src/main.tsx</code> 中的代码，写一个非常简单的例子：</p>
+<p>Because <code>react</code> and <code>react-dom</code> will export methods for JavaScript to call, we need to create a WASM project using <code>cargo generate --git https://github.com/rustwasm/wasm-pack-template</code> for those two. The other two can be created as regular Rust projects using <code>cargo new</code>.</p>
+<h1 id="构建调试环境"><a href="#构建调试环境" class="headerlink" title="构建调试环境"></a>构建调试环境</h1><h1 id="Setting-Up-the-Debugging-Environment"><a href="#Setting-Up-the-Debugging-Environment" class="headerlink" title="Setting Up the Debugging Environment"></a>Setting Up the Debugging Environment</h1><p>我们先删掉 <code>hello-world/src/main.tsx</code> 中的代码，写一个非常简单的例子：</p>
+<p>Let’s delete the code in <code>hello-world/src/main.tsx</code> and write a very simple example:</p>
 <figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;createRoot&#125; <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> comp = &lt;div&gt;hello world&lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">console.log(comp)</span></span><br><span class="line"><span class="regexp">console.log(createRoot(document.getElementById('root')))</span></span><br></pre></td></tr></table></figure>
 <p>在开发环境运行起来，在浏览器调试窗口中可以看到编译后的代码是这样的：</p>
+<p>When running in the development environment, you can see the compiled code in the browser’s debug window as follows:</p>
 <p><img src="/2024/04/03/big-react-wasm-1/1.png" alt=""></p>
 <p>现在我们的目标是让 hello-world 里面使用的是我们当前正在开发的 React，要让上述代码成功运行，我们需要做以下几步：</p>
+<p>Now, our goal is to make the hello-world use the React version we are currently developing. To get the above code to run successfully, we need to do the following steps:</p>
 <ol>
 <li>修改 hello-world 项目下的 <code>package.json</code>：</li>
 </ol>
+<p>1 Modify the <code>package.json</code> in the hello-world project:</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">"react": "file://../../packages/react/pkg/react",</span><br><span class="line">"react-dom": "file://../../packages/react-dom/pkg/react-dom",</span><br></pre></td></tr></table></figure>
 <ol start="2">
 <li>在根目录下的 <code>package.json</code> 添加打包命令，使用 wasm-pack 把 react 和 react-dom 打包成 WASM：</li>
 </ol>
+<p>2 Add a packaging command to the <code>package.json</code> in the root directory, using <code>wasm-pack</code> to package react and react-dom into WASM:</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">"scripts": &#123;</span><br><span class="line">  "build:react": "wasm-pack build packages/react --out-dir pkg/react --out-name jsx-dev-runtime",</span><br><span class="line">  "build:react-dom": "wasm-pack build packages/react-dom --out-dir pkg/react-dom --out-name index",</span><br><span class="line">  "build": "npm run build:react &amp;&amp; npm run build:react-dom"</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
 <ol start="3">
 <li>分别在 react 和 react-dom 中的 <code>lib.rs</code> 添加如下代码：</li>
 </ol>
+<p>3 Add the following code to the <code>lib.rs</code> in both react and react-dom:</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react/src/lib.rs</span></span><br><span class="line"><span class="keyword">use</span> wasm_bindgen::prelude::*;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">jsxDEV</span></span>() -&gt; <span class="built_in">String</span> &#123;</span><br><span class="line">    <span class="string">"hello world"</span>.to_string()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react-dom/src/lib.rs</span></span><br><span class="line"><span class="keyword">use</span> wasm_bindgen::prelude::*;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">createRoot</span></span>(container: &amp;JsValue) -&gt; JsValue &#123;</span><br><span class="line">    JsValue::null()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>由于 Rust 中的命名风格一般是下划线风格的，所以最好改成这样：</p>
+<p>Since the naming convention in Rust is generally snake_case, it’s better to change it to this:</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react/src/lib.rs</span></span><br><span class="line"><span class="keyword">use</span> wasm_bindgen::prelude::*;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen(js_name = jsxDev)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">jsx_dev</span></span>() -&gt; <span class="built_in">String</span> &#123;</span><br><span class="line">    <span class="string">"hello world"</span>.to_string()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react-dom/src/lib.rs</span></span><br><span class="line"><span class="keyword">use</span> wasm_bindgen::prelude::*;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen(js_name = createRoot)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">create_root</span></span>(container: &amp;JsValue) -&gt; JsValue &#123;</span><br><span class="line">    JsValue::null()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <ol start="4">
 <li>在根目录下运行 <code>npm run build</code>，然后在 hello-world 目录下运行 <code>pnpm install</code> 和 <code>npm run dev</code>，在浏览器中打开页面，可以看到如下输出：</li>
 </ol>
+<p>4 Run <code>npm run build</code> in the root directory, then run <code>pnpm install</code> and <code>npm run dev</code> in the hello-world directory, open the page in the browser, and you will see the following output:</p>
 <p><img src="/2024/04/03/big-react-wasm-1/2.png" alt=""></p>
 <p>这说明在 JS 侧成功调用了 WASM 导出的方法，调试环境搭建好了。不过有点麻烦的是，如果修改了代码，需要重新执行步骤 4。</p>
 <p>下一篇我们来实现 <code>jsx_dev</code> 的功能，敬请期待。</p>
+<p>This indicates that the method exported by WASM has been successfully called on the JS side, and the debugging environment is set up. However, the slightly troublesome part is that if the code is modified, step 4 needs to be executed again.</p>
+<p>In the next article, we will implement the jsx_dev function, so stay tuned.</p>
 
       
     </div>
@@ -442,9 +469,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/react/" rel="tag"># react</a>
-          
             <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+            <a href="/tags/react/" rel="tag"># react</a>
           
         </div>
       
@@ -551,7 +578,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">164</span>
+                  <span class="site-state-item-count">165</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
@@ -606,7 +633,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#工具"><span class="nav-number">1.</span> <span class="nav-text">工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#项目结构"><span class="nav-number">2.</span> <span class="nav-text">项目结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#构建调试环境"><span class="nav-number">3.</span> <span class="nav-text">构建调试环境</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#工具"><span class="nav-number">1.</span> <span class="nav-text">工具</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Tools"><span class="nav-number">2.</span> <span class="nav-text">Tools</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#项目结构"><span class="nav-number">3.</span> <span class="nav-text">项目结构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Project-Structure"><span class="nav-number">4.</span> <span class="nav-text">Project Structure</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#构建调试环境"><span class="nav-number">5.</span> <span class="nav-text">构建调试环境</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Setting-Up-the-Debugging-Environment"><span class="nav-number">6.</span> <span class="nav-text">Setting Up the Debugging Environment</span></a></li></ol></div>
             
 
           </div>

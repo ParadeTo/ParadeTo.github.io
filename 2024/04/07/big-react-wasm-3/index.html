@@ -70,7 +70,7 @@
 
 
 
-  <meta name="keywords" content="react,wasm," />
+  <meta name="keywords" content="wasm,react," />
 
 
 
@@ -82,7 +82,7 @@
 
 
 <meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v3  前言上一篇文章末本计划本篇实现 render 阶段，但考虑到内容太多，还是分开写比较好。">
-<meta name="keywords" content="react,wasm">
+<meta name="keywords" content="wasm,react">
 <meta property="og:type" content="article">
 <meta property="og:title" content="从零实现 React v18，但 WASM 版 - [3] Renderer 和 Reconciler 架构设计">
 <meta property="og:url" content="http://www.paradeto.com/2024/04/07/big-react-wasm-3/index.html">
@@ -401,7 +401,7 @@
 <p>他包含 <code>root</code> 和 <code>reconciler</code> 两个属性，其中 <code>root</code> 是在调用 <code>create_root</code> 时通过 <code>reconciler</code> 的 <code>create_container</code> 方法生成的：</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[wasm_bindgen(js_name = createRoot)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">create_root</span></span>(container: &amp;JsValue) -&gt; Renderer &#123;</span><br><span class="line">    set_panic_hook();</span><br><span class="line">    <span class="keyword">let</span> reconciler = Reconciler::new(<span class="built_in">Box</span>::new(ReactDomHostConfig));</span><br><span class="line">    <span class="keyword">let</span> root = reconciler.create_container(container);</span><br><span class="line">    <span class="keyword">let</span> renderer = Renderer::new(root, reconciler);</span><br><span class="line">    renderer</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>一切就绪了，我们加点代码来调试一下，我们把 <code>hello-world</code> 中的例子改成如下所示：</p>
-<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;createRoot&#125; <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> comp = &lt;div&gt;hello world&lt;/div&gt;</span><br><span class="line"><span class="keyword">const</span> root = createRoot(<span class="built_in">document</span>.getElementById(<span class="string">'root'</span>))</span><br><span class="line">root.render(comp)</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;createRoot&#125; <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> comp = <span class="xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>hello world<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="keyword">const</span> root = createRoot(<span class="built_in">document</span>.getElementById(<span class="string">'root'</span>))</span><br><span class="line">root.render(comp)</span><br></pre></td></tr></table></figure>
 <p>然后在 <code>Reconciler</code> 中，我们先硬编码实现首次渲染：</p>
 <figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">update_container</span></span>(&amp;<span class="keyword">self</span>, element: Rc&lt;JsValue&gt;, root: Rc&lt;RefCell&lt;FiberRootNode&gt;&gt;) &#123;</span><br><span class="line">    <span class="keyword">let</span> props = Reflect::get(&amp;*element, &amp;JsValue::from_str(<span class="string">"props"</span>)).unwrap();</span><br><span class="line">    <span class="keyword">let</span> _<span class="keyword">type</span> = Reflect::get(&amp;*element, &amp;JsValue::from_str(<span class="string">"type"</span>)).unwrap();</span><br><span class="line">    <span class="keyword">let</span> children = Reflect::get(&amp;props, &amp;JsValue::from_str(<span class="string">"children"</span>)).unwrap();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> text_instance = <span class="keyword">self</span>.host_config.create_text_instance(children.as_string().unwrap());</span><br><span class="line">    <span class="keyword">let</span> div_instance = <span class="keyword">self</span>.host_config.create_instance(_<span class="keyword">type</span>.as_string().unwrap());</span><br><span class="line">    <span class="keyword">self</span>.host_config.append_initial_child(div_instance.clone(), text_instance);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> window = window().unwrap();</span><br><span class="line">    <span class="keyword">let</span> document = window.document().unwrap();</span><br><span class="line">    <span class="keyword">let</span> body = document.body().expect(<span class="string">"document should have a body"</span>);</span><br><span class="line"></span><br><span class="line">    body.append_child(&amp;*div_instance.clone().downcast::&lt;Element&gt;().unwrap());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>不出意外，重新构建并安装依赖，运行 hello world 项目就可以在浏览器中看到内容了。</p>
@@ -422,9 +422,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/react/" rel="tag"># react</a>
-          
             <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+            <a href="/tags/react/" rel="tag"># react</a>
           
         </div>
       
@@ -446,6 +446,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/04/11/big-react-wasm-4/" rel="prev" title="从零实现 React v18，但 WASM 版 - [4] 实现 Render 流程的 beginWork 阶段">
+                从零实现 React v18，但 WASM 版 - [4] 实现 Render 流程的 beginWork 阶段 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -527,7 +531,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">164</span>
+                  <span class="site-state-item-count">165</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
