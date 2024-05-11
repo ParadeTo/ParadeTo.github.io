@@ -95,7 +95,7 @@
 <meta property="og:image" content="http://www.paradeto.com/2024/04/26/big-react-wasm-10/4.png">
 <meta property="og:image" content="http://www.paradeto.com/2024/04/26/big-react-wasm-10/5.png">
 <meta property="og:image" content="http://www.paradeto.com/2024/04/26/big-react-wasm-10/6.png">
-<meta property="og:updated_time" content="2024-04-30T08:47:16.305Z">
+<meta property="og:updated_time" content="2024-05-07T08:43:18.486Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [10] 实现单节点更新流程">
 <meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v10   Based on big-react，I am going to implement">
@@ -439,15 +439,15 @@
 <p>Next, the process is similar to the initial rendering. First, let’s look at the “begin work” phase. During the update process, the “begin work” phase primarily handles the child nodes of the <code>FiberNode</code>. It generates new child <code>FiberNode</code> by comparing the existing child <code>FiberNode</code> in the Fiber Tree with the newly generated <code>ReactElement</code> (referred to as <code>children</code> in the code). This is commonly known as the diffing process:</p>
 <p><img src="/2024/04/26/big-react-wasm-10/3.png" alt=""></p>
 <p>其中，不同类型的 <code>FiberNode</code> 节点产生 children 的方式有所不同：</p>
-<p>The way children are generated differs based on the type of <code>FiberNode</code>:</p>
 <ul>
 <li><code>HostRoot</code>：从 <code>memoized_state</code> 取值</li>
 <li><code>HostComponent</code>：从 <code>pending_props</code> 中取值</li>
 <li><code>FunctionComponent</code>：通过执行 <code>type</code> 指向的 <code>Function</code> 来得到</li>
-<li><p><code>HostText</code>：没有这个过程，略</p>
-</li>
-<li><p><code>HostRoot</code>: Values are taken from <code>memoized_state</code>.</p>
-</li>
+<li><code>HostText</code>：没有这个过程，略</li>
+</ul>
+<p>The way children are generated differs based on the type of <code>FiberNode</code>:</p>
+<ul>
+<li><code>HostRoot</code>: Values are taken from <code>memoized_state</code>.</li>
 <li><code>HostComponent</code>: Values are taken from <code>pending_props</code>.</li>
 <li><code>FunctionComponent</code>: Obtained by executing the <code>Function</code> pointed to by the <code>type</code>.</li>
 <li><code>HostText</code>: This process is not applicable and can be ignored.</li>
@@ -622,7 +622,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">172</span>
+                  <span class="site-state-item-count">174</span>
                   <span class="site-state-item-name">posts</span>
                 </a>
               </div>
