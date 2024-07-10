@@ -4,16 +4,16 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2024/06/19/big-react-wasm-18/</loc>
-    <lastmod>2024-07-10T07:43:05.418Z</lastmod>
+    <loc>http://www.paradeto.com/2024/07/10/big-react-wasm-18/</loc>
+    <lastmod>2024-07-10T07:49:04.568Z</lastmod>
     <data>
         <display>
         <title>从零实现 React v18，但 WASM 版 - [18] 实现 useRef, useCallback, useMemo</title>
-        <pubTime>2024-06-19T09:39:13.000Z</pubTime>
+        <pubTime>2024-07-10T07:39:13.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -33,9 +33,9 @@
         <title>从零实现 React v18，但 WASM 版 - [17] 实现 Concurrent 模式</title>
         <pubTime>2024-06-19T09:39:13.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -55,9 +55,9 @@
         <title>从零实现 React v18，但 WASM 版 - [15] 实现 useEffect</title>
         <pubTime>2024-05-24T03:09:02.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -77,9 +77,9 @@
         <title>从零实现 React v18，但 WASM 版 - [16] 实现 React Noop</title>
         <pubTime>2024-06-06T09:19:04.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -99,9 +99,9 @@
         <title>从零实现 React v18，但 WASM 版 - [14] 实现 Scheduler</title>
         <pubTime>2024-05-16T11:45:40.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -121,9 +121,9 @@
         <title>从零实现 React v18，但 WASM 版 - [13] 引入 Lane 模型，实现 Batch Update</title>
         <pubTime>2024-05-11T01:17:13.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -143,9 +143,9 @@
         <title>从零实现 React v18，但 WASM 版 - [12] 实现多节点更新流程</title>
         <pubTime>2024-05-07T07:43:13.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -165,9 +165,9 @@
         <title>从零实现 React v18，但 WASM 版 - [10] 实现单节点更新流程</title>
         <pubTime>2024-04-26T04:05:22.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -187,9 +187,9 @@
         <title>从零实现 React v18，但 WASM 版 - [11] 实现事件系统</title>
         <pubTime>2024-04-30T03:45:54.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -209,9 +209,9 @@
         <title>从零实现 React v18，但 WASM 版 - [9] 使用 Jest 进行单元测试</title>
         <pubTime>2024-04-23T10:15:21.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -231,9 +231,9 @@
         <title>从零实现 React v18，但 WASM 版 - [8] 支持 Hooks</title>
         <pubTime>2024-04-22T08:25:00.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -253,9 +253,9 @@
         <title>从零实现 React v18，但 WASM 版 - [7] 支持 FunctionComponent 类型</title>
         <pubTime>2024-04-19T08:53:27.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -275,9 +275,9 @@
         <title>从零实现 React v18，但 WASM 版 - [6] 实现 Commit 流程</title>
         <pubTime>2024-04-16T12:20:03.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -297,9 +297,9 @@
         <title>从零实现 React v18，但 WASM 版 - [5] 实现 Render 流程的 completeWork 阶段</title>
         <pubTime>2024-04-15T12:11:06.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -319,9 +319,9 @@
         <title>从零实现 React v18，但 WASM 版 - [4] 实现 Render 流程的 beginWork 阶段</title>
         <pubTime>2024-04-11T10:41:19.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -341,9 +341,9 @@
         <title>从零实现 React v18，但 WASM 版 - [3] Renderer 和 Reconciler 架构设计</title>
         <pubTime>2024-04-07T02:33:52.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -363,9 +363,9 @@
         <title>从零实现 React v18，但 WASM 版 - [2] 实现 ReactElement</title>
         <pubTime>2024-04-04T00:57:19.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -385,9 +385,9 @@
         <title>从零实现 React v18，但 WASM 版 - [1] 项目框架搭建</title>
         <pubTime>2024-04-03T09:04:21.000Z</pubTime>
         
-        <tag>wasm</tag>
-         
         <tag>react</tag>
+         
+        <tag>wasm</tag>
          
          
            
@@ -2758,19 +2758,19 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/05/22/demo-scrapy/</loc>
+    <loc>http://www.paradeto.com/2017/05/21/ml-knn/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>scrapy通用爬虫</title>
-        <pubTime>2017-05-22T06:39:43.000Z</pubTime>
+        <title>机器学习实战-k近邻算法</title>
+        <pubTime>2017-05-21T10:07:59.000Z</pubTime>
         
-        <tag>scrapy</tag>
+        <tag>机器学习</tag>
          
          
            
              
-              <breadCrumb title="python" url="http://www.paradeto.com/categories/python/"/>
+              <breadCrumb title="机器学习" url="http://www.paradeto.com/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
           
         </display>
     </data>
@@ -2778,39 +2778,19 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/11/02/csapp-2/</loc>
+    <loc>http://www.paradeto.com/2017/09/17/algo-stack-1/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>深入理解计算机系统-第2章</title>
-        <pubTime>2017-11-02T13:58:47.000Z</pubTime>
+        <title>单调递增栈（poj 2796）</title>
+        <pubTime>2017-09-17T11:20:36.000Z</pubTime>
         
-        <tag>计算机系统</tag>
+        <tag>算法</tag>
          
          
            
              
-              <breadCrumb title="读书笔记" url="http://www.paradeto.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>笔记-javascript高级程序设计（第3版）第10章</title>
-        <pubTime>2016-06-06T07:56:49.000Z</pubTime>
-        
-        <tag>javascript</tag>
-         
-         
-           
-             
-              <breadCrumb title="读书笔记" url="http://www.paradeto.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
           
         </display>
     </data>
@@ -2860,26 +2840,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/05/25/hpMysql4/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>高性能MySQL(第3版)第四章-Schema与数据类型优化</title>
-        <pubTime>2017-05-25T02:13:55.000Z</pubTime>
-        
-        <tag>mysql</tag>
-         
-         
-           
-             
-              <breadCrumb title="读书笔记" url="http://www.paradeto.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.paradeto.com/2016/09/13/ng2-dropdown/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -2900,21 +2860,61 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/10/19/algo-primes/</loc>
+    <loc>http://www.paradeto.com/2017/05/25/hpMysql4/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>巧用es6生成器产生质数</title>
-        <pubTime>2017-10-19T15:12:36.000Z</pubTime>
+        <title>高性能MySQL(第3版)第四章-Schema与数据类型优化</title>
+        <pubTime>2017-05-25T02:13:55.000Z</pubTime>
         
-        <tag>es6</tag>
+        <tag>mysql</tag>
          
-        <tag>质数</tag>
+         
+           
+             
+              <breadCrumb title="读书笔记" url="http://www.paradeto.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>贪心算法-卡片游戏</title>
+        <pubTime>2017-02-18T04:31:23.000Z</pubTime>
+        
+        <tag>算法</tag>
+         
+        <tag>贪心</tag>
          
          
            
              
               <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2018/01/27/go-slice1/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>Go 切片使用注意事项</title>
+        <pubTime>2018-01-27T01:41:44.000Z</pubTime>
+        
+        <tag>go</tag>
+         
+         
+           
+             
+              <breadCrumb title="go" url="http://www.paradeto.com/categories/go/"/>
           
         </display>
     </data>
@@ -2937,26 +2937,6 @@
            
              
               <breadCrumb title="翻译" url="http://www.paradeto.com/categories/%E7%BF%BB%E8%AF%91/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2018/01/27/go-slice1/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>Go 切片使用注意事项</title>
-        <pubTime>2018-01-27T01:41:44.000Z</pubTime>
-        
-        <tag>go</tag>
-         
-         
-           
-             
-              <breadCrumb title="go" url="http://www.paradeto.com/categories/go/"/>
           
         </display>
     </data>
@@ -3008,28 +2988,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/02/18/algo-greedy/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>贪心算法-卡片游戏</title>
-        <pubTime>2017-02-18T04:31:23.000Z</pubTime>
-        
-        <tag>算法</tag>
-         
-        <tag>贪心</tag>
-         
-         
-           
-             
-              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.paradeto.com/2017/10/27/js-es6-produce-consumer/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -3038,26 +2996,6 @@
         <pubTime>2017-10-27T03:32:26.000Z</pubTime>
         
         <tag>es6</tag>
-         
-         
-           
-             
-              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2018/03/09/vue-ssr-1/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>vue 服务端渲染折腾记录</title>
-        <pubTime>2018-03-09T01:56:34.000Z</pubTime>
-        
-        <tag>vue</tag>
          
          
            
@@ -3085,6 +3023,48 @@
            
              
               <breadCrumb title="nodejs" url="http://www.paradeto.com/categories/nodejs/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2018/03/09/vue-ssr-1/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>vue 服务端渲染折腾记录</title>
+        <pubTime>2018-03-09T01:56:34.000Z</pubTime>
+        
+        <tag>vue</tag>
+         
+         
+           
+             
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2017/03/19/algo-maxsubarr/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>最大子序列应用－最大在线人数</title>
+        <pubTime>2017-03-19T09:31:23.000Z</pubTime>
+        
+        <tag>算法</tag>
+         
+        <tag>最大子序列</tag>
+         
+         
+           
+             
+              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
           
         </display>
     </data>
@@ -3132,28 +3112,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/03/19/algo-maxsubarr/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>最大子序列应用－最大在线人数</title>
-        <pubTime>2017-03-19T09:31:23.000Z</pubTime>
-        
-        <tag>算法</tag>
-         
-        <tag>最大子序列</tag>
-         
-         
-           
-             
-              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.paradeto.com/2017/08/08/js-hld-22/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -3167,6 +3125,48 @@
            
              
               <breadCrumb title="读书笔记" url="http://www.paradeto.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2017/10/19/algo-primes/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>巧用es6生成器产生质数</title>
+        <pubTime>2017-10-19T15:12:36.000Z</pubTime>
+        
+        <tag>es6</tag>
+         
+        <tag>质数</tag>
+         
+         
+           
+             
+              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2017/10/15/algo-btree-1/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>二叉树生成</title>
+        <pubTime>2017-10-15T13:14:45.000Z</pubTime>
+        
+        <tag>算法</tag>
+         
+         
+           
+             
+              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
           
         </display>
     </data>
@@ -3214,12 +3214,12 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/05/21/ml-knn/</loc>
+    <loc>http://www.paradeto.com/2017/05/26/ml-logistic/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>机器学习实战-k近邻算法</title>
-        <pubTime>2017-05-21T10:07:59.000Z</pubTime>
+        <title>机器学习实战-Logistic回归</title>
+        <pubTime>2017-05-26T09:15:30.000Z</pubTime>
         
         <tag>机器学习</tag>
          
@@ -3227,26 +3227,6 @@
            
              
               <breadCrumb title="机器学习" url="http://www.paradeto.com/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2017/10/15/algo-btree-1/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>二叉树生成</title>
-        <pubTime>2017-10-15T13:14:45.000Z</pubTime>
-        
-        <tag>算法</tag>
-         
-         
-           
-             
-              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
           
         </display>
     </data>
@@ -3267,6 +3247,48 @@
            
              
               <breadCrumb title="nodejs" url="http://www.paradeto.com/categories/nodejs/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2016/12/22/mongo-replica-sharding/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>mongodb replica sharding 实战</title>
+        <pubTime>2016-12-22T13:42:55.000Z</pubTime>
+        
+        <tag>replica</tag>
+         
+        <tag>sharding</tag>
+         
+         
+           
+             
+              <breadCrumb title="mongodb" url="http://www.paradeto.com/categories/mongodb/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2016/06/29/demo-webpack/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>webpack初识</title>
+        <pubTime>2016-06-29T14:14:50.000Z</pubTime>
+        
+        <tag>webpack</tag>
+         
+         
+           
+             
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
           
         </display>
     </data>
@@ -3298,60 +3320,38 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/12/22/mongo-replica-sharding/</loc>
+    <loc>http://www.paradeto.com/2016/12/31/algo-treenode-heap/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>mongodb replica sharding 实战</title>
-        <pubTime>2016-12-22T13:42:55.000Z</pubTime>
-        
-        <tag>replica</tag>
-         
-        <tag>sharding</tag>
-         
-         
-           
-             
-              <breadCrumb title="mongodb" url="http://www.paradeto.com/categories/mongodb/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2016/06/11/nodejs-1/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>异步编程解决方案-事件发布/订阅模式</title>
-        <pubTime>2016-06-11T14:10:25.000Z</pubTime>
-        
-        <tag>nodejs</tag>
-         
-        <tag>事件</tag>
-         
-        <tag>异步编程</tag>
-         
-         
-           
-             
-              <breadCrumb title="nodejs" url="http://www.paradeto.com/categories/nodejs/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2017/09/17/algo-stack-1/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>单调递增栈（poj 2796）</title>
-        <pubTime>2017-09-17T11:20:36.000Z</pubTime>
+        <title>树节点实现堆</title>
+        <pubTime>2016-12-31T08:36:38.000Z</pubTime>
         
         <tag>算法</tag>
+         
+        <tag>堆</tag>
+         
+         
+           
+             
+              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2017/03/19/algo-trietree/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>字典树应用－查找相同url</title>
+        <pubTime>2017-03-19T04:31:23.000Z</pubTime>
+        
+        <tag>算法</tag>
+         
+        <tag>字典树</tag>
          
          
            
@@ -3384,21 +3384,21 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2017/03/19/algo-trietree/</loc>
+    <loc>http://www.paradeto.com/2016/10/10/demo-page-switch/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
         <display>
-        <title>字典树应用－查找相同url</title>
-        <pubTime>2017-03-19T04:31:23.000Z</pubTime>
+        <title>jquery轮播图插件</title>
+        <pubTime>2016-10-10T08:25:41.000Z</pubTime>
         
-        <tag>算法</tag>
+        <tag>javascript</tag>
          
-        <tag>字典树</tag>
+        <tag>jquery插件</tag>
          
          
            
              
-              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
           
         </display>
     </data>
@@ -3448,28 +3448,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/12/31/algo-treenode-heap/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>树节点实现堆</title>
-        <pubTime>2016-12-31T08:36:38.000Z</pubTime>
-        
-        <tag>算法</tag>
-         
-        <tag>堆</tag>
-         
-         
-           
-             
-              <breadCrumb title="算法" url="http://www.paradeto.com/categories/%E7%AE%97%E6%B3%95/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
     <loc>http://www.paradeto.com/2018/01/05/python-thread/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -3483,6 +3461,26 @@
            
              
               <breadCrumb title="python" url="http://www.paradeto.com/categories/python/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2016/09/13/demo-chrome-plugin/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>chrome插件开发（模拟抢月饼）</title>
+        <pubTime>2016-09-13T11:59:46.000Z</pubTime>
+        
+        <tag>chrome插件</tag>
+         
+         
+           
+             
+              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
           
         </display>
     </data>
@@ -3510,73 +3508,6 @@
 
     
   <url>
-    <loc>http://www.paradeto.com/2016/10/10/demo-page-switch/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>jquery轮播图插件</title>
-        <pubTime>2016-10-10T08:25:41.000Z</pubTime>
-        
-        <tag>javascript</tag>
-         
-        <tag>jquery插件</tag>
-         
-         
-           
-             
-              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2016/06/29/demo-webpack/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>webpack初识</title>
-        <pubTime>2016-06-29T14:14:50.000Z</pubTime>
-        
-        <tag>webpack</tag>
-         
-         
-           
-             
-              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-    
-    
-  <url>
-    <loc>http://www.paradeto.com/2016/09/13/demo-chrome-plugin/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>chrome插件开发（模拟抢月饼）</title>
-        <pubTime>2016-09-13T11:59:46.000Z</pubTime>
-        
-        <tag>chrome插件</tag>
-         
-         
-           
-             
-              <breadCrumb title="javascript" url="http://www.paradeto.com/categories/javascript/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-    
-    
-    
-  <url>
     <loc>http://www.paradeto.com/2016/07/01/demo-app-pwd/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -3599,6 +3530,33 @@
 
     
   <url>
+    <loc>http://www.paradeto.com/2016/06/11/nodejs-1/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>异步编程解决方案-事件发布/订阅模式</title>
+        <pubTime>2016-06-11T14:10:25.000Z</pubTime>
+        
+        <tag>nodejs</tag>
+         
+        <tag>事件</tag>
+         
+        <tag>异步编程</tag>
+         
+         
+           
+             
+              <breadCrumb title="nodejs" url="http://www.paradeto.com/categories/nodejs/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+    
+    
+  <url>
     <loc>http://www.paradeto.com/2016/12/15/react-optimize/</loc>
     <lastmod>2018-03-13T08:29:06.000Z</lastmod>
     <data>
@@ -3612,26 +3570,6 @@
            
              
               <breadCrumb title="翻译" url="http://www.paradeto.com/categories/%E7%BF%BB%E8%AF%91/"/>
-          
-        </display>
-    </data>
-    </url>
-
-    
-  <url>
-    <loc>http://www.paradeto.com/2017/05/26/ml-logistic/</loc>
-    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
-    <data>
-        <display>
-        <title>机器学习实战-Logistic回归</title>
-        <pubTime>2017-05-26T09:15:30.000Z</pubTime>
-        
-        <tag>机器学习</tag>
-         
-         
-           
-             
-              <breadCrumb title="机器学习" url="http://www.paradeto.com/categories/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/"/>
           
         </display>
     </data>
@@ -3659,6 +3597,7 @@
     </data>
     </url>
 
+    
     
   <url>
     <loc>http://www.paradeto.com/2017/06/26/nodejs-bigpipe/</loc>
@@ -3722,6 +3661,67 @@
     </url>
 
     
+    
+  <url>
+    <loc>http://www.paradeto.com/2017/11/02/csapp-2/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>深入理解计算机系统-第2章</title>
+        <pubTime>2017-11-02T13:58:47.000Z</pubTime>
+        
+        <tag>计算机系统</tag>
+         
+         
+           
+             
+              <breadCrumb title="读书笔记" url="http://www.paradeto.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+    
+  <url>
+    <loc>http://www.paradeto.com/2017/05/22/demo-scrapy/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>scrapy通用爬虫</title>
+        <pubTime>2017-05-22T06:39:43.000Z</pubTime>
+        
+        <tag>scrapy</tag>
+         
+         
+           
+             
+              <breadCrumb title="python" url="http://www.paradeto.com/categories/python/"/>
+          
+        </display>
+    </data>
+    </url>
+
+    
+  <url>
+    <loc>http://www.paradeto.com/2016/06/06/js-hld-10/</loc>
+    <lastmod>2018-03-13T08:29:06.000Z</lastmod>
+    <data>
+        <display>
+        <title>笔记-javascript高级程序设计（第3版）第10章</title>
+        <pubTime>2016-06-06T07:56:49.000Z</pubTime>
+        
+        <tag>javascript</tag>
+         
+         
+           
+             
+              <breadCrumb title="读书笔记" url="http://www.paradeto.com/categories/%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0/"/>
+          
+        </display>
+    </data>
+    </url>
+
     
     
   <url>
