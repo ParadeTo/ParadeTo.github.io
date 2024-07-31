@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="wasm,react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v20   Based on big-react，I am going to implement">
+<meta name="keywords" content="wasm,react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 React v18，但 WASM 版 - [20] 实现 Context">
+<meta property="og:url" content="http://www.paradeto.com/2024/07/26/big-react-wasm-20/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v20   Based on big-react，I am going to implement">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2024/07/26/big-react-wasm-20/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/07/26/big-react-wasm-20/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/07/26/big-react-wasm-20/3.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/07/26/big-react-wasm-20/4.png">
+<meta property="og:updated_time" content="2024-07-26T03:54:53.295Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [20] 实现 Context">
+<meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v20   Based on big-react，I am going to implement">
+<meta name="twitter:image" content="http://www.paradeto.com/2024/07/26/big-react-wasm-20/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/07/26/big-react-wasm-20/"/>
+
+
+
+
+
+
+  <title>从零实现 React v18，但 WASM 版 - [20] 实现 Context | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/07/26/big-react-wasm-20/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 React v18，但 WASM 版 - [20] 实现 Context</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-07-26T09:48:32+08:00">
+                2024-07-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>模仿 <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>本文对应 tag：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v20" target="_blank" rel="noopener">v20</a></p>
+</blockquote>
+<blockquote>
+<p>Based on <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，I am going to implement React v18 core features from scratch using WASM and Rust.</p>
+<p>Code Repository：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>The tag related to this article：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v20" target="_blank" rel="noopener">v20</a></p>
+</blockquote>
+<p>Context 也是 React 中非常重要的一个特性，所以我们的 WASM 版也得安排上。回想下，我们平时一般都会这样来使用 Context：</p>
+<p>Context is also a very important feature in React, so we need to include it in our WASM version as well. Let’s recall how we usually use Context:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;createContext, useContext&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> ctx = createContext(<span class="string">'A'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ctxA.Provider value=&#123;<span class="string">'B'</span>&#125;&gt;</span><br><span class="line">      &lt;Cpn /&gt;</span><br><span class="line">    &lt;<span class="regexp">/ctxA.Provider&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">function Cpn() &#123;</span></span><br><span class="line"><span class="regexp">  const value = useContext(ctx)</span></span><br><span class="line"><span class="regexp">  return &lt;div&gt;&#123;value&#125;&lt;/</span>div&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以，我们需要先从 react 库中导出两个方法：</p>
+<p>So, we need to first export two methods from the React library:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[wasm_bindgen(js_name = useContext)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">use_context</span></span>(context: &amp;JsValue) -&gt; <span class="built_in">Result</span>&lt;JsValue, JsValue&gt; &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen(js_name = createContext)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">create_context</span></span>(default_value: &amp;JsValue) -&gt; JsValue &#123;</span><br><span class="line">    <span class="keyword">let</span> context = Object::new();</span><br><span class="line">    Reflect::set(</span><br><span class="line">        &amp;context,</span><br><span class="line">        &amp;<span class="string">"$$typeof"</span>.into(),</span><br><span class="line">        &amp;JsValue::from_str(REACT_CONTEXT_TYPE),</span><br><span class="line">    );</span><br><span class="line">    Reflect::set(&amp;context, &amp;<span class="string">"_currentValue"</span>.into(), default_value);</span><br><span class="line">    <span class="keyword">let</span> provider = Object::new();</span><br><span class="line">    Reflect::set(</span><br><span class="line">        &amp;provider,</span><br><span class="line">        &amp;<span class="string">"$$typeof"</span>.into(),</span><br><span class="line">        &amp;JsValue::from_str(REACT_PROVIDER_TYPE),</span><br><span class="line">    );</span><br><span class="line">    Reflect::set(&amp;provider, &amp;<span class="string">"_context"</span>.into(), &amp;context);</span><br><span class="line">    Reflect::set(&amp;context, &amp;<span class="string">"Provider"</span>.into(), &amp;provider);</span><br><span class="line">    context.into()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中，<code>create_context</code> 中的代码翻译成 JS，是下面这样：</p>
+<p>The code inside <code>create_context</code> translates to the following in JavaScript:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> context &#123;</span><br><span class="line">  $$<span class="keyword">typeof</span>: REACT_CONTEXT_TYPE,</span><br><span class="line">  Provider: <span class="literal">null</span>,</span><br><span class="line">  _currentValue: defaultValue,</span><br><span class="line">&#125;</span><br><span class="line">context.Provider = &#123;</span><br><span class="line">  $$<span class="keyword">typeof</span>: REACT_PROVIDER_TYPE,</span><br><span class="line">  _context: context,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">return</span> context</span><br></pre></td></tr></table></figure>
+<p>可见，<code>ctxA.Provider</code> 是一种新的 <code>FiberNode</code> 类型，我们需要新增分支进行处理，按照流程顺序，首先是 <code>begin_work</code>：</p>
+<p>As you can see, <code>ctxA.Provider</code> is a new type of <code>FiberNode</code>, and we need to add a new branch to handle it. Following the flow sequence, the first step is <code>begin_work</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">update_context_provider</span></span>(</span><br><span class="line">    work_in_progress: Rc&lt;RefCell&lt;FiberNode&gt;&gt;,</span><br><span class="line">) -&gt; <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> provider_type = &#123; work_in_progress.borrow()._<span class="keyword">type</span>.clone() &#125;;</span><br><span class="line">    <span class="keyword">let</span> context = derive_from_js_value(&amp;provider_type, <span class="string">"_context"</span>);</span><br><span class="line">    <span class="keyword">let</span> new_props = &#123; work_in_progress.borrow().pending_props.clone() &#125;;</span><br><span class="line">    push_provider(&amp;context, derive_from_js_value(&amp;new_props, <span class="string">"value"</span>));</span><br><span class="line">    <span class="keyword">let</span> next_children = derive_from_js_value(&amp;new_props, <span class="string">"children"</span>);</span><br><span class="line">    reconcile_children(work_in_progress.clone(), <span class="literal">Some</span>(next_children));</span><br><span class="line">    work_in_progress.clone().borrow().child.clone()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里难以理解的是 <code>push_provider</code>：</p>
+<p>The part that is difficult to understand here is <code>push_provider</code>.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> <span class="keyword">mut</span> PREV_CONTEXT_VALUE: JsValue = JsValue::null();</span><br><span class="line"><span class="keyword">static</span> <span class="keyword">mut</span> PREV_CONTEXT_VALUE_STACK: <span class="built_in">Vec</span>&lt;JsValue&gt; = <span class="built_in">vec!</span>[];</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">push_provider</span></span>(context: &amp;JsValue, new_value: JsValue) &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        PREV_CONTEXT_VALUE_STACK.push(PREV_CONTEXT_VALUE.clone());</span><br><span class="line">        PREV_CONTEXT_VALUE = Reflect::get(context, &amp;<span class="string">"_currentValue"</span>.into()).unwrap();</span><br><span class="line">        Reflect::set(context, &amp;<span class="string">"_currentValue"</span>.into(), &amp;new_value);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>与之对应的，还有一个 <code>pop_provider</code>：</p>
+<p>Correspondingly, there is also a <code>pop_provider</code> that goes along with it.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">pop_provider</span></span>(context: &amp;JsValue) &#123;</span><br><span class="line">    <span class="keyword">unsafe</span> &#123;</span><br><span class="line">        Reflect::set(context, &amp;<span class="string">"_currentValue"</span>.into(), &amp;PREV_CONTEXT_VALUE);</span><br><span class="line">        <span class="keyword">let</span> top = PREV_CONTEXT_VALUE_STACK.pop();</span><br><span class="line">        <span class="keyword">if</span> top.is_none() &#123;</span><br><span class="line">            PREV_CONTEXT_VALUE = JsValue::null();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            PREV_CONTEXT_VALUE = top.unwrap();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它会在 <code>complete_work</code> 中调用：</p>
+<p>It will be called within <code>complete_work</code>.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">WorkTag::ContextProvider =&gt; &#123;</span><br><span class="line">  <span class="keyword">let</span> _<span class="keyword">type</span> = &#123; work_in_progress.borrow()._<span class="keyword">type</span>.clone() &#125;;</span><br><span class="line">  <span class="keyword">let</span> context = derive_from_js_value(&amp;_<span class="keyword">type</span>, <span class="string">"_context"</span>);</span><br><span class="line">  pop_provider(&amp;context);</span><br><span class="line">  <span class="keyword">self</span>.bubble_properties(work_in_progress.clone());</span><br><span class="line">  <span class="literal">None</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们通过下面这个例子来搞清楚这部分代码：</p>
+<p>We will clarify this portion of the code through the following example:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ctxA = createContext(<span class="string">'A0'</span>)</span><br><span class="line"><span class="keyword">const</span> ctxB = createContext(<span class="string">'B0'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;ctxA.Provider value=<span class="string">'A1'</span>&gt;</span><br><span class="line">      &lt;ctxB.Provider value=<span class="string">'B1'</span>&gt;</span><br><span class="line">        &lt;ctxA.Provider value=<span class="string">'A2'</span>&gt;</span><br><span class="line">          &lt;ctxB.Provider value=<span class="string">'B2'</span>&gt;</span><br><span class="line">            &lt;Child /&gt;</span><br><span class="line">          &lt;<span class="regexp">/ctxB.Provider&gt;</span></span><br><span class="line"><span class="regexp">          &lt;Child /</span>&gt;</span><br><span class="line">        &lt;<span class="regexp">/ctxA.Provider&gt;</span></span><br><span class="line"><span class="regexp">        &lt;Child /</span>&gt;</span><br><span class="line">      &lt;<span class="regexp">/ctxB.Provider&gt;</span></span><br><span class="line"><span class="regexp">      &lt;Child /</span>&gt;</span><br><span class="line">    &lt;<span class="regexp">/ctxA.Provider&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">function Child() &#123;</span></span><br><span class="line"><span class="regexp">  const a = useContext(ctxA)</span></span><br><span class="line"><span class="regexp">  const b = useContext(ctxB)</span></span><br><span class="line"><span class="regexp">  return (</span></span><br><span class="line"><span class="regexp">    &lt;div&gt;</span></span><br><span class="line"><span class="regexp">      A: &#123;a&#125; B: &#123;b&#125;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述例子结果显而易见，应该是：</p>
+<p>The expected result of the above example should be:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">A: A2 B: B2</span><br><span class="line">A: A2 B: B1</span><br><span class="line">A: A1 B: B1</span><br><span class="line">A: A1 B: B0</span><br></pre></td></tr></table></figure>
+<p>我们来分析一下，根据流程，当 <code>begin_work</code> 执行到最底层的 <code>Child</code> 时，此时经过了四次 <code>push_provider</code>，<code>FiberNode</code> 状态如下：</p>
+<p>Let’s analyze it. According to the flow, when <code>begin_work</code> reaches the bottommost <code>Child</code>, it goes through four <code>push_provider</code> operations, and the state of the <code>FiberNode</code> is as follows:</p>
+<p><img src="/2024/07/26/big-react-wasm-20/1.png" alt=""></p>
+<p>到了第三层的 <code>Child</code> 时，会执行一次 <code>pop_provider</code>，状态如下：</p>
+<p>When it reaches the third level <code>Child</code>, it performs one <code>pop_provider</code> operation, and the state becomes:</p>
+<p><img src="/2024/07/26/big-react-wasm-20/2.png" alt=""></p>
+<p>到了第二层的 <code>Child</code> 时，再执行一次 <code>pop_provider</code>，状态如下：</p>
+<p>When it reaches the second level <code>Child</code>, it performs another <code>pop_provider</code> operation, and the state becomes:</p>
+<p><img src="/2024/07/26/big-react-wasm-20/3.png" alt=""></p>
+<p>到了第一层的 <code>Child</code> 时，最后执行一次 <code>pop_provider</code>，状态如下：</p>
+<p>When it reaches the first level <code>Child</code>, it performs the final <code>pop_provider</code> operation, and the state becomes:</p>
+<p><img src="/2024/07/26/big-react-wasm-20/4.png" alt=""></p>
+<p>这里不好理解的原因在于它把多个 Context 的值都存到一个 stack 里面了，可以对着这个例子多看几遍。</p>
+<p>The reason it may be difficult to understand is that it stores the values of multiple contexts in a single stack. You can go through this example a few more times to better understand it.</p>
+<p>理解了这个，Context 的基本流程就介绍差不多了。不过还有一个 <code>useContext</code>，它也很简单，按照之前其他 Hooks 的流程添加相关代码即可，最后的核心是 <code>fiber_hooks</code> 中的 <code>read_context</code> 方法：</p>
+<p>Once you understand this, the basic flow of Context is mostly covered. However, there is also <code>useContext</code>, which is quite simple. You can add the relevant code following the flow of other Hooks we discussed earlier, and the core is the <code>read_context</code> method in <code>fiber_hooks</code>.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">read_context</span></span>(context: JsValue) -&gt; JsValue &#123;</span><br><span class="line">  <span class="keyword">let</span> consumer = <span class="keyword">unsafe</span> &#123; CURRENTLY_RENDERING_FIBER.clone() &#125;;</span><br><span class="line">  <span class="keyword">if</span> consumer.is_none() &#123;</span><br><span class="line">      <span class="built_in">panic!</span>(<span class="string">"Can only call useContext in Function Component"</span>);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">let</span> value = derive_from_js_value(&amp;context, <span class="string">"_currentValue"</span>);</span><br><span class="line">  value</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，上面的例子就可以跑起来了，本次更新详见<a href="https://github.com/ParadeTo/big-react-wasm/pull/20/files#diff-31401af59fde9c70273d07c510a6fdeb5c5c68541f5c099b2b24d896dc2fd393" target="_blank" rel="noopener">这里</a>。</p>
+<p>With these changes, the example mentioned above can be executed. For more details about this update, please refer to <a href="https://github.com/ParadeTo/big-react-wasm/pull/20/files#diff-31401af59fde9c70273d07c510a6fdeb5c5c68541f5c099b2b24d896dc2fd393" target="_blank" rel="noopener">here</a>.</p>
+<p>不过，目前的 Context 还不够完善，一旦它跟性能优化相关的特性结合起来使用，就会有问题了，比如下面这个例子：</p>
+<p>However, the current implementation of Context is not yet complete. It can cause issues when combined with performance optimization-related features. For example, consider the following example:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> ctx = createContext(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [num, update] = useState(<span class="number">0</span>)</span><br><span class="line">  <span class="keyword">const</span> memoChild = useMemo(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">Child</span> /&gt;</span></span></span><br><span class="line"><span class="xml">  &#125;, [])</span></span><br><span class="line"><span class="xml">  console.log('App render ', num)</span></span><br><span class="line"><span class="xml">  return (</span></span><br><span class="line">    &lt;ctx.Provider value=&#123;num&#125;&gt;</span><br><span class="line">      &lt;div</span><br><span class="line">        onClick=&#123;() =&gt; &#123;</span><br><span class="line">          update(1)</span><br><span class="line">        &#125;&#125;&gt;</span><br><span class="line">        &#123;memoChild&#125;</span><br><span class="line">      &lt;/div&gt;</span><br><span class="line">    &lt;/ctx.Provider&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function Child() &#123;</span><br><span class="line">  console.log('Child render')</span><br><span class="line">  const val = useContext(ctx)</span><br><span class="line"></span><br><span class="line">  return &lt;div&gt;ctx: &#123;val&#125;&lt;/div&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>点击后 <code>Child</code> 组件不会重新渲染，页面没有得到更新。原因在于 <code>Child</code> 命中了 <code>bailout</code> 策略，但其实 <code>Child</code> 中使用了 context，而 context 的值发生了变化，<code>Child</code> 应该重新渲染才对，这个问题就留到下篇文章再解决吧。</p>
+<p>After clicking, the <code>Child</code> component does not re-render, and the page does not update. The reason is that the <code>Child</code> component hits the <code>bailout</code> strategy. However, the <code>Child</code> component actually uses context, and the value of the context has changed. The <code>Child</code> component should be re-rendered. We will address this issue in the next article.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/07/19/big-react-wasm-19/" rel="next" title="从零实现 React v18，但 WASM 版 - [19] 性能优化之 bailout 和 eagerState">
+                <i class="fa fa-chevron-left"></i> 从零实现 React v18，但 WASM 版 - [19] 性能优化之 bailout 和 eagerState
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/07/26/big-react-wasm-21/" rel="prev" title="从零实现 React v18，但 WASM 版 - [21] 性能优化支持 Context">
+                从零实现 React v18，但 WASM 版 - [21] 性能优化支持 Context <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">182</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
