@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="wasm,react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v8   Based on big-react，I am going to implement">
+<meta name="keywords" content="wasm,react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 React v18，但 WASM 版 - [8] 支持 Hooks">
+<meta property="og:url" content="http://www.paradeto.com/2024/04/22/big-react-wasm-8/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v8   Based on big-react，I am going to implement">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/22/big-react-wasm-8/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/22/big-react-wasm-8/2.png">
+<meta property="og:updated_time" content="2024-04-26T07:33:26.489Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [8] 支持 Hooks">
+<meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v8   Based on big-react，I am going to implement">
+<meta name="twitter:image" content="http://www.paradeto.com/2024/04/22/big-react-wasm-8/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/04/22/big-react-wasm-8/"/>
+
+
+
+
+
+
+  <title>从零实现 React v18，但 WASM 版 - [8] 支持 Hooks | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/04/22/big-react-wasm-8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 React v18，但 WASM 版 - [8] 支持 Hooks</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-04-22T16:25:00+08:00">
+                2024-04-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>模仿 <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>本文对应 tag：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v8" target="_blank" rel="noopener">v8</a></p>
+</blockquote>
+<blockquote>
+<p>Based on <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，I am going to implement React v18 core features from scratch using WASM and Rust.</p>
+<p>Code Repository：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>The tag related to this article：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v8" target="_blank" rel="noopener">v8</a></p>
+</blockquote>
+<p>上篇文章实现了对 <code>FunctionComponent</code> 类型的支持，但是还不支持 Hooks，这篇文章我们以 <code>useState</code> 为例，来介绍如何实现。</p>
+<p>The previous article implemented support for the <code>FunctionComponent</code> type, but it doesn’t support Hooks yet. In this article, we’ll use <code>useState</code> as an example to explain how to implement it.</p>
+<p>不知道经常使用 react 的你有没有过这样的疑问：<code>useState</code> 是从 <code>react</code> 库里面引入的，但是 <code>useState</code> 的具体实现则是在 <code>react-reconciler</code> 中，那是怎么做到的呢？react 依赖了 <code>react-reconciler</code>？</p>
+<p>If you frequently use React, you may have wondered about this: <code>useState</code> is imported from the <code>react</code> library, but its actual implementation is in <code>react-reconciler</code>. How is that achieved? Does React depend on <code>react-reconciler</code>?</p>
+<p>为了搞清楚这个问题，我们先来分析下 big-react。</p>
+<p>To understand this issue, let’s analyze Big React.</p>
+<p>首先看下 <code>useState</code> 的入口文件：</p>
+<p>First, let’s take a look at the entry file for <code>useState</code>:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react/index.ts</span></span><br><span class="line"><span class="keyword">import</span> currentDispatcher, &#123;</span><br><span class="line">	Dispatcher,</span><br><span class="line">	resolveDispatcher</span><br><span class="line">&#125; <span class="keyword">from</span> <span class="string">'./src/currentDispatcher'</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> useState = &lt;State&gt;<span class="function">(<span class="params">initialState: (<span class="params">(<span class="params"></span>) =&gt; State</span>) | State</span>) =&gt;</span> &#123;</span><br><span class="line">	<span class="keyword">const</span> dispatcher = resolveDispatcher() <span class="keyword">as</span> Dispatcher;</span><br><span class="line">	<span class="keyword">return</span> dispatcher.useState&lt;State&gt;(initialState);</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = &#123;</span><br><span class="line">	currentDispatcher</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">// react/src/currentDispatcher.ts</span></span><br><span class="line">...</span><br><span class="line"><span class="keyword">const</span> currentDispatcher: &#123; current: <span class="literal">null</span> | Dispatcher &#125; = &#123;</span><br><span class="line">	current: <span class="literal">null</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> resolveDispatcher = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">	<span class="keyword">const</span> dispatcher = currentDispatcher.current;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">if</span> (dispatcher === <span class="literal">null</span>) &#123;</span><br><span class="line">		<span class="built_in">console</span>.error(<span class="string">'resolve dispatcher时dispatcher不存在'</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> dispatcher;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> currentDispatcher;</span><br></pre></td></tr></table></figure>
+<p>代码很简单，执行 <code>useState</code> 时，核心逻辑为调用 <code>currentDispatcher.current</code> 上的 <code>useState</code> 方法。很明显，<code>currentDispatcher.current</code> 初始化是 <code>null</code>，那么它在哪里进行赋值的呢？答案是在 <code>renderWithHooks</code> 中：</p>
+<p>The code is straightforward. When <code>useState</code> is executed, the core logic involves calling the <code>useState</code> method on <code>currentDispatcher.current</code>. It’s evident that <code>currentDispatcher.current</code> is initially set to <code>null</code>. So, where is it assigned a value? The answer lies in <code>renderWithHooks</code>:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react-reconciler/src/fiberHooks.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> renderWithHooks = <span class="function">(<span class="params">workInProgress: FiberNode</span>) =&gt;</span> &#123;</span><br><span class="line">  ...</span><br><span class="line">  currentDispatcher.current = HooksDispatcherOnMount</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>并且这里的 <code>currentDispatcher</code> 还不是直接从 <code>react</code> 导入的，而是从 <code>shared</code> 这个库导入，而 <code>shared</code> 最后从 <code>react</code> 中导入了 <code>__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED</code>，它包含 <code>currentDispatcher</code> 属性：</p>
+<p>Moreover, the <code>currentDispatcher</code> here is not directly imported from <code>react</code>, but from the <code>shared</code> library. And <code>shared</code> ultimately imports <code>__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED</code> from <code>react</code>, which contains the <code>currentDispatcher</code> property:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react-reconciler/src/fiberHooks.ts</span></span><br><span class="line"><span class="keyword">import</span> sharedInternals <span class="keyword">from</span> <span class="string">'shared/internals'</span></span><br><span class="line"><span class="keyword">const</span> &#123;currentDispatcher&#125; = sharedInternals</span><br><span class="line"></span><br><span class="line"><span class="comment">// shared/internals.ts</span></span><br><span class="line"><span class="keyword">import</span> * <span class="keyword">as</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">const</span> internals = React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> internals</span><br><span class="line"></span><br><span class="line"><span class="comment">// react/index.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> __SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = &#123;</span><br><span class="line">  currentDispatcher,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以就形成了这样一个依赖关系：</p>
+<p>So, it forms a dependency relationship like this:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">react-dom ---depend on--&gt; react-reconciler ---depend on--&gt; shared ---depend on--&gt; react</span><br></pre></td></tr></table></figure>
+<p>打包时，<code>react</code> 和 <code>shared</code> 打包成一个 <code>react.js</code>，而打包 <code>react-dom</code> 时需要指定 <code>react</code> 为 external, 这样打包出来的 <code>react-dom.js</code> 中不会包含 <code>react</code> 的代码，而是作为外部依赖：</p>
+<p>During bundling, <code>react</code> and <code>shared</code> are bundled together into a <code>react.js</code> file. When bundling <code>react-dom</code>, <code>react</code> needs to be specified as an external dependency. This means that the resulting <code>react-dom.js</code> file won’t include the code for <code>react</code> but will treat it as an external dependency:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">react + shared =&gt; react.js</span><br><span class="line">react-dom + react-reconciler + shared =&gt; react-dom.js</span><br></pre></td></tr></table></figure>
+<p>这样的好处是可以方便的替换 Renderer，比如后续要实现用于单测的 <code>react-noop</code>：</p>
+<p>This approach allows for easy replacement of the renderer. For example, if you want to implement <code>react-noop</code> for testing purposes:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">react-noop + react-reconciler + shared =&gt; react-noop.js</span><br></pre></td></tr></table></figure>
+<p>但是 WASM 构建明显是不支持 external 的，怎么办呢？重新思考下，发现要实现上面的要求，核心在于两点：</p>
+<p>However, it’s apparent that WASM builds don’t support externals. So, what can be done? Upon reconsideration, it’s realized that to meet the requirements mentioned above, two key points need to be addressed:</p>
+<ul>
+<li>react 和 renderer 代码要分开打包</li>
+<li><p>要让 renderer 去依赖 react，并能够在运行时修改 react 中的变量的值</p>
+</li>
+<li><p>React and renderer code should be bundled separately.</p>
+</li>
+<li>The renderer should depend on React and be able to modify the values of variables in React at runtime.</li>
+</ul>
+<p>其中分开打包现在我们已经实现了，现在要实现第二点，也就是要实现一个 WASM 模块修改另一个 WASM 模块中的变量的值。查阅 <code>wasm-bindgen</code> 的文档，发现除了 WASM 可以导出方法给 JS 使用外，也可以从 JS 中导入方法给 WASM 来调用：</p>
+<p>We have already achieved the separation of bundling. Now, to implement the second point, which is modifying a variable’s value in one WASM module from another WASM module, we refer to the documentation of <code>wasm-bindgen</code> and discover that besides exporting functions from WASM for JavaScript usage, it’s also possible to import functions from JavaScript for WASM to invoke:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> wasm_bindgen::prelude::*;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen]</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</span><br><span class="line">  <span class="function"><span class="keyword">fn</span> <span class="title">alert</span></span>(s: &amp;<span class="built_in">str</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">greet</span></span>(name: &amp;<span class="built_in">str</span>) &#123;</span><br><span class="line">  <span class="comment">// the alert is from JS</span></span><br><span class="line">  alert(&amp;<span class="built_in">format!</span>(<span class="string">"Hello, &#123;&#125;!"</span>, name));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>所以，我们可以通过 JS 作为中转来实现一个 WASM 模块修改另一个 WASM 模块中的变量的值。具体做法如下：</p>
+<p>So, we can achieve the modification of a variable’s value in one WASM module from another by using JavaScript as an intermediary. The specific approach is as follows:</p>
+<p>我们在 <code>react</code> 中导出一个 <code>updateDispatcher</code> 方法给 <code>JS</code>，用于更新 <code>react</code> 中的 <code>CURRENT_DISPATCHER.current</code></p>
+<p>We export an <code>updateDispatcher</code> method from <code>react</code> to JavaScript, which is used to update <code>CURRENT_DISPATCHER.current</code> in <code>react</code>.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">derive_function_from_js_value</span></span>(js_value: &amp;JsValue, name: &amp;<span class="built_in">str</span>) -&gt; Function &#123;</span><br><span class="line">    Reflect::get(js_value, &amp;name.into()).unwrap().dyn_into::&lt;Function&gt;().unwrap()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen(js_name = updateDispatcher)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">update_dispatcher</span></span>(args: &amp;JsValue) &#123;</span><br><span class="line">    <span class="keyword">let</span> use_state = derive_function_from_js_value(args, <span class="string">"use_state"</span>);</span><br><span class="line">    CURRENT_DISPATCHER.current = <span class="literal">Some</span>(<span class="built_in">Box</span>::new(Dispatcher::new(use_state)))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，我们在 <code>react-reconciler</code> 中声明对这个方法的导入（这里简单起见没有再从 <code>shared</code> 中导入了）：</p>
+<p>Then, we declare the import of this method in <code>react-reconciler</code> (for simplicity, we omitted importing from <code>shared</code> here):</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[wasm_bindgen]</span></span><br><span class="line"><span class="keyword">extern</span> <span class="string">"C"</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">updateDispatcher</span></span>(args: &amp;JsValue);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 <code>render_with_hooks</code> 时，会调用 <code>updateDispatcher</code>，传入一个包含 <code>use_state</code> 属性的 <code>Object</code>：</p>
+<p>During <code>render_with_hooks</code>, the <code>updateDispatcher</code> is called, passing an <code>Object</code> that contains the <code>use_state</code> property:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">update_mount_hooks_to_dispatcher</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> object = Object::new();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> closure = Closure::wrap(<span class="built_in">Box</span>::new(mount_state) <span class="keyword">as</span> <span class="built_in">Box</span>&lt;dyn <span class="built_in">Fn</span>(&amp;JsValue) -&gt; <span class="built_in">Vec</span>&lt;JsValue&gt;&gt;);</span><br><span class="line">    <span class="keyword">let</span> function = closure.as_ref().unchecked_ref::&lt;Function&gt;().clone();</span><br><span class="line">    closure.forget();</span><br><span class="line">    Reflect::set(&amp;object, &amp;<span class="string">"use_state"</span>.into(), &amp;function).expect(<span class="string">"TODO: panic set use_state"</span>);</span><br><span class="line"></span><br><span class="line">    updateDispatcher(&amp;object.into());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后，我们需要在打包出来的 <code>react-dom/index_bg.js</code> 顶部插入一段代码，从 <code>react</code> 中引入 <code>updateDispatcher</code> 这个方法：</p>
+<p>Finally, we need to insert a piece of code at the top of the bundled <code>react-dom/index_bg.js</code> file to import the <code>updateDispatcher</code> method from <code>react</code>:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;updateDispatcher&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br></pre></td></tr></table></figure>
+<p>当然，这一步可以写一个脚本来实现。</p>
+<p>总结下来，上面的流程可以简单表示为：</p>
+<p>Certainly, this step can be implemented using a script.</p>
+<p>To summarize, the above process can be represented simply as:</p>
+<p><img src="/2024/04/22/big-react-wasm-8/1.png" alt=""></p>
+<p>本次的更新详见<a href="https://github.com/ParadeTo/big-react-wasm/pull/4" target="_blank" rel="noopener">这里</a>。</p>
+<p>我们来测试下，修改一下 hello-world 的例子：</p>
+<p>The details of this update can be found <a href="https://github.com/ParadeTo/big-react-wasm/pull/4" target="_blank" rel="noopener">here</a>.</p>
+<p>Let’s test it by modifying the hello-world example:</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;useState&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [name, setName] = useState(<span class="function"><span class="params">()</span> =&gt;</span> <span class="string">'ayou'</span>)</span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    setName(<span class="string">'ayouayou'</span>)</span><br><span class="line">  &#125;, <span class="number">1000</span>)</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div&gt;</span><br><span class="line">      &lt;Comp&gt;&#123;name&#125;&lt;<span class="regexp">/Comp&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">Comp</span>(<span class="params">&#123;children&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;span&gt;</span><br><span class="line">      &lt;i&gt;&#123;<span class="string">`Hello world, <span class="subst">$&#123;children&#125;</span>`</span>&#125;&lt;<span class="regexp">/i&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>span&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> App</span><br></pre></td></tr></table></figure>
+<p>结果如下所示：</p>
+<p>The result is shown below:</p>
+<p><img src="/2024/04/22/big-react-wasm-8/2.png" alt=""></p>
+<p>很奇怪吧？那是因为我们目前还没有完整的实现更新流程。</p>
+<p>到此，我们已经复刻出了 big react v3 这个版本。跪求 star！</p>
+<p>It looks strange, right? That’s because we haven’t fully implemented the update process yet.</p>
+<p>So far, we have replicated the Big React v3 version. Please kindly give it a star!</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/04/19/big-react-wasm-7/" rel="next" title="从零实现 React v18，但 WASM 版 - [7] 支持 FunctionComponent 类型">
+                <i class="fa fa-chevron-left"></i> 从零实现 React v18，但 WASM 版 - [7] 支持 FunctionComponent 类型
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/04/23/big-react-wasm-9/" rel="prev" title="从零实现 React v18，但 WASM 版 - [9] 使用 Jest 进行单元测试">
+                从零实现 React v18，但 WASM 版 - [9] 使用 Jest 进行单元测试 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

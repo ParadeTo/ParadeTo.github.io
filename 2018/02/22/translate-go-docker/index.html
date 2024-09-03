@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="docker,go," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="为 Go Web-apps 编写 Dockerfiles 的终极指南">
+<meta name="keywords" content="docker,go">
+<meta property="og:type" content="article">
+<meta property="og:title" content="为 Go Web-apps 编写 Dockerfiles 的终极指南（译）">
+<meta property="og:url" content="http://www.paradeto.com/2018/02/22/translate-go-docker/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="为 Go Web-apps 编写 Dockerfiles 的终极指南">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="为 Go Web-apps 编写 Dockerfiles 的终极指南（译）">
+<meta name="twitter:description" content="为 Go Web-apps 编写 Dockerfiles 的终极指南">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2018/02/22/translate-go-docker/"/>
+
+
+
+
+
+
+  <title>为 Go Web-apps 编写 Dockerfiles 的终极指南（译） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2018/02/22/translate-go-docker/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">为 Go Web-apps 编写 Dockerfiles 的终极指南（译）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2018-02-22T09:33:34+08:00">
+                2018-02-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/翻译/" itemprop="url" rel="index">
+                    <span itemprop="name">翻译</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  为 Go Web-apps 编写 Dockerfiles 的终极指南
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>你或许想在 Docker 中使用 Go，原因有：</p>
+<ol>
+<li>如果你想在 Kubernetes 上运行，打包为镜像是必须的（就像我一样）</li>
+<li>你不得不在同一台机器上运行不同的 Go 版本</li>
+<li>开发和生产都需要精确的、可复制的、可共享的和确定的环境</li>
+<li>你需要快速和简单的方式来构建和部署编译好的二进制文件</li>
+<li>你想快速开始（任何安装了 Docker 的人都可以直接开始编写代码而不需要设置其他依赖或 <code>GOPATH</code> 环境变量）</li>
+</ol>
+<p>恭喜你，你来对地方了。</p>
+<p>我们将逐步构建一个基本的 Dockerfile，包括<strong>实时重载</strong>和<strong>包管理</strong>，然后进行扩展，创建一个高度<strong>优化</strong>的生产版的镜像，其大小缩减了 100 倍。如果你使用 CI/CD 系统，镜像大小可能无关紧要，但是当 <code>docker push</code> 和 <code>docker pull</code> 时，一个精简的镜像肯定会有帮助。</p>
+<p>如果你只想要最终的代码，请看 <a href="https://github.com/shahidhk/go-docker/blob/master/src/main.go" target="_blank" rel="noopener">GitHub</a>。</p>
+<figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.8</span>.<span class="number">5</span>-jessie as builder</span><br><span class="line"><span class="comment"># install xz</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> apt-get update &amp;&amp; apt-get install -y \</span></span><br><span class="line"><span class="bash">    xz-utils \</span></span><br><span class="line"><span class="bash">&amp;&amp; rm -rf /var/lib/apt/lists/*</span></span><br><span class="line"><span class="bash"><span class="comment"># install UPX</span></span></span><br><span class="line"><span class="bash">ADD https://github.com/upx/upx/releases/download/v3.94/upx-3.94-amd64_linux.tar.xz /usr/<span class="built_in">local</span></span></span><br><span class="line"><span class="bash">RUN xz -d -c /usr/<span class="built_in">local</span>/upx-3.94-amd64_linux.tar.xz | \</span></span><br><span class="line"><span class="bash">    tar -xOf - upx-3.94-amd64_linux/upx &gt; /bin/upx &amp;&amp; \</span></span><br><span class="line"><span class="bash">    chmod a+x /bin/upx</span></span><br><span class="line"><span class="bash"><span class="comment"># install glide</span></span></span><br><span class="line"><span class="bash">RUN go get github.com/Masterminds/glide</span></span><br><span class="line"><span class="bash"><span class="comment"># setup the working directory</span></span></span><br><span class="line"><span class="bash">WORKDIR /go/src/app</span></span><br><span class="line"><span class="bash">ADD glide.yaml glide.yaml</span></span><br><span class="line"><span class="bash">ADD glide.lock glide.lock</span></span><br><span class="line"><span class="bash"><span class="comment"># install dependencies</span></span></span><br><span class="line"><span class="bash">RUN glide install</span></span><br><span class="line"><span class="bash"><span class="comment"># add source code</span></span></span><br><span class="line"><span class="bash">ADD src src</span></span><br><span class="line"><span class="bash"><span class="comment"># build the source</span></span></span><br><span class="line"><span class="bash">RUN go build src/main.go</span></span><br><span class="line"><span class="bash">RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main src/main.go</span></span><br><span class="line"><span class="bash"><span class="comment"># strip and compress the binary</span></span></span><br><span class="line"><span class="bash">RUN strip --strip-unneeded main</span></span><br><span class="line"><span class="bash">RUN upx main</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash"><span class="comment"># use a minimal alpine image</span></span></span><br><span class="line"><span class="bash">FROM alpine:3.7</span></span><br><span class="line"><span class="bash"><span class="comment"># add ca-certificates in case you need them</span></span></span><br><span class="line"><span class="bash">RUN apk add --no-cache ca-certificates</span></span><br><span class="line"><span class="bash"><span class="comment"># set working directory</span></span></span><br><span class="line"><span class="bash">WORKDIR /root</span></span><br><span class="line"><span class="bash"><span class="comment"># copy the binary from builder</span></span></span><br><span class="line"><span class="bash">COPY --from=builder /go/src/app/main .</span></span><br><span class="line"><span class="bash"><span class="comment"># run the binary</span></span></span><br><span class="line"><span class="bash">CMD [<span class="string">"./main"</span>]</span></span><br></pre></td></tr></table></figure>
+<p>假设我们的应用叫 <code>go-docker</code>，下面是项目的结构。所有的源码都在 <code>src</code> 目录下，<code>Dockerfile</code> 跟它在同一级目录。 <code>main.go</code> 定义了一个 web-app 并监听 8080 端口。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">go-docker</span><br><span class="line">├── Dockerfile</span><br><span class="line">└── src</span><br><span class="line">    └── main.go</span><br></pre></td></tr></table></figure>
+<h1 id="最简单的版本"><a href="#最简单的版本" class="headerlink" title="最简单的版本"></a>最简单的版本</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:1.8.5-jessie</span><br><span class="line"># create a working directory</span><br><span class="line">WORKDIR /go/src/app</span><br><span class="line"># add source code</span><br><span class="line">ADD src src</span><br><span class="line"># run main.go</span><br><span class="line">CMD [&quot;go&quot;, &quot;run&quot;, &quot;src/main.go&quot;]</span><br></pre></td></tr></table></figure>
+<p>我们使用 <code>debian jessie</code> 版本的 golang 镜像，因为像 <code>go get</code> 这样的命令需要安装有 <code>git</code> 等工具。对于生产版本，我们会用更加轻量的版本，如 <code>alpine</code>。 </p>
+<p>构建并运行该镜像：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cd go-docker</span><br><span class="line">$ docker build -t go-docker-dev .</span><br><span class="line">$ docker run --rm -it -p 8080:8080 go-docker-dev</span><br></pre></td></tr></table></figure>
+<p>成功后可以通过 <code>http://localhost:8080</code> 来访问。按下 <code>Ctrl+C</code> 可以中断服务。</p>
+<p>但这并没有多大意义，因为每次修改代码时，我们都必须构建和运行docker 镜像。</p>
+<p>一个更好的版本是将源代码挂载到 docker 容器中，并使用容器内的 shell 来停止和启动 <code>go run</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cd go-docker</span><br><span class="line">$ docker build -t go-docker-dev .</span><br><span class="line">$ docker run --rm -it -p 8080:8080 -v $(pwd):/go/src/app \</span><br><span class="line">             go-docker-dev bash</span><br><span class="line">root@id:/go/src/app# go run src/main.go</span><br></pre></td></tr></table></figure>
+<p>这个命令会提供一个 shell，我们可以在里面执行 <code>go run src/main.go</code> 以启动服务。我们可以在宿主机上编辑 <code>main.go</code> 并重新运行该命令来查看变化，因为现在源代码已经直接挂载到了容器中。</p>
+<p>但是，如何管理包呢？</p>
+<h1 id="包管理和镜像分层"><a href="#包管理和镜像分层" class="headerlink" title="包管理和镜像分层"></a>包管理和镜像分层</h1><p><a href="https://github.com/golang/go/wiki/PackageManagementTools" target="_blank" rel="noopener">Go 的包管理</a> 仍处在实验阶段。有很多工具可以选择，但是我最喜欢的是 <a href="https://glide.sh/" target="_blank" rel="noopener">Glide</a>。我们将在容器中安装 Glide 并使用它。</p>
+<p>在 <code>go-docker</code> 项目中新建两个文件 <code>glide.yaml</code> 和 <code>glide.lock</code>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cd go-docker</span><br><span class="line">$ touch glide.yaml</span><br><span class="line">$ touch glide.lock</span><br></pre></td></tr></table></figure>
+<p>按照下面所示修改 Dockerfile 并构建一个新的镜像：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:1.8.5-jessie</span><br><span class="line"># install glide</span><br><span class="line">RUN go get github.com/Masterminds/glide</span><br><span class="line"># create a working directory</span><br><span class="line">WORKDIR /go/src/app</span><br><span class="line"># add glide.yaml and glide.lock</span><br><span class="line">ADD glide.yaml glide.yaml</span><br><span class="line">ADD glide.lock glide.lock</span><br><span class="line"># install packages</span><br><span class="line">RUN glide install</span><br><span class="line"># add source code</span><br><span class="line">ADD src src</span><br><span class="line"># run main.go</span><br><span class="line">CMD [&quot;go&quot;, &quot;run&quot;, &quot;src/main.go&quot;]</span><br></pre></td></tr></table></figure>
+<p>如果你观察比较细致，你会发现 <code>glide.yaml</code> 和 <code>glide.lock</code> 是分开添加的（并没有用 <code>ADD . .</code>），这样会导致有单独分离的层。将包管理分离为单独的层，可以充分利用 Docker 层的缓存，并且只有当对应的文件发生变化才会导致重新编译，比如：新增或删除了一个包。因此，<code>glide install</code> 不会在每次修改了代码之后都去执行。</p>
+<p>让我们进入容器的 shell 安装一个包：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cd go-docker</span><br><span class="line">$ docker build -t go-docker-dev .</span><br><span class="line">$ docker run --rm -it -v $(pwd):/go/src/app go-docker-dev bash</span><br><span class="line">root@id:/go/src/app# glide get github.com/golang/glog</span><br></pre></td></tr></table></figure>
+<p>Glide 会将所有包安装到 <code>vendor</code> 目录，该目录可以被 <code>gitignored</code> 和 <code>dockerignored</code>。使用 <code>glide.lock</code> 来锁定某个包的版本。要安装（或重新安装）<code>glide.yaml</code> 中提到的所有包，执行：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">$ cd go-docker</span><br><span class="line">$ docker run --rm -it -p 8080:8080 -v $(pwd):/go/src/app \</span><br><span class="line">             go-docker-dev bash</span><br><span class="line">root@id:/go/src/app# glide install</span><br></pre></td></tr></table></figure>
+<p>现在 <code>go-docker</code> 目录有所增长：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.</span><br><span class="line">├── Dockerfile</span><br><span class="line">├── glide.lock</span><br><span class="line">├── glide.yaml</span><br><span class="line">├── src</span><br><span class="line">│   └── main.go</span><br><span class="line">└── vendor/</span><br></pre></td></tr></table></figure>
+<h1 id="实时重载"><a href="#实时重载" class="headerlink" title="实时重载"></a>实时重载</h1><p><a href="https://github.com/codegangsta/gin" target="_blank" rel="noopener">codegangsta/gin</a> 是我最喜欢的实时重载工具。它简直就是为 Go web 服务而生的。我们使用 <code>go get</code> 来安装 gin：</p>
+<figure class="highlight docker"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> golang:<span class="number">1.8</span>.<span class="number">5</span>-jessie</span><br><span class="line"><span class="comment"># install glide</span></span><br><span class="line"><span class="keyword">RUN</span><span class="bash"> go get github.com/Masterminds/glide</span></span><br><span class="line"><span class="bash"><span class="comment"># install gin</span></span></span><br><span class="line"><span class="bash">RUN go get github.com/codegangsta/gin</span></span><br><span class="line"><span class="bash"><span class="comment"># create a working directory</span></span></span><br><span class="line"><span class="bash">WORKDIR /go/src/app</span></span><br><span class="line"><span class="bash"><span class="comment"># add glide.yaml and glide.lock</span></span></span><br><span class="line"><span class="bash">ADD glide.yaml glide.yaml</span></span><br><span class="line"><span class="bash">ADD glide.lock glide.lock</span></span><br><span class="line"><span class="bash"><span class="comment"># install packages</span></span></span><br><span class="line"><span class="bash">RUN glide install</span></span><br><span class="line"><span class="bash"><span class="comment"># add source code</span></span></span><br><span class="line"><span class="bash">ADD src src</span></span><br><span class="line"><span class="bash"><span class="comment"># run main.go</span></span></span><br><span class="line"><span class="bash">CMD [<span class="string">"go"</span>, <span class="string">"run"</span>, <span class="string">"src/main.go"</span>]</span></span><br></pre></td></tr></table></figure>
+<p>构建镜像并运行 gin 以便当我们修改了 <code>src</code> 中的源代码时可以自动重新编译：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ cd go-docker</span><br><span class="line">$ docker build -t go-docker-dev .</span><br><span class="line">$ docker run --rm -it -p 8080:8080 -v $(pwd):/go/src/app \</span><br><span class="line">             go-docker-dev bash</span><br><span class="line">root@id:/go/src/app# gin --path src --port 8080 run main.go</span><br></pre></td></tr></table></figure>
+<p>注意到 web-server 需要一个 <code>PORT</code> 的环境变量来监听，因为 gin 会随机设置 <code>PORT</code> 变量并代理到该端口的连接。</p>
+<p>现在，修改 <code>src</code> 目录下的内容会触发重新编译，所有更新的内容可以实时在 <code>http://localhost:8080</code> 访问到。</p>
+<p>一旦开发完毕，我们可以构建二进制文件并运行它，而不需要使用 <code>go run</code> 命令。可以使用相同的镜像来构建，或者也可以使用 Docker 的多阶段构建，即使用 <code>golang</code> 镜像来构建并使用迷你 linux 容器如 <code>alpine</code> 来运行服务。</p>
+<h1 id="单阶段生产构建"><a href="#单阶段生产构建" class="headerlink" title="单阶段生产构建"></a>单阶段生产构建</h1><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:1.8.5-jessie</span><br><span class="line"># install glide</span><br><span class="line">RUN go get github.com/Masterminds/glide</span><br><span class="line"># create a working directory</span><br><span class="line">WORKDIR /go/src/app</span><br><span class="line"># add glide.yaml and glide.lock</span><br><span class="line">ADD glide.yaml glide.yaml</span><br><span class="line">ADD glide.lock glide.lock</span><br><span class="line"># install packages</span><br><span class="line">RUN glide install</span><br><span class="line"># add source code</span><br><span class="line">ADD src src</span><br><span class="line"># build main.go</span><br><span class="line">RUN go build src/main.go</span><br><span class="line"># run the binary</span><br><span class="line">CMD [&quot;./main&quot;]</span><br></pre></td></tr></table></figure>
+<p>构建并运行该一体化的镜像：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ cd go-docker</span><br><span class="line">$ docker build -t go-docker-prod .</span><br><span class="line">$ docker run --rm -it -p 8080:8080 go-docker-prod</span><br></pre></td></tr></table></figure>
+<p>因为底层使用了 Debian 镜像，该镜像会达到 750 MB 左右的大小（取决于你的源代码）。让我们看看如何缩减体积。</p>
+<h1 id="多阶段生产构建"><a href="#多阶段生产构建" class="headerlink" title="多阶段生产构建"></a>多阶段生产构建</h1><p>多阶段构建允许你在一个完整的 OS 环境中进行构建，但构建后的二进制文件通过一个非常苗条的镜像来运行，该镜像仅比构建后的二进制文件略大一点而已。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:1.8.5-jessie as builder</span><br><span class="line"># install glide</span><br><span class="line">RUN go get github.com/Masterminds/glide</span><br><span class="line"># setup the working directory</span><br><span class="line">WORKDIR /go/src/app</span><br><span class="line">ADD glide.yaml glide.yaml</span><br><span class="line">ADD glide.lock glide.lock</span><br><span class="line"># install dependencies</span><br><span class="line">RUN glide install</span><br><span class="line"># add source code</span><br><span class="line">ADD src src</span><br><span class="line"># build the source</span><br><span class="line">RUN go build src/main.go</span><br><span class="line">RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main src/main.go</span><br><span class="line"></span><br><span class="line"># use a minimal alpine image</span><br><span class="line">FROM alpine:3.7</span><br><span class="line"># add ca-certificates in case you need them</span><br><span class="line">RUN apk update &amp;&amp; apk add ca-certificates &amp;&amp; rm -rf /var/cache/apk/*</span><br><span class="line"># set working directory</span><br><span class="line">WORKDIR /root</span><br><span class="line"># copy the binary from builder</span><br><span class="line">COPY --from=builder /go/src/app/main .</span><br><span class="line"># run the binary</span><br><span class="line">CMD [&quot;./main&quot;]</span><br></pre></td></tr></table></figure>
+<p>现在二进制文件为 14 MB 左右，docker 镜像为 18 MB 左右。真是多亏了 <code>alpine</code>。</p>
+<p>想减小二进制文件体积吗？继续看吧。</p>
+<h1 id="福利：使用-UPX-来压缩二进制文件"><a href="#福利：使用-UPX-来压缩二进制文件" class="headerlink" title="福利：使用 UPX 来压缩二进制文件"></a>福利：使用 UPX 来压缩二进制文件</h1><p>在 <a href="https://hasura.io/" target="_blank" rel="noopener">Hasura</a>，我们已经在到处使用 <a href="https://upx.github.io/" target="_blank" rel="noopener">UPX</a> 了，压缩后我们的 CLI 二进制文件从 50 MB 左右降到 8 MB左右，大大加快了下载速度。UPX 可以极快地进行原地解压，不需要额外的工具，因为它将解压器嵌入到了二进制文件内部。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">FROM golang:1.8.5-jessie as builder</span><br><span class="line"># install xz</span><br><span class="line">RUN apt-get update &amp;&amp; apt-get install -y \</span><br><span class="line">    xz-utils \</span><br><span class="line">&amp;&amp; rm -rf /var/lib/apt/lists/*</span><br><span class="line"># install UPX</span><br><span class="line">ADD https://github.com/upx/upx/releases/download/v3.94/upx-3.94-amd64_linux.tar.xz /usr/local</span><br><span class="line">RUN xz -d -c /usr/local/upx-3.94-amd64_linux.tar.xz | \</span><br><span class="line">    tar -xOf - upx-3.94-amd64_linux/upx &gt; /bin/upx &amp;&amp; \</span><br><span class="line">    chmod a+x /bin/upx</span><br><span class="line"># install glide</span><br><span class="line">RUN go get github.com/Masterminds/glide</span><br><span class="line"># setup the working directory</span><br><span class="line">WORKDIR /go/src/app</span><br><span class="line">ADD glide.yaml glide.yaml</span><br><span class="line">ADD glide.lock glide.lock</span><br><span class="line"># install dependencies</span><br><span class="line">RUN glide install</span><br><span class="line"># add source code</span><br><span class="line">ADD src src</span><br><span class="line"># build the source</span><br><span class="line">RUN go build src/main.go</span><br><span class="line">RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main src/main.go</span><br><span class="line"># strip and compress the binary</span><br><span class="line">RUN strip --strip-unneeded main</span><br><span class="line">RUN upx main</span><br><span class="line"></span><br><span class="line"># use a minimal alpine image</span><br><span class="line">FROM alpine:3.7</span><br><span class="line"># add ca-certificates in case you need them</span><br><span class="line">RUN apk update &amp;&amp; apk add ca-certificates &amp;&amp; rm -rf /var/cache/apk/*</span><br><span class="line"># set working directory</span><br><span class="line">WORKDIR /root</span><br><span class="line"># copy the binary from builder</span><br><span class="line">COPY --from=builder /go/src/app/main .</span><br><span class="line"># run the binary</span><br><span class="line">CMD [&quot;./main&quot;]</span><br></pre></td></tr></table></figure>
+<p>UPX 压缩后的二进制文件为 3 MB 左右并且 docker 镜像为 6 MB 左右。</p>
+<p><strong>相比最开始的镜像，缩减了 100 倍</strong></p>
+<p>如果你有更好的建议或是你需要其他的使用场景，请在评论区留言或者去 <a href="https://news.ycombinator.com/item?id=16308391" target="_blank" rel="noopener">HackerNews</a> 和 <a href="https://www.reddit.com/r/golang/comments/7vexdl/the_ultimate_guide_to_writing_dockerfiles_for_go/" target="_blank" rel="noopener">Reddit</a> 进行讨论。</p>
+<h1 id="广告"><a href="#广告" class="headerlink" title="广告"></a>广告</h1><p>额…你尝试过在 Hasura 上部署 Go web-app 吗？这真的是世界上最快的将 Go apps 部署到 HTTPS 域下的方法（仅仅 <code>git push</code> 就够了）。使用这里的项目模板快速开始吧：<a href="https://hasura.io/hub/go-frameworks。Hasura" target="_blank" rel="noopener">https://hasura.io/hub/go-frameworks。Hasura</a> 所有项目模板都配套有 Dockerfile 和 Kubernetes spec，允许你按照你的方式来自定义。</p>
+<hr>
+<p>via：<a href="https://blog.hasura.io/the-ultimate-guide-to-writing-dockerfiles-for-go-web-apps-336efad7012c" target="_blank" rel="noopener">https://blog.hasura.io/the-ultimate-guide-to-writing-dockerfiles-for-go-web-apps-336efad7012c</a></p>
+<p>作者：<a href="https://github.com/shahidhk" target="_blank" rel="noopener">Shahidh K Muhammed</a></p>
+<p>译者：<a href="https://github.com/ParadeTo" target="_blank" rel="noopener">ParadeTo</a></p>
+<p>校对：<a href="https://github.com/polaris1119" target="_blank" rel="noopener">polaris1119</a></p>
+<p>本文由 <a href="https://github.com/studygolang/GCTT" target="_blank" rel="noopener">GCTT</a> 原创编译，<a href="https://studygolang.com/" target="_blank" rel="noopener">Go中文网</a> 荣誉推出</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/docker/" rel="tag"># docker</a>
+          
+            <a href="/tags/go/" rel="tag"># go</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/02/22/translate-fe-performance/" rel="next" title="2018 前端性能优化清单 - 第 4 部分（译）">
+                <i class="fa fa-chevron-left"></i> 2018 前端性能优化清单 - 第 4 部分（译）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/03/09/vue-ssr-1/" rel="prev" title="vue 服务端渲染折腾记录">
+                vue 服务端渲染折腾记录 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#最简单的版本"><span class="nav-number">1.</span> <span class="nav-text">最简单的版本</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#包管理和镜像分层"><span class="nav-number">2.</span> <span class="nav-text">包管理和镜像分层</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实时重载"><span class="nav-number">3.</span> <span class="nav-text">实时重载</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#单阶段生产构建"><span class="nav-number">4.</span> <span class="nav-text">单阶段生产构建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#多阶段生产构建"><span class="nav-number">5.</span> <span class="nav-text">多阶段生产构建</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#福利：使用-UPX-来压缩二进制文件"><span class="nav-number">6.</span> <span class="nav-text">福利：使用 UPX 来压缩二进制文件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#广告"><span class="nav-number">7.</span> <span class="nav-text">广告</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

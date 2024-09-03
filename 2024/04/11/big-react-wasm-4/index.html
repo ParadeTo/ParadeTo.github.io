@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="wasm,react," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v4   Based on big-react，I am going to implement">
+<meta name="keywords" content="wasm,react">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 React v18，但 WASM 版 - [4] 实现 Render 流程的 beginWork 阶段">
+<meta property="og:url" content="http://www.paradeto.com/2024/04/11/big-react-wasm-4/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v4   Based on big-react，I am going to implement">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/11/big-react-wasm-4/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/11/big-react-wasm-4/2.png">
+<meta property="og:updated_time" content="2024-04-16T06:03:00.217Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [4] 实现 Render 流程的 beginWork 阶段">
+<meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v4   Based on big-react，I am going to implement">
+<meta name="twitter:image" content="http://www.paradeto.com/2024/04/11/big-react-wasm-4/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/04/11/big-react-wasm-4/"/>
+
+
+
+
+
+
+  <title>从零实现 React v18，但 WASM 版 - [4] 实现 Render 流程的 beginWork 阶段 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/04/11/big-react-wasm-4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 React v18，但 WASM 版 - [4] 实现 Render 流程的 beginWork 阶段</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-04-11T18:41:19+08:00">
+                2024-04-11
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>模仿 <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>本文对应 tag：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v4" target="_blank" rel="noopener">v4</a></p>
+</blockquote>
+<blockquote>
+<p>Based on <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，I am going to implement React v18 core features from scratch using WASM and Rust.</p>
+<p>Code Repository：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>The tag related to this article：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v4" target="_blank" rel="noopener">v4</a></p>
+</blockquote>
+<p>React 一次更新过程可以分为 Render 和 Commit 两大流程，其中 Render 流程又可以分为 begin work 和 complete work 两个阶段。本文实现 begin work 阶段。</p>
+<p>The update process in React can be divided into two main phases: Render and Commit. The Render phase can further be divided into two stages: begin work and complete work. This article focuses on implementing the begin work stage.</p>
+<p>上篇文章介绍了当调用 <code>render()</code> 方法时，会调用 <code>reconciler</code> 中的 <code>update_container</code> 方法：</p>
+<p>In the previous article, we discussed that when the <code>render()</code> method is called, it invokes the <code>update_container</code> method in the <code>reconciler</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">update_container</span></span>(&amp;<span class="keyword">self</span>, element: Rc&lt;JsValue&gt;, root: Rc&lt;RefCell&lt;FiberRootNode&gt;&gt;) &#123;</span><br><span class="line">    <span class="keyword">let</span> host_root_fiber = Rc::clone(&amp;root).borrow().current.clone();</span><br><span class="line">    <span class="keyword">let</span> update = create_update(element);</span><br><span class="line">    enqueue_update(host_root_fiber.borrow(), update);</span><br><span class="line">    ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>执行完上述代码后，会构造一个这样的数据结构：</p>
+<p>After executing the above code, a data structure like the following will be constructed:</p>
+<p><img src="/2024/04/11/big-react-wasm-4/1.png" alt=""></p>
+<p>其中，<code>FiberRootNode</code> 和 <code>FiberNode</code> 定义如下：</p>
+<p>The definitions of <code>FiberRootNode</code> and <code>FiberNode</code> are as follows:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">FiberRootNode</span></span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> container: Rc&lt;JsValue&gt;,</span><br><span class="line">    <span class="keyword">pub</span> current: Rc&lt;RefCell&lt;FiberNode&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> finished_work: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">FiberNode</span></span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> tag: WorkTag,</span><br><span class="line">    <span class="keyword">pub</span> pending_props: <span class="built_in">Option</span>&lt;Rc&lt;JsValue&gt;&gt;,</span><br><span class="line">    key: <span class="built_in">Option</span>&lt;<span class="built_in">String</span>&gt;,</span><br><span class="line">    <span class="keyword">pub</span> state_node: <span class="built_in">Option</span>&lt;Rc&lt;StateNode&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> update_queue: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;UpdateQueue&gt;&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> _<span class="keyword">return</span>: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> sibling: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> child: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> alternate: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> _<span class="keyword">type</span>: <span class="built_in">Option</span>&lt;Rc&lt;JsValue&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> flags: Flags,</span><br><span class="line">    <span class="keyword">pub</span> subtree_flags: Flags,</span><br><span class="line">    <span class="keyword">pub</span> memoized_props: <span class="built_in">Option</span>&lt;Rc&lt;JsValue&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> memoized_state: <span class="built_in">Option</span>&lt;Rc&lt;JsValue&gt;&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用 <code>Rc</code> 智能指针来让一个值可以有多个所有者，对于某些需要修改的字段还使用 <code>RefCell</code> 来实现“内部可变性”。</p>
+<p>Here, the <code>Rc</code> smart pointer is used to allow a value to have multiple owners, and <code>RefCell</code> is used for “interior mutability” for certain fields that need to be modified.</p>
+<p>接下来就是要构建一颗 FiberNode Tree 了：</p>
+<p>Next, we are going to build a FiberNode Tree:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">update_container</span></span>(&amp;<span class="keyword">self</span>, element: Rc&lt;JsValue&gt;, root: Rc&lt;RefCell&lt;FiberRootNode&gt;&gt;) &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> work_loop = WorkLoop::new(<span class="keyword">self</span>.host_config.clone());</span><br><span class="line">    work_loop.schedule_update_on_fiber(host_root_fiber);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为后面的代码都是参考 big-react 的实现，把 JS 翻译成了 Rust 而已，所以就不过多的赘述了，这里提几点区别。</p>
+<p>Because the subsequent code is mostly a translation of the implementation in big-react from JavaScript to Rust, there is no need to go into too much detail. Here are a few differences to note.</p>
+<p>区别一：workInProgress</p>
+<p>Difference 1: <code>workInProgress</code></p>
+<p>big-react 中 <code>workInProgress</code> 是一个模块级别的变量，但是 Rust 中没有这个概念，所以改成了 struct 中的一个属性：</p>
+<p>In big-react, <code>workInProgress</code> is a module-level variable. However, Rust does not have the concept of module-level variables, so it has been changed to be an attribute within a struct.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">WorkLoop</span></span> &#123;</span><br><span class="line">    work_in_progress: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中 <code>WorkLoop</code> 这个 struct 也是 Rust 中新加的，big-react 中是在 <code>work_loop.js</code> 这个模块中直接导出了 function。</p>
+<p>In Rust, a new struct called <code>WorkLoop</code> has been introduced, whereas in big-react, it was exported as a function in the <code>work_loop.js</code> module.</p>
+<p>区别二：stateNode</p>
+<p>Difference 2: <code>stateNode</code></p>
+<p>big-react 中的 <code>stateNode</code> 是 any 类型，因为对于根 <code>FiberNode</code> 节点，它的 <code>stateNode</code> 是 <code>FiberRootNode</code>，而其他节点的 <code>stateNode</code> 是 JS 中的 DOM 对象。Rust 中是使用一个 enum 来表示：</p>
+<p>In big-react, the <code>stateNode</code> is of type <code>any</code> because for the root <code>FiberNode</code>, its <code>stateNode</code> is a <code>FiberRootNode</code>, while for other nodes, the <code>stateNode</code> is a DOM object in JavaScript. In Rust, an enum is used to represent this:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">enum</span> <span class="title">StateNode</span></span> &#123;</span><br><span class="line">    FiberRootNode(Rc&lt;RefCell&lt;FiberRootNode&gt;&gt;),</span><br><span class="line">    Element(Rc&lt;dyn Any&gt;),</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>使用的时候也很稍微麻烦一点，使用 match 来进行分支处理：</p>
+<p>It is a bit more cumbersome to use, as it requires the use of match for branching and handling different cases:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">match</span> fiber_node.state_node &#123;</span><br><span class="line">    <span class="literal">None</span> =&gt; &#123;&#125;</span><br><span class="line">    <span class="literal">Some</span>(state_node) =&gt; &#123;</span><br><span class="line">        <span class="keyword">match</span> &amp;*state_node &#123;</span><br><span class="line">            StateNode::FiberRootNode(fiber_root_node) =&gt; &#123;&#125;</span><br><span class="line">            StateNode::Element(ele) =&gt; &#123;&#125;,</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>或者类似于 JS 中的解构赋值：</p>
+<p>Alternatively, it can be done similarly to destructuring assignment in JavaScript:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> <span class="literal">Some</span>(StateNode::FiberRootNode(fiber_root_node)) = fiber_node.state_node.clone();</span><br></pre></td></tr></table></figure>
+<p>区别三：performSyncWorkOnRoot</p>
+<p>Difference 3: performSyncWorkOnRoot</p>
+<p>big-react 中使用 <code>try catch</code> 来捕获 <code>workLoop</code> 过程中的任何错误：</p>
+<p>In big-react, <code>try-catch</code> is used to catch any errors that occur during the <code>workLoop</code> process:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// render阶段具体操作</span></span><br><span class="line"><span class="keyword">do</span> &#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    workLoop()</span><br><span class="line">    <span class="keyword">break</span></span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="built_in">console</span>.error(<span class="string">'workLoop发生错误'</span>, e)</span><br><span class="line">    workInProgress = <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125; <span class="keyword">while</span> (<span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+<p>由于 Rust 中不支持 <code>try catch</code>，而是使用 <code>Result</code> 来处理错误，这里暂时先不考虑，后面再实现：</p>
+<p>Since Rust does not support <code>try-catch</code>, but instead uses <code>Result</code> to handle errors, we won’t consider it for now and will implement it later:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">loop</span> &#123;</span><br><span class="line">  <span class="keyword">self</span>.work_loop();</span><br><span class="line">  <span class="keyword">break</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于我们暂时只实现 begin work 这个阶段，所以在 <code>perform_unit_of_work</code> 中暂时注释掉 <code>complete_unit_of_work</code>，改为给 <code>work_in_progress</code> 赋值为 <code>None</code>，使得循环可以退出：</p>
+<p>Since we are currently only implementing the begin work phase, we will temporarily comment out <code>complete_unit_of_work</code> in <code>perform_unit_of_work</code>. Instead, we will assign <code>None</code> to <code>work_in_progress</code> to make the loop exit:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">work_loop</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) &#123;</span><br><span class="line">  <span class="keyword">while</span> <span class="keyword">self</span>.work_in_progress.is_some() &#123;</span><br><span class="line">      <span class="keyword">self</span>.perform_unit_of_work(<span class="keyword">self</span>.work_in_progress.clone().unwrap());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">perform_unit_of_work</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, fiber: Rc&lt;RefCell&lt;FiberNode&gt;&gt;) &#123;</span><br><span class="line">  <span class="keyword">let</span> next = begin_work(fiber.clone());</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> next.is_none() &#123;</span><br><span class="line">      <span class="comment">// self.complete_unit_of_work(fiber.clone())</span></span><br><span class="line">      <span class="keyword">self</span>.work_in_progress = <span class="literal">None</span>;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">self</span>.work_in_progress = <span class="literal">Some</span>(next.unwrap());</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，我们打印这个阶段生成的 FiberNode tree 看看结果是否正确：</p>
+<p>Next, let’s print the generated FiberNode tree in this phase to see if the results are correct:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">perform_sync_work_on_root</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, root: Rc&lt;RefCell&lt;FiberRootNode&gt;&gt;) &#123;</span><br><span class="line">  <span class="keyword">self</span>.prepare_fresh_stack(Rc::clone(&amp;root));</span><br><span class="line"></span><br><span class="line">  <span class="keyword">loop</span> &#123;</span><br><span class="line">      <span class="keyword">self</span>.work_loop();</span><br><span class="line">      <span class="keyword">break</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  log!(<span class="string">"&#123;:?&#125;"</span>, *root.clone().borrow());</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为了打印 <code>FiberRootNode</code>，我们还需要给它实现 <code>Debug</code> 这个 trait：</p>
+<p>To print the <code>FiberRootNode</code>, we also need to implement the <code>Debug</code> trait for it:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> <span class="built_in">Debug</span> <span class="keyword">for</span> FiberRootNode &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">fmt</span></span>(&amp;<span class="keyword">self</span>, f: &amp;<span class="keyword">mut</span> Formatter&lt;<span class="symbol">'_</span>&gt;) -&gt; std::fmt::<span class="built_in">Result</span> &#123;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实现方式是采取的广度遍历的方式，可自行查看代码。然后我们修改一下 hello world 中的例子：</p>
+<p>The implementation approach is to use breadth-first traversal. You can refer to the code for more details. Now, let’s modify the example in the “hello world” project:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;createRoot&#125; <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"><span class="keyword">const</span> comp = (</span><br><span class="line">  &lt;div&gt;</span><br><span class="line">    &lt;p&gt;</span><br><span class="line">      &lt;span&gt;Hello World&lt;<span class="regexp">/span&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>p&gt;</span><br><span class="line">  &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">)</span></span><br><span class="line"><span class="regexp">const root = createRoot(document.getElementById('root'))</span></span><br><span class="line"><span class="regexp">root.render(comp)</span></span><br></pre></td></tr></table></figure>
+<p>可以看到如下输出：</p>
+<p>You can see the following output:</p>
+<p><img src="/2024/04/11/big-react-wasm-4/2.png" alt=""></p>
+<p>由于目前还没有实现 children 为数组的 reconcile 流程，所以暂时只能测试单个 child 的情况。</p>
+<p>Since the reconciliation process for children as an array has not been implemented yet, we can only test the case with a single child for now.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/04/07/big-react-wasm-3/" rel="next" title="从零实现 React v18，但 WASM 版 - [3] Renderer 和 Reconciler 架构设计">
+                <i class="fa fa-chevron-left"></i> 从零实现 React v18，但 WASM 版 - [3] Renderer 和 Reconciler 架构设计
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/04/15/big-react-wasm-5/" rel="prev" title="从零实现 React v18，但 WASM 版 - [5] 实现 Render 流程的 completeWork 阶段">
+                从零实现 React v18，但 WASM 版 - [5] 实现 Render 流程的 completeWork 阶段 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

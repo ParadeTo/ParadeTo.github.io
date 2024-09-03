@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="chunked,http2," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="当 Transfer-Encoding chunked 遇上 HTTP2">
+<meta name="keywords" content="chunked,http2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="当 Transfer-Encoding chunked 遇上 HTTP2">
+<meta property="og:url" content="http://www.paradeto.com/2023/01/12/http2-chunk/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="当 Transfer-Encoding chunked 遇上 HTTP2">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/problem.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/h2.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/header.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/chunked.gif">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/data1.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/data2.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/header_frame.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/favicon.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/data1.png">
+<meta property="og:updated_time" content="2024-08-23T08:15:51.418Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="当 Transfer-Encoding chunked 遇上 HTTP2">
+<meta name="twitter:description" content="当 Transfer-Encoding chunked 遇上 HTTP2">
+<meta name="twitter:image" content="http://www.paradeto.com/2023/01/12/http2-chunk/http2-chunk/problem.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2023/01/12/http2-chunk/"/>
+
+
+
+
+
+
+  <title>当 Transfer-Encoding chunked 遇上 HTTP2 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2023/01/12/http2-chunk/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">当 Transfer-Encoding chunked 遇上 HTTP2</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-12T16:44:15+08:00">
+                2023-01-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/WWW/" itemprop="url" rel="index">
+                    <span itemprop="name">WWW</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  当 Transfer-Encoding chunked 遇上 HTTP2
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h1><p>某日，Leader 说：“给我们的 SSR 服务整一下流式渲染吧！”。听完我心想：这不是小弟已经研究过的玩意吗。所以果断回答 OK 没问题。</p>
+<p>一天之后，本地修改完毕，部署到 Test 环境，开始验证！咦，返回的头部里面怎么没有 <code>Transfer-Encoding: chunked</code> 这个头部呀？鉴于我们的服务是部署在 Nginx 网关之后的，所以果断甩锅给运维，“怎么把我的头给弄丢了！”。</p>
+<p>一番拉扯之后，运维甩过来一个链接：<a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding" target="_blank" rel="noopener">Transfer-Encoding</a>。意思就是，这不是我们的锅呀，这个是 HTTP2 的规定。</p>
+<p>所以现在的问题总结下来就是：</p>
+<p><img src="./http2-chunk/problem.png" alt=""></p>
+<p>问题原因知道了，那就面向 Google 开发呗，可是经过各种组合搜索后也没有找到相关的内容。没方法了，只能灰溜溜的跟 Leader 说做不了了。</p>
+<p>但是这个问题一直萦绕在我脑海，害得我夜不能寐，饭不能食。毕竟，丢了的面子得找回来，而且不可能大家的服务都没有像这样部署过吧，肯定还是自己太菜了。</p>
+<p>而且，根据上面这个链接所说：“HTTP2 提供了比 <code>chunked</code> 更为高效的数据流传输机制”，所以有可能 HTTP2 已经默默的帮我们做了些什么了？既然有此疑虑，直接验证一下呗。</p>
+<h1 id="验证"><a href="#验证" class="headerlink" title="验证"></a>验证</h1><p>本文所需要的验证工具包括：</p>
+<ul>
+<li>Nginx：需要开启 HTTP2，需要生成自签名证书，相关内容可自行搜索。这里仅给出配置文件：</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">events &#123;https://juejin.cn/post/7133238781452222472</span><br><span class="line">    <span class="attribute">worker_connections</span> <span class="number">2048</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">  <span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">ssl_certificate</span>      mydomain.crt;</span><br><span class="line">    <span class="attribute">ssl_certificate_key</span>  private.key;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">listen</span> <span class="number">443</span> ssl http2;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">location</span> / &#123;</span><br><span class="line">      <span class="attribute">proxy_http_version</span>      <span class="number">1</span>.<span class="number">1</span>; <span class="comment"># 注意这个参数不能省略，否则默认会用 1.0，1.0 不支持 chunked</span></span><br><span class="line">      <span class="attribute">proxy_pass</span> http://127.0.0.1:2048;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>返回 chunked 内容的 server：本文使用 Node.js，代码如下：</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> app = express()</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/chunk_demo'</span>, (req, res, next) =&gt; &#123;</span><br><span class="line">  res.write(<span class="string">`&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="string">      &lt;html&gt;</span></span><br><span class="line"><span class="string">        &lt;head&gt;</span></span><br><span class="line"><span class="string">          &lt;title&gt;Chunk Demo&lt;/title&gt;</span></span><br><span class="line"><span class="string">        &lt;/head&gt;</span></span><br><span class="line"><span class="string">        &lt;body&gt;</span></span><br><span class="line"><span class="string">          &lt;strong&gt;你好`</span>)</span><br><span class="line"></span><br><span class="line">  setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    res.end(<span class="string">` World&lt;/strong&gt;</span></span><br><span class="line"><span class="string">    &lt;/body&gt;</span></span><br><span class="line"><span class="string">  &lt;/html&gt;`</span>)</span><br><span class="line">  &#125;, <span class="number">4000</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> listener = app.listen(<span class="number">2048</span>, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Your app is listening on port '</span> + listener.address().port)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ul>
+<li>支持 HTTP2 的客户端，这个一般的浏览器应该都支持。</li>
+</ul>
+<p>然后，我们在浏览器中访问一下。从调试面板发现，协议确实是 HTTP2，且没有返回 <code>Transfer-Encoding: chunked</code> 头部，但是效果确实是我们想要的（不过这个浏览器貌似不太礼貌，不好好输出你好就算了，还骂我是“犲”。开个玩笑，这里显然是乱码了，文末有说明）：</p>
+<p><img src="./http2-chunk/h2.png" alt=""></p>
+<p><img src="./http2-chunk/header.png" alt=""></p>
+<p><img src="./http2-chunk/chunked.gif" alt=""></p>
+<p>看来 HTTP2 确实自动做了些什么。</p>
+<p>我们可以通过 wireshark 进一步的验证我们的想法，使用 wireshark 抓包需要配置其可以解密 HTTP2 流量，可参考<a href="https://imququ.com/post/http2-traffic-in-wireshark.html" target="_blank" rel="noopener">使用 Wireshark 调试 HTTP/2 流量</a>。</p>
+<p>如下所示，<code>chunked</code> 的两部分数据被 HTTP2 作为了两个 Data 帧进行传输，两个 Data 帧的时间相差 4 秒左右。</p>
+<p><img src="./http2-chunk/data1.png" alt=""><br><img src="./http2-chunk/data2.png" alt=""></p>
+<p>看来我们的 SSR 流式渲染可以顺利上线了，这个面子终于找回来了。</p>
+<p>不过好不容易抓到了包，那就再顺手研究下 HTTP2 中 Header 和 Data 帧的数据格式吧。</p>
+<h1 id="补充内容"><a href="#补充内容" class="headerlink" title="补充内容"></a>补充内容</h1><h2 id="Header-和-Data-帧格式解析"><a href="#Header-和-Data-帧格式解析" class="headerlink" title="Header 和 Data 帧格式解析"></a>Header 和 Data 帧格式解析</h2><p>首先，我们来看一下 <code>GET /chunk_demo</code> 这个 Header 帧的数据：</p>
+<p><img src="./http2-chunk/header_frame.png" alt=""></p>
+<p>这段数据包含 9 个字节的头部和 444 个字节的数据。</p>
+<p>首先，我们来看看头部：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">0000000 00000001 10111100 00000001 00100101 00000000 00000000 00000000 00000001</span><br></pre></td></tr></table></figure>
+<ul>
+<li>1-3（0000000 00000001 10111100）：数据长度。这里是 444，表示 9 个字节的头部后面跟着 444 个字节的数据。</li>
+<li>4（00000001）：帧类型，这里是 1，表示是 Header 帧。</li>
+<li>5（00100101）：标志位。</li>
+<li>6-9（00000000 00000000 00000000 00000001）：流标识符，标识该帧属于哪个流。</li>
+</ul>
+<p>接下来，是数据部分：</p>
+<p>首先是 4 个字节的 <code>Stream Dependency</code> 用来表示该流的依赖和 1 个字节的 <code>Weight</code> 用来表示优先级，后面的全是请求头相关的内容了，这一部分内容可以参考<a href="https://juejin.cn/post/7133238781452222472" target="_blank" rel="noopener">HTTP/2 头部压缩技术介绍</a>，这里挑几个来解析一下。</p>
+<p>比如第 15 个字节 <code>10000010</code>，它属于“整个头部键值对都在字典中”的情况：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  <span class="number">0</span>   <span class="number">1</span>   <span class="number">2</span>   <span class="number">3</span>   <span class="number">4</span>   <span class="number">5</span>   <span class="number">6</span>   <span class="number">7</span></span><br><span class="line">+---+---+---+---+---+---+---+---+</span><br><span class="line">| <span class="number">1</span> |        Index (<span class="number">7</span>+)         |</span><br><span class="line">+---+---------------------------+</span><br></pre></td></tr></table></figure>
+<p>具体解析方法为：第一位是 <code>1</code>，表示“整个头部键值对都在字典中”，剩下的 7 位表示其在字典中的索引 <code>2</code>，查字典得到键值对为：“:method: GET”。其中完整的字典在<a href="https://httpwg.org/specs/rfc7541.html#static.table.definition" target="_blank" rel="noopener">这里</a>。如果是用 HTTP/1.1 来表示请求方法，则需要 3 个字节。</p>
+<p>再比如 16-23 字节 <code>01000001 10000110 10100000 11100100 00011101 00010011 10011101 00001001</code>，它属于“头部名称在字典中，更新动态字典”的情况：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">  <span class="number">0</span>   <span class="number">1</span>   <span class="number">2</span>   <span class="number">3</span>   <span class="number">4</span>   <span class="number">5</span>   <span class="number">6</span>   <span class="number">7</span></span><br><span class="line">+---+---+---+---+---+---+---+---+</span><br><span class="line">| <span class="number">0</span> | <span class="number">1</span> |      Index (<span class="number">6</span>+)       |</span><br><span class="line">+---+---+-----------------------+</span><br><span class="line">| H |     Value Length (<span class="number">7</span>+)     |</span><br><span class="line">+---+---------------------------+</span><br><span class="line">| Value <span class="built_in">String</span> (Length octets)  |</span><br><span class="line">+-------------------------------+</span><br></pre></td></tr></table></figure>
+<p>具体解析方法为：前两位 <code>01</code> 表示“头部名称在字典中，需要更新动态字典”，后面 6 位表示其在字典中的索引 <code>1</code>，查字典得到其 key 为 <code>:authority</code>，之后的一个字节 <code>10000110</code> 表示使用了霍夫曼编码，且数据长度为 <code>6</code>，最后面的 6 个字节就是霍夫曼编码后的数据，查<a href="https://httpwg.org/specs/rfc7541.html#huffman.code" target="_blank" rel="noopener">霍夫曼编码表</a>后得到结果为 <code>localhost</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">101000</span> - l</span><br><span class="line"><span class="number">00111</span> - o</span><br><span class="line"><span class="number">00100</span> - c</span><br><span class="line"><span class="number">00011</span> - a</span><br><span class="line"><span class="number">100111</span> - h</span><br><span class="line"><span class="number">01000</span> - s</span><br><span class="line"><span class="number">01001</span> - t</span><br><span class="line"></span><br><span class="line"><span class="number">10100000</span> <span class="number">11100100</span> <span class="number">00011101</span> <span class="number">00010011</span> <span class="number">10011101</span> <span class="number">00001001</span></span><br><span class="line">     |     |    |     |      |      |    |     |    |</span><br><span class="line">     l     o    c     a      l      h    o     s    t</span><br></pre></td></tr></table></figure>
+<p>那么，这里的更新动态字典是啥意思呢？我们来看看另外一个包的数据就知道了，刚好浏览器请求网页的时候会自动发一个请求 <code>GET /favicon.ico</code> 去请求网页图标，我们就来看看这个包的 <code>:authority</code>：</p>
+<p><img src="./http2-chunk/favicon.png" alt=""></p>
+<p>从上图可以看到，更新完动态字典后 <code>:authority</code> 现在也属于“整个头部键值对都在字典中”的情况了，用 1 个字节即可表示，数据进一步得到了压缩。</p>
+<p>然后，我们来看看 Data 帧的数据：</p>
+<p><img src="./http2-chunk/data1.png" alt=""></p>
+<p>同样也是 9 个字节的头部，就不赘述了。</p>
+<p>之后就是 135 个字节的数据，注意这里的数据是 UTF8 编码的，由于前面都是 ASCII 表中的字符，所以一个字节即可表示，而“你好”是中文，每一个需要 3 个字节表示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">11100100</span> <span class="number">10111101</span> <span class="number">10100000</span> <span class="number">11100101</span> <span class="number">10100101</span> <span class="number">10111101</span></span><br></pre></td></tr></table></figure>
+<p>那为什么浏览器显示乱码了呢？因为实验环境的浏览器默认使用 GBK 编码，我们查一下 <code>浣犲ソ</code> 的 GBK 编码，可得到：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">浣 - E4BD - <span class="number">11100100</span> <span class="number">10111101</span></span><br><span class="line">犲 - A0E5 - <span class="number">10100000</span> <span class="number">11100101</span></span><br><span class="line">ソ - A5BD - <span class="number">10100101</span> <span class="number">10111101</span></span><br></pre></td></tr></table></figure>
+<p>连起来刚好跟“你好”的 UTF8 编码是一样的。</p>
+<p>怎么解决呢？在返回的 <code>html</code> 中添加 <code>meta</code> 标签指定编码方式即可：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span> /&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文从 SSR 流式渲染的需求出发，通过一个实验介绍了 HTTP2 对 <code>chunked</code> 的处理，并简单分析了一下 HTTP2 的帧格式。最终结论简单来说就是 HTTP2 会自动处理 <code>Transfer-Encoding：chunked</code>，将其转换为多个 Data 帧来传输。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/chunked/" rel="tag"># chunked</a>
+          
+            <a href="/tags/http2/" rel="tag"># http2</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/01/09/nodejs-rpc/" rel="next" title="Node.js 高级编程之 RPC">
+                <i class="fa fa-chevron-left"></i> Node.js 高级编程之 RPC
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/18/nest-microservice-2/" rel="prev" title="Nest.js 微服务实战之用户认证（使用 JWT）">
+                Nest.js 微服务实战之用户认证（使用 JWT） <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#验证"><span class="nav-number">2.</span> <span class="nav-text">验证</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充内容"><span class="nav-number">3.</span> <span class="nav-text">补充内容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Header-和-Data-帧格式解析"><span class="nav-number">3.1.</span> <span class="nav-text">Header 和 Data 帧格式解析</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

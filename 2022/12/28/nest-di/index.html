@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="nestjs," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="搞懂 Nest.js 依赖注入的原理">
+<meta name="keywords" content="nestjs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Nest.js 之依赖注入">
+<meta property="og:url" content="http://www.paradeto.com/2022/12/28/nest-di/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="搞懂 Nest.js 依赖注入的原理">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2023-01-09T10:26:36.769Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Nest.js 之依赖注入">
+<meta name="twitter:description" content="搞懂 Nest.js 依赖注入的原理">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2022/12/28/nest-di/"/>
+
+
+
+
+
+
+  <title>Nest.js 之依赖注入 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2022/12/28/nest-di/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Nest.js 之依赖注入</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-28T17:57:24+08:00">
+                2022-12-28
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/nodejs/" itemprop="url" rel="index">
+                    <span itemprop="name">nodejs</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  搞懂 Nest.js 依赖注入的原理
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>很久之前初学 <code>Java</code> 时就对注解及自动依赖注入这种方式感觉到不可思议，但是一直没有勇气（懒）去搞清楚。现在做前端了，发现 Nest.js 里面竟然也是这玩意，终究还是躲不过，那就趁着“阳康”了搞清楚一下吧。</p>
+<p>关于为什么要进行依赖注入这里就不展开了，下面直接进入正题，TypeScript 依赖注入的原理。</p>
+<h1 id="TypeScript-依赖注入的原理"><a href="#TypeScript-依赖注入的原理" class="headerlink" title="TypeScript 依赖注入的原理"></a>TypeScript 依赖注入的原理</h1><p>TypeScript 中实现依赖注入离不开 <code>Decorator</code> 和 <code>Metadata</code>（需要引入第三方库 <code>reflect-metadata</code>），下面通过一个简单的例子来快速了解它的用途：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'reflect-metadata'</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Reflect</span>.metadata(<span class="string">'class'</span>, <span class="string">'Class Data'</span>)</span><br><span class="line"><span class="keyword">class</span> Test &#123;</span><br><span class="line">  <span class="meta">@Reflect</span>.metadata(<span class="string">'method'</span>, <span class="string">'Method Data'</span>)</span><br><span class="line">  <span class="keyword">public</span> hello(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'hello world'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(Reflect.getMetadata(<span class="string">'class'</span>, Test)) <span class="comment">// Class Data</span></span><br><span class="line"><span class="built_in">console</span>.log(Reflect.getMetadata(<span class="string">'method'</span>, <span class="keyword">new</span> Test(), <span class="string">'hello'</span>)) <span class="comment">// Method Data</span></span><br></pre></td></tr></table></figure>
+<p>通过例子可以看到，我们通过 <code>Reflect.metadata()</code> 这个装饰器可以往类及其方法上面添加数据，然后通过 <code>Reflect.getMetadata</code> 可以取到这些数据。我们可以借助这一特性，实现简单的依赖注入：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'reflect-metadata'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> TestService &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Reflect</span>.metadata(<span class="string">'params'</span>, [TestService])</span><br><span class="line"><span class="keyword">class</span> Test &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">testService: TestService</span>) &#123;&#125;</span><br><span class="line">  <span class="keyword">public</span> hello(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'hello world'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Constructor&lt;T = <span class="built_in">any</span>&gt; = <span class="keyword">new</span> (...args: <span class="built_in">any</span>[]) =&gt; T</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> inject = &lt;T&gt;(target: Constructor&lt;T&gt;): <span class="function"><span class="params">T</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> providers = Reflect.getMetadata(<span class="string">'params'</span>, target)</span><br><span class="line">  <span class="keyword">const</span> args = providers.map(<span class="function">(<span class="params">provider: Constructor</span>) =&gt;</span> <span class="keyword">new</span> provider())</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> target(...args)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">inject(Test).hello()</span><br></pre></td></tr></table></figure>
+<p>如上所示，我们通过 <a href="mailto:`@Reflect.metadata" target="_blank" rel="noopener">`@Reflect.metadata</a>(‘params’, [TestService])<code>在</code>Test<code>上添加了元数据，表示构造函数中需要用到</code>TestService<code>，但</code>Nest.js` 中好像不需要这样。怎么办呢？答案就是：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"compilerOptions"</span>: &#123;</span><br><span class="line">    <span class="attr">"emitDecoratorMetadata"</span>: <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>开启了这个参数后，我们就不需要手动添加元数据了：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'reflect-metadata'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> TestService &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> D = <span class="function"><span class="params">()</span>: <span class="params">ClassDecorator</span> =&gt;</span> (target) =&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@D</span>()</span><br><span class="line"><span class="keyword">class</span> Test &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">testService: TestService</span>) &#123;&#125;</span><br><span class="line">  <span class="keyword">public</span> hello(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'hello world'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Constructor&lt;T = <span class="built_in">any</span>&gt; = <span class="keyword">new</span> (...args: <span class="built_in">any</span>[]) =&gt; T</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> inject = &lt;T&gt;(target: Constructor&lt;T&gt;): <span class="function"><span class="params">T</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> providers = Reflect.getMetadata(<span class="string">'design:paramtypes'</span>, target)</span><br><span class="line">  <span class="keyword">const</span> args = providers.map(<span class="function">(<span class="params">provider: Constructor</span>) =&gt;</span> <span class="keyword">new</span> provider())</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> target(...args)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">inject(Test).hello()</span><br></pre></td></tr></table></figure>
+<p>原因在于开启 <code>emitDecoratorMetadata</code> 后，TS 自动会在我们的装饰器前添加一些装饰器。比如，下面这段代码：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'reflect-metadata'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> D = <span class="function"><span class="params">()</span>: <span class="params">ClassDecorator</span> =&gt;</span> (target) =&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> methodDecorator = <span class="function"><span class="params">()</span>: <span class="params">MethodDecorator</span> =&gt;</span> (target, key, descriptor) =&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@D</span>()</span><br><span class="line"><span class="keyword">class</span> Test &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">a: <span class="built_in">number</span></span>) &#123;&#125;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@methodDecorator</span>()</span><br><span class="line">  <span class="keyword">public</span> hello(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'hello world'</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> hi() &#123;&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>编译过后是这样子的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> __decorate = ...</span><br><span class="line"><span class="keyword">var</span> __metadata = ...</span><br><span class="line"><span class="keyword">import</span> <span class="string">'reflect-metadata'</span></span><br><span class="line"><span class="keyword">const</span> D = <span class="function"><span class="params">()</span> =&gt;</span> (target) =&gt; &#123;&#125;</span><br><span class="line"><span class="keyword">const</span> methodDecorator = <span class="function"><span class="params">()</span> =&gt;</span> (target, key, descriptor) =&gt; &#123;&#125;</span><br><span class="line"><span class="keyword">let</span> Test = <span class="class"><span class="keyword">class</span> <span class="title">Test</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(a) &#123;&#125;</span><br><span class="line">  hello() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'hello world'</span></span><br><span class="line">  &#125;</span><br><span class="line">  hi() &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line">__decorate(</span><br><span class="line">  [</span><br><span class="line">    methodDecorator(),</span><br><span class="line">    __metadata(<span class="string">'design:type'</span>, <span class="built_in">Function</span>),</span><br><span class="line">    __metadata(<span class="string">'design:paramtypes'</span>, []),</span><br><span class="line">    __metadata(<span class="string">'design:returntype'</span>, <span class="built_in">String</span>),</span><br><span class="line">  ],</span><br><span class="line">  Test.prototype,</span><br><span class="line">  <span class="string">'hello'</span>,</span><br><span class="line">  <span class="literal">null</span></span><br><span class="line">)</span><br><span class="line">Test = __decorate(</span><br><span class="line">  [D(), __metadata(<span class="string">'design:paramtypes'</span>, [<span class="built_in">Number</span>])],</span><br><span class="line">  Test</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>可以看到，TS 自动会添加 <code>design:type|paramtypes|returntype</code> 三种类型的元数据，分别表示目标本身，参数以及返回值的类型。</p>
+<p>我们把 <code>inject</code> 稍微改一下，支持递归的注入，这样一个简单的依赖注入就实现了：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'reflect-metadata'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> D = <span class="function"><span class="params">()</span>: <span class="params">ClassDecorator</span> =&gt;</span> (target) =&gt; &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> OtherService &#123;&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@D</span>()</span><br><span class="line"><span class="keyword">class</span> TestService &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">otherService: OtherService</span>) &#123;&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@D</span>()</span><br><span class="line"><span class="keyword">class</span> Test &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">testService: TestService</span>) &#123;&#125;</span><br><span class="line">  <span class="keyword">public</span> hello(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'hello world'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> Constructor&lt;T = <span class="built_in">any</span>&gt; = <span class="keyword">new</span> (...args: <span class="built_in">any</span>[]) =&gt; T</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> inject = &lt;T&gt;(target: Constructor&lt;T&gt;): <span class="function"><span class="params">T</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> providers = Reflect.getMetadata(<span class="string">'design:paramtypes'</span>, target)</span><br><span class="line">  <span class="keyword">if</span> (providers) &#123;</span><br><span class="line">    <span class="keyword">const</span> args = providers.map(<span class="function">(<span class="params">provider: Constructor</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">return</span> inject(provider)</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> target(...args)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> target()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">inject(Test).hello()</span><br></pre></td></tr></table></figure>
+<p>接下来，我们浅看一下 <code>Nest.js</code> 大概是怎么实现的。</p>
+<h1 id="浅析-Nest-js-实现依赖注入的过程"><a href="#浅析-Nest-js-实现依赖注入的过程" class="headerlink" title="浅析 Nest.js 实现依赖注入的过程"></a>浅析 Nest.js 实现依赖注入的过程</h1><p>我们通过官方脚手架生成一个 Demo 项目，可以发现其中 <code>tsconfig.json</code> 中的 <code>emitDecoratorMetadata</code> 确实是开启的。我们先用一个最简单的例子来说明：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app.module.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;Injectable, Module&#125; <span class="keyword">from</span> <span class="string">'@nestjs/common'</span></span><br><span class="line"></span><br><span class="line"><span class="meta">@Injectable</span>()</span><br><span class="line"><span class="keyword">class</span> TestService &#123;</span><br><span class="line">  hello() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'hello world'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Module</span>(&#123;</span><br><span class="line">  providers: [TestService],</span><br><span class="line">&#125;)</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> AppModule &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">testService: TestService</span>) &#123;</span><br><span class="line">    testService.hello()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// main.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;NestFactory&#125; <span class="keyword">from</span> <span class="string">'@nestjs/core'</span></span><br><span class="line"><span class="keyword">import</span> &#123;AppModule&#125; <span class="keyword">from</span> <span class="string">'./app.module'</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">bootstrap</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">await</span> NestFactory.create(AppModule)</span><br><span class="line">&#125;</span><br><span class="line">bootstrap()</span><br></pre></td></tr></table></figure>
+<p>为了更加直观的理解流程，这里暂时先把源码核心部分扒下来，我们把 <code>await NestFactory.create(AppModule)</code> 替换成我们自己的代码：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> injector = <span class="keyword">new</span> Injector()</span><br><span class="line"><span class="keyword">await</span> injector.inject(AppModule)</span><br></pre></td></tr></table></figure>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;Type&#125; <span class="keyword">from</span> <span class="string">'@nestjs/common'</span></span><br><span class="line"><span class="keyword">import</span> &#123;MODULE_METADATA&#125; <span class="keyword">from</span> <span class="string">'@nestjs/common/constants'</span></span><br><span class="line"><span class="keyword">import</span> &#123;ApplicationConfig, NestContainer&#125; <span class="keyword">from</span> <span class="string">'@nestjs/core'</span></span><br><span class="line"><span class="keyword">import</span> &#123;InstanceLoader&#125; <span class="keyword">from</span> <span class="string">'@nestjs/core/injector/instance-loader'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="keyword">class</span> Injector &#123;</span><br><span class="line">  container: NestContainer</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> <span class="keyword">async</span> inject(<span class="keyword">module</span>: any) &#123;</span><br><span class="line">    <span class="keyword">const</span> applicationConfig = <span class="keyword">new</span> ApplicationConfig()</span><br><span class="line">    <span class="keyword">this</span>.container = <span class="keyword">new</span> NestContainer(applicationConfig)</span><br><span class="line">    <span class="keyword">const</span> moduleInstance = <span class="keyword">await</span> <span class="keyword">this</span>.container.addModule(<span class="keyword">module</span>, null)</span><br><span class="line">    // 1 resolve dependencies</span><br><span class="line">    const &#123;token, metatype&#125; = moduleInstance</span><br><span class="line">    <span class="keyword">this</span>.reflectProviders(metatype, token)</span><br><span class="line">    <span class="comment">// 2 create instance</span></span><br><span class="line">    <span class="keyword">const</span> instanceLoader = <span class="keyword">new</span> InstanceLoader(<span class="keyword">this</span>.container)</span><br><span class="line">    instanceLoader.createInstancesOfDependencies()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> reflectProviders(<span class="keyword">module</span>: Type&lt;any&gt;, token: string) &#123;</span><br><span class="line">    <span class="keyword">const</span> providers = [</span><br><span class="line">      ...this.reflectMetadata(MODULE_METADATA.PROVIDERS, <span class="keyword">module</span>),</span><br><span class="line">    ]</span><br><span class="line">    providers.forEach((provider) =&gt; &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="keyword">this</span>.container.addProvider(provider <span class="keyword">as</span> Type&lt;<span class="built_in">any</span>&gt;, token)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">public</span> reflectMetadata(metadataKey: <span class="built_in">string</span>, metatype: Type&lt;<span class="built_in">any</span>&gt;) &#123;</span><br><span class="line">    <span class="keyword">return</span> Reflect.getMetadata(metadataKey, metatype) || []</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里大概分成两部分：</p>
+<ol>
+<li>处理 <code>module</code> 的依赖，也就是 <code>@Module</code> 装饰器所声明的，我们这里暂时只考虑 <code>providers</code>。这一步执行完后，<code>NestContainer</code> 中数据如下（注意到 <code>Module</code> 本身也作为自己的 <code>provider</code>）：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  modules: &#123;</span><br><span class="line">    <span class="string">'19bb8f429cacdbcc18fc1afcaac891a4606578aa'</span>: Module &#123;</span><br><span class="line">      _metatype: class AppModule &#123;...&#125;,</span><br><span class="line">      _providers: &#123;</span><br><span class="line">        class AppModule &#123;...&#125;: InstanceWrapper &#123;&#125;, // Module 本身也作为自己的 provider</span><br><span class="line">        class TestService &#123;...&#125;: InstanceWrapper &#123;&#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>实例化 <code>Module</code>。这一部分需要稍微看一下源码：</li>
+</ol>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">async</span> createInstancesOfDependencies(</span><br><span class="line">  modules: Map&lt;<span class="built_in">string</span>, Module&gt; = <span class="keyword">this</span>.container.getModules(),</span><br><span class="line">) &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">await</span> <span class="keyword">this</span>.createInstances(modules);</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">async</span> createInstances(modules: Map&lt;<span class="built_in">string</span>, Module&gt;) &#123;</span><br><span class="line">  <span class="keyword">await</span> <span class="built_in">Promise</span>.all(</span><br><span class="line">    [...modules.values()].map(<span class="keyword">async</span> moduleRef =&gt; &#123;</span><br><span class="line">      <span class="keyword">await</span> <span class="keyword">this</span>.createInstancesOfProviders(moduleRef);</span><br><span class="line">      ...</span><br><span class="line">    &#125;),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的意思是实例化所有的 <code>Module</code>，实例化 <code>Module</code> 前，我们需要先实例化它的依赖，具体到这里就是实例化 <code>providers</code>：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">async</span> createInstancesOfProviders(moduleRef: Module) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; providers &#125; = moduleRef;</span><br><span class="line">  <span class="keyword">const</span> wrappers = [...providers.values()];</span><br><span class="line">  <span class="keyword">await</span> <span class="built_in">Promise</span>.all(</span><br><span class="line">    wrappers.map(<span class="function"><span class="params">item</span> =&gt;</span> <span class="keyword">this</span>.injector.loadProvider(item, moduleRef)),</span><br><span class="line">  );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最后会到 <code>loadInstance</code> 这个函数：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">async</span> loadInstance&lt;T&gt;(</span><br><span class="line">  wrapper: InstanceWrapper&lt;T&gt;,</span><br><span class="line">  collection: Map&lt;InstanceToken, InstanceWrapper&gt;,</span><br><span class="line">  moduleRef: Module,</span><br><span class="line">  contextId = STATIC_CONTEXT,</span><br><span class="line">  inquirer?: InstanceWrapper,</span><br><span class="line">) &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> callback = <span class="keyword">async</span> (instances: unknown[]) =&gt; &#123;</span><br><span class="line">      <span class="keyword">const</span> properties = <span class="keyword">await</span> <span class="keyword">this</span>.resolveProperties(</span><br><span class="line">        wrapper,</span><br><span class="line">        moduleRef,</span><br><span class="line">        inject <span class="keyword">as</span> InjectionToken[],</span><br><span class="line">        contextId,</span><br><span class="line">        wrapper,</span><br><span class="line">        inquirer,</span><br><span class="line">      );</span><br><span class="line">      <span class="keyword">const</span> instance = <span class="keyword">await</span> <span class="keyword">this</span>.instantiateClass(</span><br><span class="line">        instances,</span><br><span class="line">        wrapper,</span><br><span class="line">        targetWrapper,</span><br><span class="line">        contextId,</span><br><span class="line">        inquirer,</span><br><span class="line">      );</span><br><span class="line">      <span class="keyword">this</span>.applyProperties(instance, properties);</span><br><span class="line">      done();</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">await</span> <span class="keyword">this</span>.resolveConstructorParams&lt;T&gt;(</span><br><span class="line">      wrapper,</span><br><span class="line">      moduleRef,</span><br><span class="line">      inject <span class="keyword">as</span> InjectionToken[],</span><br><span class="line">      callback,</span><br><span class="line">      contextId,</span><br><span class="line">      wrapper,</span><br><span class="line">      inquirer,</span><br><span class="line">    );</span><br><span class="line">  &#125; <span class="keyword">catch</span> (err) &#123;</span><br><span class="line">    done(err);</span><br><span class="line">    <span class="keyword">throw</span> err;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接下来就到了最重要的 <code>this.resolveConstructorParams</code> 这个函数了，我们以 <code>class AppModule</code> 这个 <code>provider</code> 为例来分析：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">async</span> resolveConstructorParams&lt;T&gt;(</span><br><span class="line">    wrapper: InstanceWrapper&lt;T&gt;,</span><br><span class="line">    moduleRef: Module,</span><br><span class="line">    inject: InjectorDependency[],</span><br><span class="line">    callback: <span class="function">(<span class="params">args: unknown[]</span>) =&gt;</span> <span class="built_in">void</span> | <span class="built_in">Promise</span>&lt;<span class="built_in">void</span>&gt;,</span><br><span class="line">    contextId = STATIC_CONTEXT,</span><br><span class="line">    inquirer?: InstanceWrapper,</span><br><span class="line">    parentInquirer?: InstanceWrapper,</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="comment">// dependencies 返回的就是 AppModule 构造函数的参数类型，本例为： [TestService]</span></span><br><span class="line">    <span class="keyword">const</span> [dependencies, optionalDependenciesIds] = isFactoryProvider</span><br><span class="line">      ? <span class="keyword">this</span>.getFactoryProviderDependencies(wrapper)</span><br><span class="line">      : <span class="keyword">this</span>.getClassDependencies(wrapper);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> isResolved = <span class="literal">true</span>;</span><br><span class="line">    <span class="keyword">const</span> resolveParam = <span class="keyword">async</span> (param: unknown, index: <span class="built_in">number</span>) =&gt; &#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="comment">// 这里的 instances 就是通过 dependencies 实例化后的对象，具体到本例，可以理解为这样： [new TestService()]</span></span><br><span class="line">    <span class="keyword">const</span> instances = <span class="keyword">await</span> <span class="built_in">Promise</span>.all(dependencies.map(resolveParam));</span><br><span class="line">    isResolved &amp;&amp; (<span class="keyword">await</span> callback(instances));</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>其中调用 <code>this.getClassDependencies(wrapper)</code> 最终会调用 <code>reflectConstructorParams</code>：</p>
+<figure class="highlight ts"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> reflectConstructorParams&lt;T&gt;(<span class="keyword">type</span>: Type&lt;T&gt;): <span class="built_in">any</span>[] &#123;</span><br><span class="line">  <span class="keyword">const</span> paramtypes = Reflect.getMetadata(PARAMTYPES_METADATA, <span class="keyword">type</span>) || [];</span><br><span class="line">  <span class="keyword">const</span> selfParams = <span class="keyword">this</span>.reflectSelfParams&lt;T&gt;(<span class="keyword">type</span>);</span><br><span class="line"></span><br><span class="line">  selfParams.forEach(<span class="function">(<span class="params">&#123; index, param &#125;</span>) =&gt;</span> (paramtypes[index] = param));</span><br><span class="line">  <span class="keyword">return</span> paramtypes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>PARAMTYPES_METADATA</code> 就是 <code>design:paramtypes</code>。</p>
+<p>终于看到了我们想要的结果，那本文暂时就分析到这里吧，这样一次带着一个问题看源码，目标明确，不至于陷入源码的汪洋大海之中。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文先通过几个简单的例子揭示了 TS 中如何实现依赖注入，核心原理在于通过 <code>Decorator</code> 及 <code>Metadata</code> 两大特性可以在类及其方法上存储一些数据，并且开启了 <code>emitDecoratorMetadata</code> 后，TS 还可以自动添加三种类型的数据。</p>
+<p>然后简单地调试了 <code>Nest.js</code> 的初始化过程，发现原理与我们分析的类似。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nestjs/" rel="tag"># nestjs</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/15/nodejs-cluster-principle/" rel="next" title="Node.js 高级编程之 cluster">
+                <i class="fa fa-chevron-left"></i> Node.js 高级编程之 cluster
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/09/nodejs-rpc/" rel="prev" title="Node.js 高级编程之 RPC">
+                Node.js 高级编程之 RPC <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#TypeScript-依赖注入的原理"><span class="nav-number">2.</span> <span class="nav-text">TypeScript 依赖注入的原理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#浅析-Nest-js-实现依赖注入的过程"><span class="nav-number">3.</span> <span class="nav-text">浅析 Nest.js 实现依赖注入的过程</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

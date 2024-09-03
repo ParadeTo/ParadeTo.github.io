@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="nodejs," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="Node.js 高级编程之 RPC">
+<meta name="keywords" content="nodejs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 高级编程之 RPC">
+<meta property="og:url" content="http://www.paradeto.com/2023/01/09/nodejs-rpc/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="Node.js 高级编程之 RPC">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/09/nodejs-rpc/all.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/09/nodejs-rpc/thrift.png">
+<meta property="og:image" content="http://www.paradeto.com/2023/01/09/nodejs-rpc/two-params.png">
+<meta property="og:updated_time" content="2023-01-11T08:32:12.956Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node.js 高级编程之 RPC">
+<meta name="twitter:description" content="Node.js 高级编程之 RPC">
+<meta name="twitter:image" content="http://www.paradeto.com/2023/01/09/nodejs-rpc/all.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2023/01/09/nodejs-rpc/"/>
+
+
+
+
+
+
+  <title>Node.js 高级编程之 RPC | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2023/01/09/nodejs-rpc/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Node.js 高级编程之 RPC</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-01-09T19:57:37+08:00">
+                2023-01-09
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/nodejs/" itemprop="url" rel="index">
+                    <span itemprop="name">nodejs</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  Node.js 高级编程之 RPC
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在构建微服务时，为了追求极致的效率，服务间一般会使用 RPC（Remote Procedure Call）来进行通信。本文通过 Node.js 来实践一下。</p>
+<h1 id="Node-js-朴素-RPC"><a href="#Node-js-朴素-RPC" class="headerlink" title="Node.js 朴素 RPC"></a>Node.js 朴素 RPC</h1><p>首先我们来构建一下 <code>server</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// server.js</span></span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> &#123;msgBuffer&#125; = <span class="built_in">require</span>(<span class="string">'../utils'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = net.createServer(<span class="function">(<span class="params">clientSocket</span>) =&gt;</span> &#123;</span><br><span class="line">  clientSocket.on(<span class="string">'data'</span>, (data) =&gt; &#123;</span><br><span class="line">    msgBuffer.push(data)</span><br><span class="line">    <span class="keyword">while</span> (!msgBuffer.isFinished()) &#123;</span><br><span class="line">      <span class="keyword">const</span> message = <span class="built_in">JSON</span>.parse(msgBuffer.handleData())</span><br><span class="line">      clientSocket.write(</span><br><span class="line">        <span class="built_in">JSON</span>.stringify(fnMap[message.cmd].apply(<span class="literal">null</span>, message.params)) + <span class="string">'\n'</span></span><br><span class="line">      )</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">9999</span>, () =&gt; <span class="built_in">console</span>.log(<span class="string">'Listening on 9999'</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> fnMap = &#123;</span><br><span class="line">  add: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> s = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; args.length; i++) &#123;</span><br><span class="line">      s += args[i]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> s</span><br><span class="line">  &#125;,</span><br><span class="line">  multiply: <span class="function">(<span class="params">...args</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">let</span> p = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; args.length; i++) &#123;</span><br><span class="line">      p *= args[i]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// MessageBuffer</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MessageBuffer</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(delimiter) &#123;</span><br><span class="line">    <span class="keyword">this</span>.delimiter = delimiter</span><br><span class="line">    <span class="keyword">this</span>.buffer = <span class="string">''</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  isFinished() &#123;</span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      <span class="keyword">this</span>.buffer.length === <span class="number">0</span> ||</span><br><span class="line">      <span class="keyword">this</span>.buffer.indexOf(<span class="keyword">this</span>.delimiter) === <span class="number">-1</span></span><br><span class="line">    ) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  push(data) &#123;</span><br><span class="line">    <span class="keyword">this</span>.buffer += data</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getMessage() &#123;</span><br><span class="line">    <span class="keyword">const</span> delimiterIndex = <span class="keyword">this</span>.buffer.indexOf(<span class="keyword">this</span>.delimiter)</span><br><span class="line">    <span class="keyword">if</span> (delimiterIndex !== <span class="number">-1</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> message = <span class="keyword">this</span>.buffer.slice(<span class="number">0</span>, delimiterIndex)</span><br><span class="line">      <span class="keyword">this</span>.buffer = <span class="keyword">this</span>.buffer.replace(message + <span class="keyword">this</span>.delimiter, <span class="string">''</span>)</span><br><span class="line">      <span class="keyword">return</span> message</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  handleData() &#123;</span><br><span class="line">    <span class="keyword">const</span> message = <span class="keyword">this</span>.getMessage()</span><br><span class="line">    <span class="keyword">return</span> message</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">exports.msgBuffer = <span class="keyword">new</span> MessageBuffer(<span class="string">'\n'</span>)</span><br></pre></td></tr></table></figure>
+<p>我们新建了一个 TCP 的服务，并监听来自客户端的数据，注意这里我们通过一个 <code>MessageBuffer</code> 类来对数据进行解析（至于为什么这么做可参考考文末补充内容：关于 TCP “粘包”问题说明），将 TCP 数据流解析成我们的消息体。然后调用服务端预先配置好的方法，最后将返回值返回给客户端。</p>
+<p>客户端相对比较简单，将函数调用相关数据按照事先规定好的格式发送给服务端即可：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> &#123;msgBuffer&#125; = <span class="built_in">require</span>(<span class="string">'../utils'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> client = net.connect(&#123;<span class="attr">port</span>: <span class="number">9999</span>&#125;, () =&gt; &#123;</span><br><span class="line">  client.write(<span class="built_in">JSON</span>.stringify(&#123;<span class="attr">cmd</span>: <span class="string">'add'</span>, <span class="attr">params</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;) + <span class="string">'\n'</span>)</span><br><span class="line">  client.write(<span class="built_in">JSON</span>.stringify(&#123;<span class="attr">cmd</span>: <span class="string">'multiply'</span>, <span class="attr">params</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;) + <span class="string">'\n'</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">client.on(<span class="string">'data'</span>, (data) =&gt; &#123;</span><br><span class="line">  msgBuffer.push(data)</span><br><span class="line">  <span class="keyword">while</span> (!msgBuffer.isFinished()) &#123;</span><br><span class="line">    <span class="keyword">const</span> message = <span class="built_in">JSON</span>.parse(msgBuffer.handleData())</span><br><span class="line">    <span class="built_in">console</span>.log(message)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>这样，一个非常简单的 RPC 雏形就出来了，不过目前这种方式还不是 RPC。所谓的 RPC，就是客户端必须像调用本地方法一样来调用远端的方法，而不是还需要自己组装消息体，并监听事件获取返回值。理想中的方式应该像这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> result = <span class="keyword">await</span> client.add(<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>)</span><br></pre></td></tr></table></figure>
+<p>我们来改造一下。首先，我们定义一份配置文件，用来描述我们的 <code>services</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// services/index.js</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Calculator</span> </span>&#123;</span><br><span class="line">  add(arr) &#123;</span><br><span class="line">    <span class="keyword">let</span> s = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">      s += arr[i]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> s</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  multiply(arr) &#123;</span><br><span class="line">    <span class="keyword">let</span> p = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">      p *= arr[i]</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> p</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = &#123;</span><br><span class="line">  calculator: &#123;</span><br><span class="line">    cls: Calculator,</span><br><span class="line">    methods: &#123;</span><br><span class="line">      add: &#123;</span><br><span class="line">        params: [&#123;<span class="attr">type</span>: <span class="string">'number[]'</span>, <span class="attr">optional</span>: <span class="literal">false</span>&#125;],</span><br><span class="line">        <span class="keyword">return</span>: &#123;</span><br><span class="line">          type: <span class="string">'number'</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">      multiply: &#123;</span><br><span class="line">        params: [&#123;<span class="attr">type</span>: <span class="string">'number[]'</span>, <span class="attr">optional</span>: <span class="literal">false</span>&#125;],</span><br><span class="line">        <span class="keyword">return</span>: &#123;</span><br><span class="line">          type: <span class="string">'number'</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>services</code> 描述文件中包含了类以及它拥有的方法，方法参数（类型，是否可选），返回值类型等信息。为了简单一点，我们先不校验参数和返回值的类型。</p>
+<p>然后就是我们的 <code>server</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> &#123;msgBuffer&#125; = <span class="built_in">require</span>(<span class="string">'../utils'</span>)</span><br><span class="line"><span class="keyword">const</span> services = <span class="built_in">require</span>(<span class="string">'../services'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Server</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(services) &#123;</span><br><span class="line">    <span class="keyword">this</span>.tcpServer = net.createServer(<span class="function">(<span class="params">clientSocket</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> serviceMap = <span class="keyword">this</span>.createServiceMap(services)</span><br><span class="line"></span><br><span class="line">      clientSocket.on(<span class="string">'data'</span>, (data) =&gt; &#123;</span><br><span class="line">        msgBuffer.push(data)</span><br><span class="line">        <span class="keyword">while</span> (!msgBuffer.isFinished()) &#123;</span><br><span class="line">          <span class="keyword">const</span> &#123;seqId, service, method, params&#125; = <span class="built_in">JSON</span>.parse(</span><br><span class="line">            msgBuffer.handleData()</span><br><span class="line">          )</span><br><span class="line"></span><br><span class="line">          clientSocket.write(</span><br><span class="line">            <span class="built_in">JSON</span>.stringify(&#123;</span><br><span class="line">              seqId,</span><br><span class="line">              result: serviceMap[service][method].apply(<span class="literal">null</span>, params),</span><br><span class="line">            &#125;) + <span class="string">'\n'</span></span><br><span class="line">          )</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  createServiceMap(services) &#123;</span><br><span class="line">    <span class="keyword">const</span> serviceMap = &#123;&#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">Object</span>.keys(services).forEach(<span class="function">(<span class="params">serviceKey</span>) =&gt;</span> &#123;</span><br><span class="line">      serviceMap[serviceKey] = <span class="keyword">new</span> services[serviceKey].cls()</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> serviceMap</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  listen(...args) &#123;</span><br><span class="line">    <span class="keyword">this</span>.tcpServer.listen(...args)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">new</span> Server(services).listen(<span class="number">9999</span>)</span><br></pre></td></tr></table></figure>
+<p><code>server</code> 中会监听 <code>client</code> 的连接，一旦有 <code>client</code> 进来，就根据 <code>services</code> 配置文件为其实例化所有 <code>services</code>。之后开始接受 <code>client</code> 的数据，并根据 <code>client</code> 的消息调用相应的 <code>service</code> 中的方法，并返回结果。</p>
+<p>注意到消息体中有个 <code>seqId</code>，用来标识包的序号，必须将其返回给 <code>client</code>，这样 <code>client</code> 才能知道返回的结果是跟哪个请求对应的。</p>
+<p>最后就是我们的 <code>client</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> EventEmitter = <span class="built_in">require</span>(<span class="string">'events'</span>)</span><br><span class="line"><span class="keyword">const</span> &#123;msgBuffer&#125; = <span class="built_in">require</span>(<span class="string">'../utils'</span>)</span><br><span class="line"><span class="keyword">const</span> services = <span class="built_in">require</span>(<span class="string">'../services'</span>)</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">Client</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(&#123;port, services&#125;) &#123;</span><br><span class="line">    <span class="keyword">this</span>.rspResolve = &#123;&#125;</span><br><span class="line">    <span class="keyword">this</span>.seqId = <span class="number">0</span></span><br><span class="line">    <span class="keyword">this</span>.port = port</span><br><span class="line">    <span class="keyword">this</span>.parseServices(services)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  init() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.client = net.connect(&#123;<span class="attr">port</span>: <span class="keyword">this</span>.port&#125;, () =&gt; &#123;</span><br><span class="line">        resolve()</span><br><span class="line">      &#125;)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">this</span>.client.on(<span class="string">'data'</span>, (data) =&gt; &#123;</span><br><span class="line">        msgBuffer.push(data)</span><br><span class="line">        <span class="keyword">while</span> (!msgBuffer.isFinished()) &#123;</span><br><span class="line">          <span class="keyword">const</span> &#123;seqId, result&#125; = <span class="built_in">JSON</span>.parse(msgBuffer.handleData())</span><br><span class="line">          <span class="keyword">this</span>.rspResolve[seqId](result)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  parseServices(services) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> serviceKey <span class="keyword">in</span> services) &#123;</span><br><span class="line">      <span class="keyword">const</span> service = services[serviceKey]</span><br><span class="line">      <span class="keyword">this</span>[serviceKey] = &#123;&#125;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">const</span> method <span class="keyword">in</span> service.methods) &#123;</span><br><span class="line">        <span class="keyword">this</span>[serviceKey][method] = <span class="function">(<span class="params">...params</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">this</span>.client.write(</span><br><span class="line">            <span class="built_in">JSON</span>.stringify(&#123;</span><br><span class="line">              seqId: <span class="keyword">this</span>.seqId,</span><br><span class="line">              service: serviceKey,</span><br><span class="line">              method,</span><br><span class="line">              params,</span><br><span class="line">            &#125;) + <span class="string">'\n'</span></span><br><span class="line">          )</span><br><span class="line"></span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">            <span class="keyword">this</span>.rspResolve[<span class="keyword">this</span>.seqId++] = resolve</span><br><span class="line">          &#125;)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> client = <span class="keyword">new</span> Client(&#123;<span class="attr">port</span>: <span class="number">9999</span>, services&#125;)</span><br><span class="line">client.init().then(<span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">await</span> client.calculator.add([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]))</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="keyword">await</span> client.calculator.multiply([<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>, <span class="number">5</span>]))</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>初始化一个 <code>client</code> 时，会解析 <code>services</code>，并在当前 <code>client</code> 实例上添加 <code>services</code> 的方法。方法中会将函数调用封装成消息发送给服务端并返回 <code>Promise</code> 对象，同时将 <code>Promise</code> 对象的 <code>resolve</code> 方法缓存在 <code>resResolve</code> 这个 <code>Map</code> 中，此时 <code>Promise</code> 对象还处于 <code>pending</code> 状态。</p>
+<p>当 <code>server</code> 返回相应的 <code>seqId</code> 的结果时，<code>resResolve</code> 中对应的 <code>resolve</code> 方法会调用，从而将 <code>Promise</code> 对象状态设为 <code>fulfilled</code>，此时 <code>client</code> 则可以获取到结果。</p>
+<p>这样我们就实现了一个非常朴素的 RPC 框架。接下来我们简单看看业界常用的 RPC 框架是怎么做的吧，这里以 Thrift 为例。</p>
+<h1 id="Thrift-RPC-Demo"><a href="#Thrift-RPC-Demo" class="headerlink" title="Thrift RPC Demo"></a>Thrift RPC Demo</h1><p>我们先准备一个 <code>calculator.thrift</code> 文件，用来描述 <code>service</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">service Calculator &#123;</span><br><span class="line">  i32 add(<span class="number">1</span>:list&lt;i32&gt; arr),</span><br><span class="line">  i32 multiply(<span class="number">1</span>:list&lt;i32&gt; arr)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于 <code>thrift</code> 文件是语言无关的，所以我们需要通过它生成对应 <code>Calculator.js</code> 文件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">thrift -r --gen js:node calculator.thrift</span><br></pre></td></tr></table></figure>
+<p>这个文件包含 <code>server</code> 端和 <code>client</code> 相关的代码，在 <code>client</code> 端负责将函数调用转为消息发送给 <code>server</code>，在 <code>server</code> 端负责读取消息，调用方法，返回结果给 <code>client</code>。</p>
+<p>然后 <code>server</code> 和 <code>client</code> 分别按照如下方式进行使用即可：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// server.js</span></span><br><span class="line"><span class="keyword">var</span> thrift = <span class="built_in">require</span>(<span class="string">'thrift'</span>)</span><br><span class="line"><span class="keyword">var</span> Calculator = <span class="built_in">require</span>(<span class="string">'./gen-nodejs/Calculator'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> server = thrift.createServer(Calculator, &#123;</span><br><span class="line">  add(arr, result) &#123;</span><br><span class="line">    <span class="keyword">let</span> s = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">      s += arr[i]</span><br><span class="line">    &#125;</span><br><span class="line">    result(<span class="literal">null</span>, s)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  multiply(arr, result) &#123;</span><br><span class="line">    <span class="keyword">let</span> p = <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; arr.length; i++) &#123;</span><br><span class="line">      p *= arr[i]</span><br><span class="line">    &#125;</span><br><span class="line">    result(p)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">9090</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// client.js</span></span><br><span class="line"><span class="keyword">var</span> thrift = <span class="built_in">require</span>(<span class="string">'thrift'</span>)</span><br><span class="line"><span class="keyword">var</span> Calculator = <span class="built_in">require</span>(<span class="string">'./gen-nodejs/Calculator'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> transport = thrift.TBufferedTransport</span><br><span class="line"><span class="keyword">var</span> protocol = thrift.TBinaryProtocol</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> connection = thrift.createConnection(<span class="string">'localhost'</span>, <span class="number">9090</span>, &#123;</span><br><span class="line">  transport: transport,</span><br><span class="line">  protocol: protocol,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> client = thrift.createClient(Calculator, connection)</span><br><span class="line"></span><br><span class="line">client.add([<span class="number">1</span>, <span class="number">2</span>], <span class="function"><span class="keyword">function</span> (<span class="params">err, response</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(response)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>下面，我们通过 <code>Wireshark</code> 来看看 <code>thrift</code> 通信的过程。</p>
+<p>打开 <code>Wireshark</code>，选择 <code>Capturing from Loopback: lo0</code>，然后在 filter 中输入 <code>tcp.port == 9090</code>。分别运行上面的 <code>server</code> 和 <code>client</code>，则可抓包到如下内容：</p>
+<p><img src="/2023/01/09/nodejs-rpc/all.png" alt=""></p>
+<p>我们先来看看第五行，可以看到 <code>Wireshark</code> 自动识别了 <code>thrift</code> 协议，并解析出这是一个 <code>CALL</code> 类型的消息，调用的方法为 <code>add</code>。接下来我们再仔细看看 <code>thrift</code> 协议：</p>
+<p><img src="/2023/01/09/nodejs-rpc/thrift.png" alt=""></p>
+<p><code>thrift</code> 协议格式如上图所示，这里是一个参数的场景，如果有多个参数的话则可以在 <code>Data -&gt; List</code> 后面继续添加，比如我们给 <code>add</code> 方法增加第二个参数，表示是否打印日志：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">i32 add(<span class="number">1</span>:list&lt;i32&gt; arr, <span class="number">2</span>:bool printLog)</span><br></pre></td></tr></table></figure>
+<p>抓包得到的内容如下：</p>
+<p><img src="/2023/01/09/nodejs-rpc/two-params.png" alt=""></p>
+<p>返回的消息格式也类似，这里就不赘述了。</p>
+<p>关于 RPC 的内容就先介绍到这，后面计划基于 Nest.js 再实战一下。</p>
+<h1 id="补充内容"><a href="#补充内容" class="headerlink" title="补充内容"></a>补充内容</h1><h2 id="关于-TCP-“粘包”问题说明"><a href="#关于-TCP-“粘包”问题说明" class="headerlink" title="关于 TCP “粘包”问题说明"></a>关于 TCP “粘包”问题说明</h2><p>首先声明一下，所谓的 TCP “粘包问题”其实并不是一个问题。</p>
+<p>先看一个简单的例子：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// server.js</span></span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> server = net.createServer(<span class="function">(<span class="params">clientSocket</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'Client connected'</span>)</span><br><span class="line">  clientSocket.on(<span class="string">'data'</span>, (data) =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'-------------------'</span>)</span><br><span class="line">    <span class="built_in">console</span>.log(data.toString())</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">server.listen(<span class="number">9999</span>, () =&gt; <span class="built_in">console</span>.log(<span class="string">'Listening on 9999'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">// client.js</span></span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> client = net.connect(&#123;<span class="attr">port</span>: <span class="number">9999</span>&#125;, () =&gt; &#123;</span><br><span class="line">  client.write(<span class="built_in">JSON</span>.stringify(&#123;<span class="attr">cmd</span>: <span class="string">'add'</span>, <span class="attr">params</span>: [<span class="number">1</span>, <span class="number">2</span>]&#125;))</span><br><span class="line">  client.write(<span class="built_in">JSON</span>.stringify(&#123;<span class="attr">cmd</span>: <span class="string">'multiply'</span>, <span class="attr">params</span>: [<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>]&#125;))</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>启动 <code>server</code> 后再运行 <code>client</code>，则 <code>server</code> 有<strong>可能</strong>会打印如下日志：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-------------------</span><br><span class="line">&#123;<span class="string">"cmd"</span>:<span class="string">"add"</span>,<span class="string">"params"</span>:[<span class="number">1</span>,<span class="number">2</span>]&#125;&#123;<span class="string">"cmd"</span>:<span class="string">"multiply"</span>,<span class="string">"params"</span>:[<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]&#125;</span><br></pre></td></tr></table></figure>
+<p>如上所示，客户端调用了两次 <code>write</code>，但是服务端却只打印了一次。也就是说，两次发送的数据在服务端被一次性取出来了。即，使用方层面的两个包“粘在”了一起。原因在于 TCP 是面向字节流的，并没有包的概念，所以开发者需要对 <code>data</code> 事件获取到的数据进行解析。</p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><ol>
+<li><a href="https://blog.bitsrc.io/writing-an-rpc-library-in-node-js-673632413f5f" target="_blank" rel="noopener">https://blog.bitsrc.io/writing-an-rpc-library-in-node-js-673632413f5f</a></li>
+<li><a href="https://thrift.apache.org/tutorial/nodejs.html" target="_blank" rel="noopener">https://thrift.apache.org/tutorial/nodejs.html</a></li>
+</ol>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/28/nest-di/" rel="next" title="Nest.js 之依赖注入">
+                <i class="fa fa-chevron-left"></i> Nest.js 之依赖注入
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/01/12/http2-chunk/" rel="prev" title="当 Transfer-Encoding chunked 遇上 HTTP2">
+                当 Transfer-Encoding chunked 遇上 HTTP2 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Node-js-朴素-RPC"><span class="nav-number">2.</span> <span class="nav-text">Node.js 朴素 RPC</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Thrift-RPC-Demo"><span class="nav-number">3.</span> <span class="nav-text">Thrift RPC Demo</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充内容"><span class="nav-number">4.</span> <span class="nav-text">补充内容</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#关于-TCP-“粘包”问题说明"><span class="nav-number">4.1.</span> <span class="nav-text">关于 TCP “粘包”问题说明</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">5.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react native," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="这是 React Native 实现按需加载的第二部分，也就是介绍如何按需加载拆包后的文件">
+<meta name="keywords" content="react native">
+<meta property="og:type" content="article">
+<meta property="og:title" content="React Native 按需加载实战（二）">
+<meta property="og:url" content="http://www.paradeto.com/2022/01/29/react-native-split-2/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="这是 React Native 实现按需加载的第二部分，也就是介绍如何按需加载拆包后的文件">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2022/01/29/react-native-split-2/target.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2022/01/29/react-native-split-2/subview.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/01/29/react-native-split-2/viewcontroller.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/01/29/react-native-split-2/solution.png">
+<meta property="og:updated_time" content="2022-02-23T13:02:53.682Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="React Native 按需加载实战（二）">
+<meta name="twitter:description" content="这是 React Native 实现按需加载的第二部分，也就是介绍如何按需加载拆包后的文件">
+<meta name="twitter:image" content="http://www.paradeto.com/2022/01/29/react-native-split-2/target.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2022/01/29/react-native-split-2/"/>
+
+
+
+
+
+
+  <title>React Native 按需加载实战（二） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2022/01/29/react-native-split-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">React Native 按需加载实战（二）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-01-29T09:43:49+08:00">
+                2022-01-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  这是 React Native 实现按需加载的第二部分，也就是介绍如何按需加载拆包后的文件
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p><a href="/2021/12/24/react-native-split-1/">上一篇文章</a>介绍了如何对 React Native 项目的 JS 文件进行拆包，这次我们仍然用一个例子来演示如何按需加载拆包后的各文件。</p>
+<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p><img src="/2022/01/29/react-native-split-2/target.jpg" alt=""></p>
+<p>如上图所示，最终想实现如下效果：</p>
+<ol>
+<li>利用<a href="/2021/12/24/react-native-split-1/">上一篇文章</a>的方法，把 React Native 应用打包成三个 <code>bundle</code>:</li>
+</ol>
+<p>其中 <em>base.bundle.js</em> 仅包括基础库:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">'react-native'</span></span><br></pre></td></tr></table></figure>
+<p><em>home.bundle.js</em> 包括的内容如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 打包入口文件 index.js</span></span><br><span class="line"><span class="keyword">import</span> &#123;AppRegistry&#125; <span class="keyword">from</span> <span class="string">'react-native'</span></span><br><span class="line"><span class="keyword">import</span> Home <span class="keyword">from</span> <span class="string">'./App'</span></span><br><span class="line"></span><br><span class="line">AppRegistry.registerComponent(<span class="string">'home'</span>, () =&gt; Home)</span><br><span class="line"></span><br><span class="line"><span class="comment">// App.js</span></span><br><span class="line"><span class="keyword">import</span> React, &#123;useEffect&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;View, Text, Button, StyleSheet, NativeModules&#125; <span class="keyword">from</span> <span class="string">'react-native'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Home = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;View&gt;</span><br><span class="line">      &lt;View&gt;</span><br><span class="line">        &lt;Text&gt;Home&lt;<span class="regexp">/Text&gt;</span></span><br><span class="line"><span class="regexp">      &lt;/</span>View&gt;</span><br><span class="line">      &lt;View&gt;</span><br><span class="line">        &lt;Button</span><br><span class="line">          title=<span class="string">'Go To Business1'</span></span><br><span class="line">          onPress=&#123;() =&gt; &#123;</span><br><span class="line">            NativeModules.Navigator.push(<span class="string">'business1'</span>)</span><br><span class="line">          &#125;&#125;</span><br><span class="line">        /&gt;</span><br><span class="line">      &lt;<span class="regexp">/View&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>View&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> Home</span><br></pre></td></tr></table></figure>
+<p>注意，这里我们实现了一个 Native Module <code>Navigator</code>，后面会介绍。</p>
+<p><em>business1.bundle.js</em> 包括的内容如下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 打包入口文件 index.js</span></span><br><span class="line"><span class="keyword">import</span> &#123;AppRegistry&#125; <span class="keyword">from</span> <span class="string">'react-native'</span></span><br><span class="line"><span class="keyword">import</span> Business1 <span class="keyword">from</span> <span class="string">'./App'</span></span><br><span class="line"></span><br><span class="line">AppRegistry.registerComponent(<span class="string">'business1'</span>, () =&gt; Business1)</span><br><span class="line"></span><br><span class="line"><span class="comment">// App.js</span></span><br><span class="line"><span class="keyword">import</span> React, &#123;useEffect&#125; <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;View, Text, StyleSheet, Alert&#125; <span class="keyword">from</span> <span class="string">'react-native'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> Business1 = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  useEffect(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    Alert.alert(global.name)</span><br><span class="line">  &#125;, [])</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;View&gt;</span><br><span class="line">      &lt;Text&gt;Business1&lt;<span class="regexp">/Text&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>View&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> Business1</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>进入应用时，先加载运行 <code>base.bundle.js</code>（包含 <code>react</code> 及 <code>react-native</code> 等基础库），然后加载运行 <code>home.bundle.js</code>，此时页面显示 home 相关的内容。</li>
+<li>点击 home 页面上的 <code>Go To Business1</code> 跳转到 business1 页面，此时会加载运行 <code>business1.bundle.js</code>，然后显示 business1 页面。</li>
+</ol>
+<h1 id="前置知识"><a href="#前置知识" class="headerlink" title="前置知识"></a>前置知识</h1><h2 id="Objective—C-语法简单介绍"><a href="#Objective—C-语法简单介绍" class="headerlink" title="Objective—C 语法简单介绍"></a>Objective—C 语法简单介绍</h2><p>Objective—C（以下简称 OC）是一门强类型语言，需要声明变量的类型：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">NSSttring</span> * appDelegateClassName;</span><br></pre></td></tr></table></figure>
+<p>OC 中函数调用非常奇怪，是用 <code>[]</code> 包起来的：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">self</span>.view.backgroundColor = [<span class="built_in">UIColor</span> whiteColor];</span><br></pre></td></tr></table></figure>
+<p>OC 中也支持函数作为参数：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[Helper loadBundleWithURL:bundleUrl onComplete:^&#123;</span><br><span class="line">  [Helper runApplicationOnView:view];</span><br><span class="line">&#125;]</span><br></pre></td></tr></table></figure>
+<p>OC 中也有类的概念：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 类声明文件 ViewController.h（继承自 UIViewController）</span></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">ViewController</span> : <span class="title">UIViewController</span></span></span><br><span class="line"> ...</span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 类实现文件 ViewController.m</span></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>更多知识请自行补充。</p>
+<h2 id="iOS-开发简单介绍"><a href="#iOS-开发简单介绍" class="headerlink" title="iOS 开发简单介绍"></a>iOS 开发简单介绍</h2><h3 id="UIView"><a href="#UIView" class="headerlink" title="UIView"></a>UIView</h3><p><code>UIView</code> 是最基础的视图类，管理屏幕上一定的内容展示，作为各种视图类型的父类，提供一些基础的能力，如外观、事件等，它可以布局和管理子视图。下面这个例子实现了在当前页面上新增了一个黄色的子视图：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">ViewController</span></span></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">  [<span class="keyword">super</span> viewDidLoad];</span><br><span class="line">  <span class="keyword">self</span>.view.backgroundColor = [<span class="built_in">UIColor</span> redColor];</span><br><span class="line">  <span class="comment">// subview</span></span><br><span class="line">  <span class="built_in">UIView</span> *view = [[<span class="built_in">UIView</span> alloc] init];</span><br><span class="line">  view.frame = <span class="built_in">CGRectMake</span>(<span class="number">50</span>, <span class="number">50</span>, <span class="number">100</span>, <span class="number">50</span>);</span><br><span class="line">  view.backgroundColor = [<span class="built_in">UIColor</span> yellowColor];</span><br><span class="line">  [<span class="keyword">self</span>.view addSubview:view];</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p><img src="/2022/01/29/react-native-split-2/subview.png" alt=""></p>
+<h3 id="UIViewController"><a href="#UIViewController" class="headerlink" title="UIViewController"></a>UIViewController</h3><p><code>UIViewController</code> 是视图控制器，用于管理视图的层级结构，它自身默认包含一个视图。他可以管理视图的生命周期，视图之间的切换等，且 <code>UIViewController</code> 又可以管理别的 <code>UIViewController</code>。这里有个<a href="https://github1s.com/ParadeTo/for-money/blob/master/react-native/simple/simple/AppDelegate.m" target="_blank" rel="noopener">例子</a>通过 <code>UINavigationController</code> 实现了两个 <code>UIViewController</code> 之间的切换：</p>
+<p><img src="/2022/01/29/react-native-split-2/viewcontroller.png" alt=""></p>
+<h2 id="React-Native-页面加载流程介绍"><a href="#React-Native-页面加载流程介绍" class="headerlink" title="React Native 页面加载流程介绍"></a>React Native 页面加载流程介绍</h2><p>首先，我们通过以下命令新建一个 RN 项目：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npx react-native init demo</span><br></pre></td></tr></table></figure>
+<p>我们先来看看入口文件 <code>index.js</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;AppRegistry&#125; <span class="keyword">from</span> <span class="string">'react-native'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App'</span></span><br><span class="line"><span class="keyword">import</span> &#123;name <span class="keyword">as</span> appName&#125; <span class="keyword">from</span> <span class="string">'./app.json'</span></span><br><span class="line"></span><br><span class="line">AppRegistry.registerComponent(appName, () =&gt; App)</span><br></pre></td></tr></table></figure>
+<p>显然，需要了解 <code>AppRegistry.registerComponent</code> 是做了什么，我们来看看：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">   * Registers an app's root component.</span></span><br><span class="line"><span class="comment">   *</span></span><br><span class="line"><span class="comment">   * See https://reactnative.dev/docs/appregistry.html#registercomponent</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  registerComponent(</span><br><span class="line">    appKey: string,</span><br><span class="line">    componentProvider: ComponentProvider,</span><br><span class="line">    section?: boolean,</span><br><span class="line">  ): string &#123;</span><br><span class="line">    <span class="keyword">let</span> scopedPerformanceLogger = createPerformanceLogger();</span><br><span class="line">    runnables[appKey] = &#123;</span><br><span class="line">      componentProvider,</span><br><span class="line">      run: <span class="function">(<span class="params">appParameters, displayMode</span>) =&gt;</span> &#123;</span><br><span class="line">        renderApplication(</span><br><span class="line">          componentProviderInstrumentationHook(</span><br><span class="line">            componentProvider,</span><br><span class="line">            scopedPerformanceLogger,</span><br><span class="line">          ),</span><br><span class="line">          appParameters.initialProps,</span><br><span class="line">          appParameters.rootTag,</span><br><span class="line">          wrapperComponentProvider &amp;&amp; wrapperComponentProvider(appParameters),</span><br><span class="line">          appParameters.fabric,</span><br><span class="line">          showArchitectureIndicator,</span><br><span class="line">          scopedPerformanceLogger,</span><br><span class="line">          appKey === <span class="string">'LogBox'</span>,</span><br><span class="line">          appKey,</span><br><span class="line">          coerceDisplayMode(displayMode),</span><br><span class="line">          appParameters.concurrentRoot,</span><br><span class="line">        );</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">if</span> (section) &#123;</span><br><span class="line">      sections[appKey] = runnables[appKey];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> appKey;</span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure>
+<p>从上面的代码来看，它只是将组件存放在了 <code>runnables</code> 中，并没有真正的渲染。那什么时候渲染呢？这就需要看看 native 的代码了，我们打开 <code>ios</code> 目录下的 <code>AppDelegate.m</code> 文件，可以看到：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application didFinishLaunchingWithOptions:(<span class="built_in">NSDictionary</span> *)launchOptions</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:<span class="keyword">self</span> launchOptions:launchOptions];</span><br><span class="line">  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge</span><br><span class="line">                                                   moduleName:<span class="string">@"rnDemo"</span></span><br><span class="line">                                            initialProperties:<span class="literal">nil</span>];</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第一行代码会进行 <code>bridge</code> 的初始化等工作，然后会异步加载 JS 文件并执行。也就是会执行 <code>AppRegistry.registerComponent</code>。</p>
+<p>第二行代码会准备一个视图容器用于渲染，并会监听 JS 文件加载。当加载成功时，会调用 JS 代码中的 <code>AppRegistry.runApplication</code>：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="keyword">void</span>)runApplication:(RCTBridge *)bridge</span><br><span class="line">&#123;</span><br><span class="line">  <span class="built_in">NSString</span> *moduleName = _moduleName ?: <span class="string">@""</span>;</span><br><span class="line">  <span class="built_in">NSDictionary</span> *appParameters = @&#123;</span><br><span class="line">    <span class="string">@"rootTag"</span> : _contentView.reactTag,</span><br><span class="line">    <span class="string">@"initialProps"</span> : _appProperties ?: @&#123;&#125;,</span><br><span class="line">  &#125;;</span><br><span class="line"></span><br><span class="line">  RCTLogInfo(<span class="string">@"Running application %@ (%@)"</span>, moduleName, appParameters);</span><br><span class="line">  <span class="comment">// 调用 JS 代码中的方法</span></span><br><span class="line">  [bridge enqueueJSCall:<span class="string">@"AppRegistry"</span> method:<span class="string">@"runApplication"</span> args:@[ moduleName, appParameters ] completion:<span class="literal">NULL</span>];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 JS 代码中的 <code>AppRegistry.runApplication</code> 会执行 <code>runnables</code> 中相应的 <code>run</code> 方法最终进行页面的渲染：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">runApplication(</span><br><span class="line">    appKey: string,</span><br><span class="line">    appParameters: any,</span><br><span class="line">    displayMode?: number,</span><br><span class="line">  ): <span class="keyword">void</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">    runnables[appKey].run(appParameters, displayMode);</span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure>
+<h1 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h1><p>介绍了这么多准备知识以后，我们终于要开始实现我们的按需加载了，首先介绍一下整体方案。</p>
+<h2 id="方案设计"><a href="#方案设计" class="headerlink" title="方案设计"></a>方案设计</h2><p><img src="/2022/01/29/react-native-split-2/solution.png" alt=""><br>如图所示，在应用启动的时候我们会初始化一个 <code>MyRNViewController</code> 并通过 <code>UINavigationContoller</code> 来管理。当 <code>MyRNViewController</code> 中的试图加载完成后，会通过 <code>Bridge</code> 加载并执行 <code>base.bundle.js</code> 和 <code>home.bundle.js</code>，成功后会执行 <code>runApplication</code> 方法渲染页面。</p>
+<p>当点击 <code>Go To Business1</code> 按钮时，会使用 <code>UINavigationContoller</code> 推入一个新的 <code>MyRNViewController</code>，当 <code>MyRNViewController</code> 中的试图加载完成后，会使用相同的 <code>Bridge</code> 加载执行 <code>business1.bundle.js</code>，成功后会执行 <code>runApplication</code> 方法渲染页面。</p>
+<p>接下来详细介绍一下。</p>
+<h2 id="AppDelegate-m-的改造"><a href="#AppDelegate-m-的改造" class="headerlink" title="AppDelegate.m 的改造"></a>AppDelegate.m 的改造</h2><p>如上文所说，应用启动的时候会初始化一个 <code>MyRNViewController</code> 并通过 <code>UINavigationContoller</code>，这一步在 <code>AppDelegate.m</code> 的 <code>application</code> 方法中来实现：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (<span class="built_in">BOOL</span>)application:(<span class="built_in">UIApplication</span> *)application didFinishLaunchingWithOptions:(<span class="built_in">NSDictionary</span> *)launchOptions</span><br><span class="line">&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">self</span>.window = [[<span class="built_in">UIWindow</span> alloc] initWithFrame:[<span class="built_in">UIScreen</span> mainScreen].bounds];</span><br><span class="line">  MyRNViewController *vc =  [[MyRNViewController alloc] initWithModuleName:<span class="string">@"home"</span>];</span><br><span class="line">  <span class="keyword">self</span>.window.rootViewController = [[<span class="built_in">UINavigationController</span> alloc] initWithRootViewController:vc];</span><br><span class="line">  [<span class="keyword">self</span>.window makeKeyAndVisible];</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">YES</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="MyRNViewController"><a href="#MyRNViewController" class="headerlink" title="MyRNViewController"></a>MyRNViewController</h2><figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MyRNViewController 初始化后会自动调用</span></span><br><span class="line">- (<span class="keyword">void</span>)loadView &#123;</span><br><span class="line">  RCTRootView *rootView = [Helper createRootViewWithModuleName:_moduleName</span><br><span class="line">                                                    initialProperties:@&#123;&#125;];</span><br><span class="line">  <span class="keyword">self</span>.view = rootView;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>MyRNViewController</code> 初始化的时候会自动调用 <code>loadView</code> 这个方法，该方法创建了一个 <code>RCTRootView</code> 并作为该 <code>ViewController</code> 的默认视图：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">+ (RCTRootView *) createRootViewWithModuleName:(<span class="built_in">NSString</span> *)moduleName initialProperties:(<span class="built_in">NSDictionary</span> *)initialProperties &#123;</span><br><span class="line">  <span class="comment">// _sharedBridge 全局共享的 RCTBridge</span></span><br><span class="line">  <span class="comment">// 如果还未初始化则初始化</span></span><br><span class="line">  <span class="keyword">if</span> (!_sharedBridge) &#123;</span><br><span class="line">    [<span class="keyword">self</span> createBridgeWithURL:[<span class="built_in">NSURL</span> URLWithString:baseUrl]];</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:_sharedBridge</span><br><span class="line">                                                   moduleName: moduleName</span><br><span class="line">                                            initialProperties: initialProperties];</span><br><span class="line">  <span class="keyword">return</span> rootView;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>MyRNViewController</code> 的默认视图加载完成后会执行 <code>viewDidLoad</code> 方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// MyRNViewController 中的试图加载完成后</span></span><br><span class="line">- (<span class="keyword">void</span>)viewDidLoad &#123;</span><br><span class="line">  <span class="built_in">NSString</span> *randStr = [Helper randomStr:<span class="number">2</span>];</span><br><span class="line">  <span class="built_in">NSURL</span> *moduleUrl = [<span class="built_in">NSURL</span> URLWithString:[<span class="built_in">NSString</span> stringWithFormat:<span class="string">@"http://127.0.0.1:8080/%@.bundle.js?v=%@"</span>, _moduleName, randStr]];</span><br><span class="line">  [Helper loadBundle:moduleUrl runAppOnView:<span class="keyword">self</span>.view];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该方法中会去加载执行对应的 <code>bundle</code> 并在当前 <code>view</code> 上执行 <code>runApplication</code> 方法：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">+ (<span class="keyword">void</span>) loadBundle:(<span class="built_in">NSString</span> *)bundleUrl runAppOnView:(RCTRootView*)view &#123;</span><br><span class="line">  <span class="comment">// 确保 base bundle 只加载一次</span></span><br><span class="line">  <span class="keyword">if</span> (needLoadBaseBundle) &#123;</span><br><span class="line">    [Helper loadBundleWithURL:[<span class="built_in">NSURL</span> URLWithString:baseUrl] onComplete:^&#123;</span><br><span class="line">      needLoadBaseBundle = <span class="literal">false</span>;</span><br><span class="line">      [Helper loadBundleWithURL:bundleUrl onComplete:^&#123;</span><br><span class="line">        [Helper runApplicationOnView:view];</span><br><span class="line">      &#125;];</span><br><span class="line">    &#125;];</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    [Helper loadBundleWithURL:bundleUrl onComplete:^&#123;</span><br><span class="line">      [Helper runApplicationOnView:view];</span><br><span class="line">    &#125;];</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">void</span>) loadBundleWithURL:(<span class="built_in">NSURL</span> *)bundleURL onComplete:(dispatch_block_t)onComplete &#123;</span><br><span class="line">  [_sharedBridge loadAndExecuteSplitBundleURL2:bundleURL onError:^(<span class="keyword">void</span>)&#123;&#125; onComplete:^&#123;</span><br><span class="line">    <span class="built_in">NSLog</span>([<span class="built_in">NSString</span> stringWithFormat: <span class="string">@"%@"</span>, bundleURL]);</span><br><span class="line">    onComplete();</span><br><span class="line">  &#125;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">+ (<span class="keyword">void</span>) runApplicationOnView:(RCTRootView *)view &#123;</span><br><span class="line">  [view runApplication:_sharedBridge];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里 <code>loadAndExecuteSplitBundleURL2</code> 是在 <code>react-native</code> 源码中新加的方法，同时还把 <code>(void)runApplication:(RCTBridge *)bridge;</code> 声明为了公共方法，供外部使用。详情见<a href="https://github.com/ParadeTo/react-native/commit/3701a3484f3adfb68e5bd9163eb4d8eef3e2bb6b" target="_blank" rel="noopener">这里</a>。</p>
+<h2 id="按需加载"><a href="#按需加载" class="headerlink" title="按需加载"></a>按需加载</h2><p>当我们点击 <code>Go To Business1</code> 按钮的时候会触发按需加载，这个又是如何实现的呢？我们来看看 home 页面的代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123;View, Text, Button, StyleSheet, NativeModules&#125; <span class="keyword">from</span> <span class="string">'react-native'</span>;</span><br><span class="line">...</span><br><span class="line">&lt;Button</span><br><span class="line">  title=<span class="string">'Go To Business1'</span></span><br><span class="line">  onPress=&#123;() =&gt; &#123;</span><br><span class="line">    NativeModules.Navigator.push(<span class="string">'business1'</span>)</span><br><span class="line">  &#125;&#125;</span><br><span class="line">/&gt;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>这里我们其实是实现了一个 Native Module <code>Navigator</code>：</p>
+<figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Navigator.h</span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;Foundation/Foundation.h&gt;</span></span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;React/RCTBridgeModule.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@interface</span> <span class="title">Navigator</span> : <span class="title">NSObject</span> &lt;<span class="title">RCTBridgeModule</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br><span class="line"><span class="comment">// Navigator.m</span></span><br><span class="line"><span class="meta">#import <span class="meta-string">&lt;UIKit/UIKit.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="meta">#import <span class="meta-string">"Navigator.h"</span></span></span><br><span class="line"><span class="meta">#import <span class="meta-string">"Helper.h"</span></span></span><br><span class="line"><span class="meta">#import <span class="meta-string">"MyRNViewController.h"</span></span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">@implementation</span> <span class="title">Navigator</span></span></span><br><span class="line"></span><br><span class="line">RCT_EXPORT_MODULE(Navigator);</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * We are doing navigation operations, so make sure they are all on the UI Thread.</span></span><br><span class="line"><span class="comment"> * Or you can wrap specific methods that require the main queue like this:</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">- (<span class="built_in">dispatch_queue_t</span>)methodQueue</span><br><span class="line">&#123;</span><br><span class="line">  <span class="keyword">return</span> dispatch_get_main_queue();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">RCT_EXPORT_METHOD(push:(<span class="built_in">NSString</span> *)moduleName) &#123;</span><br><span class="line">  MyRNViewController *newVc = [[MyRNViewController alloc] initWithModuleName:moduleName];</span><br><span class="line">  [[Helper getNavigationController] showViewController:newVc sender:<span class="keyword">self</span>];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">@end</span></span><br></pre></td></tr></table></figure>
+<p>当调用 <code>push</code> 方法时，会向 <code>UINavigationContoller</code> 中新推入一个 <code>MyRNViewController</code>，之后的逻辑就跟上面说过的类似了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>基于<a href="/2021/12/24/react-native-split-1/">上一篇文章</a>的研究成果，本文对一个实际的 React Native 例子进行了拆包。然后通过改写 native 端的代码，实现了对不同业务包的按需加载。项目完整代码<a href="https://github.com/ParadeTo/for-money/tree/master/react-native/split" target="_blank" rel="noopener">在此</a>。</p>
+<p>不过，当前只是简单实现，演示过程而已，实际上还有很多优化可以做：</p>
+<ul>
+<li>当前加载过的 bundle 并没有缓存起来，每次都会重新去下载。加上缓存后，还可以做差量更新的优化，即每次发布最新的 bundle 时，计算其与之前版本的差异，客户端加载 bundle 时仅需要在旧 bundle 上应用差异的部分。</li>
+<li>所有 bundle 运行在同一个上下文之中，存在全局变量污染、某个 bundle 运行 crash 会导致所有业务奔溃等问题。</li>
+</ul>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react-native/" rel="tag"># react native</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2021/12/24/react-native-split-1/" rel="next" title="React Native 按需加载实战（一）">
+                <i class="fa fa-chevron-left"></i> React Native 按需加载实战（一）
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/04/03/react-suspense/" rel="prev" title="React 之 Suspense">
+                React 之 Suspense <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#目标"><span class="nav-number">2.</span> <span class="nav-text">目标</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#前置知识"><span class="nav-number">3.</span> <span class="nav-text">前置知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Objective—C-语法简单介绍"><span class="nav-number">3.1.</span> <span class="nav-text">Objective—C 语法简单介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#iOS-开发简单介绍"><span class="nav-number">3.2.</span> <span class="nav-text">iOS 开发简单介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#UIView"><span class="nav-number">3.2.1.</span> <span class="nav-text">UIView</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UIViewController"><span class="nav-number">3.2.2.</span> <span class="nav-text">UIViewController</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#React-Native-页面加载流程介绍"><span class="nav-number">3.3.</span> <span class="nav-text">React Native 页面加载流程介绍</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实现"><span class="nav-number">4.</span> <span class="nav-text">实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#方案设计"><span class="nav-number">4.1.</span> <span class="nav-text">方案设计</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AppDelegate-m-的改造"><span class="nav-number">4.2.</span> <span class="nav-text">AppDelegate.m 的改造</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MyRNViewController"><span class="nav-number">4.3.</span> <span class="nav-text">MyRNViewController</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#按需加载"><span class="nav-number">4.4.</span> <span class="nav-text">按需加载</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

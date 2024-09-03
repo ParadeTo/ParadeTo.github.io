@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="nodejs," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="nodejs构建Web应用">
+<meta name="keywords" content="nodejs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="nodejs之构建Web应用">
+<meta property="og:url" content="http://www.paradeto.com/2017/06/14/nodejs-webapp/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="nodejs构建Web应用">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="nodejs之构建Web应用">
+<meta name="twitter:description" content="nodejs构建Web应用">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2017/06/14/nodejs-webapp/"/>
+
+
+
+
+
+
+  <title>nodejs之构建Web应用 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2017/06/14/nodejs-webapp/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">nodejs之构建Web应用</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-06-14T09:31:54+08:00">
+                2017-06-14
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/nodejs/" itemprop="url" rel="index">
+                    <span itemprop="name">nodejs</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  nodejs构建Web应用
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>前后端都用js语言的好处：</p>
+<ul>
+<li>无须切换语言环境</li>
+<li>数据（JSON）可以很好地实现跨前后端直接使用</li>
+<li>一些业务（如模板渲染）可以很自由地轻量地选择是在前端还是在后端进行</li>
+</ul>
+</blockquote>
+<h1 id="基础功能"><a href="#基础功能" class="headerlink" title="基础功能"></a>基础功能</h1><p>以官方经典的Hello World为例：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line">http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">	res.writeHead(<span class="number">200</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'text/plain'</span>&#125;</span><br><span class="line">	res.end(<span class="string">'Hello World\n'</span>)</span><br><span class="line">&#125;).listen(<span class="number">1337</span>, <span class="string">'127.0.0.1'</span>)</span><br></pre></td></tr></table></figure>
+<p>在具体的业务中，我们可能有如下这些需求：</p>
+<ul>
+<li>请求方法的判断</li>
+<li>URL的路径解析</li>
+<li>URL中查询字符串解析</li>
+<li>Cookie的解析</li>
+<li>Basic认证</li>
+<li>表单数据的解析</li>
+<li>任意格式文件的上传处理</li>
+</ul>
+<h2 id="请求方法"><a href="#请求方法" class="headerlink" title="请求方法"></a>请求方法</h2><p>HTTP_Parser在解析请求报文的时候，将报文头抽取出来，设置为<code>req.method</code></p>
+<h2 id="路径解析"><a href="#路径解析" class="headerlink" title="路径解析"></a>路径解析</h2><p>HTTP_Parser解析为<code>req.url</code></p>
+<h2 id="查询字符串"><a href="#查询字符串" class="headerlink" title="查询字符串"></a>查询字符串</h2><h2 id="Cookie"><a href="#Cookie" class="headerlink" title="Cookie"></a>Cookie</h2><p>请求报文Cookie的格式类似如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Cookie: foo=bar; baz=val</span><br></pre></td></tr></table></figure>
+<p>设置Cookie的报文如下所示：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Set</span>-Cookie: name=value; Path=<span class="regexp">/; Expires=Sun, 23-Arp-23 09:01:35 GMT; Domain=.domain.com</span></span><br></pre></td></tr></table></figure>
+<ul>
+<li>path</li>
+<li>Expires/Max-Age</li>
+<li>HttpOnly</li>
+<li>Secure</li>
+</ul>
+<p>node设置cookie：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">res.setHeader(<span class="string">'Set-Cookie'</span>, <span class="string">'foo=bar; Path=/; Expires=Sun, 23-Arp-23 09:01:35 GMT; Domain=.domain.com'</span>)</span><br><span class="line">or</span><br><span class="line">res.setHeader(<span class="string">'Set-Cookie'</span>, [<span class="string">'foo=bar; Path=/; Expires=Sun, 23-Arp-23 09:01:35 GMT; Domain=.domain.com'</span>, <span class="string">'baz=val; Path=/; Expires=Sun, 23-Arp-23 09:01:35 GMT; Domain=.domain.com'</span>])</span><br></pre></td></tr></table></figure>
+<h2 id="Session"><a href="#Session" class="headerlink" title="Session"></a>Session</h2><ul>
+<li>基于Cookie实现用户和数据的映射</li>
+<li>通过查询字符串来实现</li>
+</ul>
+<p><strong>session与安全</strong><br>设置Cookie时，将sid通过私钥加密进行签名，把这个签名值作为新的sid：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sign</span> (<span class="params">val, secret</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> val + <span class="string">'.'</span> + crypto.createHmac(<span class="string">'sha256'</span>, secret)</span><br><span class="line">		.update(val).digest(<span class="string">'base64'</span>).replace(<span class="regexp">/、=+$/</span>,<span class="string">''</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>验证：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">unsign</span> (<span class="params">val, secret</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">var</span> str = val.slice(<span class="number">0</span>, val.lastIndexOf(<span class="string">'.'</span>))</span><br><span class="line">	<span class="keyword">return</span> sign(str, secret) == val ? str : <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一种更好的方案是将客户端的某些独有信息与口令作为原值，然后前面，这样攻击者一旦不在原始的客户端上进行访问，就会导致签名失败。这些独有信息包括用户ip和用户代理（User Agent）</p>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><ul>
+<li>If-Modified-Since/Last-Modified<br>当服务器返回<code>Last-Modified</code>时，下次浏览器请求会自动带上<code>If-Modified-Since</code></li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> handle = <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  fs.stat(<span class="string">'./test.js'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">err, stat</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> lastModified = stat.mtime.toUTCString()</span><br><span class="line">    <span class="keyword">if</span> (lastModified === req.headers[<span class="string">'if-modified-since'</span>]) &#123;</span><br><span class="line">      res.writeHead(<span class="number">304</span>, <span class="string">"Not Modified"</span>)</span><br><span class="line">      res.end()</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      fs.readFile(<span class="string">'./test.js'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">err, file</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">var</span> lastModified = stat.mtime.toUTCString()</span><br><span class="line">        res.setHeader(<span class="string">'Last-Modified'</span>, lastModified)</span><br><span class="line">        res.writeHead(<span class="number">200</span>, <span class="string">"Ok"</span>)</span><br><span class="line">        res.end(file)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>If-None-Match/ETag</li>
+</ul>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> getHash = <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> shasum = crypto.createHash(<span class="string">'sha1'</span>)</span><br><span class="line">  <span class="keyword">return</span> shasum.update(str).digest(<span class="string">'base64'</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handle = <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  fs.readFile(<span class="string">'./test.js'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">err, file</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> hash = getHash(file)</span><br><span class="line">    <span class="keyword">var</span> noneMatch = req.headers[<span class="string">'if-none-match'</span>]</span><br><span class="line">    <span class="keyword">if</span> (hash === noneMatch) &#123;</span><br><span class="line">      res.writeHead(<span class="number">304</span>, <span class="string">"Not Modified"</span>)</span><br><span class="line">      res.end()</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      res.setHeader(<span class="string">'ETag'</span>, hash)</span><br><span class="line">      res.writeHead(<span class="number">200</span>, <span class="string">"Ok"</span>)</span><br><span class="line">      res.end(file)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Cache-Control/Expires</li>
+</ul>
+<p>略</p>
+<h2 id="Basic认证"><a href="#Basic认证" class="headerlink" title="Basic认证"></a>Basic认证</h2><p>在Basic认证中，他会将用户和密码部分组合：<code>username + &quot;:&quot; + password</code>。然后进行Base64编码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> encode = <span class="function"><span class="keyword">function</span> (<span class="params">username, password</span>) </span>&#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="keyword">new</span> Buffer(username +　<span class="string">":"</span> + password).toString(<span class="string">'base64'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如果首次访问该页面，URL地址中也没有携带认证内容，服务器会返回401，浏览器会弹出一个登陆的窗口</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> checkUser = <span class="function"><span class="keyword">function</span> (<span class="params">user, pass</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (user === <span class="string">'ayou'</span> &amp;&amp; pass === <span class="string">'123456'</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> authorization = <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> auth = req.headers[<span class="string">'authorization'</span>] || <span class="string">''</span></span><br><span class="line">  <span class="keyword">var</span> parts = auth.split(<span class="string">' '</span>)</span><br><span class="line">  <span class="keyword">var</span> method = parts[<span class="number">0</span>] || <span class="string">''</span> <span class="comment">// Basic</span></span><br><span class="line">  <span class="keyword">var</span> encoded = parts[<span class="number">1</span>] || <span class="string">''</span> <span class="comment">// sxnldglg</span></span><br><span class="line">  <span class="keyword">var</span> decoded = <span class="keyword">new</span> Buffer(encoded, <span class="string">'base64'</span>).toString(<span class="string">'utf-8'</span>).split(<span class="string">':'</span>)</span><br><span class="line">  <span class="keyword">var</span> user = decoded[<span class="number">0</span>]</span><br><span class="line">  <span class="keyword">var</span> pass = decoded[<span class="number">1</span>]</span><br><span class="line">  <span class="keyword">if</span> (!checkUser(user, pass)) &#123;</span><br><span class="line">    res.setHeader(<span class="string">'WWW-Authenticate'</span>, <span class="string">'Basic realm="Secure Area"'</span>)</span><br><span class="line">    res.writeHead(<span class="number">401</span>)</span><br><span class="line">    res.end()</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    handle(req, res)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="数据上传"><a href="#数据上传" class="headerlink" title="数据上传"></a>数据上传</h1><h2 id="表单数据"><a href="#表单数据" class="headerlink" title="表单数据"></a>表单数据</h2><p>默认的表单提交，请求头中的<code>Content-Type</code>字段为<code>application/x-www-form-urlencoded</code>,由于它的报文体跟查询字符串相同：<code>foo=bar&amp;baz=val</code>,因此解析起来比较容易：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> hasBody = <span class="function"><span class="keyword">function</span>(<span class="params">req</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">'transfer-encoding'</span> <span class="keyword">in</span> req.headers || <span class="string">'content-length'</span> <span class="keyword">in</span> req.headers  </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (hasBody(req)) &#123;</span><br><span class="line">    <span class="keyword">var</span> buffers = []</span><br><span class="line">    req.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">      buffers.push(chunk)</span><br><span class="line">    &#125;)</span><br><span class="line">    req.on(<span class="string">'end'</span>, <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">      req.rawBody = Buffer.concat(buffers).toString()</span><br><span class="line">      handle(req, res)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    handle(req, res)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handle = <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (req.headers[<span class="string">'content-type'</span>] === <span class="string">'application/x-www-form-urlencoded'</span>) &#123;</span><br><span class="line">    req.body = querystring.parse(req.rawBody)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="其他格式"><a href="#其他格式" class="headerlink" title="其他格式"></a>其他格式</h2><p><strong>JSON文件</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> mime = <span class="function"><span class="keyword">function</span> (<span class="params">req</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> str = req.headers[<span class="string">'content-type'</span>] || <span class="string">''</span></span><br><span class="line">  <span class="keyword">return</span> str.split(<span class="string">';'</span>)[<span class="number">0</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handle = <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (mime(req) === <span class="string">'application/json'</span>) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      req.body = <span class="built_in">JSON</span>.parse(req.rawBody)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      res.writeHead(<span class="number">400</span>)</span><br><span class="line">      res.end(<span class="string">'Invalid JSON'</span>);</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  todo(req, res)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>XML文件</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> xml2js = <span class="built_in">require</span>(<span class="string">'xml2js'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handle = <span class="function"><span class="keyword">function</span>(<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (mime(req) === <span class="string">'application/json'</span>) &#123;</span><br><span class="line">	xml2js.parseString(req,rawBody, <span class="function"><span class="keyword">function</span> (<span class="params">err, xml</span>) </span>&#123;</span><br><span class="line">		<span class="keyword">if</span> (err) &#123;</span><br><span class="line">	      res.writeHead(<span class="number">400</span>)</span><br><span class="line">	      res.end(<span class="string">'Invalid XML'</span>);</span><br><span class="line">	      <span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		req.body = xml</span><br><span class="line">		todo(req, res)</span><br><span class="line">	&#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="附件上传"><a href="#附件上传" class="headerlink" title="附件上传"></a>附件上传</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">------WebKitFormBoundaryuNvMBwzIYUQBKoHY</span><br><span class="line">Content-Disposition: form-data; name=&quot;username&quot;</span><br><span class="line"></span><br><span class="line">fdg</span><br><span class="line">------WebKitFormBoundaryuNvMBwzIYUQBKoHY</span><br><span class="line">Content-Disposition: form-data; name=&quot;file&quot;; filename=&quot;7.pdf&quot;</span><br><span class="line">Content-Type: application/pdf</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">------WebKitFormBoundaryuNvMBwzIYUQBKoHY--</span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> handle = <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (hasBody(req)) &#123;</span><br><span class="line">    <span class="keyword">if</span> (mime(req) === <span class="string">'multipart/form-data'</span>) &#123;</span><br><span class="line">      <span class="keyword">var</span> form = <span class="keyword">new</span> formidable.IncomingForm()</span><br><span class="line">      form.uploadDir = <span class="string">'./'</span></span><br><span class="line">      form.parse(req, <span class="function"><span class="keyword">function</span> (<span class="params">err, fields, files</span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(fields, files)</span><br><span class="line">        req.body = fields</span><br><span class="line">        req.files = files</span><br><span class="line">        res.writeHead(<span class="number">200</span>, <span class="string">'ok'</span>)</span><br><span class="line">        res.end(<span class="string">'success'</span>)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="数据上传与安全"><a href="#数据上传与安全" class="headerlink" title="数据上传与安全"></a>数据上传与安全</h2><p><strong>上传大小限制</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> bytes = <span class="number">1024</span></span><br><span class="line"><span class="keyword">var</span> limit = <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> received = <span class="number">0</span></span><br><span class="line">  <span class="keyword">var</span> len = req.headers[<span class="string">'content-length'</span>] ? <span class="built_in">parseInt</span>(req.headers[<span class="string">'content-length'</span>], <span class="number">10</span>) : <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果有content-length头</span></span><br><span class="line">  <span class="keyword">if</span> (len &amp;&amp; len &gt; bytes) &#123;</span><br><span class="line">    res.writeHead(<span class="number">413</span>) <span class="comment">// 实体过长</span></span><br><span class="line">    res.end()</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line">  </span><br><span class="line">  req.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">chunk</span>) </span>&#123;</span><br><span class="line">    received += chunk.length</span><br><span class="line">    <span class="keyword">if</span> (received &gt; bytes) &#123;</span><br><span class="line">      req.destroy()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>CSRF</strong><br>关于CSRF请查看<a href="/2016/06/04/web-csrf/">CSRF亲测</a></p>
+<h1 id="路由解析"><a href="#路由解析" class="headerlink" title="路由解析"></a>路由解析</h1><h2 id="文件路径型"><a href="#文件路径型" class="headerlink" title="文件路径型"></a>文件路径型</h2><p>略</p>
+<h2 id="MVC"><a href="#MVC" class="headerlink" title="MVC"></a>MVC</h2><h3 id="路由映射"><a href="#路由映射" class="headerlink" title="路由映射"></a>路由映射</h3><p>1.手工映射</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line"><span class="keyword">var</span> url = <span class="built_in">require</span>(<span class="string">'url'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> controllers = &#123;</span><br><span class="line">  setting: <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">    res.end(<span class="string">'setting'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> routes = []</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> use = <span class="function"><span class="keyword">function</span> (<span class="params">path, action</span>) </span>&#123;</span><br><span class="line">  routes.push([path, action])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">use(<span class="string">'/user/setting'</span>, controllers.setting)</span><br><span class="line">use(<span class="string">'/setting/user'</span>, controllers.setting)</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> pathname = url.parse(req.url).pathname</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; routes.length; i++) &#123;</span><br><span class="line">    <span class="keyword">var</span> route = routes[i]</span><br><span class="line">    <span class="keyword">if</span> (pathname === route[<span class="number">0</span>]) &#123;</span><br><span class="line">      <span class="keyword">var</span> action = route[<span class="number">1</span>]</span><br><span class="line">      action(req, res)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 404</span></span><br><span class="line">  res.writeHead(<span class="number">404</span>)</span><br><span class="line">  res.end()</span><br><span class="line">&#125;).listen(<span class="number">1337</span>, <span class="string">'127.0.0.1'</span>)</span><br></pre></td></tr></table></figure>
+<p><strong>正则匹配</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">var use = function (path, action) &#123;</span><br><span class="line">  routes.push([pathRegexp(path), action])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">var pathRegexp = function (path, strict) &#123;</span><br><span class="line">  path = path</span><br><span class="line">    .concat(strict ? &apos;&apos; : &apos;/?&apos;)</span><br><span class="line">    .replace(/\/\(/g, &apos;(?:/&apos;)</span><br><span class="line">    .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?(\*)?/g, function (_, slash, format, key, capture, optional, star) &#123;</span><br><span class="line">      slash = slash || &apos;&apos;</span><br><span class="line">      return &apos;&apos;</span><br><span class="line">        + (optional ? &apos;&apos; : slash)</span><br><span class="line">        + &apos;(?:&apos;</span><br><span class="line">        + (optional ? slash : &apos;&apos;)</span><br><span class="line">        + (format || &apos;&apos;) + (capture || (format &amp;&amp; &apos;([^/.]+?)&apos; || &apos;([^/]+?)&apos;)) + &apos;)&apos;</span><br><span class="line">        + (optional || &apos;&apos;)</span><br><span class="line">        + (star ? &apos;(/*)?&apos; : &apos;&apos;)</span><br><span class="line">    &#125;)</span><br><span class="line">    .replace(/([\/.])/g, &apos;\\$1&apos;)</span><br><span class="line">    .replace(/\*/g, &apos;(.*)&apos;)</span><br><span class="line"></span><br><span class="line">  return new RegExp(&apos;^&apos; + path + &apos;$&apos;)</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">for (var i = 0; i &lt; routes.length; i++) &#123;</span><br><span class="line">	var route = routes[i]</span><br><span class="line">	if (route[0].exec(pathname)) &#123;</span><br><span class="line">	  var action = route[1]</span><br><span class="line">	  action(req, res)</span><br><span class="line">	  return</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">use(&apos;/user/:d/:sdafg&apos;, controllers.setting)</span><br><span class="line">use(&apos;/setting/:dd/dsasg&apos;, controllers.setting)</span><br></pre></td></tr></table></figure>
+<p><strong>参数解析</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">var pathRegexp = function (path, strict) &#123;</span><br><span class="line">  var keys = []</span><br><span class="line"></span><br><span class="line">  path = path</span><br><span class="line">    .concat(strict ? &apos;&apos; : &apos;/?&apos;)</span><br><span class="line">    .replace(/\/\(/g, &apos;(?:/&apos;)</span><br><span class="line">    .replace(/(\/)?(\.)?:(\w+)(?:(\(.*?\)))?(\?)?(\*)?/g, function (_, slash, format, key, capture, optional, star) &#123;</span><br><span class="line">      slash = slash || &apos;&apos;</span><br><span class="line">      keys.push(key)</span><br><span class="line"></span><br><span class="line">      return &apos;&apos;</span><br><span class="line">        + (optional ? &apos;&apos; : slash)</span><br><span class="line">        + &apos;(?:&apos;</span><br><span class="line">        + (optional ? slash : &apos;&apos;)</span><br><span class="line">        + (format || &apos;&apos;) + (capture || (format &amp;&amp; &apos;([^/.]+?)&apos; || &apos;([^/]+?)&apos;)) + &apos;)&apos;</span><br><span class="line">        + (optional || &apos;&apos;)</span><br><span class="line">        + (star ? &apos;(/*)?&apos; : &apos;&apos;)</span><br><span class="line">    &#125;)</span><br><span class="line">    .replace(/([\/.])/g, &apos;\\$1&apos;)</span><br><span class="line">    .replace(/\*/g, &apos;(.*)&apos;)</span><br><span class="line"></span><br><span class="line">  return &#123;</span><br><span class="line">    keys: keys,</span><br><span class="line">    regexp: new RegExp(&apos;^&apos; + path + &apos;$&apos;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">...</span><br><span class="line">var route = routes[i]</span><br><span class="line">// 正则匹配</span><br><span class="line">var reg = route[0].regexp</span><br><span class="line">var keys = route[0].keys</span><br><span class="line">var matched = reg.exec(pathname)</span><br><span class="line">if (matched) &#123;</span><br><span class="line">  // 抽取具体值</span><br><span class="line">  var params = &#123;&#125;</span><br><span class="line">  for (var i = 0; i &lt; keys.length; i++) &#123;</span><br><span class="line">    var value = matched[i + 1]</span><br><span class="line">    if (value) &#123;</span><br><span class="line">      params[keys[i]] = value</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  req.params = params;</span><br><span class="line">  var action = route[1]</span><br><span class="line">  action(req, res)</span><br><span class="line">  return</span><br><span class="line">&#125;</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<p>2.自然映射</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">'http'</span>)</span><br><span class="line"><span class="keyword">var</span> url = <span class="built_in">require</span>(<span class="string">'url'</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> pathname = url.parse(req.url).pathname</span><br><span class="line">  <span class="keyword">var</span> paths = pathname.split(<span class="string">'/'</span>)</span><br><span class="line">  <span class="keyword">var</span> controller = paths[<span class="number">1</span>] || <span class="string">'index'</span></span><br><span class="line">  <span class="keyword">var</span> action = paths[<span class="number">2</span>] || <span class="string">'index'</span></span><br><span class="line">  <span class="keyword">var</span> args = paths.slice(<span class="number">3</span>)</span><br><span class="line">  <span class="keyword">var</span> <span class="built_in">module</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// require的缓存机制使得只有第一次是阻塞的</span></span><br><span class="line">    <span class="built_in">module</span> = <span class="built_in">require</span>(<span class="string">'./controllers/'</span> + controller)</span><br><span class="line">  &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">    <span class="comment">// 处理500</span></span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> method = <span class="built_in">module</span>[action]</span><br><span class="line">  <span class="keyword">if</span> (method) &#123;</span><br><span class="line">    method.apply(<span class="literal">null</span>, [req, res].concat(args))</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 500</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;).listen(<span class="number">1337</span>, <span class="string">'127.0.0.1'</span>)</span><br><span class="line">...</span><br><span class="line">exports.setting = <span class="function"><span class="keyword">function</span> (<span class="params">req, res, month, year</span>) </span>&#123;</span><br><span class="line">  res.end(month + <span class="string">'/'</span> + <span class="string">'year'</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="RESTful"><a href="#RESTful" class="headerlink" title="RESTful"></a>RESTful</h2><p>通过URL设计资源，通过请求方法定义资源的操作，通过Accept决定资源的表现形式</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> routes = &#123;<span class="string">'all'</span>: []&#125;</span><br><span class="line"><span class="keyword">var</span> app = &#123;&#125;</span><br><span class="line"></span><br><span class="line">app.use = <span class="function"><span class="keyword">function</span> (<span class="params">path, action</span>) </span>&#123;</span><br><span class="line">  routes.all.push([pathRegexp(path), action])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> methods = [<span class="string">'get'</span>, <span class="string">'put'</span>, <span class="string">'delete'</span>, <span class="string">'post'</span>]</span><br><span class="line">methods.forEach(<span class="function"><span class="keyword">function</span> (<span class="params">method</span>) </span>&#123;</span><br><span class="line">  routes[method] = [];</span><br><span class="line">  app[method] = <span class="function"><span class="keyword">function</span> (<span class="params">path, action</span>) </span>&#123;</span><br><span class="line">    routes[method].push([pathRegexp(path), action])</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)	</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> match = <span class="function"><span class="keyword">function</span> (<span class="params">pathname, routes, req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; routes.length; i++) &#123;</span><br><span class="line">    <span class="keyword">var</span> route = routes[i]</span><br><span class="line">    <span class="comment">// 正则匹配</span></span><br><span class="line">    <span class="keyword">var</span> reg = route[<span class="number">0</span>].regexp</span><br><span class="line">    <span class="keyword">var</span> keys = route[<span class="number">0</span>].keys</span><br><span class="line">    <span class="keyword">var</span> matched = reg.exec(pathname)</span><br><span class="line">    <span class="keyword">if</span> (matched) &#123;</span><br><span class="line">      <span class="comment">// 抽取具体值</span></span><br><span class="line">      <span class="keyword">var</span> params = &#123;&#125;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; keys.length; i++) &#123;</span><br><span class="line">        <span class="keyword">var</span> value = matched[i + <span class="number">1</span>]</span><br><span class="line">        <span class="keyword">if</span> (value) &#123;</span><br><span class="line">          params[keys[i]] = value</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">      req.params = params;</span><br><span class="line">      <span class="keyword">var</span> action = route[<span class="number">1</span>]</span><br><span class="line">      action(req, res)</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">http.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> pathname = url.parse(req.url).pathname</span><br><span class="line">  <span class="comment">// 将请求方法变为小写</span></span><br><span class="line">  <span class="keyword">var</span> method = req.method.toLowerCase()</span><br><span class="line">  <span class="keyword">if</span> (routes.hasOwnProperty(method)) &#123;</span><br><span class="line">    <span class="comment">// 根据请求方法分发</span></span><br><span class="line">    <span class="keyword">if</span> (match(pathname, routes[method], req, res)) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// 如果路径没有匹配成功，尝试让all()来处理</span></span><br><span class="line">      <span class="keyword">if</span> (match(pathname, routes.all, req, res)) &#123;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// 直接让all()来处理</span></span><br><span class="line">    <span class="keyword">if</span> (match(pathname, routes.all, req, res)) &#123;</span><br><span class="line">      <span class="keyword">return</span> ;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 404</span></span><br><span class="line">  handle404(req, res)</span><br><span class="line">&#125;).listen(<span class="number">1337</span>, <span class="string">'127.0.0.1'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> handle404 = <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  res.writeHead(<span class="number">404</span>)</span><br><span class="line">  res.end()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/user/:username'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">req, res</span>) </span>&#123;</span><br><span class="line">  res.end(req.params.username)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h1 id="中间件"><a href="#中间件" class="headerlink" title="中间件"></a>中间件</h1><h1 id="页面渲染"><a href="#页面渲染" class="headerlink" title="页面渲染"></a>页面渲染</h1><h2 id="内容响应"><a href="#内容响应" class="headerlink" title="内容响应"></a>内容响应</h2><p><strong>MIME</strong></p>
+<p>浏览器通过不同的<code>Content-Type</code>的值来决定采用不同的渲染方式，这个值我们简称为MIME(Multipurpose Internet Mail Extensions)值。</p>
+<p><strong>附件下载</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Content-Disposition: attachment; filename=&quot;filename.ext&quot;</span><br></pre></td></tr></table></figure>
+<p>a标签：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"> // 以w3logo为文件名下载</span><br><span class="line">&lt;a href=&quot;/i/w3school_logo_white.gif&quot; download=&quot;w3logo&quot;&gt;</span><br></pre></td></tr></table></figure>
+<p><strong>响应JSON</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">res.json = <span class="function"><span class="keyword">function</span> (<span class="params">json</span>) </span>&#123;</span><br><span class="line">	res.setHeader(<span class="string">'Content-Type'</span>, <span class="string">'application/json'</span>)</span><br><span class="line">	res.writeHead(<span class="number">200</span>)</span><br><span class="line">	res.end(<span class="built_in">JSON</span>.stringify(json))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>响应跳转</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">res.redirect = <span class="function"><span class="keyword">function</span> (<span class="params">url</span>) </span>&#123;</span><br><span class="line">	res.setHeader(<span class="string">'Location'</span>, url)</span><br><span class="line">	res.writeHead(<span class="number">302</span>)</span><br><span class="line">	res.end(<span class="string">'Redirect to '</span>+ url)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="模板"><a href="#模板" class="headerlink" title="模板"></a>模板</h2><ul>
+<li>模板语言</li>
+<li>包含模板语言的模板文件</li>
+<li>拥有动态数据的数据对象</li>
+<li>模板引擎</li>
+</ul>
+<h3 id="模板引擎"><a href="#模板引擎" class="headerlink" title="模板引擎"></a>模板引擎</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> render = <span class="function"><span class="keyword">function</span> (<span class="params">str, data</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 模板技术呢，就是替换特殊标签的技术</span></span><br><span class="line">  <span class="keyword">var</span> tpl = str.replace(<span class="regexp">/&lt;%=([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + obj."</span> + code + <span class="string">"+ '"</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  tpl = <span class="string">"var tpl = '"</span> + tpl + <span class="string">"'\nreturn tpl;"</span></span><br><span class="line"></span><br><span class="line">  <span class="built_in">console</span>.log(tpl)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> complied = <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'obj'</span>, tpl)</span><br><span class="line">  <span class="keyword">return</span> complied(data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tpl = <span class="string">'Hello &lt;%=username%&gt;.'</span></span><br><span class="line"><span class="built_in">console</span>.log(render(tpl, &#123;<span class="attr">username</span>: <span class="string">'ayou'</span>&#125;))</span><br><span class="line">...</span><br><span class="line"><span class="keyword">var</span> tpl = <span class="string">'Hello '</span> + obj.username+ <span class="string">'.'</span></span><br><span class="line"><span class="keyword">return</span> tpl;</span><br><span class="line">Hello ayou.</span><br></pre></td></tr></table></figure>
+<p>上面代码，相同的模板每次渲染都要重新编译：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">console</span>.log(render(tpl, &#123;<span class="attr">username</span>: <span class="string">'ayou'</span>&#125;))</span><br><span class="line"><span class="built_in">console</span>.log(render(tpl, &#123;<span class="attr">username</span>: <span class="string">'xingzhi'</span>&#125;))</span><br></pre></td></tr></table></figure>
+<p>我们通常会采用模板预编译的方式：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> compile = <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 模板技术呢，就是替换特殊标签的技术</span></span><br><span class="line">  <span class="keyword">var</span> tpl = str.replace(<span class="regexp">/&lt;%=([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + obj."</span> + code + <span class="string">" + '"</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  tpl = <span class="string">"var tpl = '"</span> + tpl + <span class="string">"'\nreturn tpl;"</span></span><br><span class="line">  <span class="built_in">console</span>.log(tpl)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'obj, escape'</span>, tpl)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tpl = <span class="string">'Hello &lt;%=username%&gt;.'</span></span><br><span class="line"><span class="keyword">var</span> compiled = compile(tpl)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> render = <span class="function"><span class="keyword">function</span> (<span class="params">compiled, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> compiled(data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">username</span>: <span class="string">'ayou'</span>&#125;))</span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">username</span>: <span class="string">'xingzhi'</span>&#125;))</span><br></pre></td></tr></table></figure>
+<h3 id="with的使用"><a href="#with的使用" class="headerlink" title="with的使用"></a>with的使用</h3><p>上面的模板引擎非常弱，只能替换变量，<code>&lt;%= &quot;jackson tian&quot;%&gt;</code>就无法支持了。使用<code>with</code>可以方便的实现：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> compile = <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 模板技术呢，就是替换特殊标签的技术</span></span><br><span class="line">  <span class="keyword">var</span> tpl = str.replace(<span class="regexp">/&lt;%=([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + "</span> + code + <span class="string">" + '"</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  tpl = <span class="string">"tpl = '"</span> + tpl + <span class="string">"'"</span></span><br><span class="line">  tpl = <span class="string">'var tpl = "";\nwith (obj) &#123;'</span> + tpl + <span class="string">'&#125;\nreturn tpl;'</span></span><br><span class="line">  <span class="built_in">console</span>.log(tpl)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'obj, escape'</span>, tpl)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tpl = <span class="string">'Hello &lt;%="world"%&gt; &lt;%=username%&gt;'</span></span><br><span class="line"><span class="keyword">var</span> compiled = compile(tpl)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> render = <span class="function"><span class="keyword">function</span> (<span class="params">compiled, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> compiled(data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">username</span>: <span class="string">'ayou'</span>&#125;))</span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">username</span>: <span class="string">'xingzhi'</span>&#125;))</span><br></pre></td></tr></table></figure>
+<h3 id="模板安全"><a href="#模板安全" class="headerlink" title="模板安全"></a>模板安全</h3><p>为了提高安全性，大多数模板都提供了转义的功能:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> <span class="built_in">escape</span> = <span class="function"><span class="keyword">function</span> (<span class="params">html</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">String</span>(html)</span><br><span class="line">    <span class="comment">//'&amp;sdf;'.replace(/&amp;(?!\w+;)/g, 'ayou') =&gt; "&amp;sdf;"</span></span><br><span class="line">    <span class="comment">//'&amp;sdf'.replace(/&amp;(?!\w+;)/g, 'ayou') =&gt; "ayousdf"</span></span><br><span class="line">    .replace(<span class="regexp">/&amp;(?!\w+;)/g</span>, <span class="string">'&amp;amp;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&lt;/g</span>, <span class="string">'&amp;lt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/&gt;/g</span>, <span class="string">'&amp;gt;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/"/g</span>, <span class="string">'&amp;quot;'</span>)</span><br><span class="line">    .replace(<span class="regexp">/'/g</span>, <span class="string">'&amp;#039;'</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> compile = <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// &lt;%=%&gt;转义</span></span><br><span class="line">  <span class="keyword">var</span> tpl = str.replace(<span class="regexp">/&lt;%=([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + escape("</span> + code + <span class="string">") + '"</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// &lt;%-%&gt;不转义</span></span><br><span class="line">  .replace(<span class="regexp">/&lt;%-([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + "</span> + code + <span class="string">"+ '"</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  tpl = <span class="string">"tpl = '"</span> + tpl + <span class="string">"'"</span></span><br><span class="line">  tpl = <span class="string">'var tpl = "";\nwith (obj) &#123;'</span> + tpl + <span class="string">'&#125;\nreturn tpl;'</span></span><br><span class="line">  <span class="built_in">console</span>.log(tpl)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'obj'</span>, <span class="string">'escape'</span>, tpl)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> render = <span class="function"><span class="keyword">function</span> (<span class="params">compiled, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> compiled(data, <span class="built_in">escape</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tpl = <span class="string">'Hello &lt;%="&lt;script&gt;world&lt;/script&gt;"%&gt; &lt;%=username%&gt;'</span></span><br><span class="line"><span class="keyword">var</span> compiled = compile(tpl)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">username</span>: <span class="string">'ayou'</span>&#125;))</span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">username</span>: <span class="string">'xingzhi'</span>&#125;))</span><br></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> tpl = <span class="string">""</span>;</span><br><span class="line"><span class="keyword">with</span> (obj) &#123;tpl = <span class="string">'Hello '</span> + <span class="built_in">escape</span>(<span class="string">"&lt;script&gt;world&lt;/script&gt;"</span>) + <span class="string">' '</span> + <span class="built_in">escape</span>(username) + <span class="string">''</span>&#125;</span><br><span class="line"><span class="keyword">return</span> tpl;</span><br><span class="line">Hello &amp;lt;script&amp;gt;world&amp;lt;<span class="regexp">/script&amp;gt; ayou</span></span><br><span class="line"><span class="regexp">Hello &amp;lt;script&amp;gt;world&amp;lt;/</span>script&amp;gt; xingzhi</span><br></pre></td></tr></table></figure>
+<h3 id="模板逻辑"><a href="#模板逻辑" class="headerlink" title="模板逻辑"></a>模板逻辑</h3><p>譬如下面的代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;% <span class="keyword">if</span> (user) &#123; %&gt;</span><br><span class="line">  &lt;h2&gt;<span class="xml"><span class="tag">&lt;<span class="name">%=</span> <span class="attr">user.name</span> %&gt;</span><span class="tag">&lt;/<span class="name">h2</span>&gt;</span></span></span><br><span class="line">&lt;% &#125; <span class="keyword">else</span> &#123; %&gt;</span><br><span class="line">  &lt;h2&gt;匿名用户&lt;<span class="regexp">/h2&gt;</span></span><br><span class="line"><span class="regexp">&lt;% &#125; %&gt;</span></span><br></pre></td></tr></table></figure>
+<p>编译完后应该是:</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> (<span class="params">obj, escape</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> tpl = <span class="string">""</span></span><br><span class="line">  <span class="keyword">with</span> (obj) &#123;</span><br><span class="line">    <span class="keyword">if</span> (user) &#123;</span><br><span class="line">      tpl += <span class="string">"&lt;h2&gt;"</span> + <span class="built_in">escape</span>(user.name) + <span class="string">"&lt;/h2&gt;"</span></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      tpl += <span class="string">"&lt;h2&gt;匿名用户&lt;/h2&gt;"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> tpl</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实现方法如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> compile = <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// &lt;%=%&gt;转义</span></span><br><span class="line">  <span class="keyword">var</span> tpl = str.replace(<span class="regexp">/&lt;%=([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + escape("</span> + code + <span class="string">") + '"</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// &lt;%-%&gt;不转义</span></span><br><span class="line">  .replace(<span class="regexp">/&lt;%-([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + "</span> + code + <span class="string">"+ '"</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// &lt;%%&gt;</span></span><br><span class="line">  .replace(<span class="regexp">/&lt;%([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"';\n"</span> + code + <span class="string">"\ntpl += '"</span></span><br><span class="line">  &#125;).replace(<span class="regexp">/\'\n/g</span>, <span class="string">'\''</span>).replace(<span class="regexp">/\n\'/gm</span>, <span class="string">'\''</span>)</span><br><span class="line"></span><br><span class="line">  tpl = <span class="string">"tpl = '"</span> + tpl + <span class="string">"'"</span></span><br><span class="line">  <span class="comment">// 转换空行</span></span><br><span class="line">  tpl = tpl.replace(<span class="regexp">/''/g</span>, <span class="string">'\'\\n\''</span>)</span><br><span class="line">  tpl = <span class="string">'var tpl = "";\nwith (obj || &#123;&#125;) &#123;\n'</span> + tpl + <span class="string">'\n&#125;\nreturn tpl;'</span></span><br><span class="line">  <span class="built_in">console</span>.log(tpl)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'obj'</span>, <span class="string">'escape'</span>, tpl)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> render = <span class="function"><span class="keyword">function</span> (<span class="params">compiled, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> compiled(data, <span class="built_in">escape</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// user前面要加上obj.</span></span><br><span class="line"><span class="keyword">var</span> tpl = [</span><br><span class="line">  <span class="string">'&lt;% if (obj.user) &#123; %&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;h2&gt;&lt;%= user.name %&gt;&lt;/h2&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;% &#125; else &#123; %&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;h2&gt;匿名用户&lt;/h2&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;% &#125; %&gt;'</span></span><br><span class="line">].join(<span class="string">'\n'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tpl2 = [</span><br><span class="line">  <span class="string">'&lt;% for (var i = 0; i &lt; items.length; i++) &#123; %&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;% var item = items[i] %&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;p&gt;&lt;%= i+1 %&gt;、&lt;%= item.name %&gt;&lt;/p&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;% &#125; %&gt;'</span></span><br><span class="line">].join(<span class="string">'\n'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> compiled = compile(tpl)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">user</span>: &#123;<span class="attr">name</span>: <span class="string">'ayou'</span>&#125;&#125;))</span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;&#125;))</span><br><span class="line"></span><br><span class="line">compiled = compile(tpl2)</span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">items</span>: [&#123;<span class="attr">name</span>: <span class="string">'ayou'</span>&#125;, &#123;<span class="attr">name</span>: <span class="string">'xingzhi'</span>&#125;]&#125;))</span><br></pre></td></tr></table></figure>
+<h3 id="集成文件系统"><a href="#集成文件系统" class="headerlink" title="集成文件系统"></a>集成文件系统</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> cache = &#123;&#125;</span><br><span class="line"><span class="keyword">var</span> VIEW_FOLDER = <span class="string">'./views'</span></span><br><span class="line"></span><br><span class="line">res.render = <span class="function"><span class="keyword">function</span> (<span class="params">viewname, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!cache[viewname]) &#123;</span><br><span class="line">    <span class="keyword">var</span> text</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      text = fs.readFileSync(path.join(VIEW_FOLDER, viewname), <span class="string">'utf8'</span>)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      res.writeHead(<span class="number">500</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'text/html'</span>&#125;)</span><br><span class="line">      res.end(<span class="string">'模板文件错误'</span>)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    cache[viewname] = compile(text)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">var</span> complied = cache[viewname]</span><br><span class="line">  res.writeHead(<span class="number">200</span>, &#123;<span class="string">'Content-Type'</span>: <span class="string">'text/html'</span>&#125;)</span><br><span class="line">  <span class="keyword">var</span> html = complied(data)</span><br><span class="line">  res.end(html)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="子模板"><a href="#子模板" class="headerlink" title="子模板"></a>子模板</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> preCompile = <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> replaced = str.replace(<span class="regexp">/&lt;%\s+(include.*)\s+%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">var</span> partial = code.split(<span class="regexp">/\s/</span>)[<span class="number">1</span>]</span><br><span class="line">    <span class="keyword">if</span> (!files[partial]) &#123;</span><br><span class="line">      files[partial] = fs.readFileSync(path.join(VIEW_FOLDER, partial), <span class="string">'utf8'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> files[partial]</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 多层嵌套，继续替换</span></span><br><span class="line">  <span class="keyword">if</span> (str.match(<span class="regexp">/&lt;%\s+(include.*)\s+%&gt;/</span>)) &#123;</span><br><span class="line">    <span class="keyword">return</span> preCompile(replaced)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> replaced</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> compile = <span class="function"><span class="keyword">function</span> (<span class="params">str</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 预解析子模板</span></span><br><span class="line">  str = preCompile(str)</span><br><span class="line">  <span class="comment">// &lt;%=%&gt;转义</span></span><br><span class="line">  <span class="keyword">var</span> tpl = str.replace(<span class="regexp">/&lt;%=([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + escape("</span> + code + <span class="string">") + '"</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// &lt;%-%&gt;不转义</span></span><br><span class="line">  .replace(<span class="regexp">/&lt;%-([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"' + "</span> + code + <span class="string">"+ '"</span></span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="comment">// &lt;%%&gt;</span></span><br><span class="line">  .replace(<span class="regexp">/&lt;%([\s\S]+?)%&gt;/g</span>, <span class="function"><span class="keyword">function</span> (<span class="params">match, code</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">"';\n"</span> + code + <span class="string">"\ntpl += '"</span></span><br><span class="line">  &#125;).replace(<span class="regexp">/\'\n/g</span>, <span class="string">'\''</span>).replace(<span class="regexp">/\n\'/gm</span>, <span class="string">'\''</span>)</span><br><span class="line"></span><br><span class="line">  tpl = <span class="string">"tpl = '"</span> + tpl + <span class="string">"'"</span></span><br><span class="line">  <span class="comment">// 转换空行</span></span><br><span class="line">  tpl = tpl.replace(<span class="regexp">/''/g</span>, <span class="string">'\'\\n\''</span>)</span><br><span class="line">  tpl = <span class="string">'var tpl = "";\nwith (obj || &#123;&#125;) &#123;\n'</span> + tpl + <span class="string">'\n&#125;\nreturn tpl;'</span></span><br><span class="line">  <span class="built_in">console</span>.log(tpl)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'obj'</span>, <span class="string">'escape'</span>, tpl)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> tpl2 = [</span><br><span class="line">  <span class="string">'&lt;% for (var i = 0; i &lt; items.length; i++) &#123; %&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;% var item = items[i] %&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;% include test.html %&gt;'</span>,</span><br><span class="line">  <span class="string">'&lt;% &#125; %&gt;'</span></span><br><span class="line">].join(<span class="string">'\n'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> compiled = compile(tpl)</span><br><span class="line">compiled = compile(tpl2)</span><br><span class="line"><span class="built_in">console</span>.log(render(compiled, &#123;<span class="attr">items</span>: [&#123;<span class="attr">name</span>: <span class="string">'ayou'</span>&#125;, &#123;<span class="attr">name</span>: <span class="string">'xingzhi'</span>&#125;]&#125;))</span><br></pre></td></tr></table></figure>
+<h3 id="布局视图"><a href="#布局视图" class="headerlink" title="布局视图"></a>布局视图</h3><p>略</p>
+<h2 id="Bigpipe"><a href="#Bigpipe" class="headerlink" title="Bigpipe"></a>Bigpipe</h2><p>移步<a href="/2017/06/26/nodejs-bigpipe/">nodejs之bigpipe</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/06/07/nodejs-net/" rel="next" title="nodejs之网络编程">
+                <i class="fa fa-chevron-left"></i> nodejs之网络编程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/26/nodejs-bigpipe/" rel="prev" title="nodejs之bigpipe">
+                nodejs之bigpipe <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#基础功能"><span class="nav-number">1.</span> <span class="nav-text">基础功能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#请求方法"><span class="nav-number">1.1.</span> <span class="nav-text">请求方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#路径解析"><span class="nav-number">1.2.</span> <span class="nav-text">路径解析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#查询字符串"><span class="nav-number">1.3.</span> <span class="nav-text">查询字符串</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Cookie"><span class="nav-number">1.4.</span> <span class="nav-text">Cookie</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Session"><span class="nav-number">1.5.</span> <span class="nav-text">Session</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#缓存"><span class="nav-number">1.6.</span> <span class="nav-text">缓存</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Basic认证"><span class="nav-number">1.7.</span> <span class="nav-text">Basic认证</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据上传"><span class="nav-number">2.</span> <span class="nav-text">数据上传</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#表单数据"><span class="nav-number">2.1.</span> <span class="nav-text">表单数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#其他格式"><span class="nav-number">2.2.</span> <span class="nav-text">其他格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#附件上传"><span class="nav-number">2.3.</span> <span class="nav-text">附件上传</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据上传与安全"><span class="nav-number">2.4.</span> <span class="nav-text">数据上传与安全</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#路由解析"><span class="nav-number">3.</span> <span class="nav-text">路由解析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#文件路径型"><span class="nav-number">3.1.</span> <span class="nav-text">文件路径型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#MVC"><span class="nav-number">3.2.</span> <span class="nav-text">MVC</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#路由映射"><span class="nav-number">3.2.1.</span> <span class="nav-text">路由映射</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RESTful"><span class="nav-number">3.3.</span> <span class="nav-text">RESTful</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#中间件"><span class="nav-number">4.</span> <span class="nav-text">中间件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#页面渲染"><span class="nav-number">5.</span> <span class="nav-text">页面渲染</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#内容响应"><span class="nav-number">5.1.</span> <span class="nav-text">内容响应</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#模板"><span class="nav-number">5.2.</span> <span class="nav-text">模板</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#模板引擎"><span class="nav-number">5.2.1.</span> <span class="nav-text">模板引擎</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#with的使用"><span class="nav-number">5.2.2.</span> <span class="nav-text">with的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模板安全"><span class="nav-number">5.2.3.</span> <span class="nav-text">模板安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#模板逻辑"><span class="nav-number">5.2.4.</span> <span class="nav-text">模板逻辑</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#集成文件系统"><span class="nav-number">5.2.5.</span> <span class="nav-text">集成文件系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#子模板"><span class="nav-number">5.2.6.</span> <span class="nav-text">子模板</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#布局视图"><span class="nav-number">5.2.7.</span> <span class="nav-text">布局视图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bigpipe"><span class="nav-number">5.3.</span> <span class="nav-text">Bigpipe</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

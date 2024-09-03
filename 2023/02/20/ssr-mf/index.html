@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="SSR,微前端," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前端概念真的是日新月异， SSR + 微前端都能搞到一起">
+<meta name="keywords" content="SSR,微前端">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SSR + 微前端？前端可真能搞事情">
+<meta property="og:url" content="http://www.paradeto.com/2023/02/20/ssr-mf/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="前端概念真的是日新月异， SSR + 微前端都能搞到一起">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2023/02/20/ssr-mf/_posts/ssr-mf/1.png">
+<meta property="og:updated_time" content="2023-03-09T06:42:55.373Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SSR + 微前端？前端可真能搞事情">
+<meta name="twitter:description" content="前端概念真的是日新月异， SSR + 微前端都能搞到一起">
+<meta name="twitter:image" content="http://www.paradeto.com/2023/02/20/ssr-mf/_posts/ssr-mf/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2023/02/20/ssr-mf/"/>
+
+
+
+
+
+
+  <title>SSR + 微前端？前端可真能搞事情 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2023/02/20/ssr-mf/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SSR + 微前端？前端可真能搞事情</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2023-02-20T12:06:23+08:00">
+                2023-02-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  前端概念真的是日新月异， SSR + 微前端都能搞到一起
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>第一次见到这个概念是在 <a href="https://single-spa.js.org/docs/ssr-overview" target="_blank" rel="noopener">single-spa</a> 官网上。不得不说，前端真能搞事情，我一个都还没搞清楚呢，现在还要把这两个搞到一起。行吧，我学还不行？为了更好的理解，本文不会照搬官网的 Demo，而是从头再搞一遍。完整代码见 <a href="https://github.com/ParadeTo/SSR-MicroFrontend" target="_blank" rel="noopener">SSR-MicroFrontend</a>。</p>
+<p>最终效果如下所示：</p>
+<p><img src="/2023/02/20/ssr-mf/_posts/ssr-mf/1.png" alt=""></p>
+<h1 id="原理介绍"><a href="#原理介绍" class="headerlink" title="原理介绍"></a>原理介绍</h1><p>首先，我们的项目包括这几个部分：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">packages</span><br><span class="line">│   ├── app1 <span class="comment">// 子应用 1</span></span><br><span class="line">│   ├── base <span class="comment">// 基座</span></span><br><span class="line">│   └── navbar <span class="comment">// 子应用 2</span></span><br><span class="line">└── readme.md</span><br></pre></td></tr></table></figure>
+<p><em>本文 <code>webpack</code> 版本为 5</em></p>
+<h2 id="基座"><a href="#基座" class="headerlink" title="基座"></a>基座</h2><p>其中，基座的主要功能：</p>
+<ol>
+<li>接收请求。</li>
+<li>准备好 HTML 模板。</li>
+<li>拉取子应用 server 端入口文件，每个子应用的这个文件会导出 <code>renderOnServerSide</code> 方法，该方法返回 <code>renderToString</code> 执行后的 <code>content</code>。</li>
+<li>将每个子应用的 <code>content</code> 插入到 HTML 模板中的对应位置。</li>
+<li>插入子应用的资源文件（CSS 和 JS）到 HTML 模板。</li>
+<li>返回 HTML。</li>
+</ol>
+<p>代码大概长这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123;JSDOM&#125; = <span class="built_in">require</span>(<span class="string">'jsdom'</span>)</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/'</span>, <span class="keyword">async</span> (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> templateDOM = <span class="keyword">new</span> JSDOM(<span class="string">`</span></span><br><span class="line"><span class="string">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="string">&lt;html lang="en"&gt;</span></span><br><span class="line"><span class="string">  &lt;head&gt;</span></span><br><span class="line"><span class="string">    &lt;title&gt;SSR + MicroFrontend&lt;/title&gt;</span></span><br><span class="line"><span class="string">  &lt;/head&gt;</span></span><br><span class="line"><span class="string">  &lt;body&gt;</span></span><br><span class="line"><span class="string">    &lt;div id="navbar"&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;div id="app1"&gt;&lt;/div&gt;</span></span><br><span class="line"><span class="string">    &lt;script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"&gt;&lt;/script&gt;</span></span><br><span class="line"><span class="string">    &lt;script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"&gt;&lt;/script&gt;</span></span><br><span class="line"><span class="string">  &lt;/body&gt;</span></span><br><span class="line"><span class="string">&lt;/html&gt;</span></span><br><span class="line"><span class="string">`</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// nav</span></span><br><span class="line">  <span class="keyword">const</span> navContent = <span class="keyword">await</span> getContent(</span><br><span class="line">    <span class="string">'http://localhost:8080/navbar/dist/server.js'</span></span><br><span class="line">  )</span><br><span class="line">  <span class="comment">// app1</span></span><br><span class="line">  <span class="keyword">const</span> app1Content = <span class="keyword">await</span> getContent(</span><br><span class="line">    <span class="string">'http://localhost:8080/app1/dist/server.js'</span></span><br><span class="line">  )</span><br><span class="line">  templateDoc.querySelector(<span class="string">'#navbar'</span>).innerHTML = navContent</span><br><span class="line">  templateDoc.querySelector(<span class="string">'#app1'</span>).innerHTML = app1Content</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 插入 css js resources 等资源</span></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  res.end(templateDOM.serialize())</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>上面这段代码中 <code>getContent</code> 这个函数比较重要，它的功能是远程拉取代码并执行，得到代码所导出的模块：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">getContent</span>(<span class="params">url</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> rsp = <span class="keyword">await</span> fetch(url)</span><br><span class="line">  <span class="keyword">const</span> code = <span class="keyword">await</span> rsp.text()</span><br><span class="line">  <span class="keyword">const</span> wrapper = <span class="keyword">new</span> <span class="built_in">Function</span>(<span class="string">'require, exports, module'</span>, code)</span><br><span class="line">  wrapper(<span class="built_in">require</span>, <span class="built_in">module</span>.exports, <span class="built_in">module</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">module</span>.exports.renderOnServerSide().content</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们这里使用 <code>new Function</code> 生成了一个函数来执行远程获取到的代码。</p>
+<p>接下来，我们看看子应用是怎么打包的。</p>
+<h2 id="子应用"><a href="#子应用" class="headerlink" title="子应用"></a>子应用</h2><p>以 <code>app1</code> 为例，代码</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// app1</span></span><br><span class="line">├── src</span><br><span class="line">│   ├── App.css</span><br><span class="line">│   ├── App.js</span><br><span class="line">│   ├── SimpleComp</span><br><span class="line">│   ├── client.entry.js</span><br><span class="line">│   └── server.entry.js</span><br><span class="line">├── webpack.config.js</span><br></pre></td></tr></table></figure>
+<p>其中，我们需要关注的是 <code>client.entry.js</code> 和 <code>server.entry.js</code>，但是它们其实都很简单：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// client.entry.js</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="keyword">import</span> &#123;hydrateRoot&#125; <span class="keyword">from</span> <span class="string">'react-dom'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App'</span></span><br><span class="line"></span><br><span class="line">hydrateRoot(<span class="built_in">document</span>.getElementById(<span class="string">'app1'</span>), &lt;App /&gt;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// server.entry.js</span></span><br><span class="line"><span class="keyword">import</span> &#123;renderToString&#125; <span class="keyword">from</span> <span class="string">'react-dom/server'</span></span><br><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">renderOnServerSide</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> content = renderToString(<span class="xml"><span class="tag">&lt;<span class="name">App</span> /&gt;</span>)</span></span><br><span class="line"><span class="xml">  return &#123;content&#125;</span></span><br><span class="line"><span class="xml">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><code>client.entry.js</code> 会运行在浏览器客户端，用于给应用注水。<code>server.entry.js</code> 上面提到过了，基座会远程获取这个文件并得到 <code>renderOnServerSide</code> 这个方法执行返回该子应用的内容。</p>
+<p>接下来，需要着重介绍一下打包配置。首先，对于两个入口文件，我们需要有不同的配置，我们先介绍 <code>server.entry.js</code>，有几个点需要注意：</p>
+<ol>
+<li>打包输出格式需要为 <code>commonjs2</code>（<code>umd</code> 也行），因为我们是在 Node.js 环境中来运行。这个可以在 <code>output</code> 中配置：</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">output: &#123;</span><br><span class="line">  libraryTarget: <span class="string">'commonjs2'</span>,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>我们需要把 <code>react</code> 和 <code>react-dom</code> 等库设置成 <code>externals</code>，这样可以减小子应用打包后的体积。我们可以在基座中统一提供这些库给所有子应用使用。</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">externals: [<span class="regexp">/react/</span>, /react-dom/],</span><br></pre></td></tr></table></figure>
+<p>设置成这样后，打包后的代码就不会处理这些库了，会长这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/***/</span> <span class="string">"react"</span>:</span><br><span class="line"><span class="comment">/*!************************!*\</span></span><br><span class="line"><span class="comment">  !*** external "react" ***!</span></span><br><span class="line"><span class="comment">  \************************/</span></span><br><span class="line"><span class="comment">/***/</span> (<span class="function">(<span class="params"><span class="built_in">module</span></span>) =&gt;</span> &#123;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="built_in">require</span>(<span class="string">"react"</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/***/</span> &#125;),</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>注意样式的处理，这个后面统一再讨论。</li>
+</ol>
+<p>我们再来看一下 <code>client.entry.js</code>，也有几个点需要注意：</p>
+<ol>
+<li>需要把 <code>react</code> 和 <code>react-dom</code> 等库设置成 <code>externals</code>，但是这里跟 <code>server.entry.js</code> 又有点不同：</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">externals: &#123;</span><br><span class="line">  react: <span class="string">'React'</span>,</span><br><span class="line">  <span class="string">'react-dom'</span>: <span class="string">'ReactDOM'</span>,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>客户端的这些库我们通过在基座的 HTML 模板中插入的 <code>script</code> 标签来提供：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">script</span></span></span><br><span class="line"><span class="tag">  <span class="attr">crossorigin</span></span></span><br><span class="line"><span class="tag">  <span class="attr">src</span>=<span class="string">"https://unpkg.com/react@18/umd/react.development.js"</span></span></span><br><span class="line"><span class="tag">&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span></span></span><br><span class="line"><span class="tag">  <span class="attr">crossorigin</span></span></span><br><span class="line"><span class="tag">  <span class="attr">src</span>=<span class="string">"https://unpkg.com/react-dom@18/umd/react-dom.development.js"</span></span></span><br><span class="line"><span class="tag">&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>注意，最好保证服务端和客户端的 <code>react</code> 等库版本一致。</p>
+<ol start="2">
+<li>注意样式的处理。</li>
+</ol>
+<p>两者都提到了样式的处理，也是本文最麻烦的一个地方，不过经过一番折腾终于搞定了，而且受惠于前端丰富的工具，改了几个参数就实现了。下面来看看到底怎么做的：</p>
+<h2 id="样式处理"><a href="#样式处理" class="headerlink" title="样式处理"></a>样式处理</h2><p>样式处理最开始的想法是基座在调用 <code>renderOnServerSide</code> 不仅返回 HTML 片段内容，还返回所有的样式规则，这个可以用 <code>isomorphic-style-loader</code> 这个库来实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// server.entry.js</span></span><br><span class="line"><span class="keyword">import</span> StyleContext <span class="keyword">from</span> <span class="string">'isomorphic-style-loader/StyleContext'</span></span><br><span class="line"><span class="keyword">import</span> App <span class="keyword">from</span> <span class="string">'./App'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="function"><span class="keyword">function</span> <span class="title">renderOnServerSide</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> css = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line">  <span class="keyword">const</span> insertCss = <span class="function">(<span class="params">...styles</span>) =&gt;</span></span><br><span class="line">    styles.forEach(<span class="function">(<span class="params">style</span>) =&gt;</span> css.add(style._getCss()))</span><br><span class="line">  <span class="keyword">const</span> content = ReactDOM.renderToString(</span><br><span class="line">    &lt;StyleContext.Provider value=&#123;&#123;insertCss&#125;&#125;&gt;</span><br><span class="line">      &lt;App /&gt;</span><br><span class="line">    &lt;<span class="regexp">/StyleContext.Provider&gt;</span></span><br><span class="line"><span class="regexp">  )</span></span><br><span class="line"><span class="regexp">  return &#123;content, css&#125;</span></span><br><span class="line"><span class="regexp">&#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">/</span><span class="regexp">/ App.js</span></span><br><span class="line"><span class="regexp">import useStyles from 'isomorphic-style-loader/u</span>seStyles<span class="string">'</span></span><br><span class="line"><span class="string">import s from '</span>./App.scss<span class="string">'</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">const App = (props) =&gt; &#123;</span></span><br><span class="line"><span class="string">  useStyles(s)</span></span><br><span class="line"><span class="string">  return (</span></span><br><span class="line"><span class="string">    &lt;div className=&#123;s.root&#125;&gt;</span></span><br><span class="line"><span class="string">      &lt;h1 className=&#123;s.title&#125;&gt;Hello, world!&lt;/h1&gt;</span></span><br><span class="line"><span class="string">    &lt;/div&gt;</span></span><br><span class="line"><span class="string">  )</span></span><br><span class="line"><span class="string">&#125;</span></span><br><span class="line"><span class="string"></span></span><br><span class="line"><span class="string">export default App</span></span><br></pre></td></tr></table></figure>
+<p>然后，基座中把这些 CSS 规则也插入到 HTML 模板中：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> html = <span class="string">`&lt;!doctype html&gt;</span></span><br><span class="line"><span class="string">    &lt;html&gt;</span></span><br><span class="line"><span class="string">      &lt;head&gt;</span></span><br><span class="line"><span class="string">        &lt;script src="client.js" defer&gt;&lt;/script&gt;</span></span><br><span class="line"><span class="string">        &lt;style&gt;<span class="subst">$&#123;[...css].join(<span class="string">''</span>)&#125;</span>&lt;/style&gt;</span></span><br><span class="line"><span class="string">      &lt;/head&gt;</span></span><br><span class="line"><span class="string">    &lt;/html&gt;`</span></span><br></pre></td></tr></table></figure>
+<p>不过，这个方法需要改写每个组件（要么用高阶函数，要么使用 <code>useStyles</code>），对代码侵入有点大，所以没有考虑。</p>
+<p>本文用的是另外一种方法。</p>
+<p>首先，我们在打包子应用的 <code>client.entry.js</code> 时，把所有 CSS 文件都提取出来，这个通过 <code>mini-css-extract-plugin</code> 实现。</p>
+<p>然后，我们使用 <code>webpack-manifest-plugin</code> 来生成一份资源清单，生成结果如下所示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"main.css"</span>: <span class="string">"/app1/dist/main.css"</span>,</span><br><span class="line">  <span class="attr">"main.js"</span>: <span class="string">"/app1/dist/client.js"</span>,</span><br><span class="line">  <span class="attr">"client.js.map"</span>: <span class="string">"/app1/dist/client.js.map"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样，我们就可以在基座中拉取每个子应用的资源清单，并把 CSS 和 JS 资源都插入到 HTML 中了。</p>
+<p>到这里我们马上要成功了，不过还有两个问题要处理：</p>
+<ul>
+<li>server 端的 CSS 怎么处理？</li>
+</ul>
+<p>由于 server 端不需要插入样式，所以我们只需要用到 <code>css-loader</code>，并按照如下进行配置：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">loader: <span class="string">'css-loader'</span>,</span><br><span class="line">options: &#123;</span><br><span class="line">  modules: &#123;</span><br><span class="line">    exportOnlyLocals: <span class="literal">true</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;,</span><br></pre></td></tr></table></figure>
+<p>这个实现的效果是当我们开启 <code>CSS Module</code> 时，在服务端仍然能得到经过 <code>hash</code> 的类名，且不需要插入样式到 HTML 中。</p>
+<ul>
+<li>如何防止类名冲突？</li>
+</ul>
+<p>虽然开启 <code>CSS Module</code> 后类名会经过 <code>hash</code> 处理，但是实际验证发现如果不同子应用下同一个类名及所在文件名也相同时，经过 <code>hash</code> 以后的名称仍然可能冲突，为了避免这种情况，我们会想到给每个应用的样式都加一个命名空间，这个似乎又很麻烦。经过一番调研后，我发现 <code>css-loader</code> 还有一个这样的属性：<code>localIdentHashSalt</code>，即在计算 <code>hash</code> 的时候加点“盐”，我们给每个子应用不同的盐不就 OK 了么，这下又省事了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>本文受 single spa 的 SSR + 微前端概念的启发，实现了一个简单的 DEMO。基座通过拉取各个子应用生代码成 HTML 的片段，并最后组装成完整的 HTML 文件，同时通过一些特殊的打包配置解决了 CSS 的加载及样式隔离。这个复杂的概念初看感觉高大上，但是通过不断拆解迭代，发现其实也就那么回事，果然前端没有新鲜事，只有新概念。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/SSR/" rel="tag"># SSR</a>
+          
+            <a href="/tags/微前端/" rel="tag"># 微前端</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2023/02/13/parse-html/" rel="next" title="阻塞还是不阻塞，做个实验就好了">
+                <i class="fa fa-chevron-left"></i> 阻塞还是不阻塞，做个实验就好了
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2023/02/28/module-load/" rel="prev" title="script module 的执行时机">
+                script module 的执行时机 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">186</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#原理介绍"><span class="nav-number">2.</span> <span class="nav-text">原理介绍</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#基座"><span class="nav-number">2.1.</span> <span class="nav-text">基座</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#子应用"><span class="nav-number">2.2.</span> <span class="nav-text">子应用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#样式处理"><span class="nav-number">2.3.</span> <span class="nav-text">样式处理</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">3.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
