@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="webpack,rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用 rust 实现一个简单的 webpack">
+<meta name="keywords" content="webpack,rust">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 webpack，但 Rust 版 - [1] 使用 oxc 解析并修改 JS 代码">
+<meta property="og:url" content="http://www.paradeto.com/2024/10/24/rs-webpack-1/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="使用 rust 实现一个简单的 webpack">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-10-24T02:54:15.844Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 webpack，但 Rust 版 - [1] 使用 oxc 解析并修改 JS 代码">
+<meta name="twitter:description" content="使用 rust 实现一个简单的 webpack">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/10/24/rs-webpack-1/"/>
+
+
+
+
+
+
+  <title>从零实现 webpack，但 Rust 版 - [1] 使用 oxc 解析并修改 JS 代码 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/10/24/rs-webpack-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 webpack，但 Rust 版 - [1] 使用 oxc 解析并修改 JS 代码</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-10-24T09:43:02+08:00">
+                2024-10-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  使用 rust 实现一个简单的 webpack
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>参考 <a href="https://github.com/lizuncong/mini-webpack" target="_blank" rel="noopener">mini-webpack</a>，使用 Rust 从零实现一个简单的 webpack，深入理解 webpack 的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/rs-webpack" target="_blank" rel="noopener">https://github.com/ParadeTo/rs-webpack</a></p>
+<p>本文对应 <a href="https://github.com/ParadeTo/rs-webpack/pull/1" target="_blank" rel="noopener">Pull Request</a></p>
+</blockquote>
+<p>实现一个简单的 webpack，首要关键的任务是 JS 代码的解析问题，从头实现一个 JS 解析器是一个非常浩大的工程，所以我们还是挑选一个现成的工具吧，这里选择了 <a href="https://oxc.rs/" target="_blank" rel="noopener">oxc</a>，毕竟是尤大大背书过的。</p>
+<p>虽然，oxc 没有 babel 那么详细的文档，但是使用套路还是类似，首先我们需要使用 oxc_parser 来解析 JS 代码生成 AST：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> name = env::args().nth(<span class="number">1</span>).unwrap_or_else(|| <span class="string">"test.js"</span>.to_string());</span><br><span class="line"><span class="keyword">let</span> path = Path::new(&amp;name);</span><br><span class="line"><span class="keyword">let</span> source_text = Arc::new(std::fs::read_to_string(path)?);</span><br><span class="line"><span class="keyword">let</span> source_type = SourceType::from_path(path).unwrap();</span><br><span class="line"></span><br><span class="line"><span class="comment">// Memory arena where Semantic and Parser allocate objects</span></span><br><span class="line"><span class="keyword">let</span> allocator = Allocator::<span class="keyword">default</span>();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 1 Parse the source text into an AST</span></span><br><span class="line"><span class="keyword">let</span> parser_ret = Parser::new(&amp;allocator, &amp;source_text, source_type).parse();</span><br><span class="line"><span class="keyword">let</span> <span class="keyword">mut</span> program = parser_ret.program;</span><br><span class="line"></span><br><span class="line"><span class="built_in">println!</span>(<span class="string">"Parse result"</span>);</span><br><span class="line"><span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, serde_json::to_string_pretty(&amp;program).unwrap());</span><br></pre></td></tr></table></figure>
+<p>其中 <code>test.js</code> 中的内容如下所示：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> b = <span class="built_in">require</span>(<span class="string">'./b.js'</span>)</span><br></pre></td></tr></table></figure>
+<p>解析得到的 AST 如下所示：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"type"</span>: <span class="string">"Program"</span>,</span><br><span class="line">  <span class="attr">"start"</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"end"</span>: <span class="number">28</span>,</span><br><span class="line">  <span class="attr">"sourceType"</span>: &#123;</span><br><span class="line">    <span class="attr">"language"</span>: <span class="string">"javascript"</span>,</span><br><span class="line">    <span class="attr">"moduleKind"</span>: <span class="string">"module"</span>,</span><br><span class="line">    <span class="attr">"variant"</span>: <span class="string">"jsx"</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="attr">"hashbang"</span>: <span class="literal">null</span>,</span><br><span class="line">  <span class="attr">"directives"</span>: [],</span><br><span class="line">  <span class="attr">"body"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"VariableDeclaration"</span>,</span><br><span class="line">      <span class="attr">"start"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"end"</span>: <span class="number">27</span>,</span><br><span class="line">      <span class="attr">"kind"</span>: <span class="string">"const"</span>,</span><br><span class="line">      <span class="attr">"declarations"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"VariableDeclarator"</span>,</span><br><span class="line">          <span class="attr">"start"</span>: <span class="number">6</span>,</span><br><span class="line">          <span class="attr">"end"</span>: <span class="number">27</span>,</span><br><span class="line">          <span class="attr">"id"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">            <span class="attr">"start"</span>: <span class="number">6</span>,</span><br><span class="line">            <span class="attr">"end"</span>: <span class="number">7</span>,</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"b"</span>,</span><br><span class="line">            <span class="attr">"typeAnnotation"</span>: <span class="literal">null</span>,</span><br><span class="line">            <span class="attr">"optional"</span>: <span class="literal">false</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"init"</span>: &#123;</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"CallExpression"</span>,</span><br><span class="line">            <span class="attr">"start"</span>: <span class="number">10</span>,</span><br><span class="line">            <span class="attr">"end"</span>: <span class="number">27</span>,</span><br><span class="line">            <span class="attr">"callee"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>: <span class="string">"Identifier"</span>,</span><br><span class="line">              <span class="attr">"start"</span>: <span class="number">10</span>,</span><br><span class="line">              <span class="attr">"end"</span>: <span class="number">17</span>,</span><br><span class="line">              <span class="attr">"name"</span>: <span class="string">"require"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"typeParameters"</span>: <span class="literal">null</span>,</span><br><span class="line">            <span class="attr">"arguments"</span>: [</span><br><span class="line">              &#123;</span><br><span class="line">                <span class="attr">"type"</span>: <span class="string">"StringLiteral"</span>,</span><br><span class="line">                <span class="attr">"start"</span>: <span class="number">18</span>,</span><br><span class="line">                <span class="attr">"end"</span>: <span class="number">26</span>,</span><br><span class="line">                <span class="attr">"value"</span>: <span class="string">"./b.js"</span></span><br><span class="line">              &#125;</span><br><span class="line">            ],</span><br><span class="line">            <span class="attr">"optional"</span>: <span class="literal">false</span></span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"definite"</span>: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">      ],</span><br><span class="line">      <span class="attr">"declare"</span>: <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>熟悉 webpack 的知道，打包时我们需要把 <code>require</code> 替换成 <code>__webpack_require__</code>，并把相对路径 <code>./b.js</code> 替换成完整路径，所以我们还需要修改原来的代码，这就需要用到 oxc_traverse 了，它的作用是遍历 AST 中的节点，方便我们对感兴趣的节点进行操作。</p>
+<p>从上面的 AST 结果中，可以看到我们感兴趣的节点是 <code>CallExpression</code>，所以我们可以实现一个 Transform 来修改这个节点，如下所示：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">MyTransform</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;<span class="symbol">'a</span>&gt; Traverse&lt;<span class="symbol">'a</span>&gt; <span class="keyword">for</span> MyTransform &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">enter_call_expression</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, node: &amp;<span class="keyword">mut</span> CallExpression&lt;<span class="symbol">'a</span>&gt;, ctx: &amp;<span class="keyword">mut</span> TraverseCtx&lt;<span class="symbol">'a</span>&gt;) &#123;</span><br><span class="line">        <span class="keyword">if</span> node.is_require_call() &#123;</span><br><span class="line">            <span class="keyword">match</span> &amp;<span class="keyword">mut</span> node.callee &#123;</span><br><span class="line">                Expression::Identifier(identifier_reference) =&gt; &#123;</span><br><span class="line">                    identifier_reference.name = Atom::from(<span class="string">"__webpack_require__"</span>)</span><br><span class="line">                &#125;</span><br><span class="line">                _ =&gt; &#123;&#125;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="keyword">let</span> argument: &amp;<span class="keyword">mut</span> Argument&lt;<span class="symbol">'a</span>&gt; = &amp;<span class="keyword">mut</span> node.arguments.deref_mut()[<span class="number">0</span>];</span><br><span class="line">            <span class="keyword">match</span> argument &#123;</span><br><span class="line">                Argument::StringLiteral(string_literal) =&gt; &#123;</span><br><span class="line">                    string_literal.value = Atom::from(<span class="string">"full_path_of_b"</span>)</span><br><span class="line">                &#125;</span><br><span class="line">                _ =&gt; &#123;&#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以按照如下方式来使用这个 Transform：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 2 Semantic Analyze</span></span><br><span class="line"><span class="keyword">let</span> semantic = SemanticBuilder::new(&amp;source_text)</span><br><span class="line">    .build_module_record(path, &amp;program)</span><br><span class="line">    <span class="comment">// Enable additional syntax checks not performed by the parser</span></span><br><span class="line">    .with_check_syntax_error(<span class="literal">true</span>)</span><br><span class="line">    .build(&amp;program);</span><br><span class="line"><span class="keyword">let</span> (symbols, scopes) = semantic.semantic.into_symbol_table_and_scope_tree();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3 Transform</span></span><br><span class="line"><span class="keyword">let</span> t = &amp;<span class="keyword">mut</span> MyTransform;</span><br><span class="line">traverse_mut(t, &amp;allocator, &amp;<span class="keyword">mut</span> program, symbols, scopes);</span><br></pre></td></tr></table></figure>
+<p>注意，同 babel 不同的是，这里需要先使用 oxc_semantic 进行语法分析得到 <code>symbols</code> 和 <code>scopes</code> 一并传入 <code>traverse_mut</code>。</p>
+<p>最后，我们使用 oxc_codegen 重新生成代码就大功告成了：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 4 Generate Code</span></span><br><span class="line"><span class="keyword">let</span> new_code = CodeGenerator::new()</span><br><span class="line">    .with_options(CodegenOptions &#123;</span><br><span class="line">        ..CodegenOptions::<span class="keyword">default</span>()</span><br><span class="line">    &#125;)</span><br><span class="line">    .build(&amp;program)</span><br><span class="line">    .code;</span><br><span class="line"></span><br><span class="line"><span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, new_code);</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> b = __webpack_require__(<span class="string">'full_path_of_b'</span>)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/webpack/" rel="tag"># webpack</a>
+          
+            <a href="/tags/rust/" rel="tag"># rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/09/26/big-react-wasm-27/" rel="next" title="从零实现 React v18，但 WASM 版 - [27] 实现 useTransition">
+                <i class="fa fa-chevron-left"></i> 从零实现 React v18，但 WASM 版 - [27] 实现 useTransition
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">190</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
