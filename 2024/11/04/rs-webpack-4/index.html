@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="webpack,rust," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="使用 rust 实现一个简单的 webpack">
+<meta name="keywords" content="webpack,rust">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 webpack，但 Rust 版 - [4] 实现插件系统">
+<meta property="og:url" content="http://www.paradeto.com/2024/11/04/rs-webpack-4/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="使用 rust 实现一个简单的 webpack">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-11-05T09:53:52.348Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 webpack，但 Rust 版 - [4] 实现插件系统">
+<meta name="twitter:description" content="使用 rust 实现一个简单的 webpack">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/11/04/rs-webpack-4/"/>
+
+
+
+
+
+
+  <title>从零实现 webpack，但 Rust 版 - [4] 实现插件系统 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/11/04/rs-webpack-4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 webpack，但 Rust 版 - [4] 实现插件系统</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-11-04T10:45:37+08:00">
+                2024-11-04
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  使用 rust 实现一个简单的 webpack
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>参考 <a href="https://github.com/lizuncong/mini-webpack" target="_blank" rel="noopener">mini-webpack</a>，使用 Rust 从零实现一个简单的 webpack，深入理解 webpack 的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/rs-webpack" target="_blank" rel="noopener">https://github.com/ParadeTo/rs-webpack</a></p>
+<p>本文对应 Pull Request：<a href="https://github.com/ParadeTo/rs-webpack/pull/5" target="_blank" rel="noopener">https://github.com/ParadeTo/rs-webpack/pull/5</a></p>
+</blockquote>
+<p>我们知道，Webpack 中使用了 Tapable 来实现插件系统，既然如此，那我们仿照着写一个 Rust 版本的不就可以了。话虽如此，但是实现起来发现并不是那么的简单，以 <code>SyncHook</code> 为例，一个非常简单的版本可以像如下方式用 JS 实现：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SyncHook</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.taps = []</span><br><span class="line">  &#125;</span><br><span class="line">  tap(options, fn) &#123;</span><br><span class="line">    <span class="keyword">this</span>.taps.push(fn)</span><br><span class="line">  &#125;</span><br><span class="line">  call() &#123;</span><br><span class="line">    <span class="keyword">this</span>.taps.forEach(<span class="function">(<span class="params">fn</span>) =&gt;</span> fn(...arguments))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> hook = <span class="keyword">new</span> SyncHook([<span class="string">'param1'</span>, <span class="string">'param2'</span>]) <span class="comment">// 创建钩子对象</span></span><br><span class="line">hook.tap(<span class="string">'event1'</span>, (param) =&gt; <span class="built_in">console</span>.log(<span class="string">'event1:'</span>, param))</span><br><span class="line">hook.tap(<span class="string">'event2'</span>, (param) =&gt; <span class="built_in">console</span>.log(<span class="string">'event2:'</span>, param))</span><br><span class="line">hook.tap(<span class="string">'event3'</span>, (param, param2) =&gt; <span class="built_in">console</span>.log(<span class="string">'event3:'</span>, param, param2))</span><br><span class="line">hook.call(<span class="string">'hello'</span>, <span class="string">'world'</span>)</span><br></pre></td></tr></table></figure>
+<p>我们尝试用 Rust 来实现，可能会写出这样的代码：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SyncHook</span></span>&lt;Arg: <span class="built_in">Copy</span>, R&gt; &#123;</span><br><span class="line">    taps: <span class="built_in">Vec</span>&lt;<span class="built_in">Box</span>&lt;dyn <span class="built_in">Fn</span>(Arg) -&gt; R&gt;&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span>&lt;Arg: <span class="built_in">Copy</span>, R&gt; SyncHook&lt;Arg, R&gt; &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">tap</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, f: <span class="built_in">Box</span>&lt;dyn <span class="built_in">Fn</span>(Arg) -&gt; R&gt;) &#123;</span><br><span class="line">        <span class="keyword">self</span>.taps.push(f);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(&amp;<span class="keyword">self</span>, a: Arg) &#123;</span><br><span class="line">        <span class="keyword">for</span> tap <span class="keyword">in</span> <span class="keyword">self</span>.taps.iter() &#123;</span><br><span class="line">            tap(a);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> sync_hook = &amp;<span class="keyword">mut</span> SyncHook&#123;taps: <span class="built_in">vec!</span>[]&#125;;</span><br><span class="line">    sync_hook.tap(<span class="built_in">Box</span>::new(|arg| &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"event &#123;&#125;"</span>, arg);</span><br><span class="line">    &#125;));</span><br><span class="line">    sync_hook.call(<span class="string">"hello"</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意，<code>Arg</code> 必须约束为可 <code>Copy</code>，否则调用 <code>tap(a)</code> 的时候会报错。上述代码可以正常运行，但是只能支持 <code>call</code> 传入一个参数的情形，不过这个可以通过宏来解决，我们可以预先生成一批支持不同个数参数的 struct：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SyncHook1</span></span>&lt;Arg1: <span class="built_in">Copy</span>, R&gt; &#123;</span><br><span class="line">    taps: <span class="built_in">Vec</span>&lt;<span class="built_in">Box</span>&lt;dyn <span class="built_in">Fn</span>(Arg1) -&gt; R&gt;&gt;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">SyncHook2</span></span>&lt;Arg1: <span class="built_in">Copy</span>, Arg2: <span class="built_in">Copy</span>, R&gt; &#123;</span><br><span class="line">    taps: <span class="built_in">Vec</span>&lt;<span class="built_in">Box</span>&lt;dyn <span class="built_in">Fn</span>(Arg1, Arg2) -&gt; R&gt;&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过，还有一个问题，它不支持传入 <code>&amp;mut T</code> 类型的参数：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Compiler</span></span> &#123;</span><br><span class="line">    name: <span class="built_in">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> sync_hook = &amp;<span class="keyword">mut</span> SyncHook&#123;taps: <span class="built_in">vec!</span>[]&#125;;</span><br><span class="line">    sync_hook.tap(<span class="built_in">Box</span>::new(|arg| &#123;</span><br><span class="line">        <span class="built_in">println!</span>(<span class="string">"event &#123;&#125;"</span>, arg);</span><br><span class="line">    &#125;));</span><br><span class="line">    <span class="keyword">let</span> compiler = &amp;<span class="keyword">mut</span> Compiler &#123;name: <span class="built_in">String</span>::from(<span class="string">"test"</span>)&#125;;</span><br><span class="line">    sync_hook.call(compiler)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上述代码会报 “the trait <code>Copy</code>is not implemented for<code>&amp;mut Compiler</code>“ 的错误。</p>
+<p>看来实现类似的功能目前对于我这个初学者来说应该是个比较难的问题，那还是抄作业吧，看看 Rspack 是怎么做的。<br>查阅发现，Rspack 中没有通用的 <code>SyncHook</code>，它通过宏为每个 Hook 单独进行了定义，接下来我们尝试把他接过来。</p>
+<p>首先，我们把 Rspack 源码中的 <code>crates/rspack_macros</code> 和 <code>crates/rspack_hook</code> 的代码都拷贝到 rs-webpack 的 crates 目录下，并修改目录名：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">├── crates</span><br><span class="line">│   ├── rswebpack_hook</span><br><span class="line">│   └── rswebpack_macros</span><br></pre></td></tr></table></figure>
+<p>然后，新增 <code>crates/rswebpack_error</code> 作为我们统一的错误处理模块:</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib.rs</span></span><br><span class="line"><span class="keyword">use</span> anyhow::<span class="built_in">Result</span> <span class="keyword">as</span> AnyhowResult;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">type</span> <span class="title">Result</span></span>&lt;T&gt; = AnyhowResult&lt;T&gt;;</span><br></pre></td></tr></table></figure>
+<p>最后，把这些库里面的依赖项也做相应的修改，比如 <code>rswebpack_hook</code> 中的 <code>Result</code> 要从原来的 <code>rspack_error::Result</code> 改成 <code>rswebpack_error::Result</code>。</p>
+<p>我们写个 Demo 测试下：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> rswebpack_macros::&#123;define_hook, plugin, plugin_hook&#125;;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">People</span></span> &#123;</span><br><span class="line">    name: <span class="built_in">String</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">define_hook!(Test: SyncSeries(people: &amp;<span class="keyword">mut</span> People));</span><br><span class="line"></span><br><span class="line"><span class="meta">#[plugin]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TestHookTap1</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[plugin_hook(Test for TestHookTap1)]</span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">test1</span></span>(&amp;<span class="keyword">self</span>, people: &amp;<span class="keyword">mut</span> People) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    people.name += <span class="string">" tap1"</span>;</span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[plugin]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TestHookTap2</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[plugin_hook(Test for TestHookTap2)]</span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">test2</span></span>(&amp;<span class="keyword">self</span>, people: &amp;<span class="keyword">mut</span> People) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    people.name += <span class="string">" tap2"</span>;</span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> <span class="keyword">mut</span> test_hook = TestHook::<span class="keyword">default</span>();</span><br><span class="line">    test_hook.tap(test1::new(&amp;TestHookTap1::new_inner()));</span><br><span class="line">    test_hook.tap(test2::new(&amp;TestHookTap2::new_inner()));</span><br><span class="line">    <span class="keyword">let</span> people = &amp;<span class="keyword">mut</span> People &#123; name: <span class="string">"ayou"</span>.into() &#125;;</span><br><span class="line">    test_hook.call(people);</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"&#123;&#125;"</span>, people.name); <span class="comment">// ayou tap1 tap2</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>稍微解释一下上面的代码，首先通过 <code>define_hook!(Test: SyncSeries(people: &amp;mut People));</code> 定义了一个 Hook，它展开其实是这样的：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">trait</span> <span class="title">Test</span></span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">run</span></span>(&amp;<span class="keyword">self</span>, people: &amp;<span class="keyword">mut</span> People) -&gt; rswebpack_hook::__macro_helper::<span class="built_in">Result</span>&lt;()&gt;;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">stage</span></span>(&amp;<span class="keyword">self</span>) -&gt; <span class="built_in">i32</span> &#123; <span class="number">0</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">TestHook</span></span> &#123;</span><br><span class="line">    taps: <span class="built_in">Vec</span>&lt;<span class="built_in">Box</span>&lt;dyn Test + <span class="built_in">Send</span> + <span class="built_in">Sync</span>&gt;&gt;,</span><br><span class="line">    interceptors: <span class="built_in">Vec</span>&lt;<span class="built_in">Box</span>&lt;dyn rswebpack_hook::Interceptor&lt;<span class="keyword">Self</span>&gt; + <span class="built_in">Send</span> + <span class="built_in">Sync</span>&gt;&gt;,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> rswebpack_hook::Hook <span class="keyword">for</span> TestHook &#123;</span><br><span class="line">    <span class="class"><span class="keyword">type</span> <span class="title">Tap</span></span> = <span class="built_in">Box</span>&lt;dyn Test + <span class="built_in">Send</span> + <span class="built_in">Sync</span>&gt;;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">used_stages</span></span>(&amp;<span class="keyword">self</span>) -&gt; rswebpack_hook::__macro_helper::FxHashSet&lt;<span class="built_in">i32</span>&gt; &#123; rswebpack_hook::__macro_helper::FxHashSet::from_iter(<span class="keyword">self</span>.taps.iter().map(|h| h.stage())) &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">intercept</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, interceptor: <span class="keyword">impl</span> rswebpack_hook::Interceptor&lt;<span class="keyword">Self</span>&gt; + <span class="built_in">Send</span> + <span class="built_in">Sync</span> + <span class="symbol">'static</span>) &#123; <span class="keyword">self</span>.interceptors.push(<span class="built_in">Box</span>::new(interceptor)); &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> std::fmt::<span class="built_in">Debug</span> <span class="keyword">for</span> TestHook &#123; <span class="function"><span class="keyword">fn</span> <span class="title">fmt</span></span>(&amp;<span class="keyword">self</span>, f: &amp;<span class="keyword">mut</span> std::fmt::Formatter&lt;<span class="symbol">'_</span>&gt;) -&gt; std::fmt::<span class="built_in">Result</span> &#123; <span class="built_in">write!</span>(f, <span class="string">"TestHook"</span>) &#125; &#125;</span><br><span class="line"><span class="keyword">impl</span> <span class="built_in">Default</span> <span class="keyword">for</span> TestHook &#123; <span class="function"><span class="keyword">fn</span> <span class="title">default</span></span>() -&gt; <span class="keyword">Self</span> &#123; <span class="keyword">Self</span> &#123; taps: <span class="built_in">Default</span>::<span class="keyword">default</span>(), interceptors: <span class="built_in">Default</span>::<span class="keyword">default</span>() &#125; &#125; &#125;</span><br><span class="line"><span class="keyword">impl</span> TestHook &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(&amp;<span class="keyword">self</span>, people: &amp;<span class="keyword">mut</span> People) -&gt; rswebpack_hook::__macro_helper::<span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> additional_taps = std::vec::<span class="built_in">Vec</span>::new();</span><br><span class="line">        <span class="keyword">for</span> interceptor <span class="keyword">in</span> <span class="keyword">self</span>.interceptors.iter() &#123; additional_taps.extend(interceptor.call_blocking(<span class="keyword">self</span>)?); &#125;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> all_taps = std::vec::<span class="built_in">Vec</span>::new();</span><br><span class="line">        all_taps.extend(&amp;<span class="keyword">self</span>.taps);</span><br><span class="line">        all_taps.extend(&amp;additional_taps);</span><br><span class="line">        all_taps.sort_by_key(|hook| hook.stage());</span><br><span class="line">        <span class="keyword">for</span> tap <span class="keyword">in</span> all_taps &#123; tap.run(people)?; &#125;</span><br><span class="line">        <span class="literal">Ok</span>(())</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">tap</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>, tap: <span class="keyword">impl</span> Test + <span class="built_in">Send</span> + <span class="built_in">Sync</span> + <span class="symbol">'static</span>) &#123; <span class="keyword">self</span>.taps.push(<span class="built_in">Box</span>::new(tap)); &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到 <code>TestHook</code> 跟我们之前的实现方式是有点类似的，同时它还生成了 <code>TestHook</code> 的 <code>tap</code> 的类型，即 <code>Test</code>。</p>
+<p>之后，还是通过宏来实现一个 <code>Test</code> 的 <code>Tap</code>：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[plugin]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TestHookTap1</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[plugin_hook(Test for TestHookTap1)]</span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">test1</span></span>(&amp;<span class="keyword">self</span>, people: &amp;<span class="keyword">mut</span> People) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    people.name += <span class="string">" tap1"</span>;</span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它展开其实是这样的：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TestHookTap1</span></span> &#123;</span><br><span class="line">    inner: ::std::sync::Arc&lt;TestHookTap1Inner&gt;,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> TestHookTap1 &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">new_inner</span></span>() -&gt; <span class="keyword">Self</span> &#123; <span class="keyword">Self</span> &#123; inner: ::std::sync::Arc::new(TestHookTap1Inner) &#125; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from_inner</span></span>(inner: &amp;::std::sync::Arc&lt;TestHookTap1Inner&gt;) -&gt; <span class="keyword">Self</span> &#123; <span class="keyword">Self</span> &#123; inner: ::std::sync::Arc::clone(inner) &#125; &#125;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">inner</span></span>(&amp;<span class="keyword">self</span>) -&gt; &amp;::std::sync::Arc&lt;TestHookTap1Inner&gt; &#123; &amp;<span class="keyword">self</span>.inner &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> ::std::ops::Deref <span class="keyword">for</span> TestHookTap1 &#123;</span><br><span class="line">    <span class="class"><span class="keyword">type</span> <span class="title">Target</span></span> = TestHookTap1Inner;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">deref</span></span>(&amp;<span class="keyword">self</span>) -&gt; &amp;Self::Target &#123; &amp;<span class="keyword">self</span>.inner &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="meta">#[doc(hidden)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">TestHookTap1Inner</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[allow(non_camel_case_types)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">test1</span></span> &#123;</span><br><span class="line">    inner: ::std::sync::Arc&lt;TestHookTap1Inner&gt;,</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> test1 &#123; <span class="function"><span class="keyword">fn</span> <span class="title">new</span></span>(plugin: &amp;TestHookTap1) -&gt; <span class="keyword">Self</span> &#123; test1 &#123; inner: ::std::sync::Arc::clone(plugin.inner()) &#125; &#125; &#125;</span><br><span class="line"><span class="keyword">impl</span> TestHookTap1 &#123;</span><br><span class="line">    <span class="meta">#[allow(clippy::ptr_arg)]</span></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">test1</span></span>(&amp;<span class="keyword">self</span>, people: &amp;<span class="keyword">mut</span> People) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">        people.name += <span class="string">" tap1"</span>;</span><br><span class="line">        <span class="literal">Ok</span>(())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> ::std::ops::Deref <span class="keyword">for</span> test1 &#123;</span><br><span class="line">    <span class="class"><span class="keyword">type</span> <span class="title">Target</span></span> = TestHookTap1Inner;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">deref</span></span>(&amp;<span class="keyword">self</span>) -&gt; &amp;Self::Target &#123; &amp;<span class="keyword">self</span>.inner &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">impl</span> Test <span class="keyword">for</span> test1 &#123;</span><br><span class="line">    <span class="meta">#[tracing::instrument(name = <span class="meta-string">"TestHookTap1::test1"</span>, skip_all)]</span></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">run</span></span>(&amp;<span class="keyword">self</span>, people: &amp;<span class="keyword">mut</span> People) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">        TestHookTap1::test1(&amp;TestHookTap1::from_inner(&amp;<span class="keyword">self</span>.inner), people )</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里面有点绕来绕去的，不过多看几遍还是能看明白的。</p>
+<p>这样，我们就在 Rust 中实现了类似 Tapable 的功能，不过目前只演示了最简单的 SyncHook 的用法，后面遇到其他钩子时再介绍吧。</p>
+<p>接下来，我们就基于这个来实现插件系统。我们知道，实现一个 webpack 的插件一般是这样的做法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> pluginName = <span class="string">'ConsoleLogOnBuildWebpackPlugin'</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">ConsoleLogOnBuildWebpackPlugin</span> </span>&#123;</span><br><span class="line">  apply(compiler) &#123;</span><br><span class="line">    compiler.hooks.run.tap(pluginName, (compilation) =&gt; &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'The webpack build process is starting!'</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">module</span>.exports = ConsoleLogOnBuildWebpackPlugin</span><br></pre></td></tr></table></figure>
+<p>我们也依样画葫芦，先来定义一个 <code>Plugin</code> 的 trait 来规定插件应具备的特性：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[async_trait::async_trait]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">trait</span> <span class="title">Plugin</span></span>: std::fmt::<span class="built_in">Debug</span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">name</span></span>(&amp;<span class="keyword">self</span>) -&gt; &amp;<span class="symbol">'static</span> <span class="built_in">str</span> &#123;</span><br><span class="line">        <span class="string">"unknown"</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">apply</span></span>(&amp;<span class="keyword">self</span>, _ctx: PluginContext&lt;&amp;<span class="keyword">mut</span> ApplyContext&gt;) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">        <span class="literal">Ok</span>(())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug, Default)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">PluginContext</span></span>&lt;T = ()&gt; &#123;</span><br><span class="line">    <span class="keyword">pub</span> context: T,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">ApplyContext</span></span>&lt;<span class="symbol">'c</span>&gt; &#123;</span><br><span class="line">    <span class="keyword">pub</span> compiler_hooks: &amp;<span class="symbol">'c</span> <span class="keyword">mut</span> CompilerHooks,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">define_hook!(BeforeRun: SyncSeries(compiler: &amp;<span class="keyword">mut</span> Compiler));</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Default, Debug)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">CompilerHooks</span></span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> before_run: BeforeRunHook,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，我们会把 <code>before_run</code> 这个钩子作为 context 创给 Plugin。</p>
+<p>然后，我们来定义一个 <code>PluginDriver</code> 来驱动 <code>Plugin</code>：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="class"><span class="keyword">struct</span> <span class="title">PluginDriver</span></span> &#123;</span><br><span class="line">    <span class="keyword">pub</span> plugins: <span class="built_in">Vec</span>&lt;<span class="built_in">Box</span>&lt;dyn Plugin&gt;&gt;,</span><br><span class="line">    <span class="keyword">pub</span> compiler_hooks: CompilerHooks,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> PluginDriver &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">new</span></span>(plugins: <span class="built_in">Vec</span>&lt;<span class="built_in">Box</span>&lt;dyn Plugin&gt;&gt;) -&gt; Arc&lt;<span class="keyword">Self</span>&gt; &#123;</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> compiler_hooks = CompilerHooks::<span class="keyword">default</span>();</span><br><span class="line">        <span class="keyword">let</span> <span class="keyword">mut</span> apply_context = ApplyContext &#123;</span><br><span class="line">            compiler_hooks: &amp;<span class="keyword">mut</span> compiler_hooks,</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">for</span> plugin <span class="keyword">in</span> &amp;plugins &#123;</span><br><span class="line">            plugin</span><br><span class="line">                .apply(PluginContext::with_context(&amp;<span class="keyword">mut</span> apply_context))</span><br><span class="line">                .expect(<span class="string">"failed to apply plugin context"</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        Arc::new(<span class="keyword">Self</span> &#123;</span><br><span class="line">            plugins,</span><br><span class="line">            compiler_hooks,</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里初始化了传入每个 <code>Plugin</code> 的参数，然后遍历这些 <code>Plugin</code> 并调用他们的 <code>apply</code> 方法。</p>
+<p><code>PluginDriver</code> 最后会在 <code>Compiler</code> 中进行使用：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span> Compiler &#123;</span><br><span class="line">    <span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">new</span></span>(<span class="keyword">mut</span> config: Config, plugins: <span class="built_in">Vec</span>&lt;BoxPlugin&gt;) -&gt; Compiler &#123;</span><br><span class="line">        <span class="keyword">let</span> plugin_driver = PluginDriver::new(plugins);</span><br><span class="line"></span><br><span class="line">        Compiler &#123;</span><br><span class="line">            root: config.root.clone(),</span><br><span class="line">            entry_id: <span class="string">""</span>.to_string(),</span><br><span class="line">            config,</span><br><span class="line">            modules: HashMap::new(),</span><br><span class="line">            assets: HashMap::new(),</span><br><span class="line">            plugin_driver,</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+<p>我们暂时修改一下 <code>Compiler</code> 的 <code>run</code>：</p>
+<figure class="highlight rs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">run</span></span>(&amp;<span class="keyword">mut</span> <span class="keyword">self</span>) &#123;</span><br><span class="line">    <span class="keyword">self</span>.plugin_driver.clone().compiler_hooks.before_run.call(<span class="keyword">self</span>);</span><br><span class="line">    <span class="comment">// let resolved_entry = Path::new(&amp;self.root).join(&amp;self.config.entry);</span></span><br><span class="line">    <span class="comment">// self.build_module(resolved_entry, true);</span></span><br><span class="line">    <span class="comment">// self.emit_file();</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，写个 Demo 测试一下：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> rswebpack_core::compiler::Compiler;</span><br><span class="line"><span class="keyword">use</span> rswebpack_core::config::&#123;Config, Output&#125;;</span><br><span class="line"><span class="keyword">use</span> rswebpack_core::hooks::BeforeRun;</span><br><span class="line"><span class="keyword">use</span> rswebpack_core::plugin::&#123;ApplyContext, Plugin, PluginContext&#125;;</span><br><span class="line"><span class="keyword">use</span> rswebpack_macros::&#123;plugin, plugin_hook&#125;;</span><br><span class="line"><span class="keyword">use</span> rswebpack_error::<span class="built_in">Result</span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[plugin]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">BeforeRunHookTap</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[plugin_hook(BeforeRun for BeforeRunHookTap)]</span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">before_run</span></span>(&amp;<span class="keyword">self</span>, compiler: &amp;<span class="keyword">mut</span> Compiler) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"Root is &#123;&#125;"</span>, compiler.root);</span><br><span class="line">    <span class="literal">Ok</span>(())</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[derive(Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">TestPlugin</span></span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> Plugin <span class="keyword">for</span> TestPlugin &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">apply</span></span>(&amp;<span class="keyword">self</span>, _ctx: PluginContext&lt;&amp;<span class="keyword">mut</span> ApplyContext&gt;) -&gt; <span class="built_in">Result</span>&lt;()&gt; &#123;</span><br><span class="line">        _ctx.context</span><br><span class="line">            .compiler_hooks</span><br><span class="line">            .before_run</span><br><span class="line">            .tap(before_run::new(&amp;BeforeRunHookTap::new_inner()));</span><br><span class="line">        <span class="literal">Ok</span>(())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> config = Config::new(</span><br><span class="line">        <span class="string">"test"</span>.to_string(),</span><br><span class="line">        <span class="string">"test"</span>.to_string(),</span><br><span class="line">        Output &#123;</span><br><span class="line">            path: <span class="string">"out"</span>.to_string(),</span><br><span class="line">            filename: <span class="string">"bundle"</span>.to_string(),</span><br><span class="line">        &#125;,</span><br><span class="line">    );</span><br><span class="line">    <span class="keyword">let</span> compiler = &amp;<span class="keyword">mut</span> Compiler::new(config, <span class="built_in">vec!</span>[<span class="built_in">Box</span>::new(TestPlugin &#123;&#125;)]);</span><br><span class="line">    compiler.run(); <span class="comment">// Root is test</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大功告成，不过实际开发中，自定义 <code>Plugin</code> 都是用 JS 开发的，怎么把这些 Plugin 集成进来呢，下篇再揭晓答案吧。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/webpack/" rel="tag"># webpack</a>
+          
+            <a href="/tags/rust/" rel="tag"># rust</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/10/30/rs-webpack-3/" rel="next" title="从零实现 webpack，但 Rust 版 - [3] 使用 NAPI-RS 为 Node.js 开发插件">
+                <i class="fa fa-chevron-left"></i> 从零实现 webpack，但 Rust 版 - [3] 使用 NAPI-RS 为 Node.js 开发插件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">193</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">83</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
