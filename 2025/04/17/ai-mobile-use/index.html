@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ai,appium," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="上一篇文章简单调研了下利用 AI 进行 UI 自动化的技术，顺着这个思路，是不是可以给 AI 一个手机，让它帮我们做更多事情呢？搜索一下，发现已经有人开发了 mobile-use 这个项目，今天就来玩一下。 首先需要安装好 adb，并通过 USB 数据线连接安卓手机，打开开发者模式，并开启 USB 调试模式，在终端输入 adb devices，如果显示有设备，则说明安装成功。 然后，写个简单的 D">
+<meta name="keywords" content="ai,appium">
+<meta property="og:type" content="article">
+<meta property="og:title" content="浅玩一下 Mobile Use">
+<meta property="og:url" content="http://www.paradeto.com/2025/04/17/ai-mobile-use/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="上一篇文章简单调研了下利用 AI 进行 UI 自动化的技术，顺着这个思路，是不是可以给 AI 一个手机，让它帮我们做更多事情呢？搜索一下，发现已经有人开发了 mobile-use 这个项目，今天就来玩一下。 首先需要安装好 adb，并通过 USB 数据线连接安卓手机，打开开发者模式，并开启 USB 调试模式，在终端输入 adb devices，如果显示有设备，则说明安装成功。 然后，写个简单的 D">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2025/04/17/ai-mobile-use/result.gif">
+<meta property="og:updated_time" content="2025-04-18T09:35:03.777Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="浅玩一下 Mobile Use">
+<meta name="twitter:description" content="上一篇文章简单调研了下利用 AI 进行 UI 自动化的技术，顺着这个思路，是不是可以给 AI 一个手机，让它帮我们做更多事情呢？搜索一下，发现已经有人开发了 mobile-use 这个项目，今天就来玩一下。 首先需要安装好 adb，并通过 USB 数据线连接安卓手机，打开开发者模式，并开启 USB 调试模式，在终端输入 adb devices，如果显示有设备，则说明安装成功。 然后，写个简单的 D">
+<meta name="twitter:image" content="http://www.paradeto.com/2025/04/17/ai-mobile-use/result.gif">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2025/04/17/ai-mobile-use/"/>
+
+
+
+
+
+
+  <title>浅玩一下 Mobile Use | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2025/04/17/ai-mobile-use/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">浅玩一下 Mobile Use</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2025-04-17T11:56:32+08:00">
+                2025-04-17
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ai/" itemprop="url" rel="index">
+                    <span itemprop="name">ai</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>上一篇文章简单调研了下利用 AI 进行 UI 自动化的技术，顺着这个思路，是不是可以给 AI 一个手机，让它帮我们做更多事情呢？搜索一下，发现已经有人开发了 <a href="https://github.com/runablehq/mobile-use" target="_blank" rel="noopener">mobile-use</a> 这个项目，今天就来玩一下。</p>
+<p>首先需要安装好 adb，并通过 USB 数据线连接安卓手机，打开开发者模式，并开启 USB 调试模式，在终端输入 <code>adb devices</code>，如果显示有设备，则说明安装成功。</p>
+<p>然后，写个简单的 Demo 脚本：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> &#123;mobileUse&#125; = <span class="built_in">require</span>(<span class="string">'mobile-use'</span>)</span><br><span class="line"><span class="keyword">const</span> &#123;createOpenAI&#125; = <span class="built_in">require</span>(<span class="string">'@ai-sdk/openai'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> &#123;readFile, access&#125; = <span class="built_in">require</span>(<span class="string">'node:fs/promises'</span>)</span><br><span class="line"><span class="keyword">const</span> yargs = <span class="built_in">require</span>(<span class="string">'yargs'</span>)</span><br><span class="line"><span class="keyword">const</span> &#123;hideBin&#125; = <span class="built_in">require</span>(<span class="string">'yargs/helpers'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> openai = createOpenAI(&#123;</span><br><span class="line">  baseURL: process.env.OPENAI_API_BASE_URL,</span><br><span class="line">  apiKey: process.env.OPENAI_API_KEY,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> argv = yargs(hideBin(process.argv))</span><br><span class="line">  .usage(<span class="string">'Usage: $0 &lt;command&gt; [options]'</span>)</span><br><span class="line">  .demandCommand(<span class="number">1</span>, <span class="string">'Please provide either a command string or a file path'</span>)</span><br><span class="line">  .help().argv</span><br><span class="line"></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">run</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> input = argv._[<span class="number">0</span>].toString()</span><br><span class="line">  <span class="keyword">let</span> task</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">await</span> access(input)</span><br><span class="line">    task = (<span class="keyword">await</span> readFile(input, <span class="string">'utf-8'</span>)).trim()</span><br><span class="line">  &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">    task = input</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">const</span> response = <span class="keyword">await</span> mobileUse(&#123;</span><br><span class="line">    task,</span><br><span class="line">    llm: openai(<span class="string">'gpt-4o'</span>),</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> response.text</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">run()</span><br><span class="line">  .catch(<span class="function">(<span class="params">error</span>) =&gt;</span> <span class="built_in">console</span>.error(error))</span><br><span class="line">  .then(<span class="function">(<span class="params">result</span>) =&gt;</span> <span class="built_in">console</span>.log(result))</span><br></pre></td></tr></table></figure>
+<p>编写一个 <code>task.txt</code> 文件，即将手机笔记本中的内容复制到腾讯元宝中并提交：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">1. open com.hihonor.notepad</span><br><span class="line">2. Tap Taylor Swift</span><br><span class="line">3. Get content of Taylor Swift as $content</span><br><span class="line">4. open com.tencent.hunyuan.app.chat</span><br><span class="line">5. Type $content</span><br><span class="line">6. Click send</span><br></pre></td></tr></table></figure>
+<p>执行 <code>node index.js task.txt</code>。</p>
+<p>效果如下所示：</p>
+<p><img src="/2025/04/17/ai-mobile-use/result.gif" alt=""></p>
+<p>我们还是通过请求日志来分析一下是怎么实现的。</p>
+<p>第一次发送的请求如下所示，可以看到定义了 <code>openApp</code>，<code>listApps</code> 和 <code>computer</code> 三个 tool，这些 tool 最终都是通过 adb 来操作设备。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"model"</span>: <span class="string">"gpt-4o"</span>,</span><br><span class="line">  <span class="attr">"temperature"</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"messages"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"system"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">"You are an experienced mobile automation engineer. \nYour job is to navigate an android device and perform actions to fullfil request of the user.\n\n&lt;steps&gt;\nIf the user asks to use a specific app in the request, open it before performing any other action.\nDo not take ui dump more than once per action. If you think you don't need to take ui dump, skip it. Use it sparingly.\n&lt;/steps&gt;\n"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"user"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">"1. open com.hihonor.notepad\n2. Tap Taylor Swift\n3. Get content of Taylor Swift as $content\n4. open com.tencent.hunyuan.app.chat\n5. Type $content\n6. Click send"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"tools"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"function"</span>,</span><br><span class="line">      <span class="attr">"function"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"openApp"</span>,</span><br><span class="line">        <span class="attr">"description"</span>: <span class="string">"Open an on on android device."</span>,</span><br><span class="line">        <span class="attr">"parameters"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"object"</span>,</span><br><span class="line">          <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"description"</span>: <span class="string">"package name of the app to open such as com.google.android.dialer"</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"required"</span>: [<span class="string">"name"</span>],</span><br><span class="line">          <span class="attr">"additionalProperties"</span>: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"function"</span>,</span><br><span class="line">      <span class="attr">"function"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"listApps"</span>,</span><br><span class="line">        <span class="attr">"description"</span>: <span class="string">"Use this to list packages."</span>,</span><br><span class="line">        <span class="attr">"parameters"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"object"</span>,</span><br><span class="line">          <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"description"</span>: <span class="string">"Name of the package to filter."</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"required"</span>: [<span class="string">"name"</span>],</span><br><span class="line">          <span class="attr">"additionalProperties"</span>: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"type"</span>: <span class="string">"function"</span>,</span><br><span class="line">      <span class="attr">"function"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"computer"</span>,</span><br><span class="line">        <span class="attr">"description"</span>: <span class="string">"Mobile tool to perform actions on a mobile device."</span>,</span><br><span class="line">        <span class="attr">"parameters"</span>: &#123;</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"object"</span>,</span><br><span class="line">          <span class="attr">"properties"</span>: &#123;</span><br><span class="line">            <span class="attr">"action"</span>: &#123;</span><br><span class="line">              <span class="attr">"type"</span>: <span class="string">"string"</span>,</span><br><span class="line">              <span class="attr">"enum"</span>: [</span><br><span class="line">                <span class="string">"ui_dump"</span>,</span><br><span class="line">                <span class="string">"tap"</span>,</span><br><span class="line">                <span class="string">"swipe"</span>,</span><br><span class="line">                <span class="string">"type"</span>,</span><br><span class="line">                <span class="string">"press"</span>,</span><br><span class="line">                <span class="string">"wait"</span>,</span><br><span class="line">                <span class="string">"screenshot"</span></span><br><span class="line">              ],</span><br><span class="line">              <span class="attr">"description"</span>: <span class="string">"ui_dump: Get UI elements you can interact with for the current screen.\ntap: Tap on the provided coordinate.\nswipe: Swipe from start_coordinate to end_coordinate.\ntype: Type in the box.\npress: Press mobile key or button.\nscreenshot: Take a screenshot of the current screen if UI dump is not helpful or where you need to see visuals. \n      "</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"coordinate"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"array"</span>, <span class="attr">"items"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"number"</span>&#125;&#125;,</span><br><span class="line">            <span class="attr">"start_coordinate"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"array"</span>, <span class="attr">"items"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"number"</span>&#125;&#125;,</span><br><span class="line">            <span class="attr">"end_coordinate"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"array"</span>, <span class="attr">"items"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"number"</span>&#125;&#125;,</span><br><span class="line">            <span class="attr">"text"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"string"</span>&#125;,</span><br><span class="line">            <span class="attr">"duration"</span>: &#123;<span class="attr">"type"</span>: <span class="string">"number"</span>&#125;</span><br><span class="line">          &#125;,</span><br><span class="line">          <span class="attr">"required"</span>: [<span class="string">"action"</span>],</span><br><span class="line">          <span class="attr">"additionalProperties"</span>: <span class="literal">false</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"tool_choice"</span>: <span class="string">"auto"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大模型返回 <code>openApp</code> 的 tool call，打开笔记本：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"id"</span>: <span class="string">"chatcmpl-BN9A2Vtp0QnGxf9frNG8fMtk4tBHg"</span>,</span><br><span class="line">  <span class="attr">"choices"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"finish_reason"</span>: <span class="string">"tool_calls"</span>,</span><br><span class="line">      <span class="attr">"index"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"logprobs"</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">"message"</span>: &#123;</span><br><span class="line">        <span class="attr">"content"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"refusal"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"role"</span>: <span class="string">"assistant"</span>,</span><br><span class="line">        <span class="attr">"annotations"</span>: [],</span><br><span class="line">        <span class="attr">"audio"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"function_call"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"tool_calls"</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"id"</span>: <span class="string">"call_ydC7cOmRppTsVEu0AneG3g6R"</span>,</span><br><span class="line">            <span class="attr">"function"</span>: &#123;</span><br><span class="line">              <span class="attr">"arguments"</span>: <span class="string">"&#123;\"name\":\"com.hihonor.notepad\"&#125;"</span>,</span><br><span class="line">              <span class="attr">"name"</span>: <span class="string">"openApp"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"function"</span></span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二次请求，将 <code>openApp</code> 以及执行结果追加到 messges 中给大模型：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"model"</span>: <span class="string">"gpt-4o"</span>,</span><br><span class="line">  <span class="attr">"temperature"</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"messages"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"system"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">"You are an experienced mobile automation engineer. \nYour job is to navigate an android device and perform actions to fullfil request of the user.\n\n&lt;steps&gt;\nIf the user asks to use a specific app in the request, open it before performing any other action.\nDo not take ui dump more than once per action. If you think you don't need to take ui dump, skip it. Use it sparingly.\n&lt;/steps&gt;\n"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"user"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">"1. open com.hihonor.notepad\n2. Tap Taylor Swift\n3. Get content of Taylor Swift as $content\n4. open com.tencent.hunyuan.app.chat\n5. Type $content\n6. Click send"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"assistant"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">""</span>,</span><br><span class="line">      <span class="attr">"tool_calls"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"id"</span>: <span class="string">"call_ydC7cOmRppTsVEu0AneG3g6R"</span>,</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"function"</span>,</span><br><span class="line">          <span class="attr">"function"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"openApp"</span>,</span><br><span class="line">            <span class="attr">"arguments"</span>: <span class="string">"&#123;\"name\":\"com.hihonor.notepad\"&#125;"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"tool"</span>,</span><br><span class="line">      <span class="attr">"tool_call_id"</span>: <span class="string">"call_ydC7cOmRppTsVEu0AneG3g6R"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">"\"Successfull opened com.hihonor.notepad\""</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"tools"</span>: [</span><br><span class="line">    ...</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"tool_choice"</span>: <span class="string">"auto"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>大模型返回 <code>computer</code> 类型的 tool call，参数为 <code>{&quot;action&quot;: &quot;ui_dump&quot;}</code>，即获取页面的 UI 信息：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"id"</span>: <span class="string">"chatcmpl-BN9A4Mrj0JZ8QeSZYsdlz7gOMiwhW"</span>,</span><br><span class="line">  <span class="attr">"choices"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"finish_reason"</span>: <span class="string">"tool_calls"</span>,</span><br><span class="line">      <span class="attr">"index"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"logprobs"</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">"message"</span>: &#123;</span><br><span class="line">        <span class="attr">"content"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"refusal"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"role"</span>: <span class="string">"assistant"</span>,</span><br><span class="line">        <span class="attr">"annotations"</span>: [],</span><br><span class="line">        <span class="attr">"audio"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"function_call"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"tool_calls"</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"id"</span>: <span class="string">"call_2T37XmWjfQhItVmw4vQzkoom"</span>,</span><br><span class="line">            <span class="attr">"function"</span>: &#123;</span><br><span class="line">              <span class="attr">"arguments"</span>: <span class="string">"&#123;\"action\":\"ui_dump\"&#125;"</span>,</span><br><span class="line">              <span class="attr">"name"</span>: <span class="string">"computer"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"function"</span></span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看一下 <code>ui_dump</code> 返回的结果，是一个 JSON 格式的数据结构，包含所有页面的元素的坐标、类型等信息。它是通过解析 <code>uiautomator dump</code> 的结果得到的。</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"model"</span>: <span class="string">"gpt-4o"</span>,</span><br><span class="line">  <span class="attr">"temperature"</span>: <span class="number">0</span>,</span><br><span class="line">  <span class="attr">"messages"</span>: [</span><br><span class="line">    ...</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"assistant"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">""</span>,</span><br><span class="line">      <span class="attr">"tool_calls"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">          <span class="attr">"id"</span>: <span class="string">"call_2T37XmWjfQhItVmw4vQzkoom"</span>,</span><br><span class="line">          <span class="attr">"type"</span>: <span class="string">"function"</span>,</span><br><span class="line">          <span class="attr">"function"</span>: &#123;</span><br><span class="line">            <span class="attr">"name"</span>: <span class="string">"computer"</span>,</span><br><span class="line">            <span class="attr">"arguments"</span>: <span class="string">"&#123;\"action\":\"ui_dump\"&#125;"</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      ]</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"role"</span>: <span class="string">"tool"</span>,</span><br><span class="line">      <span class="attr">"tool_call_id"</span>: <span class="string">"call_2T37XmWjfQhItVmw4vQzkoom"</span>,</span><br><span class="line">      <span class="attr">"content"</span>: <span class="string">"[&#123;\"type\":\"text\",\"text\":\"&#123;\\\"type\\\":\\\"view\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[0,0][1080,2316]\\\",\\\"children\\\":[&#123;\\\"type\\\":\\\"view\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[0,84][1080,468]\\\",\\\"desc\\\":\\\"1 条笔记\\\",\\\"id\\\":\\\"collapsing_toolbar\\\",\\\"children\\\":[&#123;\\\"type\\\":\\\"button\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[936,96][1044,240]\\\",\\\"desc\\\":\\\"更多选项\\\",\\\"id\\\":\\\"action_menu_more_button\\\"&#125;,&#123;\\\"type\\\":\\\"view\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[72,245][564,366]\\\",\\\"children\\\":[&#123;\\\"type\\\":\\\"text\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[72,245][432,366]\\\",\\\"text\\\":\\\"全部笔记\\\",\\\"id\\\":\\\"extend_appbar_title\\\"&#125;]&#125;]&#125;,&#123;\\\"type\\\":\\\"list\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[0,468][1080,2316]\\\",\\\"id\\\":\\\"notes_listview\\\",\\\"children\\\":[&#123;\\\"type\\\":\\\"view\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[0,636][1080,1012]\\\",\\\"id\\\":\\\"swipelayout\\\",\\\"children\\\":[&#123;\\\"type\\\":\\\"text\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[72,666][996,731]\\\",\\\"text\\\":\\\"Taylor Swift\\\",\\\"id\\\":\\\"item_title\\\"&#125;,&#123;\\\"type\\\":\\\"text\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[72,749][996,861]\\\",\\\"text\\\":\\\"本服务将笔记中输入的语音内容转换成文本，需联网，需读取设备唯一可识别信息，需收集、读取并传送笔记中输入的语音到服务器，其中语音内容会委托给第三方服务提供商，用于将语音转换成文本。点击“同意”，即可启用该服务。\\\",\\\"id\\\":\\\"item_content_hide\\\"&#125;,&#123;\\\"type\\\":\\\"text\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[72,749][996,855]\\\",\\\"text\\\":\\\"We were both young when I first saw you.\\\",\\\"id\\\":\\\"item_content\\\"&#125;]&#125;]&#125;,&#123;\\\"type\\\":\\\"view\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[984,468][1080,2316]\\\",\\\"id\\\":\\\"scroll_bar\\\"&#125;,&#123;\\\"type\\\":\\\"view\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[0,468][1080,636]\\\",\\\"id\\\":\\\"real_search_view\\\",\\\"children\\\":[&#123;\\\"type\\\":\\\"text\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[36,498][1044,606]\\\",\\\"text\\\":\\\"搜索笔记\\\",\\\"desc\\\":\\\"搜索查询\\\",\\\"id\\\":\\\"search_src_text\\\"&#125;]&#125;,&#123;\\\"type\\\":\\\"button\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[864,2016][1008,2160]\\\",\\\"desc\\\":\\\"新建\\\",\\\"id\\\":\\\"fab_add\\\"&#125;,&#123;\\\"type\\\":\\\"text\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[0,0][0,0]\\\",\\\"text\\\":\\\"笔记\\\",\\\"id\\\":\\\"content\\\"&#125;,&#123;\\\"type\\\":\\\"text\\\",\\\"clickable\\\":false,\\\"bounds\\\":\\\"[0,0][0,0]\\\",\\\"text\\\":\\\"待办\\\",\\\"id\\\":\\\"content\\\"&#125;]&#125;\"&#125;]"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"tools"</span>: [</span><br><span class="line">    ...</span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">"tool_choice"</span>: <span class="string">"auto"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后 LLM 通过分析页面信息，得到 <code>Taylor Swift</code> 的点击坐标返回 <code>computer</code> 类型的 tool call，参数为 <code>{&quot;action&quot;: &quot;tap&quot;, &quot;coordinate&quot;:[72,666]}</code>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"id"</span>: <span class="string">"chatcmpl-BN9A8OmVB5R8o7cQ15spyO278XpJM"</span>,</span><br><span class="line">  <span class="attr">"choices"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="attr">"finish_reason"</span>: <span class="string">"tool_calls"</span>,</span><br><span class="line">      <span class="attr">"index"</span>: <span class="number">0</span>,</span><br><span class="line">      <span class="attr">"logprobs"</span>: <span class="literal">null</span>,</span><br><span class="line">      <span class="attr">"message"</span>: &#123;</span><br><span class="line">        <span class="attr">"content"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"refusal"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"role"</span>: <span class="string">"assistant"</span>,</span><br><span class="line">        <span class="attr">"annotations"</span>: [],</span><br><span class="line">        <span class="attr">"audio"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"function_call"</span>: <span class="literal">null</span>,</span><br><span class="line">        <span class="attr">"tool_calls"</span>: [</span><br><span class="line">          &#123;</span><br><span class="line">            <span class="attr">"id"</span>: <span class="string">"call_KELEnVExZ9eBD7nmYxoVFrUk"</span>,</span><br><span class="line">            <span class="attr">"function"</span>: &#123;</span><br><span class="line">              <span class="attr">"arguments"</span>: <span class="string">"&#123;\"action\":\"tap\",\"coordinate\":[72,666]&#125;"</span>,</span><br><span class="line">              <span class="attr">"name"</span>: <span class="string">"computer"</span></span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="attr">"type"</span>: <span class="string">"function"</span></span><br><span class="line">          &#125;</span><br><span class="line">        ]</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  ],</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>之后就是不停地重复类似的步骤了。</p>
+<p>给大模型装配上手和脚以后，可以催生出很多应用场景，比如让大模型同时陪我的几个女朋友一起聊天，我就可以安心学习 AI 了，想想就开心。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ai/" rel="tag"># ai</a>
+          
+            <a href="/tags/appium/" rel="tag"># appium</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/03/31/ai-auto-test-agent/" rel="next" title="浅玩一下，基于 Appium 的自动化测试 AI Agent">
+                <i class="fa fa-chevron-left"></i> 浅玩一下，基于 Appium 的自动化测试 AI Agent
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/06/07/sse-1/" rel="prev" title="Server-Sent Events (SSE) 技术解析与实战">
+                Server-Sent Events (SSE) 技术解析与实战 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">201</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">85</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

@@ -1,0 +1,376 @@
+<h2 id="性能优化与最佳实践"><a href="#性能优化与最佳实践" class="headerlink" title="性能优化与最佳实践"></a>性能优化与最佳实践</h2><h3 id="1-连接管理"><a href="#1-连接管理" class="headerlink" title="1. 连接管理"></a>1. 连接管理</h3><pre><code class="javascript"><span class="comment">// 连接池管理</span>
+<span class="class"><span class="keyword">class</span> <span class="title">SSEConnectionManager</span> </span>{
+  <span class="keyword">constructor</span>() {
+    <span class="keyword">this</span>.connections = <span class="keyword">new</span> <span class="built_in">Map</span>()
+    <span class="keyword">this</span>.maxConnections = <span class="number">1000</span>
+  }
+
+  addConnection(id, response) {
+    <span class="comment">// 检查连接数限制</span>
+    <span class="keyword">if</span> (<span class="keyword">this</span>.connections.size &gt;= <span class="keyword">this</span>.maxConnections) {
+      <span class="keyword">this</span>.cleanupStaleConnections()
+    }
+
+    <span class="keyword">this</span>.connections.set(id, {
+      response,
+      lastPing: <span class="built_in">Date</span>.now(),
+      created: <span class="built_in">Date</span>.now(),
+    })
+  }
+
+  cleanupStaleConnections() {
+    <span class="keyword">const</span> now = <span class="built_in">Date</span>.now()
+    <span class="keyword">const</span> staleThreshold = <span class="number">5</span> * <span class="number">60</span> * <span class="number">1000</span> <span class="comment">// 5分钟</span>
+
+    <span class="keyword">for</span> (<span class="keyword">const</span> [id, conn] <span class="keyword">of</span> <span class="keyword">this</span>.connections.entries()) {
+      <span class="keyword">if</span> (now - conn.lastPing &gt; staleThreshold) {
+        <span class="keyword">try</span> {
+          conn.response.end()
+        } <span class="keyword">catch</span> (e) {
+          <span class="built_in">console</span>.log(<span class="string">'清理连接时出错:'</span>, e.message)
+        }
+        <span class="keyword">this</span>.connections.delete(id)
+      }
+    }
+  }
+
+  broadcast(message) {
+    <span class="keyword">const</span> deadConnections = []
+
+    <span class="keyword">for</span> (<span class="keyword">const</span> [id, conn] <span class="keyword">of</span> <span class="keyword">this</span>.connections.entries()) {
+      <span class="keyword">try</span> {
+        conn.response.write(<span class="string">`data: <span class="subst">${<span class="built_in">JSON</span>.stringify(message)}</span>\n\n`</span>)
+        conn.lastPing = <span class="built_in">Date</span>.now()
+      } <span class="keyword">catch</span> (error) {
+        deadConnections.push(id)
+      }
+    }
+
+    <span class="comment">// 清理失效连接</span>
+    deadConnections.forEach(<span class="function">(<span class="params">id</span>) =&gt;</span> <span class="keyword">this</span>.connections.delete(id))
+  }
+}
+</code></pre>
+<h3 id="2-消息压缩"><a href="#2-消息压缩" class="headerlink" title="2. 消息压缩"></a>2. 消息压缩</h3><pre><code class="javascript"><span class="keyword">const</span> zlib = <span class="built_in">require</span>(<span class="string">'zlib'</span>)
+
+<span class="function"><span class="keyword">function</span> <span class="title">compressMessage</span>(<span class="params">data</span>) </span>{
+  <span class="keyword">const</span> jsonString = <span class="built_in">JSON</span>.stringify(data)
+
+  <span class="comment">// 对于大消息启用压缩</span>
+  <span class="keyword">if</span> (jsonString.length &gt; <span class="number">1024</span>) {
+    <span class="keyword">return</span> zlib.gzipSync(jsonString).toString(<span class="string">'base64'</span>)
+  }
+
+  <span class="keyword">return</span> jsonString
+}
+
+<span class="comment">// 发送压缩消息</span>
+<span class="function"><span class="keyword">function</span> <span class="title">sendCompressedMessage</span>(<span class="params">res, data</span>) </span>{
+  <span class="keyword">const</span> compressed = compressMessage(data)
+  <span class="keyword">const</span> isCompressed = compressed !== <span class="built_in">JSON</span>.stringify(data)
+
+  res.write(
+    <span class="string">`data: <span class="subst">${<span class="built_in">JSON</span>.stringify({</span></span>
+<span class="string"><span class="subst">      compressed: isCompressed,</span></span>
+<span class="string"><span class="subst">      data: compressed,</span></span>
+<span class="string"><span class="subst">    }</span>)}\n\n`</span>
+  )
+}
+</code></pre>
+<h3 id="3-错误处理与监控"><a href="#3-错误处理与监控" class="headerlink" title="3. 错误处理与监控"></a>3. 错误处理与监控</h3><pre><code class="javascript"><span class="class"><span class="keyword">class</span> <span class="title">SSEMonitor</span> </span>{
+  <span class="keyword">constructor</span>() {
+    <span class="keyword">this</span>.metrics = {
+      totalConnections: <span class="number">0</span>,
+      activeConnections: <span class="number">0</span>,
+      messagesSent: <span class="number">0</span>,
+      errors: <span class="number">0</span>,
+      reconnections: <span class="number">0</span>,
+    }
+  }
+
+  recordConnection() {
+    <span class="keyword">this</span>.metrics.totalConnections++
+    <span class="keyword">this</span>.metrics.activeConnections++
+  }
+
+  recordDisconnection() {
+    <span class="keyword">this</span>.metrics.activeConnections = <span class="built_in">Math</span>.max(
+      <span class="number">0</span>,
+      <span class="keyword">this</span>.metrics.activeConnections - <span class="number">1</span>
+    )
+  }
+
+  recordMessage() {
+    <span class="keyword">this</span>.metrics.messagesSent++
+  }
+
+  recordError() {
+    <span class="keyword">this</span>.metrics.errors++
+  }
+
+  recordReconnection() {
+    <span class="keyword">this</span>.metrics.reconnections++
+  }
+
+  getMetrics() {
+    <span class="keyword">return</span> {
+      ...this.metrics,
+      timestamp: <span class="keyword">new</span> <span class="built_in">Date</span>().toISOString(),
+    }
+  }
+}
+
+<span class="keyword">const</span> monitor = <span class="keyword">new</span> SSEMonitor()
+
+<span class="comment">// 在SSE端点中使用</span>
+app.get(<span class="string">'/events'</span>, (req, res) =&gt; {
+  monitor.recordConnection()
+
+  <span class="comment">// ... SSE逻辑</span>
+
+  req.on(<span class="string">'close'</span>, () =&gt; {
+    monitor.recordDisconnection()
+  })
+
+  req.on(<span class="string">'error'</span>, () =&gt; {
+    monitor.recordError()
+    monitor.recordDisconnection()
+  })
+})
+
+<span class="comment">// 监控端点</span>
+app.get(<span class="string">'/metrics'</span>, (req, res) =&gt; {
+  res.json(monitor.getMetrics())
+})
+</code></pre>
+<h2 id="安全考虑"><a href="#安全考虑" class="headerlink" title="安全考虑"></a>安全考虑</h2><h3 id="1-认证与授权"><a href="#1-认证与授权" class="headerlink" title="1. 认证与授权"></a>1. 认证与授权</h3><pre><code class="javascript"><span class="keyword">const</span> jwt = <span class="built_in">require</span>(<span class="string">'jsonwebtoken'</span>)
+
+<span class="function"><span class="keyword">function</span> <span class="title">authenticateSSE</span>(<span class="params">req, res, next</span>) </span>{
+  <span class="keyword">const</span> token = req.query.token || req.headers.authorization?.split(<span class="string">' '</span>)[<span class="number">1</span>]
+
+  <span class="keyword">if</span> (!token) {
+    <span class="keyword">return</span> res.status(<span class="number">401</span>).json({<span class="attr">error</span>: <span class="string">'缺少认证token'</span>})
+  }
+
+  <span class="keyword">try</span> {
+    <span class="keyword">const</span> decoded = jwt.verify(token, process.env.JWT_SECRET)
+    req.user = decoded
+    next()
+  } <span class="keyword">catch</span> (error) {
+    <span class="keyword">return</span> res.status(<span class="number">401</span>).json({<span class="attr">error</span>: <span class="string">'无效的token'</span>})
+  }
+}
+
+<span class="comment">// 受保护的SSE端点</span>
+app.get(<span class="string">'/secure-events'</span>, authenticateSSE, (req, res) =&gt; {
+  <span class="comment">// ... SSE逻辑</span>
+  <span class="built_in">console</span>.log(<span class="string">`用户 <span class="subst">${req.user.userId}</span> 连接到安全事件流`</span>)
+})
+</code></pre>
+<h3 id="2-速率限制"><a href="#2-速率限制" class="headerlink" title="2. 速率限制"></a>2. 速率限制</h3><pre><code class="javascript"><span class="keyword">const</span> rateLimit = <span class="built_in">require</span>(<span class="string">'express-rate-limit'</span>)
+
+<span class="keyword">const</span> sseRateLimit = rateLimit({
+  windowMs: <span class="number">15</span> * <span class="number">60</span> * <span class="number">1000</span>, <span class="comment">// 15分钟</span>
+  max: <span class="number">10</span>, <span class="comment">// 每个IP最多10个连接</span>
+  message: <span class="string">'连接过于频繁，请稍后再试'</span>,
+  standardHeaders: <span class="literal">true</span>,
+  legacyHeaders: <span class="literal">false</span>,
+})
+
+app.get(<span class="string">'/events'</span>, sseRateLimit, (req, res) =&gt; {
+  <span class="comment">// ... SSE逻辑</span>
+})
+</code></pre>
+<h3 id="3-CORS-配置"><a href="#3-CORS-配置" class="headerlink" title="3. CORS 配置"></a>3. CORS 配置</h3><pre><code class="javascript"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">'cors'</span>)
+
+<span class="keyword">const</span> corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS?.split(<span class="string">','</span>) || [<span class="string">'http://localhost:3000'</span>],
+  credentials: <span class="literal">true</span>,
+  optionsSuccessStatus: <span class="number">200</span>,
+}
+
+app.use(cors(corsOptions))
+
+<span class="comment">// 或者在SSE端点中手动设置</span>
+app.get(<span class="string">'/events'</span>, (req, res) =&gt; {
+  res.writeHead(<span class="number">200</span>, {
+    <span class="string">'Content-Type'</span>: <span class="string">'text/event-stream'</span>,
+    <span class="string">'Cache-Control'</span>: <span class="string">'no-cache'</span>,
+    Connection: <span class="string">'keep-alive'</span>,
+    <span class="string">'Access-Control-Allow-Origin'</span>: req.headers.origin || <span class="string">'*'</span>,
+    <span class="string">'Access-Control-Allow-Credentials'</span>: <span class="string">'true'</span>,
+    <span class="string">'Access-Control-Allow-Headers'</span>: <span class="string">'Cache-Control, Last-Event-ID'</span>,
+  })
+
+  <span class="comment">// ... 其他逻辑</span>
+})
+</code></pre>
+<h2 id="调试与测试"><a href="#调试与测试" class="headerlink" title="调试与测试"></a>调试与测试</h2><h3 id="1-SSE-调试工具"><a href="#1-SSE-调试工具" class="headerlink" title="1. SSE 调试工具"></a>1. SSE 调试工具</h3><pre><code class="javascript"><span class="comment">// 调试中间件</span>
+<span class="function"><span class="keyword">function</span> <span class="title">sseDebugger</span>(<span class="params">req, res, next</span>) </span>{
+  <span class="keyword">const</span> originalWrite = res.write
+
+  res.write = <span class="function"><span class="keyword">function</span> (<span class="params">chunk, encoding</span>) </span>{
+    <span class="built_in">console</span>.log(<span class="string">'📤 发送SSE数据:'</span>, chunk.toString())
+    <span class="keyword">return</span> originalWrite.call(<span class="keyword">this</span>, chunk, encoding)
+  }
+
+  next()
+}
+
+app.use(<span class="string">'/events'</span>, sseDebugger)
+</code></pre>
+<h3 id="2-客户端调试"><a href="#2-客户端调试" class="headerlink" title="2. 客户端调试"></a>2. 客户端调试</h3><pre><code class="javascript"><span class="class"><span class="keyword">class</span> <span class="title">DebugSSEClient</span> </span>{
+  <span class="keyword">constructor</span>(url) {
+    <span class="keyword">this</span>.url = url
+    <span class="keyword">this</span>.eventSource = <span class="literal">null</span>
+    <span class="keyword">this</span>.stats = {
+      connected: <span class="literal">false</span>,
+      messagesReceived: <span class="number">0</span>,
+      errors: <span class="number">0</span>,
+      reconnects: <span class="number">0</span>,
+      lastMessage: <span class="literal">null</span>,
+    }
+
+    <span class="keyword">this</span>.connect()
+  }
+
+  connect() {
+    <span class="built_in">console</span>.log(<span class="string">'🔗 连接SSE:'</span>, <span class="keyword">this</span>.url)
+    <span class="keyword">this</span>.eventSource = <span class="keyword">new</span> EventSource(<span class="keyword">this</span>.url)
+
+    <span class="keyword">this</span>.eventSource.onopen = <span class="function">(<span class="params">event</span>) =&gt;</span> {
+      <span class="built_in">console</span>.log(<span class="string">'✅ SSE连接已建立'</span>, event)
+      <span class="keyword">this</span>.stats.connected = <span class="literal">true</span>
+      <span class="keyword">this</span>.logStats()
+    }
+
+    <span class="keyword">this</span>.eventSource.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> {
+      <span class="built_in">console</span>.log(<span class="string">'📨 收到消息:'</span>, event.data)
+      <span class="keyword">this</span>.stats.messagesReceived++
+      <span class="keyword">this</span>.stats.lastMessage = {
+        data: event.data,
+        timestamp: <span class="keyword">new</span> <span class="built_in">Date</span>().toISOString(),
+        lastEventId: event.lastEventId,
+      }
+      <span class="keyword">this</span>.logStats()
+    }
+
+    <span class="keyword">this</span>.eventSource.onerror = <span class="function">(<span class="params">event</span>) =&gt;</span> {
+      <span class="built_in">console</span>.error(<span class="string">'❌ SSE连接错误:'</span>, event)
+      <span class="keyword">this</span>.stats.connected = <span class="literal">false</span>
+      <span class="keyword">this</span>.stats.errors++
+      <span class="keyword">this</span>.stats.reconnects++
+      <span class="keyword">this</span>.logStats()
+    }
+  }
+
+  logStats() {
+    <span class="built_in">console</span>.table(<span class="keyword">this</span>.stats)
+  }
+
+  getStats() {
+    <span class="keyword">return</span> <span class="keyword">this</span>.stats
+  }
+}
+
+<span class="comment">// 使用</span>
+<span class="keyword">const</span> debugClient = <span class="keyword">new</span> DebugSSEClient(<span class="string">'/events'</span>)
+</code></pre>
+<h3 id="3-单元测试示例"><a href="#3-单元测试示例" class="headerlink" title="3. 单元测试示例"></a>3. 单元测试示例</h3><pre><code class="javascript"><span class="keyword">const</span> request = <span class="built_in">require</span>(<span class="string">'supertest'</span>)
+<span class="keyword">const</span> app = <span class="built_in">require</span>(<span class="string">'../app'</span>) <span class="comment">// 你的Express应用</span>
+
+describe(<span class="string">'SSE端点测试'</span>, () =&gt; {
+  test(<span class="string">'应该建立SSE连接'</span>, (done) =&gt; {
+    <span class="keyword">const</span> req = request(app)
+      .get(<span class="string">'/events'</span>)
+      .expect(<span class="number">200</span>)
+      .expect(<span class="string">'Content-Type'</span>, /text\/event-stream/)
+
+    <span class="keyword">let</span> messageCount = <span class="number">0</span>
+
+    req.on(<span class="string">'data'</span>, (chunk) =&gt; {
+      <span class="keyword">const</span> data = chunk.toString()
+      <span class="keyword">if</span> (data.includes(<span class="string">'data:'</span>)) {
+        messageCount++
+        <span class="keyword">if</span> (messageCount &gt;= <span class="number">2</span>) {
+          req.destroy()
+          done()
+        }
+      }
+    })
+
+    req.on(<span class="string">'error'</span>, done)
+  })
+
+  test(<span class="string">'应该支持Last-Event-ID'</span>, (done) =&gt; {
+    request(app)
+      .get(<span class="string">'/events'</span>)
+      .set(<span class="string">'Last-Event-ID'</span>, <span class="string">'123'</span>)
+      .expect(<span class="number">200</span>)
+      .end(<span class="function">(<span class="params">err, res</span>) =&gt;</span> {
+        <span class="keyword">if</span> (err) <span class="keyword">return</span> done(err)
+        <span class="comment">// 验证响应包含续传消息</span>
+        done()
+      })
+  })
+})
+</code></pre>
+<h2 id="生产环境部署"><a href="#生产环境部署" class="headerlink" title="生产环境部署"></a>生产环境部署</h2><h3 id="1-Nginx-反向代理配置"><a href="#1-Nginx-反向代理配置" class="headerlink" title="1. Nginx 反向代理配置"></a>1. Nginx 反向代理配置</h3><pre><code class="nginx"><span class="section">server</span> {
+    <span class="attribute">listen</span> <span class="number">80</span>;
+    <span class="attribute">server_name</span> example.com;
+
+    <span class="attribute">location</span> /events {
+        <span class="attribute">proxy_pass</span> http://localhost:3000;
+        <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;
+        <span class="attribute">proxy_set_header</span> Upgrade <span class="variable">$http_upgrade</span>;
+        <span class="attribute">proxy_set_header</span> Connection <span class="string">''</span>;
+        <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;
+        <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;
+        <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;
+        <span class="attribute">proxy_set_header</span> X-Forwarded-Proto <span class="variable">$scheme</span>;
+
+        <span class="comment"># SSE特定配置</span>
+        <span class="attribute">proxy_cache</span> <span class="literal">off</span>;
+        <span class="attribute">proxy_buffering</span> <span class="literal">off</span>;
+        <span class="attribute">proxy_read_timeout</span> <span class="number">24h</span>;
+        <span class="attribute">proxy_send_timeout</span> <span class="number">24h</span>;
+    }
+}
+</code></pre>
+<h3 id="2-Docker-配置"><a href="#2-Docker-配置" class="headerlink" title="2. Docker 配置"></a>2. Docker 配置</h3><pre><code class="dockerfile"><span class="keyword">FROM</span> node:<span class="number">18</span>-alpine
+
+<span class="keyword">WORKDIR</span><span class="bash"> /app</span>
+<span class="bash"></span>
+<span class="bash">COPY package*.json ./</span>
+<span class="bash">RUN npm ci --only=production</span>
+<span class="bash"></span>
+<span class="bash">COPY . .</span>
+<span class="bash"></span>
+<span class="bash">EXPOSE 3000</span>
+<span class="bash"></span>
+<span class="bash"><span class="comment"># 设置健康检查</span></span>
+<span class="bash">HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \</span>
+<span class="bash">  CMD curl -f http://localhost:3000/health || <span class="built_in">exit</span> 1</span>
+<span class="bash"></span>
+<span class="bash">CMD [<span class="string">"node"</span>, <span class="string">"server.js"</span>]</span>
+</code></pre>
+<h3 id="3-集群部署考虑"><a href="#3-集群部署考虑" class="headerlink" title="3. 集群部署考虑"></a>3. 集群部署考虑</h3><pre><code class="javascript"><span class="comment">// 使用Redis进行跨实例消息广播</span>
+<span class="keyword">const</span> redis = <span class="built_in">require</span>(<span class="string">'redis'</span>)
+<span class="keyword">const</span> client = redis.createClient()
+
+<span class="comment">// 订阅消息</span>
+client.subscribe(<span class="string">'sse-broadcast'</span>)
+
+client.on(<span class="string">'message'</span>, (channel, message) =&gt; {
+  <span class="keyword">if</span> (channel === <span class="string">'sse-broadcast'</span>) {
+    <span class="keyword">const</span> data = <span class="built_in">JSON</span>.parse(message)
+    <span class="comment">// 广播给当前实例的所有连接</span>
+    broadcastToLocalConnections(data)
+  }
+})
+
+<span class="comment">// 发布消息到所有实例</span>
+<span class="function"><span class="keyword">function</span> <span class="title">broadcastToCluster</span>(<span class="params">message</span>) </span>{
+  client.publish(<span class="string">'sse-broadcast'</span>, <span class="built_in">JSON</span>.stringify(message))
+}
+</code></pre>

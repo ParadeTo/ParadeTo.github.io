@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="javascript," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="为什么要学习 SSE？随着 AI 技术的爆发式发展，SSE 在以下场景中变得尤为重要：  AI 聊天机器人流式回复：ChatGPT、Claude 等 AI 助手通过 SSE 逐字输出回复，提供打字机效果 AI 代码生成：GitHub Copilot 等工具实时生成代码片段 AI 图像生成进度：Stable Diffusion 等工具显示生成进度和中间结果 实时 AI 分析：股票分析、数据挖掘结果的">
+<meta name="keywords" content="javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Server-Sent Events (SSE) 技术解析与实战">
+<meta property="og:url" content="http://www.paradeto.com/2025/06/07/sse-1/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="为什么要学习 SSE？随着 AI 技术的爆发式发展，SSE 在以下场景中变得尤为重要：  AI 聊天机器人流式回复：ChatGPT、Claude 等 AI 助手通过 SSE 逐字输出回复，提供打字机效果 AI 代码生成：GitHub Copilot 等工具实时生成代码片段 AI 图像生成进度：Stable Diffusion 等工具显示生成进度和中间结果 实时 AI 分析：股票分析、数据挖掘结果的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2025/06/07/sse-1/1.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2025/06/07/sse-1/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2025/06/07/sse-1/3.jpg">
+<meta property="og:updated_time" content="2025-06-07T03:30:47.302Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Server-Sent Events (SSE) 技术解析与实战">
+<meta name="twitter:description" content="为什么要学习 SSE？随着 AI 技术的爆发式发展，SSE 在以下场景中变得尤为重要：  AI 聊天机器人流式回复：ChatGPT、Claude 等 AI 助手通过 SSE 逐字输出回复，提供打字机效果 AI 代码生成：GitHub Copilot 等工具实时生成代码片段 AI 图像生成进度：Stable Diffusion 等工具显示生成进度和中间结果 实时 AI 分析：股票分析、数据挖掘结果的">
+<meta name="twitter:image" content="http://www.paradeto.com/2025/06/07/sse-1/1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2025/06/07/sse-1/"/>
+
+
+
+
+
+
+  <title>Server-Sent Events (SSE) 技术解析与实战 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2025/06/07/sse-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Server-Sent Events (SSE) 技术解析与实战</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2025-06-07T10:22:36+08:00">
+                2025-06-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="为什么要学习-SSE？"><a href="#为什么要学习-SSE？" class="headerlink" title="为什么要学习 SSE？"></a>为什么要学习 SSE？</h2><p>随着 AI 技术的爆发式发展，SSE 在以下场景中变得尤为重要：</p>
+<ol>
+<li><strong>AI 聊天机器人流式回复</strong>：ChatGPT、Claude 等 AI 助手通过 SSE 逐字输出回复，提供打字机效果</li>
+<li><strong>AI 代码生成</strong>：GitHub Copilot 等工具实时生成代码片段</li>
+<li><strong>AI 图像生成进度</strong>：Stable Diffusion 等工具显示生成进度和中间结果</li>
+<li><strong>实时 AI 分析</strong>：股票分析、数据挖掘结果的实时推送</li>
+</ol>
+<h3 id="SSE-vs-WebSocket：如何选择？"><a href="#SSE-vs-WebSocket：如何选择？" class="headerlink" title="SSE vs WebSocket：如何选择？"></a>SSE vs WebSocket：如何选择？</h3><table>
+<thead>
+<tr>
+<th>特性</th>
+<th>SSE</th>
+<th>WebSocket</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>通信方向</strong></td>
+<td>单向（服务端 → 客户端）</td>
+<td>双向</td>
+</tr>
+<tr>
+<td><strong>协议</strong></td>
+<td>基于 HTTP</td>
+<td>独立协议</td>
+</tr>
+<tr>
+<td><strong>复杂度</strong></td>
+<td>简单</td>
+<td>相对复杂</td>
+</tr>
+<tr>
+<td><strong>自动重连</strong></td>
+<td>内置支持</td>
+<td>需要手动实现</td>
+</tr>
+<tr>
+<td><strong>防火墙穿透</strong></td>
+<td>优秀（HTTP 协议）</td>
+<td>可能被阻止</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>实时推送、通知、监控</td>
+<td>实时聊天、游戏、协作</td>
+</tr>
+<tr>
+<td><strong>浏览器支持</strong></td>
+<td>广泛支持</td>
+<td>广泛支持</td>
+</tr>
+</tbody>
+</table>
+<p><strong>选择建议</strong>：</p>
+<ul>
+<li>✅ <strong>选择 SSE</strong>：如果只需要服务端推送数据（如 AI 回复、通知、监控）</li>
+<li>✅ <strong>选择 WebSocket</strong>：如果需要双向实时通信（如在线游戏、协作编辑）</li>
+</ul>
+<h2 id="SSE-基础原理"><a href="#SSE-基础原理" class="headerlink" title="SSE 基础原理"></a>SSE 基础原理</h2><h3 id="什么是-SSE？"><a href="#什么是-SSE？" class="headerlink" title="什么是 SSE？"></a>什么是 SSE？</h3><p>Server-Sent Events (SSE) 是 HTML5 标准的一部分，允许服务器主动向客户端推送数据。它基于 HTTP 协议，使用简单的文本格式传输数据。</p>
+<h3 id="基本工作流程"><a href="#基本工作流程" class="headerlink" title="基本工作流程"></a>基本工作流程</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">客户端                    服务端</span><br><span class="line">   |                        |</span><br><span class="line">   |-- GET /events --------&gt;|  建立连接</span><br><span class="line">   |&lt;-- 200 OK -------------|  返回事件流</span><br><span class="line">   |&lt;-- data: message1 -----|  推送消息1</span><br><span class="line">   |&lt;-- data: message2 -----|  推送消息2</span><br><span class="line">   |&lt;-- ...              ---|  持续推送</span><br></pre></td></tr></table></figure>
+<h2 id="最简单的-SSE-示例"><a href="#最简单的-SSE-示例" class="headerlink" title="最简单的 SSE 示例"></a>最简单的 SSE 示例</h2><p>让我们从一个最基础的例子开始：</p>
+<h3 id="服务端代码（Node-js）"><a href="#服务端代码（Node-js）" class="headerlink" title="服务端代码（Node.js）"></a>服务端代码（Node.js）</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line"><span class="keyword">const</span> app = express()</span><br><span class="line"></span><br><span class="line">app.use(express.static(<span class="string">'.'</span>))</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/events'</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="comment">// 设置SSE响应头</span></span><br><span class="line">  res.writeHead(<span class="number">200</span>, &#123;</span><br><span class="line">    <span class="string">'Content-Type'</span>: <span class="string">'text/event-stream'</span>,</span><br><span class="line">    <span class="string">'Cache-Control'</span>: <span class="string">'no-cache'</span>,</span><br><span class="line">    Connection: <span class="string">'keep-alive'</span>,</span><br><span class="line">    <span class="string">'Access-Control-Allow-Origin'</span>: <span class="string">'*'</span>,</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 发送初始消息</span></span><br><span class="line">  res.write(<span class="string">'data: 连接建立成功\n\n'</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 每隔2秒发送当前时间</span></span><br><span class="line">  <span class="keyword">const</span> timer = setInterval(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> now = <span class="keyword">new</span> <span class="built_in">Date</span>().toLocaleTimeString()</span><br><span class="line">    res.write(<span class="string">`data: 当前时间: <span class="subst">$&#123;now&#125;</span>\n\n`</span>)</span><br><span class="line">  &#125;, <span class="number">2000</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理连接关闭</span></span><br><span class="line">  req.on(<span class="string">'close'</span>, () =&gt; &#123;</span><br><span class="line">    clearInterval(timer)</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'客户端断开连接'</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.listen(<span class="number">3000</span>, () =&gt; &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'SSE服务器运行在 http://localhost:3000'</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="客户端代码（HTML-JavaScript）"><a href="#客户端代码（HTML-JavaScript）" class="headerlink" title="客户端代码（HTML + JavaScript）"></a>客户端代码（HTML + JavaScript）</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>简单的SSE示例<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">h1</span>&gt;</span>SSE实时时间显示<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"messages"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="keyword">const</span> eventSource = <span class="keyword">new</span> EventSource(<span class="string">'/events'</span>)</span></span><br><span class="line"><span class="javascript">      <span class="keyword">const</span> messagesDiv = <span class="built_in">document</span>.getElementById(<span class="string">'messages'</span>)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      eventSource.onmessage = <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">const</span> messageEl = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span></span><br><span class="line"><span class="undefined">        messageEl.textContent = event.data</span></span><br><span class="line"><span class="undefined">        messagesDiv.appendChild(messageEl)</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      eventSource.onerror = <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="built_in">console</span>.error(<span class="string">'SSE错误:'</span>, event)</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="undefined">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这个简单的例子展示了 SSE 的核心概念：服务端持续推送数据，客户端实时接收并显示。</p>
+<h2 id="SSE-消息格式详解"><a href="#SSE-消息格式详解" class="headerlink" title="SSE 消息格式详解"></a>SSE 消息格式详解</h2><p>SSE 使用简单的文本格式传输数据，每个消息由以下字段组成：</p>
+<h3 id="基本字段"><a href="#基本字段" class="headerlink" title="基本字段"></a>基本字段</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">field: value</span><br><span class="line">field: value</span><br></pre></td></tr></table></figure>
+<h3 id="标准字段说明"><a href="#标准字段说明" class="headerlink" title="标准字段说明"></a>标准字段说明</h3><h4 id="1-data-数据字段"><a href="#1-data-数据字段" class="headerlink" title="1. data - 数据字段"></a>1. <code>data</code> - 数据字段</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data: 这是消息内容</span><br><span class="line">data: 可以有多行数据</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">res.write(<span class="string">'data: 这是消息内容\n'</span>)</span><br><span class="line">res.write(<span class="string">'data: 可以有多行数据\n'</span>)</span><br><span class="line">res.write(<span class="string">'\n'</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="2-event-事件类型"><a href="#2-event-事件类型" class="headerlink" title="2. event - 事件类型"></a>2. <code>event</code> - 事件类型</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">event: user-login</span><br><span class="line">data: &#123;&quot;userId&quot;: 123, &quot;name&quot;: &quot;张三&quot;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">res.write(<span class="string">'event: user-login\n'</span>)</span><br><span class="line">res.write(<span class="string">'data: &#123;"userId": 123, "name": "张三"&#125;\n'</span>)</span><br><span class="line">res.write(<span class="string">'\n'</span>)</span><br></pre></td></tr></table></figure>
+<p>客户端需要监听 <code>user-login</code> 事件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">eventSource.addEventListener(<span class="string">'user-login'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">event</span>) </span>&#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'data'</span>, event.data)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="3-id-事件-ID"><a href="#3-id-事件-ID" class="headerlink" title="3. id - 事件 ID"></a>3. <code>id</code> - 事件 ID</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">id: 123</span><br><span class="line">data: 带ID的消息</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">res.write(<span class="string">'id: 9527\n'</span>)</span><br><span class="line">res.write(<span class="string">'data: 带ID的消息\n'</span>)</span><br><span class="line">res.write(<span class="string">'\n'</span>)</span><br></pre></td></tr></table></figure>
+<h4 id="4-retry-重连间隔"><a href="#4-retry-重连间隔" class="headerlink" title="4. retry - 重连间隔"></a>4. <code>retry</code> - 重连间隔</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">retry: 5000</span><br><span class="line">data: 设置5秒重连间隔</span><br></pre></td></tr></table></figure>
+<h2 id="自动重连机制"><a href="#自动重连机制" class="headerlink" title="自动重连机制"></a>自动重连机制</h2><p>SSE 的一个重要优势是内置的自动重连功能。当连接断开时，浏览器会自动尝试重新连接。</p>
+<p>还是用上面的最简单的 SSE 示例。</p>
+<ol>
+<li>启动服务后打开页面等待一会</li>
+<li>停止服务后等待一会</li>
+<li>重启服务</li>
+</ol>
+<p>可以看到前端页面结果如下：</p>
+<p><img src="/2025/06/07/sse-1/1.jpg" alt=""></p>
+<h2 id="数据续传机制"><a href="#数据续传机制" class="headerlink" title="数据续传机制"></a>数据续传机制</h2><p>当网络中断时，客户端可能会错过一些重要消息。为了让客户端重新连接时，能够接受到这些消息，需要实现数据续传。</p>
+<h3 id="数据续传原理"><a href="#数据续传原理" class="headerlink" title="数据续传原理"></a>数据续传原理</h3><p>数据续传的核心机制是通过 <strong>Last-Event-ID</strong> 来跟踪消息的连续性：</p>
+<ol>
+<li><strong>消息标识</strong>：服务端为每条消息分配唯一的递增 ID</li>
+<li><strong>ID 存储</strong>：客户端将收到的最后一个事件 ID 存储在本地</li>
+<li><strong>重连检测</strong>：客户端重连时，通过 <code>Last-Event-ID</code> 告知服务端最后收到的消息 ID</li>
+<li><strong>补发机制</strong>：服务端查找历史消息，将错过的消息批量发送给客户端</li>
+<li><strong>状态同步</strong>：完成补发后，恢复正常的实时消息流</li>
+</ol>
+<h3 id="数据续传时序图"><a href="#数据续传时序图" class="headerlink" title="数据续传时序图"></a>数据续传时序图</h3><p><img src="/2025/06/07/sse-1/2.png" alt=""></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">sequenceDiagram</span><br><span class="line">    participant C as 客户端</span><br><span class="line">    participant S as 服务端</span><br><span class="line">    participant M as 消息存储</span><br><span class="line"></span><br><span class="line">    Note over C,M: 正常连接阶段</span><br><span class="line">    C-&gt;&gt;S: 建立SSE连接</span><br><span class="line">    S-&gt;&gt;C: 返回连接确认</span><br><span class="line"></span><br><span class="line">    loop 正常消息流</span><br><span class="line">        S-&gt;&gt;M: 存储消息 (ID: 1,2,3...)</span><br><span class="line">        S-&gt;&gt;C: id: 1&lt;br/&gt;data: 消息1</span><br><span class="line">        S-&gt;&gt;C: id: 2&lt;br/&gt;data: 消息2</span><br><span class="line">        S-&gt;&gt;C: id: 3&lt;br/&gt;data: 消息3</span><br><span class="line">        Note over C: 本地存储 lastEventId = 3</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    Note over C,M: 连接中断阶段</span><br><span class="line">    C--XS: 网络中断</span><br><span class="line"></span><br><span class="line">    loop 服务端继续工作</span><br><span class="line">        S-&gt;&gt;M: 存储消息 (ID: 4,5,6...)</span><br><span class="line">        Note over S: 消息4,5,6 客户端未收到</span><br><span class="line">    end</span><br><span class="line"></span><br><span class="line">    Note over C,M: 重连续传阶段</span><br><span class="line">    C-&gt;&gt;S: 重新连接&lt;br/&gt;Last-Event-ID: 3</span><br><span class="line">    S-&gt;&gt;M: 查询 ID &gt; 3 的消息</span><br><span class="line">    M-&gt;&gt;S: 返回消息4,5,6</span><br><span class="line"></span><br><span class="line">    S-&gt;&gt;C: data: &#123;&quot;type&quot;: &quot;catch_up_start&quot;&#125;</span><br><span class="line">    S-&gt;&gt;C: id: 4&lt;br/&gt;data: &#123;&quot;type&quot;: &quot;catch_up_message&quot;, ...&#125;</span><br><span class="line">    S-&gt;&gt;C: id: 5&lt;br/&gt;data: &#123;&quot;type&quot;: &quot;catch_up_message&quot;, ...&#125;</span><br><span class="line">    S-&gt;&gt;C: id: 6&lt;br/&gt;data: &#123;&quot;type&quot;: &quot;catch_up_message&quot;, ...&#125;</span><br><span class="line">    S-&gt;&gt;C: data: &#123;&quot;type&quot;: &quot;catch_up_end&quot;&#125;</span><br><span class="line"></span><br><span class="line">    Note over C: 更新 lastEventId = 6</span><br><span class="line"></span><br><span class="line">    Note over C,M: 恢复正常流</span><br><span class="line">    loop 继续正常消息流</span><br><span class="line">        S-&gt;&gt;M: 存储消息 (ID: 7,8,9...)</span><br><span class="line">        S-&gt;&gt;C: id: 7&lt;br/&gt;data: 消息7</span><br><span class="line">        Note over C: 本地存储 lastEventId = 7</span><br><span class="line">    end</span><br></pre></td></tr></table></figure>
+<p>以下是一个例子</p>
+<p><img src="/2025/06/07/sse-1/3.jpg" alt=""></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 服务端</span></span><br><span class="line"><span class="keyword">const</span> express = <span class="built_in">require</span>(<span class="string">'express'</span>)</span><br><span class="line"><span class="keyword">const</span> app = express()</span><br><span class="line"></span><br><span class="line">app.use(express.static(<span class="string">'.'</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">// 消息历史存储</span></span><br><span class="line"><span class="keyword">const</span> messageHistory = []</span><br><span class="line"><span class="keyword">const</span> MAX_HISTORY_SIZE = <span class="number">1000</span></span><br><span class="line"><span class="keyword">let</span> messageId = <span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 当前连接的客户端（单客户端）</span></span><br><span class="line"><span class="keyword">let</span> currentClient = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加消息到历史记录</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">addToHistory</span>(<span class="params">messageData</span>) </span>&#123;</span><br><span class="line">  messageHistory.push(&#123;</span><br><span class="line">    id: messageData.id,</span><br><span class="line">    data: messageData,</span><br><span class="line">    timestamp: <span class="built_in">Date</span>.now(),</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 保持历史记录大小在限制范围内</span></span><br><span class="line">  <span class="keyword">if</span> (messageHistory.length &gt; MAX_HISTORY_SIZE) &#123;</span><br><span class="line">    messageHistory.shift()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取指定ID之后的消息</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">getMessagesAfter</span>(<span class="params">lastEventId</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!lastEventId) <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> lastId = <span class="built_in">parseInt</span>(lastEventId)</span><br><span class="line">  <span class="keyword">if</span> (<span class="built_in">isNaN</span>(lastId)) <span class="keyword">return</span> []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> messageHistory.filter(<span class="function">(<span class="params">msg</span>) =&gt;</span> msg.id &gt; lastId).map(<span class="function">(<span class="params">msg</span>) =&gt;</span> msg.data)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/events'</span>, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> lastEventId = req.headers[<span class="string">'last-event-id'</span>] || req.query.lastEventId</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'新连接，Last-Event-ID:'</span>, lastEventId)</span><br><span class="line"></span><br><span class="line">  res.writeHead(<span class="number">200</span>, &#123;</span><br><span class="line">    <span class="string">'Content-Type'</span>: <span class="string">'text/event-stream'</span>,</span><br><span class="line">    <span class="string">'Cache-Control'</span>: <span class="string">'no-cache'</span>,</span><br><span class="line">    Connection: <span class="string">'keep-alive'</span>,</span><br><span class="line">    <span class="string">'Access-Control-Allow-Origin'</span>: <span class="string">'*'</span>,</span><br><span class="line">    <span class="string">'Access-Control-Allow-Headers'</span>: <span class="string">'Last-Event-ID'</span>,</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储当前客户端连接</span></span><br><span class="line">  currentClient = res</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 发送连接确认</span></span><br><span class="line">  res.write(</span><br><span class="line">    <span class="string">`data: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">      type: <span class="string">'connected'</span>,</span></span></span><br><span class="line"><span class="string"><span class="subst">      message: <span class="string">'连接建立成功'</span>,</span></span></span><br><span class="line"><span class="string"><span class="subst">      timestamp: <span class="keyword">new</span> <span class="built_in">Date</span>().toISOString(),</span></span></span><br><span class="line"><span class="string"><span class="subst">    &#125;</span>)&#125;\n\n`</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果有Last-Event-ID，发送错过的消息</span></span><br><span class="line">  <span class="keyword">if</span> (lastEventId) &#123;</span><br><span class="line">    <span class="keyword">const</span> missedMessages = getMessagesAfter(lastEventId)</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`发送 <span class="subst">$&#123;missedMessages.length&#125;</span> 条错过的消息`</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (missedMessages.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="comment">// 发送续传开始标记</span></span><br><span class="line">      res.write(</span><br><span class="line">        <span class="string">`data: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">          type: <span class="string">'catch_up_start'</span>,</span></span></span><br><span class="line"><span class="string"><span class="subst">          message: <span class="string">`开始同步 <span class="subst">$&#123;missedMessages.length&#125;</span> 条错过的消息`</span>,</span></span></span><br><span class="line"><span class="string"><span class="subst">          count: missedMessages.length,</span></span></span><br><span class="line"><span class="string"><span class="subst">        &#125;</span>)&#125;\n\n`</span></span><br><span class="line">      )</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 批量发送错过的消息</span></span><br><span class="line">      missedMessages.forEach(<span class="function">(<span class="params">msg, index</span>) =&gt;</span> &#123;</span><br><span class="line">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (currentClient) &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">              res.write(</span><br><span class="line">                <span class="string">`id: <span class="subst">$&#123;msg.id&#125;</span>\ndata: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">                  ...msg,</span></span></span><br><span class="line"><span class="string"><span class="subst">                  type: <span class="string">'catch_up_message'</span>,</span></span></span><br><span class="line"><span class="string"><span class="subst">                  originalType: msg.type,</span></span></span><br><span class="line"><span class="string"><span class="subst">                &#125;</span>)&#125;\n\n`</span></span><br><span class="line">              )</span><br><span class="line">            &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">              <span class="built_in">console</span>.log(<span class="string">'发送续传消息失败:'</span>, error.message)</span><br><span class="line">              currentClient = <span class="literal">null</span></span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;, index * <span class="number">100</span>) <span class="comment">// 每100ms发送一条</span></span><br><span class="line">      &#125;)</span><br><span class="line"></span><br><span class="line">      <span class="comment">// 发送续传结束标记</span></span><br><span class="line">      setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (currentClient) &#123;</span><br><span class="line">          <span class="keyword">try</span> &#123;</span><br><span class="line">            res.write(</span><br><span class="line">              <span class="string">`data: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">                type: <span class="string">'catch_up_end'</span>,</span></span></span><br><span class="line"><span class="string"><span class="subst">                message: <span class="string">'消息同步完成'</span>,</span></span></span><br><span class="line"><span class="string"><span class="subst">                syncCount: missedMessages.length,</span></span></span><br><span class="line"><span class="string"><span class="subst">              &#125;</span>)&#125;\n\n`</span></span><br><span class="line">            )</span><br><span class="line">          &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">            <span class="built_in">console</span>.log(<span class="string">'发送续传结束标记失败:'</span>, error.message)</span><br><span class="line">            currentClient = <span class="literal">null</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;, missedMessages.length * <span class="number">100</span> + <span class="number">200</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 处理连接关闭</span></span><br><span class="line">  req.on(<span class="string">'close'</span>, () =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'连接关闭'</span>)</span><br><span class="line">    currentClient = <span class="literal">null</span></span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  req.on(<span class="string">'error'</span>, (error) =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'连接错误:'</span>, error.message)</span><br><span class="line">    currentClient = <span class="literal">null</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 模拟定期发送消息</span></span><br><span class="line">setInterval(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> messageData = &#123;</span><br><span class="line">    id: ++messageId,</span><br><span class="line">    type: <span class="string">'message'</span>,</span><br><span class="line">    message: <span class="string">'当前时间: '</span> + <span class="keyword">new</span> <span class="built_in">Date</span>().toLocaleString(),</span><br><span class="line">    timestamp: <span class="keyword">new</span> <span class="built_in">Date</span>().toISOString(),</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 存储到历史记录</span></span><br><span class="line">  addToHistory(messageData)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 发送到当前连接的客户端</span></span><br><span class="line">  <span class="keyword">if</span> (currentClient) &#123;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      currentClient.write(</span><br><span class="line">        <span class="string">`id: <span class="subst">$&#123;messageData.id&#125;</span>\ndata: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(messageData)&#125;</span>\n\n`</span></span><br><span class="line">      )</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'消息已发送:'</span>, messageData.message)</span><br><span class="line">    &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'消息发送失败:'</span>, error.message)</span><br><span class="line">      currentClient = <span class="literal">null</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'无客户端连接，消息仅存储到历史:'</span>, messageData.message)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;, <span class="number">1000</span>)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'SSE服务器启动在 http://localhost:3000'</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'访问 http://localhost:3000 查看演示页面'</span>)</span><br><span class="line"></span><br><span class="line">app.listen(<span class="number">3000</span>)</span><br></pre></td></tr></table></figure>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br><span class="line">407</span><br><span class="line">408</span><br><span class="line">409</span><br><span class="line">410</span><br><span class="line">411</span><br><span class="line">412</span><br><span class="line">413</span><br><span class="line">414</span><br><span class="line">415</span><br><span class="line">416</span><br><span class="line">417</span><br><span class="line">418</span><br><span class="line">419</span><br><span class="line">420</span><br><span class="line">421</span><br><span class="line">422</span><br><span class="line">423</span><br><span class="line">424</span><br><span class="line">425</span><br><span class="line">426</span><br><span class="line">427</span><br><span class="line">428</span><br><span class="line">429</span><br><span class="line">430</span><br><span class="line">431</span><br><span class="line">432</span><br><span class="line">433</span><br><span class="line">434</span><br><span class="line">435</span><br><span class="line">436</span><br><span class="line">437</span><br><span class="line">438</span><br><span class="line">439</span><br><span class="line">440</span><br><span class="line">441</span><br><span class="line">442</span><br><span class="line">443</span><br><span class="line">444</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 客户端 --&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE html&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">html</span> <span class="attr">lang</span>=<span class="string">"zh"</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">head</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">charset</span>=<span class="string">"UTF-8"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">meta</span> <span class="attr">name</span>=<span class="string">"viewport"</span> <span class="attr">content</span>=<span class="string">"width=device-width, initial-scale=1.0"</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">title</span>&gt;</span>SSE 重连续传演示<span class="tag">&lt;/<span class="name">title</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">style</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="undefined">      body &#123;</span></span><br><span class="line"><span class="undefined">        font-family: Arial, sans-serif;</span></span><br><span class="line"><span class="undefined">        max-width: 800px;</span></span><br><span class="line"><span class="undefined">        margin: 0 auto;</span></span><br><span class="line"><span class="undefined">        padding: 20px;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#f5f5f5</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.header</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background</span>: <span class="selector-tag">linear-gradient</span>(135<span class="selector-tag">deg</span>, <span class="selector-id">#667eea</span> 0%, <span class="selector-id">#764ba2</span> 100%);</span></span><br><span class="line"><span class="undefined">        color: white;</span></span><br><span class="line"><span class="undefined">        padding: 20px;</span></span><br><span class="line"><span class="undefined">        border-radius: 10px;</span></span><br><span class="line"><span class="undefined">        margin-bottom: 20px;</span></span><br><span class="line"><span class="undefined">        text-align: center;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.controls</span> &#123;</span></span><br><span class="line"><span class="undefined">        background: white;</span></span><br><span class="line"><span class="undefined">        padding: 20px;</span></span><br><span class="line"><span class="undefined">        border-radius: 10px;</span></span><br><span class="line"><span class="undefined">        margin-bottom: 20px;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">box-shadow</span>: 0 2<span class="selector-tag">px</span> 4<span class="selector-tag">px</span> <span class="selector-tag">rgba</span>(0, 0, 0, 0<span class="selector-class">.1</span>);</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.status-panel</span> &#123;</span></span><br><span class="line"><span class="undefined">        display: grid;</span></span><br><span class="line"><span class="undefined">        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));</span></span><br><span class="line"><span class="undefined">        gap: 15px;</span></span><br><span class="line"><span class="undefined">        margin-bottom: 20px;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.status-card</span> &#123;</span></span><br><span class="line"><span class="undefined">        background: white;</span></span><br><span class="line"><span class="undefined">        padding: 15px;</span></span><br><span class="line"><span class="undefined">        border-radius: 8px;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">box-shadow</span>: 0 2<span class="selector-tag">px</span> 4<span class="selector-tag">px</span> <span class="selector-tag">rgba</span>(0, 0, 0, 0<span class="selector-class">.1</span>);</span></span><br><span class="line"><span class="undefined">        text-align: center;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.status-value</span> &#123;</span></span><br><span class="line"><span class="undefined">        font-size: 24px;</span></span><br><span class="line"><span class="undefined">        font-weight: bold;</span></span><br><span class="line"><span class="undefined">        margin: 10px 0;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.status-connected</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">color</span>: <span class="selector-id">#28a745</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.status-disconnected</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">color</span>: <span class="selector-id">#dc3545</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.status-catching-up</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">color</span>: <span class="selector-id">#ffc107</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn</span> &#123;</span></span><br><span class="line"><span class="undefined">        padding: 10px 20px;</span></span><br><span class="line"><span class="undefined">        border: none;</span></span><br><span class="line"><span class="undefined">        border-radius: 5px;</span></span><br><span class="line"><span class="undefined">        cursor: pointer;</span></span><br><span class="line"><span class="undefined">        font-size: 14px;</span></span><br><span class="line"><span class="undefined">        margin: 5px;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">transition</span>: <span class="selector-tag">background-color</span> 0<span class="selector-class">.3s</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-primary</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#007bff</span>;</span></span><br><span class="line"><span class="undefined">        color: white;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-primary</span><span class="selector-pseudo">:hover</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#0056b3</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-danger</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#dc3545</span>;</span></span><br><span class="line"><span class="undefined">        color: white;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-danger</span><span class="selector-pseudo">:hover</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#c82333</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-success</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#28a745</span>;</span></span><br><span class="line"><span class="undefined">        color: white;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-success</span><span class="selector-pseudo">:hover</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#218838</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-warning</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#ffc107</span>;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">color</span>: <span class="selector-id">#212529</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn-warning</span><span class="selector-pseudo">:hover</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#e0a800</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.btn</span><span class="selector-pseudo">:disabled</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">opacity</span>: 0<span class="selector-class">.6</span>;</span></span><br><span class="line"><span class="undefined">        cursor: not-allowed;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.messages-container</span> &#123;</span></span><br><span class="line"><span class="undefined">        background: white;</span></span><br><span class="line"><span class="undefined">        border-radius: 10px;</span></span><br><span class="line"><span class="undefined">        max-height: 400px;</span></span><br><span class="line"><span class="undefined">        overflow-y: auto;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">box-shadow</span>: 0 2<span class="selector-tag">px</span> 4<span class="selector-tag">px</span> <span class="selector-tag">rgba</span>(0, 0, 0, 0<span class="selector-class">.1</span>);</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.messages-header</span> &#123;</span></span><br><span class="line"><span class="undefined">        padding: 15px;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">border-bottom</span>: 1<span class="selector-tag">px</span> <span class="selector-tag">solid</span> <span class="selector-id">#eee</span>;</span></span><br><span class="line"><span class="undefined">        font-weight: bold;</span></span><br><span class="line"><span class="undefined">        position: sticky;</span></span><br><span class="line"><span class="undefined">        top: 0;</span></span><br><span class="line"><span class="undefined">        background: white;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-id">#messages</span> &#123;</span></span><br><span class="line"><span class="undefined">        padding: 15px;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.message</span> &#123;</span></span><br><span class="line"><span class="undefined">        padding: 8px 12px;</span></span><br><span class="line"><span class="undefined">        margin: 5px 0;</span></span><br><span class="line"><span class="undefined">        border-radius: 5px;</span></span><br><span class="line"><span class="undefined">        border-left: 4px solid;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.new-message</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#e8f5e8</span>;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">border-left-color</span>: <span class="selector-id">#28a745</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.catch-up-message</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#fff3cd</span>;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">border-left-color</span>: <span class="selector-id">#ffc107</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.system-message</span> &#123;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">background-color</span>: <span class="selector-id">#d1ecf1</span>;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">border-left-color</span>: <span class="selector-id">#17a2b8</span>;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.timestamp</span> &#123;</span></span><br><span class="line"><span class="undefined">        font-size: 12px;</span></span><br><span class="line"><span class="css">        <span class="selector-tag">color</span>: <span class="selector-id">#666</span>;</span></span><br><span class="line"><span class="undefined">        margin-right: 10px;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="css">      <span class="selector-class">.content</span> &#123;</span></span><br><span class="line"><span class="undefined">        font-weight: 500;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="undefined">    </span><span class="tag">&lt;/<span class="name">style</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">head</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">body</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"header"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">h1</span>&gt;</span>SSE 重连续传演示<span class="tag">&lt;/<span class="name">h1</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">p</span>&gt;</span>测试 Server-Sent Events 的自动重连和数据续传功能<span class="tag">&lt;/<span class="name">p</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-panel"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-card"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span>&gt;</span>连接状态<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-value"</span> <span class="attr">id</span>=<span class="string">"connection-status"</span>&gt;</span>未连接<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-card"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span>&gt;</span>消息总数<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-value"</span> <span class="attr">id</span>=<span class="string">"message-count"</span>&gt;</span>0<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-card"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span>&gt;</span>续传消息数<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-value"</span> <span class="attr">id</span>=<span class="string">"catchup-count"</span>&gt;</span>0<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-card"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span>&gt;</span>连接时间<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"status-value"</span> <span class="attr">id</span>=<span class="string">"connection-time"</span>&gt;</span>--:--:--<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"controls"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">h3</span>&gt;</span>连接控制<span class="tag">&lt;/<span class="name">h3</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"connect-btn"</span> <span class="attr">class</span>=<span class="string">"btn btn-success"</span>&gt;</span>连接<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"disconnect-btn"</span> <span class="attr">class</span>=<span class="string">"btn btn-danger"</span> <span class="attr">disabled</span>&gt;</span></span><br><span class="line">        断开连接</span><br><span class="line">      <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"reconnect-btn"</span> <span class="attr">class</span>=<span class="string">"btn btn-primary"</span> <span class="attr">disabled</span>&gt;</span></span><br><span class="line">        重新连接</span><br><span class="line">      <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"clear-history-btn"</span> <span class="attr">class</span>=<span class="string">"btn btn-warning"</span>&gt;</span></span><br><span class="line">        清除本地历史</span><br><span class="line">      <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"clear-messages-btn"</span> <span class="attr">class</span>=<span class="string">"btn btn-warning"</span>&gt;</span></span><br><span class="line">        清除消息显示</span><br><span class="line">      <span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"messages-container"</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">class</span>=<span class="string">"messages-header"</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">span</span>&gt;</span>消息日志<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">span</span> <span class="attr">style</span>=<span class="string">"float: right;"</span> <span class="attr">id</span>=<span class="string">"last-event-id"</span>&gt;</span>Last Event ID: --<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"messages"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"></span><br><span class="line">    <span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="class"><span class="keyword">class</span> <span class="title">SSEClientWithCatchUp</span> </span>&#123;</span></span><br><span class="line"><span class="javascript">        <span class="keyword">constructor</span>(url) &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.url = url</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.lastEventId = localStorage.getItem(<span class="string">'sse_last_event_id'</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.isCatchingUp = <span class="literal">false</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.eventSource = <span class="literal">null</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.messageCount = <span class="number">0</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.catchupCount = <span class="number">0</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.connectionStartTime = <span class="literal">null</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.connectionTimer = <span class="literal">null</span></span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateUI()</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        connect() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">if</span> (<span class="keyword">this</span>.eventSource) &#123;</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.eventSource.close()</span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="keyword">const</span> url = <span class="keyword">this</span>.lastEventId</span></span><br><span class="line"><span class="javascript">            ? <span class="string">`<span class="subst">$&#123;<span class="keyword">this</span>.url&#125;</span>?lastEventId=<span class="subst">$&#123;<span class="keyword">this</span>.lastEventId&#125;</span>`</span></span></span><br><span class="line"><span class="javascript">            : <span class="keyword">this</span>.url</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="built_in">console</span>.log(<span class="string">'正在连接...'</span>, &#123;url, <span class="attr">lastEventId</span>: <span class="keyword">this</span>.lastEventId&#125;)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.eventSource = <span class="keyword">new</span> EventSource(url)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.connectionStartTime = <span class="built_in">Date</span>.now()</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.startConnectionTimer()</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.eventSource.onopen = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">            <span class="built_in">console</span>.log(<span class="string">'✅ SSE 连接已建立'</span>)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.updateConnectionStatus(<span class="string">'已连接'</span>, <span class="string">'connected'</span>)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.updateButtons(<span class="literal">true</span>)</span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.eventSource.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">            <span class="comment">// 保存最新的事件ID</span></span></span><br><span class="line"><span class="javascript">            <span class="keyword">if</span> (event.lastEventId) &#123;</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.lastEventId = event.lastEventId</span></span><br><span class="line"><span class="javascript">              localStorage.setItem(<span class="string">'sse_last_event_id'</span>, <span class="keyword">this</span>.lastEventId)</span></span><br><span class="line"><span class="javascript">              <span class="built_in">document</span>.getElementById(</span></span><br><span class="line"><span class="javascript">                <span class="string">'last-event-id'</span></span></span><br><span class="line"><span class="javascript">              ).textContent = <span class="string">`Last Event ID: <span class="subst">$&#123;<span class="keyword">this</span>.lastEventId&#125;</span>`</span></span></span><br><span class="line"><span class="undefined">            &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">            <span class="keyword">const</span> data = <span class="built_in">JSON</span>.parse(event.data)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.handleMessage(data)</span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.eventSource.onerror = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">            <span class="built_in">console</span>.log(<span class="string">'❌ 连接错误'</span>)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.updateConnectionStatus(<span class="string">'连接错误'</span>, <span class="string">'disconnected'</span>)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.updateButtons(<span class="literal">false</span>)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.stopConnectionTimer()</span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        disconnect() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">if</span> (<span class="keyword">this</span>.eventSource) &#123;</span></span><br><span class="line"><span class="javascript">            <span class="built_in">console</span>.log(<span class="string">'🔌 手动断开连接'</span>)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.eventSource.close()</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.eventSource = <span class="literal">null</span></span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateConnectionStatus(<span class="string">'已断开'</span>, <span class="string">'disconnected'</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateButtons(<span class="literal">false</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.stopConnectionTimer()</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        reconnect() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="built_in">console</span>.log(<span class="string">'🔄 重新连接中...'</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateConnectionStatus(<span class="string">'重连中...'</span>, <span class="string">'catching-up'</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.connect()</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        clearHistory() &#123;</span></span><br><span class="line"><span class="javascript">          localStorage.removeItem(<span class="string">'sse_last_event_id'</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.lastEventId = <span class="literal">null</span></span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'last-event-id'</span>).textContent =</span></span><br><span class="line"><span class="javascript">            <span class="string">'Last Event ID: --'</span></span></span><br><span class="line"><span class="javascript">          <span class="built_in">console</span>.log(<span class="string">'🗑️ 已清除本地历史记录'</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.displaySystemMessage(</span></span><br><span class="line"><span class="javascript">            <span class="string">'已清除本地 Last Event ID，下次连接将从头开始接收消息'</span></span></span><br><span class="line"><span class="undefined">          )</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        clearMessages() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'messages'</span>).innerHTML = <span class="string">''</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.messageCount = <span class="number">0</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.catchupCount = <span class="number">0</span></span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateCounters()</span></span><br><span class="line"><span class="javascript">          <span class="built_in">console</span>.log(<span class="string">'🗑️ 已清除消息显示'</span>)</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        handleMessage(data) &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">switch</span> (data.type) &#123;</span></span><br><span class="line"><span class="javascript">            <span class="keyword">case</span> <span class="string">'connected'</span>:</span></span><br><span class="line"><span class="javascript">              <span class="built_in">console</span>.log(<span class="string">'✅ 连接确认:'</span>, data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.displaySystemMessage(data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">break</span></span></span><br><span class="line"><span class="javascript">            <span class="keyword">case</span> <span class="string">'catch_up_start'</span>:</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.isCatchingUp = <span class="literal">true</span></span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.updateConnectionStatus(<span class="string">'数据续传中...'</span>, <span class="string">'catching-up'</span>)</span></span><br><span class="line"><span class="javascript">              <span class="built_in">console</span>.log(<span class="string">'🔄 开始数据续传:'</span>, data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.displaySystemMessage(data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">break</span></span></span><br><span class="line"><span class="javascript">            <span class="keyword">case</span> <span class="string">'catch_up_message'</span>:</span></span><br><span class="line"><span class="javascript">              <span class="built_in">console</span>.log(<span class="string">'📦 续传消息:'</span>, data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.displayMessage(data, <span class="literal">true</span>)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.catchupCount++</span></span><br><span class="line"><span class="javascript">              <span class="keyword">break</span></span></span><br><span class="line"><span class="javascript">            <span class="keyword">case</span> <span class="string">'catch_up_end'</span>:</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.isCatchingUp = <span class="literal">false</span></span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.updateConnectionStatus(<span class="string">'已连接'</span>, <span class="string">'connected'</span>)</span></span><br><span class="line"><span class="javascript">              <span class="built_in">console</span>.log(<span class="string">'✅ 数据续传完成:'</span>, data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.displaySystemMessage(data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">break</span></span></span><br><span class="line"><span class="javascript">            <span class="keyword">case</span> <span class="string">'message'</span>:</span></span><br><span class="line"><span class="javascript">              <span class="built_in">console</span>.log(<span class="string">'📨 新消息:'</span>, data.message)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">this</span>.displayMessage(data, <span class="literal">false</span>)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">break</span></span></span><br><span class="line"><span class="javascript">            <span class="keyword">case</span> <span class="string">'heartbeat'</span>:</span></span><br><span class="line"><span class="javascript">              <span class="built_in">console</span>.log(<span class="string">'💓 心跳:'</span>, data.timestamp)</span></span><br><span class="line"><span class="javascript">              <span class="keyword">break</span></span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateCounters()</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        displayMessage(data, isCatchUp) &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">const</span> messageEl = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span></span><br><span class="line"><span class="undefined">          messageEl.className = `message $&#123;</span></span><br><span class="line"><span class="javascript">            isCatchUp ? <span class="string">'catch-up-message'</span> : <span class="string">'new-message'</span></span></span><br><span class="line"><span class="undefined">          &#125;`</span></span><br><span class="line"><span class="undefined">          messageEl.innerHTML = `</span></span><br><span class="line"><span class="javascript">      &lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"timestamp"</span>&gt;$&#123;<span class="keyword">new</span> <span class="built_in">Date</span>(</span></span><br><span class="line"><span class="undefined">        data.timestamp</span></span><br><span class="line"><span class="xml">      ).toLocaleTimeString()&#125;<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span></span><br><span class="line"><span class="javascript">      &lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"content"</span>&gt;$&#123;isCatchUp ? <span class="string">'[续传] '</span> : <span class="string">''</span>&#125;$&#123;data.message&#125;&lt;<span class="regexp">/span&gt;</span></span></span><br><span class="line"><span class="undefined">    `</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'messages'</span>).appendChild(messageEl)</span></span><br><span class="line"><span class="javascript">          <span class="comment">// messageEl.scrollIntoView(&#123; behavior: 'smooth' &#125;)</span></span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">          <span class="keyword">if</span> (!isCatchUp) &#123;</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.messageCount++</span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        displaySystemMessage(message) &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">const</span> messageEl = <span class="built_in">document</span>.createElement(<span class="string">'div'</span>)</span></span><br><span class="line"><span class="javascript">          messageEl.className = <span class="string">'message system-message'</span></span></span><br><span class="line"><span class="undefined">          messageEl.innerHTML = `</span></span><br><span class="line"><span class="javascript">      &lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"timestamp"</span>&gt;$&#123;<span class="keyword">new</span> <span class="built_in">Date</span>().toLocaleTimeString()&#125;&lt;<span class="regexp">/span&gt;</span></span></span><br><span class="line"><span class="javascript">      &lt;span <span class="class"><span class="keyword">class</span></span>=<span class="string">"content"</span>&gt;[系统] $&#123;message&#125;&lt;<span class="regexp">/span&gt;</span></span></span><br><span class="line"><span class="undefined">    `</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'messages'</span>).appendChild(messageEl)</span></span><br><span class="line"><span class="javascript">          <span class="comment">// messageEl.scrollIntoView(&#123; behavior: 'smooth' &#125;)</span></span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        updateConnectionStatus(status, className) &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">const</span> statusEl = <span class="built_in">document</span>.getElementById(<span class="string">'connection-status'</span>)</span></span><br><span class="line"><span class="undefined">          statusEl.textContent = status</span></span><br><span class="line"><span class="javascript">          statusEl.className = <span class="string">`status-value status-<span class="subst">$&#123;className&#125;</span>`</span></span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        updateButtons(connected) &#123;</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'connect-btn'</span>).disabled = connected</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'disconnect-btn'</span>).disabled = !connected</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'reconnect-btn'</span>).disabled = connected</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        updateCounters() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'message-count'</span>).textContent =</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.messageCount</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'catchup-count'</span>).textContent =</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.catchupCount</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        startConnectionTimer() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.connectionTimer = setInterval(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="javascript">            <span class="keyword">if</span> (<span class="keyword">this</span>.connectionStartTime) &#123;</span></span><br><span class="line"><span class="javascript">              <span class="keyword">const</span> elapsed = <span class="built_in">Date</span>.now() - <span class="keyword">this</span>.connectionStartTime</span></span><br><span class="line"><span class="javascript">              <span class="keyword">const</span> time = <span class="keyword">new</span> <span class="built_in">Date</span>(elapsed).toISOString().substr(<span class="number">11</span>, <span class="number">8</span>)</span></span><br><span class="line"><span class="javascript">              <span class="built_in">document</span>.getElementById(<span class="string">'connection-time'</span>).textContent = time</span></span><br><span class="line"><span class="undefined">            &#125;</span></span><br><span class="line"><span class="undefined">          &#125;, 1000)</span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        stopConnectionTimer() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">if</span> (<span class="keyword">this</span>.connectionTimer) &#123;</span></span><br><span class="line"><span class="javascript">            clearInterval(<span class="keyword">this</span>.connectionTimer)</span></span><br><span class="line"><span class="javascript">            <span class="keyword">this</span>.connectionTimer = <span class="literal">null</span></span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(<span class="string">'connection-time'</span>).textContent = <span class="string">'--:--:--'</span></span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="undefined">        updateUI() &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateConnectionStatus(<span class="string">'未连接'</span>, <span class="string">'disconnected'</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateButtons(<span class="literal">false</span>)</span></span><br><span class="line"><span class="javascript">          <span class="keyword">this</span>.updateCounters()</span></span><br><span class="line"><span class="javascript">          <span class="built_in">document</span>.getElementById(</span></span><br><span class="line"><span class="javascript">            <span class="string">'last-event-id'</span></span></span><br><span class="line"><span class="javascript">          ).textContent = <span class="string">`Last Event ID: <span class="subst">$&#123;<span class="keyword">this</span>.lastEventId || <span class="string">'--'</span>&#125;</span>`</span></span></span><br><span class="line"><span class="undefined">        &#125;</span></span><br><span class="line"><span class="undefined">      &#125;</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="comment">// 初始化客户端</span></span></span><br><span class="line"><span class="javascript">      <span class="keyword">const</span> client = <span class="keyword">new</span> SSEClientWithCatchUp(<span class="string">'/events'</span>)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="comment">// 绑定按钮事件</span></span></span><br><span class="line"><span class="javascript">      <span class="built_in">document</span>.getElementById(<span class="string">'connect-btn'</span>).addEventListener(<span class="string">'click'</span>, () =&gt; &#123;</span></span><br><span class="line"><span class="undefined">        client.connect()</span></span><br><span class="line"><span class="undefined">      &#125;)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="built_in">document</span></span></span><br><span class="line"><span class="javascript">        .getElementById(<span class="string">'disconnect-btn'</span>)</span></span><br><span class="line"><span class="javascript">        .addEventListener(<span class="string">'click'</span>, () =&gt; &#123;</span></span><br><span class="line"><span class="undefined">          client.disconnect()</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="built_in">document</span>.getElementById(<span class="string">'reconnect-btn'</span>).addEventListener(<span class="string">'click'</span>, () =&gt; &#123;</span></span><br><span class="line"><span class="undefined">        client.reconnect()</span></span><br><span class="line"><span class="undefined">      &#125;)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="built_in">document</span></span></span><br><span class="line"><span class="javascript">        .getElementById(<span class="string">'clear-history-btn'</span>)</span></span><br><span class="line"><span class="javascript">        .addEventListener(<span class="string">'click'</span>, () =&gt; &#123;</span></span><br><span class="line"><span class="javascript">          <span class="keyword">if</span> (</span></span><br><span class="line"><span class="undefined">            confirm(</span></span><br><span class="line"><span class="javascript">              <span class="string">'确定要清除本地历史记录吗？这将导致下次连接时重新接收所有消息。'</span></span></span><br><span class="line"><span class="undefined">            )</span></span><br><span class="line"><span class="undefined">          ) &#123;</span></span><br><span class="line"><span class="undefined">            client.clearHistory()</span></span><br><span class="line"><span class="undefined">          &#125;</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="built_in">document</span></span></span><br><span class="line"><span class="javascript">        .getElementById(<span class="string">'clear-messages-btn'</span>)</span></span><br><span class="line"><span class="javascript">        .addEventListener(<span class="string">'click'</span>, () =&gt; &#123;</span></span><br><span class="line"><span class="undefined">          client.clearMessages()</span></span><br><span class="line"><span class="undefined">        &#125;)</span></span><br><span class="line"><span class="undefined"></span></span><br><span class="line"><span class="javascript">      <span class="comment">// 页面加载完成后自动连接</span></span></span><br><span class="line"><span class="javascript">      <span class="built_in">window</span>.addEventListener(<span class="string">'load'</span>, () =&gt; &#123;</span></span><br><span class="line"><span class="javascript">        setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> &#123;</span></span><br><span class="line"><span class="undefined">          client.connect()</span></span><br><span class="line"><span class="undefined">        &#125;, 1000)</span></span><br><span class="line"><span class="undefined">      &#125;)</span></span><br><span class="line"><span class="undefined">    </span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">body</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">html</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>Server-Sent Events (SSE) 是基于 HTTP 的服务端推送技术，特别适合 AI 聊天、实时通知等单向数据流场景。本文介绍了 SSE 的基本数据格式，断线重连及数据续传功能。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/04/17/ai-mobile-use/" rel="next" title="浅玩一下 Mobile Use">
+                <i class="fa fa-chevron-left"></i> 浅玩一下 Mobile Use
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/06/07/sse-1/bak/" rel="prev" title="">
+                 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">201</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">85</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#为什么要学习-SSE？"><span class="nav-number">1.</span> <span class="nav-text">为什么要学习 SSE？</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SSE-vs-WebSocket：如何选择？"><span class="nav-number">1.1.</span> <span class="nav-text">SSE vs WebSocket：如何选择？</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSE-基础原理"><span class="nav-number">2.</span> <span class="nav-text">SSE 基础原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#什么是-SSE？"><span class="nav-number">2.1.</span> <span class="nav-text">什么是 SSE？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#基本工作流程"><span class="nav-number">2.2.</span> <span class="nav-text">基本工作流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#最简单的-SSE-示例"><span class="nav-number">3.</span> <span class="nav-text">最简单的 SSE 示例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#服务端代码（Node-js）"><span class="nav-number">3.1.</span> <span class="nav-text">服务端代码（Node.js）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#客户端代码（HTML-JavaScript）"><span class="nav-number">3.2.</span> <span class="nav-text">客户端代码（HTML + JavaScript）</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#SSE-消息格式详解"><span class="nav-number">4.</span> <span class="nav-text">SSE 消息格式详解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#基本字段"><span class="nav-number">4.1.</span> <span class="nav-text">基本字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#标准字段说明"><span class="nav-number">4.2.</span> <span class="nav-text">标准字段说明</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-data-数据字段"><span class="nav-number">4.2.1.</span> <span class="nav-text">1. data - 数据字段</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-event-事件类型"><span class="nav-number">4.2.2.</span> <span class="nav-text">2. event - 事件类型</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-id-事件-ID"><span class="nav-number">4.2.3.</span> <span class="nav-text">3. id - 事件 ID</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-retry-重连间隔"><span class="nav-number">4.2.4.</span> <span class="nav-text">4. retry - 重连间隔</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#自动重连机制"><span class="nav-number">5.</span> <span class="nav-text">自动重连机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据续传机制"><span class="nav-number">6.</span> <span class="nav-text">数据续传机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据续传原理"><span class="nav-number">6.1.</span> <span class="nav-text">数据续传原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#数据续传时序图"><span class="nav-number">6.2.</span> <span class="nav-text">数据续传时序图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">7.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

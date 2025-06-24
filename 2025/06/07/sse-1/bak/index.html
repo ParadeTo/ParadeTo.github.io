@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Ayou,paradeto" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="性能优化与最佳实践1. 连接管理12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152// 连接池管理class SSEConnectionManager &amp;#123;  constructor() &amp;#123;    this.connections = new">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Ayou">
+<meta property="og:url" content="http://www.paradeto.com/2025/06/07/sse-1/bak/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="性能优化与最佳实践1. 连接管理12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152// 连接池管理class SSEConnectionManager &amp;#123;  constructor() &amp;#123;    this.connections = new">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2025-06-07T03:27:59.623Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ayou">
+<meta name="twitter:description" content="性能优化与最佳实践1. 连接管理12345678910111213141516171819202122232425262728293031323334353637383940414243444546474849505152// 连接池管理class SSEConnectionManager &amp;#123;  constructor() &amp;#123;    this.connections = new">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2025/06/07/sse-1/bak/"/>
+
+
+
+
+
+
+  <title> | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2025/06/07/sse-1/bak/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline"></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2025-06-07T11:27:33+08:00">
+                2025-06-07
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="性能优化与最佳实践"><a href="#性能优化与最佳实践" class="headerlink" title="性能优化与最佳实践"></a>性能优化与最佳实践</h2><h3 id="1-连接管理"><a href="#1-连接管理" class="headerlink" title="1. 连接管理"></a>1. 连接管理</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 连接池管理</span></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SSEConnectionManager</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.connections = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">    <span class="keyword">this</span>.maxConnections = <span class="number">1000</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  addConnection(id, response) &#123;</span><br><span class="line">    <span class="comment">// 检查连接数限制</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>.connections.size &gt;= <span class="keyword">this</span>.maxConnections) &#123;</span><br><span class="line">      <span class="keyword">this</span>.cleanupStaleConnections()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.connections.set(id, &#123;</span><br><span class="line">      response,</span><br><span class="line">      lastPing: <span class="built_in">Date</span>.now(),</span><br><span class="line">      created: <span class="built_in">Date</span>.now(),</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  cleanupStaleConnections() &#123;</span><br><span class="line">    <span class="keyword">const</span> now = <span class="built_in">Date</span>.now()</span><br><span class="line">    <span class="keyword">const</span> staleThreshold = <span class="number">5</span> * <span class="number">60</span> * <span class="number">1000</span> <span class="comment">// 5分钟</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> [id, conn] <span class="keyword">of</span> <span class="keyword">this</span>.connections.entries()) &#123;</span><br><span class="line">      <span class="keyword">if</span> (now - conn.lastPing &gt; staleThreshold) &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          conn.response.end()</span><br><span class="line">        &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">          <span class="built_in">console</span>.log(<span class="string">'清理连接时出错:'</span>, e.message)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">this</span>.connections.delete(id)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  broadcast(message) &#123;</span><br><span class="line">    <span class="keyword">const</span> deadConnections = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> [id, conn] <span class="keyword">of</span> <span class="keyword">this</span>.connections.entries()) &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        conn.response.write(<span class="string">`data: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(message)&#125;</span>\n\n`</span>)</span><br><span class="line">        conn.lastPing = <span class="built_in">Date</span>.now()</span><br><span class="line">      &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">        deadConnections.push(id)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 清理失效连接</span></span><br><span class="line">    deadConnections.forEach(<span class="function">(<span class="params">id</span>) =&gt;</span> <span class="keyword">this</span>.connections.delete(id))</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-消息压缩"><a href="#2-消息压缩" class="headerlink" title="2. 消息压缩"></a>2. 消息压缩</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> zlib = <span class="built_in">require</span>(<span class="string">'zlib'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">compressMessage</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> jsonString = <span class="built_in">JSON</span>.stringify(data)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 对于大消息启用压缩</span></span><br><span class="line">  <span class="keyword">if</span> (jsonString.length &gt; <span class="number">1024</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> zlib.gzipSync(jsonString).toString(<span class="string">'base64'</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> jsonString</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送压缩消息</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sendCompressedMessage</span>(<span class="params">res, data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> compressed = compressMessage(data)</span><br><span class="line">  <span class="keyword">const</span> isCompressed = compressed !== <span class="built_in">JSON</span>.stringify(data)</span><br><span class="line"></span><br><span class="line">  res.write(</span><br><span class="line">    <span class="string">`data: <span class="subst">$&#123;<span class="built_in">JSON</span>.stringify(&#123;</span></span></span><br><span class="line"><span class="string"><span class="subst">      compressed: isCompressed,</span></span></span><br><span class="line"><span class="string"><span class="subst">      data: compressed,</span></span></span><br><span class="line"><span class="string"><span class="subst">    &#125;</span>)&#125;\n\n`</span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="3-错误处理与监控"><a href="#3-错误处理与监控" class="headerlink" title="3. 错误处理与监控"></a>3. 错误处理与监控</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">SSEMonitor</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>() &#123;</span><br><span class="line">    <span class="keyword">this</span>.metrics = &#123;</span><br><span class="line">      totalConnections: <span class="number">0</span>,</span><br><span class="line">      activeConnections: <span class="number">0</span>,</span><br><span class="line">      messagesSent: <span class="number">0</span>,</span><br><span class="line">      errors: <span class="number">0</span>,</span><br><span class="line">      reconnections: <span class="number">0</span>,</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  recordConnection() &#123;</span><br><span class="line">    <span class="keyword">this</span>.metrics.totalConnections++</span><br><span class="line">    <span class="keyword">this</span>.metrics.activeConnections++</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  recordDisconnection() &#123;</span><br><span class="line">    <span class="keyword">this</span>.metrics.activeConnections = <span class="built_in">Math</span>.max(</span><br><span class="line">      <span class="number">0</span>,</span><br><span class="line">      <span class="keyword">this</span>.metrics.activeConnections - <span class="number">1</span></span><br><span class="line">    )</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  recordMessage() &#123;</span><br><span class="line">    <span class="keyword">this</span>.metrics.messagesSent++</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  recordError() &#123;</span><br><span class="line">    <span class="keyword">this</span>.metrics.errors++</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  recordReconnection() &#123;</span><br><span class="line">    <span class="keyword">this</span>.metrics.reconnections++</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getMetrics() &#123;</span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">      ...this.metrics,</span><br><span class="line">      timestamp: <span class="keyword">new</span> <span class="built_in">Date</span>().toISOString(),</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> monitor = <span class="keyword">new</span> SSEMonitor()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 在SSE端点中使用</span></span><br><span class="line">app.get(<span class="string">'/events'</span>, (req, res) =&gt; &#123;</span><br><span class="line">  monitor.recordConnection()</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ... SSE逻辑</span></span><br><span class="line"></span><br><span class="line">  req.on(<span class="string">'close'</span>, () =&gt; &#123;</span><br><span class="line">    monitor.recordDisconnection()</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  req.on(<span class="string">'error'</span>, () =&gt; &#123;</span><br><span class="line">    monitor.recordError()</span><br><span class="line">    monitor.recordDisconnection()</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 监控端点</span></span><br><span class="line">app.get(<span class="string">'/metrics'</span>, (req, res) =&gt; &#123;</span><br><span class="line">  res.json(monitor.getMetrics())</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="安全考虑"><a href="#安全考虑" class="headerlink" title="安全考虑"></a>安全考虑</h2><h3 id="1-认证与授权"><a href="#1-认证与授权" class="headerlink" title="1. 认证与授权"></a>1. 认证与授权</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> jwt = <span class="built_in">require</span>(<span class="string">'jsonwebtoken'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">authenticateSSE</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> token = req.query.token || req.headers.authorization?.split(<span class="string">' '</span>)[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (!token) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.status(<span class="number">401</span>).json(&#123;<span class="attr">error</span>: <span class="string">'缺少认证token'</span>&#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> decoded = jwt.verify(token, process.env.JWT_SECRET)</span><br><span class="line">    req.user = decoded</span><br><span class="line">    next()</span><br><span class="line">  &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">    <span class="keyword">return</span> res.status(<span class="number">401</span>).json(&#123;<span class="attr">error</span>: <span class="string">'无效的token'</span>&#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 受保护的SSE端点</span></span><br><span class="line">app.get(<span class="string">'/secure-events'</span>, authenticateSSE, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="comment">// ... SSE逻辑</span></span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`用户 <span class="subst">$&#123;req.user.userId&#125;</span> 连接到安全事件流`</span>)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="2-速率限制"><a href="#2-速率限制" class="headerlink" title="2. 速率限制"></a>2. 速率限制</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> rateLimit = <span class="built_in">require</span>(<span class="string">'express-rate-limit'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> sseRateLimit = rateLimit(&#123;</span><br><span class="line">  windowMs: <span class="number">15</span> * <span class="number">60</span> * <span class="number">1000</span>, <span class="comment">// 15分钟</span></span><br><span class="line">  max: <span class="number">10</span>, <span class="comment">// 每个IP最多10个连接</span></span><br><span class="line">  message: <span class="string">'连接过于频繁，请稍后再试'</span>,</span><br><span class="line">  standardHeaders: <span class="literal">true</span>,</span><br><span class="line">  legacyHeaders: <span class="literal">false</span>,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line">app.get(<span class="string">'/events'</span>, sseRateLimit, (req, res) =&gt; &#123;</span><br><span class="line">  <span class="comment">// ... SSE逻辑</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="3-CORS-配置"><a href="#3-CORS-配置" class="headerlink" title="3. CORS 配置"></a>3. CORS 配置</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cors = <span class="built_in">require</span>(<span class="string">'cors'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> corsOptions = &#123;</span><br><span class="line">  origin: process.env.ALLOWED_ORIGINS?.split(<span class="string">','</span>) || [<span class="string">'http://localhost:3000'</span>],</span><br><span class="line">  credentials: <span class="literal">true</span>,</span><br><span class="line">  optionsSuccessStatus: <span class="number">200</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.use(cors(corsOptions))</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或者在SSE端点中手动设置</span></span><br><span class="line">app.get(<span class="string">'/events'</span>, (req, res) =&gt; &#123;</span><br><span class="line">  res.writeHead(<span class="number">200</span>, &#123;</span><br><span class="line">    <span class="string">'Content-Type'</span>: <span class="string">'text/event-stream'</span>,</span><br><span class="line">    <span class="string">'Cache-Control'</span>: <span class="string">'no-cache'</span>,</span><br><span class="line">    Connection: <span class="string">'keep-alive'</span>,</span><br><span class="line">    <span class="string">'Access-Control-Allow-Origin'</span>: req.headers.origin || <span class="string">'*'</span>,</span><br><span class="line">    <span class="string">'Access-Control-Allow-Credentials'</span>: <span class="string">'true'</span>,</span><br><span class="line">    <span class="string">'Access-Control-Allow-Headers'</span>: <span class="string">'Cache-Control, Last-Event-ID'</span>,</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// ... 其他逻辑</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="调试与测试"><a href="#调试与测试" class="headerlink" title="调试与测试"></a>调试与测试</h2><h3 id="1-SSE-调试工具"><a href="#1-SSE-调试工具" class="headerlink" title="1. SSE 调试工具"></a>1. SSE 调试工具</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 调试中间件</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sseDebugger</span>(<span class="params">req, res, next</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> originalWrite = res.write</span><br><span class="line"></span><br><span class="line">  res.write = <span class="function"><span class="keyword">function</span> (<span class="params">chunk, encoding</span>) </span>&#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'📤 发送SSE数据:'</span>, chunk.toString())</span><br><span class="line">    <span class="keyword">return</span> originalWrite.call(<span class="keyword">this</span>, chunk, encoding)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  next()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">app.use(<span class="string">'/events'</span>, sseDebugger)</span><br></pre></td></tr></table></figure>
+<h3 id="2-客户端调试"><a href="#2-客户端调试" class="headerlink" title="2. 客户端调试"></a>2. 客户端调试</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">DebugSSEClient</span> </span>&#123;</span><br><span class="line">  <span class="keyword">constructor</span>(url) &#123;</span><br><span class="line">    <span class="keyword">this</span>.url = url</span><br><span class="line">    <span class="keyword">this</span>.eventSource = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.stats = &#123;</span><br><span class="line">      connected: <span class="literal">false</span>,</span><br><span class="line">      messagesReceived: <span class="number">0</span>,</span><br><span class="line">      errors: <span class="number">0</span>,</span><br><span class="line">      reconnects: <span class="number">0</span>,</span><br><span class="line">      lastMessage: <span class="literal">null</span>,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.connect()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  connect() &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'🔗 连接SSE:'</span>, <span class="keyword">this</span>.url)</span><br><span class="line">    <span class="keyword">this</span>.eventSource = <span class="keyword">new</span> EventSource(<span class="keyword">this</span>.url)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.eventSource.onopen = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'✅ SSE连接已建立'</span>, event)</span><br><span class="line">      <span class="keyword">this</span>.stats.connected = <span class="literal">true</span></span><br><span class="line">      <span class="keyword">this</span>.logStats()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.eventSource.onmessage = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'📨 收到消息:'</span>, event.data)</span><br><span class="line">      <span class="keyword">this</span>.stats.messagesReceived++</span><br><span class="line">      <span class="keyword">this</span>.stats.lastMessage = &#123;</span><br><span class="line">        data: event.data,</span><br><span class="line">        timestamp: <span class="keyword">new</span> <span class="built_in">Date</span>().toISOString(),</span><br><span class="line">        lastEventId: event.lastEventId,</span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">this</span>.logStats()</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.eventSource.onerror = <span class="function">(<span class="params">event</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="built_in">console</span>.error(<span class="string">'❌ SSE连接错误:'</span>, event)</span><br><span class="line">      <span class="keyword">this</span>.stats.connected = <span class="literal">false</span></span><br><span class="line">      <span class="keyword">this</span>.stats.errors++</span><br><span class="line">      <span class="keyword">this</span>.stats.reconnects++</span><br><span class="line">      <span class="keyword">this</span>.logStats()</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  logStats() &#123;</span><br><span class="line">    <span class="built_in">console</span>.table(<span class="keyword">this</span>.stats)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getStats() &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.stats</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 使用</span></span><br><span class="line"><span class="keyword">const</span> debugClient = <span class="keyword">new</span> DebugSSEClient(<span class="string">'/events'</span>)</span><br></pre></td></tr></table></figure>
+<h3 id="3-单元测试示例"><a href="#3-单元测试示例" class="headerlink" title="3. 单元测试示例"></a>3. 单元测试示例</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> request = <span class="built_in">require</span>(<span class="string">'supertest'</span>)</span><br><span class="line"><span class="keyword">const</span> app = <span class="built_in">require</span>(<span class="string">'../app'</span>) <span class="comment">// 你的Express应用</span></span><br><span class="line"></span><br><span class="line">describe(<span class="string">'SSE端点测试'</span>, () =&gt; &#123;</span><br><span class="line">  test(<span class="string">'应该建立SSE连接'</span>, (done) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> req = request(app)</span><br><span class="line">      .get(<span class="string">'/events'</span>)</span><br><span class="line">      .expect(<span class="number">200</span>)</span><br><span class="line">      .expect(<span class="string">'Content-Type'</span>, /text\/event-stream/)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> messageCount = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">    req.on(<span class="string">'data'</span>, (chunk) =&gt; &#123;</span><br><span class="line">      <span class="keyword">const</span> data = chunk.toString()</span><br><span class="line">      <span class="keyword">if</span> (data.includes(<span class="string">'data:'</span>)) &#123;</span><br><span class="line">        messageCount++</span><br><span class="line">        <span class="keyword">if</span> (messageCount &gt;= <span class="number">2</span>) &#123;</span><br><span class="line">          req.destroy()</span><br><span class="line">          done()</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line">    req.on(<span class="string">'error'</span>, done)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  test(<span class="string">'应该支持Last-Event-ID'</span>, (done) =&gt; &#123;</span><br><span class="line">    request(app)</span><br><span class="line">      .get(<span class="string">'/events'</span>)</span><br><span class="line">      .set(<span class="string">'Last-Event-ID'</span>, <span class="string">'123'</span>)</span><br><span class="line">      .expect(<span class="number">200</span>)</span><br><span class="line">      .end(<span class="function">(<span class="params">err, res</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (err) <span class="keyword">return</span> done(err)</span><br><span class="line">        <span class="comment">// 验证响应包含续传消息</span></span><br><span class="line">        done()</span><br><span class="line">      &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="生产环境部署"><a href="#生产环境部署" class="headerlink" title="生产环境部署"></a>生产环境部署</h2><h3 id="1-Nginx-反向代理配置"><a href="#1-Nginx-反向代理配置" class="headerlink" title="1. Nginx 反向代理配置"></a>1. Nginx 反向代理配置</h3><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> example.com;</span><br><span class="line"></span><br><span class="line">    <span class="attribute">location</span> /events &#123;</span><br><span class="line">        <span class="attribute">proxy_pass</span> http://localhost:3000;</span><br><span class="line">        <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span> Upgrade <span class="variable">$http_upgrade</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span> Connection <span class="string">''</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span> Host <span class="variable">$host</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span> X-Real-IP <span class="variable">$remote_addr</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span> X-Forwarded-For <span class="variable">$proxy_add_x_forwarded_for</span>;</span><br><span class="line">        <span class="attribute">proxy_set_header</span> X-Forwarded-Proto <span class="variable">$scheme</span>;</span><br><span class="line"></span><br><span class="line">        <span class="comment"># SSE特定配置</span></span><br><span class="line">        <span class="attribute">proxy_cache</span> <span class="literal">off</span>;</span><br><span class="line">        <span class="attribute">proxy_buffering</span> <span class="literal">off</span>;</span><br><span class="line">        <span class="attribute">proxy_read_timeout</span> <span class="number">24h</span>;</span><br><span class="line">        <span class="attribute">proxy_send_timeout</span> <span class="number">24h</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="2-Docker-配置"><a href="#2-Docker-配置" class="headerlink" title="2. Docker 配置"></a>2. Docker 配置</h3><figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> node:<span class="number">18</span>-alpine</span><br><span class="line"></span><br><span class="line"><span class="keyword">WORKDIR</span><span class="bash"> /app</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">COPY package*.json ./</span></span><br><span class="line"><span class="bash">RUN npm ci --only=production</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">COPY . .</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">EXPOSE 3000</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash"><span class="comment"># 设置健康检查</span></span></span><br><span class="line"><span class="bash">HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \</span></span><br><span class="line"><span class="bash">  CMD curl -f http://localhost:3000/health || <span class="built_in">exit</span> 1</span></span><br><span class="line"><span class="bash"></span></span><br><span class="line"><span class="bash">CMD [<span class="string">"node"</span>, <span class="string">"server.js"</span>]</span></span><br></pre></td></tr></table></figure>
+<h3 id="3-集群部署考虑"><a href="#3-集群部署考虑" class="headerlink" title="3. 集群部署考虑"></a>3. 集群部署考虑</h3><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 使用Redis进行跨实例消息广播</span></span><br><span class="line"><span class="keyword">const</span> redis = <span class="built_in">require</span>(<span class="string">'redis'</span>)</span><br><span class="line"><span class="keyword">const</span> client = redis.createClient()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 订阅消息</span></span><br><span class="line">client.subscribe(<span class="string">'sse-broadcast'</span>)</span><br><span class="line"></span><br><span class="line">client.on(<span class="string">'message'</span>, (channel, message) =&gt; &#123;</span><br><span class="line">  <span class="keyword">if</span> (channel === <span class="string">'sse-broadcast'</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> data = <span class="built_in">JSON</span>.parse(message)</span><br><span class="line">    <span class="comment">// 广播给当前实例的所有连接</span></span><br><span class="line">    broadcastToLocalConnections(data)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发布消息到所有实例</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">broadcastToCluster</span>(<span class="params">message</span>) </span>&#123;</span><br><span class="line">  client.publish(<span class="string">'sse-broadcast'</span>, <span class="built_in">JSON</span>.stringify(message))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/06/07/sse-1/" rel="next" title="Server-Sent Events (SSE) 技术解析与实战">
+                <i class="fa fa-chevron-left"></i> Server-Sent Events (SSE) 技术解析与实战
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/06/19/ai-auto-test-midscene/" rel="prev" title="体验一下 Midscene.js，基于 AI 的 UI 自动化测试工具">
+                体验一下 Midscene.js，基于 AI 的 UI 自动化测试工具 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">201</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">20</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">85</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#性能优化与最佳实践"><span class="nav-number">1.</span> <span class="nav-text">性能优化与最佳实践</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-连接管理"><span class="nav-number">1.1.</span> <span class="nav-text">1. 连接管理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-消息压缩"><span class="nav-number">1.2.</span> <span class="nav-text">2. 消息压缩</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-错误处理与监控"><span class="nav-number">1.3.</span> <span class="nav-text">3. 错误处理与监控</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#安全考虑"><span class="nav-number">2.</span> <span class="nav-text">安全考虑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-认证与授权"><span class="nav-number">2.1.</span> <span class="nav-text">1. 认证与授权</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-速率限制"><span class="nav-number">2.2.</span> <span class="nav-text">2. 速率限制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-CORS-配置"><span class="nav-number">2.3.</span> <span class="nav-text">3. CORS 配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#调试与测试"><span class="nav-number">3.</span> <span class="nav-text">调试与测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-SSE-调试工具"><span class="nav-number">3.1.</span> <span class="nav-text">1. SSE 调试工具</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-客户端调试"><span class="nav-number">3.2.</span> <span class="nav-text">2. 客户端调试</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-单元测试示例"><span class="nav-number">3.3.</span> <span class="nav-text">3. 单元测试示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#生产环境部署"><span class="nav-number">4.</span> <span class="nav-text">生产环境部署</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Nginx-反向代理配置"><span class="nav-number">4.1.</span> <span class="nav-text">1. Nginx 反向代理配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-Docker-配置"><span class="nav-number">4.2.</span> <span class="nav-text">2. Docker 配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-集群部署考虑"><span class="nav-number">4.3.</span> <span class="nav-text">3. 集群部署考虑</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
