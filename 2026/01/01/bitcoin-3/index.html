@@ -1,0 +1,1164 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="bitcoin," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在前两篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统、UTXO 模型和交易系统。现在我们来到了比特币最核心的部分：区块链和挖矿。 今天我们将深入探讨如何实现区块链的存储结构、Merkle 树、工作量证明算法，以及矿工如何打包交易并通过挖矿获得奖励。 一、为什么需要区块链在前面的文章中，我们解决了如何证明所有权（数字签名）和如何记录交易（UTXO 模型）。但还有一个关键问题没有解决：谁来">
+<meta name="keywords" content="bitcoin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实现一个简单的比特币：Part 3 - 区块链与挖矿">
+<meta property="og:url" content="http://www.paradeto.com/2026/01/01/bitcoin-3/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="在前两篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统、UTXO 模型和交易系统。现在我们来到了比特币最核心的部分：区块链和挖矿。 今天我们将深入探讨如何实现区块链的存储结构、Merkle 树、工作量证明算法，以及矿工如何打包交易并通过挖矿获得奖励。 一、为什么需要区块链在前面的文章中，我们解决了如何证明所有权（数字签名）和如何记录交易（UTXO 模型）。但还有一个关键问题没有解决：谁来">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2026-01-01T09:55:03.520Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实现一个简单的比特币：Part 3 - 区块链与挖矿">
+<meta name="twitter:description" content="在前两篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统、UTXO 模型和交易系统。现在我们来到了比特币最核心的部分：区块链和挖矿。 今天我们将深入探讨如何实现区块链的存储结构、Merkle 树、工作量证明算法，以及矿工如何打包交易并通过挖矿获得奖励。 一、为什么需要区块链在前面的文章中，我们解决了如何证明所有权（数字签名）和如何记录交易（UTXO 模型）。但还有一个关键问题没有解决：谁来">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2026/01/01/bitcoin-3/"/>
+
+
+
+
+
+
+  <title>实现一个简单的比特币：Part 3 - 区块链与挖矿 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2026/01/01/bitcoin-3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实现一个简单的比特币：Part 3 - 区块链与挖矿</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2026-01-01T17:54:40+08:00">
+                2026-01-01
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web3/" itemprop="url" rel="index">
+                    <span itemprop="name">web3</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在前两篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统、UTXO 模型和交易系统。现在我们来到了比特币最核心的部分：区块链和挖矿。</p>
+<p>今天我们将深入探讨如何实现区块链的存储结构、Merkle 树、工作量证明算法，以及矿工如何打包交易并通过挖矿获得奖励。</p>
+<h2 id="一、为什么需要区块链"><a href="#一、为什么需要区块链" class="headerlink" title="一、为什么需要区块链"></a>一、为什么需要区块链</h2><p>在前面的文章中，我们解决了如何证明所有权（数字签名）和如何记录交易（UTXO 模型）。但还有一个关键问题没有解决：谁来维护这个账本？如何确保账本不被篡改？</p>
+<p>在传统系统中，银行维护账本，我们信任银行不会作恶。但在比特币的去中心化世界里，没有一个可信的中心机构。我们需要一种机制，让所有参与者都能维护同一份账本，并且这份账本一旦写入就很难被修改。</p>
+<p>区块链就是这样一种数据结构。它将交易打包成区块，每个区块包含前一个区块的哈希值，形成一条链。要修改历史记录，攻击者需要重新计算被修改区块之后的所有区块，这在计算上是极其困难的。</p>
+<p>但这里有个问题：一个区块可能包含成百上千笔交易。如果我们想验证某笔交易是否在区块中，难道要下载所有交易数据吗？对于轻量级客户端（如手机钱包）来说，这显然不现实。</p>
+<p>比特币的解决方案是 <strong>Merkle 树</strong>。它让区块头只需存储一个 32 字节的 Merkle 根，就能代表整个交易集合。验证者只需要少量的哈希值（Merkle 证明），就能证明某笔交易确实在区块中，而无需下载全部交易。这种设计使得轻量级客户端成为可能。</p>
+<h2 id="二、Merkle-树：高效验证的基石"><a href="#二、Merkle-树：高效验证的基石" class="headerlink" title="二、Merkle 树：高效验证的基石"></a>二、Merkle 树：高效验证的基石</h2><p>让我们详细了解 Merkle 树的工作原理，以及它如何为区块链提供高效验证能力。</p>
+<h3 id="2-1-什么是-Merkle-树"><a href="#2-1-什么是-Merkle-树" class="headerlink" title="2.1 什么是 Merkle 树"></a>2.1 什么是 Merkle 树</h3><p>Merkle 树是一种二叉树，叶子节点是数据的哈希值，非叶子节点是其子节点哈希值的哈希。最终树根（Merkle 根）是整个数据集的唯一指纹。</p>
+<p>让我们看一个例子：</p>
+<p><strong>构建 Merkle 树：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">交易列表: [tx1, tx2, tx3, tx4]</span><br><span class="line"></span><br><span class="line">第一层（叶子节点）：</span><br><span class="line">Hash(tx1)  Hash(tx2)  Hash(tx3)  Hash(tx4)</span><br><span class="line">   H1         H2         H3         H4</span><br><span class="line"></span><br><span class="line">第二层：</span><br><span class="line">     H12 = Hash(H1 + H2)    H34 = Hash(H3 + H4)</span><br><span class="line"></span><br><span class="line">第三层（根）：</span><br><span class="line">          Root = Hash(H12 + H34)</span><br></pre></td></tr></table></figure>
+<p>Merkle 树有什么用？假设你想验证 tx1 是否在区块中，你不需要下载所有交易，只需要：</p>
+<p><strong>Merkle 证明：</strong></p>
+<table>
+<thead>
+<tr>
+<th>需要的数据</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1</td>
+<td>要验证的交易</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>tx1 的兄弟节点</td>
+</tr>
+<tr>
+<td>H34</td>
+<td>父节点的兄弟节点</td>
+</tr>
+<tr>
+<td>Root</td>
+<td>Merkle 根（区块头中已有）</td>
+</tr>
+</tbody>
+</table>
+<p>验证步骤：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1. 计算 H1 = Hash(tx1)</span><br><span class="line">2. 计算 H12 = Hash(H1 + H2)</span><br><span class="line">3. 计算 Root&apos; = Hash(H12 + H34)</span><br><span class="line">4. 比较 Root&apos; 是否等于 Root</span><br></pre></td></tr></table></figure>
+<p>如果相等，就证明 tx1 确实在区块中。对于有 1000 笔交易的区块，Merkle 证明只需要大约 10 个哈希值，而不是全部 1000 笔交易。</p>
+<h3 id="2-2-实现-Merkle-树"><a href="#2-2-实现-Merkle-树" class="headerlink" title="2.2 实现 Merkle 树"></a>2.2 实现 Merkle 树</h3><p>我们使用纯指针式（对象引用）实现 Merkle 树，通过节点间的引用关系构建真正的树形结构：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">interface</span> MerkleNode &#123;</span><br><span class="line">  hash: <span class="built_in">string</span></span><br><span class="line">  left?: MerkleNode <span class="comment">// 左子节点引用</span></span><br><span class="line">  right?: MerkleNode <span class="comment">// 右子节点引用</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> MerkleTree &#123;</span><br><span class="line">  <span class="keyword">private</span> root: MerkleNode | <span class="literal">null</span> = <span class="literal">null</span></span><br><span class="line">  <span class="keyword">private</span> leaves: <span class="built_in">string</span>[] = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">data: <span class="built_in">string</span>[]</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (data.length === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Merkle 树至少需要一个数据元素'</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 对每个数据计算哈希</span></span><br><span class="line">    <span class="keyword">this</span>.leaves = data.map(<span class="function">(<span class="params">item</span>) =&gt;</span> Hash.sha256(item))</span><br><span class="line">    <span class="comment">// 构建树</span></span><br><span class="line">    <span class="keyword">this</span>.root = <span class="keyword">this</span>.buildTree(<span class="keyword">this</span>.leaves)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> buildTree(hashes: <span class="built_in">string</span>[]): MerkleNode &#123;</span><br><span class="line">    <span class="comment">// 创建叶子节点（每个哈希对应一个节点对象）</span></span><br><span class="line">    <span class="keyword">const</span> leafNodes: MerkleNode[] = hashes.map(<span class="function">(<span class="params">hash</span>) =&gt;</span> (&#123;hash&#125;))</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 递归构建树</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.buildTreeFromNodes(leafNodes)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> buildTreeFromNodes(nodes: MerkleNode[]): MerkleNode &#123;</span><br><span class="line">    <span class="comment">// 如果只有一个节点，它就是根节点</span></span><br><span class="line">    <span class="keyword">if</span> (nodes.length === <span class="number">1</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span> nodes[<span class="number">0</span>]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> parentNodes: MerkleNode[] = []</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 两两配对构建父节点</span></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; nodes.length; i += <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> left = nodes[i]</span><br><span class="line">      <span class="keyword">const</span> right = i + <span class="number">1</span> &lt; nodes.length ? nodes[i + <span class="number">1</span>] : nodes[i]</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> parent: MerkleNode = &#123;</span><br><span class="line">        hash: Hash.sha256(left.hash + right.hash),</span><br><span class="line">        left, <span class="comment">// 保存左子节点引用</span></span><br><span class="line">        right, <span class="comment">// 保存右子节点引用</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      parentNodes.push(parent)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 递归构建上层（传入节点对象，而不是哈希值）</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.buildTreeFromNodes(parentNodes)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getRoot(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.root) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'Merkle 树未构建'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.root.hash</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关键点：</p>
+<ul>
+<li><strong>递归传递节点</strong>：<code>buildTreeFromNodes</code> 接收节点数组并递归构建，保持节点间的引用关系</li>
+<li><strong>奇数处理</strong>：如果数据个数是奇数，最后一个节点会自我配对</li>
+<li><strong>时间复杂度</strong>：O(n)，其中 n 是数据个数</li>
+</ul>
+<h2 id="三、区块结构：链接的基石"><a href="#三、区块结构：链接的基石" class="headerlink" title="三、区块结构：链接的基石"></a>三、区块结构：链接的基石</h2><p>区块是区块链的基本单元。每个区块包含两部分：区块头和区块体。</p>
+<h3 id="3-1-区块头"><a href="#3-1-区块头" class="headerlink" title="3.1 区块头"></a>3.1 区块头</h3><p>区块头包含区块的元数据，是工作量证明的对象：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>index</td>
+<td>区块高度</td>
+<td>标识区块在链中的位置</td>
+</tr>
+<tr>
+<td>previousHash</td>
+<td>前区块哈希</td>
+<td>将区块链接成链</td>
+</tr>
+<tr>
+<td>timestamp</td>
+<td>时间戳</td>
+<td>记录区块创建时间</td>
+</tr>
+<tr>
+<td>merkleRoot</td>
+<td>Merkle 根</td>
+<td>所有交易的指纹</td>
+</tr>
+<tr>
+<td>difficulty</td>
+<td>难度</td>
+<td>挖矿目标难度</td>
+</tr>
+<tr>
+<td>nonce</td>
+<td>随机数</td>
+<td>工作量证明的变量</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-2-区块体"><a href="#3-2-区块体" class="headerlink" title="3.2 区块体"></a>3.2 区块体</h3><p>区块体包含交易列表。第一笔交易必须是 Coinbase 交易（矿工奖励），其余是普通交易。</p>
+<h3 id="3-3-区块哈希"><a href="#3-3-区块哈希" class="headerlink" title="3.3 区块哈希"></a>3.3 区块哈希</h3><p>区块的哈希值是对区块头进行双重 SHA-256 计算得到的：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">calculateHash(): <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> blockHeader = <span class="built_in">JSON</span>.stringify(&#123;</span><br><span class="line">    index: <span class="keyword">this</span>.index,</span><br><span class="line">    previousHash: <span class="keyword">this</span>.previousHash,</span><br><span class="line">    timestamp: <span class="keyword">this</span>.timestamp,</span><br><span class="line">    merkleRoot: <span class="keyword">this</span>.merkleRoot,</span><br><span class="line">    difficulty: <span class="keyword">this</span>.difficulty,</span><br><span class="line">    nonce: <span class="keyword">this</span>.nonce,</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">return</span> Hash.doubleSha256(blockHeader)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>注意：区块哈希不包含交易内容，只包含 Merkle 根。这意味着即使交易数据很大，哈希计算也很快。</p>
+<h3 id="3-4-创世区块"><a href="#3-4-创世区块" class="headerlink" title="3.4 创世区块"></a>3.4 创世区块</h3><p>区块链的第一个区块叫创世区块，它没有前区块：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> createGenesisBlock(coinbaseTx: Transaction): Block &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> Block(</span><br><span class="line">    <span class="number">0</span>,                    <span class="comment">// 索引为 0</span></span><br><span class="line">    <span class="string">'0'</span>,                  <span class="comment">// 前区块哈希为 '0'</span></span><br><span class="line">    <span class="built_in">Date</span>.now(),</span><br><span class="line">    [coinbaseTx],</span><br><span class="line">    <span class="number">1</span>                     <span class="comment">// 初始难度</span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="四、工作量证明：挖矿的核心"><a href="#四、工作量证明：挖矿的核心" class="headerlink" title="四、工作量证明：挖矿的核心"></a>四、工作量证明：挖矿的核心</h2><p>工作量证明（Proof of Work, PoW）是比特币的共识机制。它要求矿工找到一个 nonce 值，使得区块哈希满足难度要求。</p>
+<h3 id="4-1-难度目标"><a href="#4-1-难度目标" class="headerlink" title="4.1 难度目标"></a>4.1 难度目标</h3><p>难度用前导零的个数表示。例如，难度为 4 意味着区块哈希必须以 4 个零开头：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">难度 1: 0xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span><br><span class="line">难度 2: 00xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span><br><span class="line">难度 3: 000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span><br><span class="line">难度 4: 0000xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span><br></pre></td></tr></table></figure>
+<p>难度每增加 1，平均需要的尝试次数增加 16 倍。</p>
+<h3 id="4-2-挖矿过程"><a href="#4-2-挖矿过程" class="headerlink" title="4.2 挖矿过程"></a>4.2 挖矿过程</h3><p>挖矿就是不断尝试不同的 nonce 值，直到找到满足难度的哈希：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> mine(block: Block): MiningResult &#123;</span><br><span class="line">  <span class="keyword">const</span> startTime = <span class="built_in">Date</span>.now()</span><br><span class="line">  <span class="keyword">let</span> nonce = <span class="number">0</span></span><br><span class="line">  <span class="keyword">let</span> hash: <span class="built_in">string</span></span><br><span class="line">  <span class="keyword">const</span> target = <span class="string">'0'</span>.repeat(block.difficulty)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">    block.setNonce(nonce)</span><br><span class="line">    hash = block.hash</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (hash.startsWith(target)) &#123;</span><br><span class="line">      <span class="keyword">const</span> endTime = <span class="built_in">Date</span>.now()</span><br><span class="line">      <span class="keyword">const</span> duration = endTime - startTime</span><br><span class="line">      <span class="keyword">const</span> hashRate = <span class="built_in">Math</span>.floor((nonce / duration) * <span class="number">1000</span>)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">return</span> &#123;</span><br><span class="line">        nonce,</span><br><span class="line">        hash,</span><br><span class="line">        attempts: nonce,</span><br><span class="line">        duration,</span><br><span class="line">        hashRate,</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    nonce++</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>让我们看一个实际的挖矿例子：</p>
+<p><strong>挖矿示例（难度 = 3）：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">尝试 nonce = 0:</span><br><span class="line">  区块哈希: 8a3b4c5d...</span><br><span class="line">  不满足条件（没有以 000 开头）</span><br><span class="line"></span><br><span class="line">尝试 nonce = 1:</span><br><span class="line">  区块哈希: 2f9e1a7b...</span><br><span class="line">  不满足条件</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">尝试 nonce = 4832:</span><br><span class="line">  区块哈希: 000a1b2c3d4e5f...</span><br><span class="line">  满足条件！找到有效区块！</span><br></pre></td></tr></table></figure>
+<p>这个过程看起来很简单，但实际上：</p>
+<ul>
+<li>难度 1：平均需要尝试 16 次</li>
+<li>难度 2：平均需要尝试 256 次</li>
+<li>难度 3：平均需要尝试 4,096 次</li>
+<li>难度 4：平均需要尝试 65,536 次</li>
+</ul>
+<p>在真实的比特币网络中，难度远远大于这个数字，可能需要尝试数万亿次才能找到有效区块。</p>
+<p>工作量证明的巧妙之处在于它 <strong>验证容易，计算困难</strong>，这意味着任何人都能快速验证区块的有效性，但要创建有效区块需要投入大量计算资源<br>。修改历史记录需要重新挖掘所有后续区块，成本极高</p>
+<h2 id="五、区块链管理：维护账本"><a href="#五、区块链管理：维护账本" class="headerlink" title="五、区块链管理：维护账本"></a>五、区块链管理：维护账本</h2><p>有了区块和工作量证明，我们需要一个类来管理整条区块链。</p>
+<h3 id="5-1-区块链的核心功能"><a href="#5-1-区块链的核心功能" class="headerlink" title="5.1 区块链的核心功能"></a>5.1 区块链的核心功能</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> Blockchain &#123;</span><br><span class="line">  <span class="keyword">private</span> chain: Block[] = []</span><br><span class="line">  <span class="keyword">private</span> utxoSet: UTXOSet</span><br><span class="line">  <span class="keyword">private</span> config: BlockchainConfig</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 添加新区块</span></span><br><span class="line">  addBlock(block: Block): <span class="built_in">boolean</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.isValidNewBlock(block, <span class="keyword">this</span>.getLatestBlock())) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.chain.push(block)</span><br><span class="line">    <span class="keyword">this</span>.updateUTXOSet(block)</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-2-区块验证"><a href="#5-2-区块验证" class="headerlink" title="5.2 区块验证"></a>5.2 区块验证</h3><p>添加区块前需要进行多项检查：</p>
+<p><strong>区块验证检查项：</strong></p>
+<table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>说明</th>
+<th>重要性</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>索引连续</td>
+<td><code>newBlock.index = previousBlock.index + 1</code></td>
+<td>确保链的连续性</td>
+</tr>
+<tr>
+<td>前区块哈希匹配</td>
+<td><code>newBlock.previousHash = previousBlock.hash</code></td>
+<td>确保链的完整性</td>
+</tr>
+<tr>
+<td>工作量证明</td>
+<td><code>hash.startsWith(&#39;0&#39;.repeat(difficulty))</code></td>
+<td>确保付出了计算成本</td>
+</tr>
+<tr>
+<td>时间戳合理</td>
+<td><code>newBlock.timestamp &gt; previousBlock.timestamp</code></td>
+<td>防止时间倒退</td>
+</tr>
+<tr>
+<td>交易有效</td>
+<td>所有交易都通过验证</td>
+<td>确保交易合法性</td>
+</tr>
+</tbody>
+</table>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> isValidNewBlock(newBlock: Block, previousBlock: Block): <span class="built_in">boolean</span> &#123;</span><br><span class="line">  <span class="comment">// 检查索引</span></span><br><span class="line">  <span class="keyword">if</span> (newBlock.index !== previousBlock.index + <span class="number">1</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 检查前区块哈希</span></span><br><span class="line">  <span class="keyword">if</span> (newBlock.previousHash !== previousBlock.hash) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 检查工作量证明</span></span><br><span class="line">  <span class="keyword">if</span> (!ProofOfWork.verify(newBlock)) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 检查时间戳</span></span><br><span class="line">  <span class="keyword">if</span> (newBlock.timestamp &lt;= previousBlock.timestamp) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 验证所有交易</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> tx of newBlock.transactions) &#123;</span><br><span class="line">    <span class="comment">// Coinbase 交易跳过 UTXO 验证</span></span><br><span class="line">    <span class="keyword">if</span> (tx.isCoinbase()) &#123;</span><br><span class="line">      <span class="keyword">continue</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 验证交易的 UTXO 是否存在</span></span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.isValidTransaction(tx)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> isValidTransaction(tx: Transaction): <span class="built_in">boolean</span> &#123;</span><br><span class="line">  <span class="comment">// 检查所有输入引用的 UTXO 是否存在</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> input of tx.inputs) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!<span class="keyword">this</span>.utxoSet.has(input.txId, input.outputIndex)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="5-3-难度调整"><a href="#5-3-难度调整" class="headerlink" title="5.3 难度调整"></a>5.3 难度调整</h3><p>为了保持稳定的出块时间，区块链需要定期调整挖矿难度。我们的实现每 10 个区块调整一次：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">calculateNextDifficulty(): <span class="built_in">number</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> latestBlock = <span class="keyword">this</span>.getLatestBlock()</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 未到调整间隔，保持当前难度</span></span><br><span class="line">  <span class="keyword">if</span> ((latestBlock.index + <span class="number">1</span>) % <span class="keyword">this</span>.config.difficultyAdjustmentInterval !== <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> latestBlock.difficulty</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取上个调整周期的第一个区块</span></span><br><span class="line">  <span class="keyword">const</span> adjustmentBlock = <span class="keyword">this</span>.chain[</span><br><span class="line">    <span class="keyword">this</span>.chain.length - <span class="keyword">this</span>.config.difficultyAdjustmentInterval</span><br><span class="line">  ]</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 计算实际时间</span></span><br><span class="line">  <span class="keyword">const</span> actualTime = (latestBlock.timestamp - adjustmentBlock.timestamp) / <span class="number">1000</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 计算预期时间</span></span><br><span class="line">  <span class="keyword">const</span> expectedTime =</span><br><span class="line">    <span class="keyword">this</span>.config.targetBlockTime * <span class="keyword">this</span>.config.difficultyAdjustmentInterval</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> ratio = actualTime / expectedTime</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果实际时间比预期快 2 倍以上，增加难度</span></span><br><span class="line">  <span class="keyword">if</span> (ratio &lt; <span class="number">0.5</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> latestBlock.difficulty + <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 如果实际时间比预期慢 2 倍以上，降低难度</span></span><br><span class="line">  <span class="keyword">if</span> (ratio &gt; <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">Math</span>.max(<span class="number">1</span>, latestBlock.difficulty - <span class="number">1</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> latestBlock.difficulty</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>难度调整示例：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">场景：目标出块时间 10 秒，调整间隔 10 个区块</span><br><span class="line"></span><br><span class="line">情况 1：出块太快</span><br><span class="line">  预期时间：10 秒 × 10 = 100 秒</span><br><span class="line">  实际时间：45 秒</span><br><span class="line">  比率：45/100 = 0.45 &lt; 0.5</span><br><span class="line">  调整：难度 +1</span><br><span class="line"></span><br><span class="line">情况 2：出块太慢</span><br><span class="line">  预期时间：100 秒</span><br><span class="line">  实际时间：210 秒</span><br><span class="line">  比率：210/100 = 2.1 &gt; 2</span><br><span class="line">  调整：难度 -1</span><br><span class="line"></span><br><span class="line">情况 3：速度正常</span><br><span class="line">  预期时间：100 秒</span><br><span class="line">  实际时间：95 秒</span><br><span class="line">  比率：95/100 = 0.95</span><br><span class="line">  调整：难度不变</span><br></pre></td></tr></table></figure>
+<h3 id="5-4-UTXO-集合维护"><a href="#5-4-UTXO-集合维护" class="headerlink" title="5.4 UTXO 集合维护"></a>5.4 UTXO 集合维护</h3><p>每当新区块被添加到链上，我们需要更新 UTXO 集合：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> updateUTXOSet(block: Block): <span class="built_in">void</span> &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> tx of block.transactions) &#123;</span><br><span class="line">    <span class="comment">// 移除花费的 UTXO（Coinbase 交易除外）</span></span><br><span class="line">    <span class="keyword">if</span> (!tx.isCoinbase()) &#123;</span><br><span class="line">      <span class="keyword">for</span> (<span class="keyword">const</span> input of tx.inputs) &#123;</span><br><span class="line">        <span class="keyword">this</span>.utxoSet.remove(input.txId, input.outputIndex)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 添加新的 UTXO</span></span><br><span class="line">    tx.outputs.forEach(<span class="function">(<span class="params">output, index</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.utxoSet.add(tx.id, index, output)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>UTXO 更新示例：</strong></p>
+<p>初始状态：</p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1:0</td>
+<td>100 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+</tr>
+<tr>
+<td>tx2:0</td>
+<td>50 BTC</td>
+<td>Bob</td>
+<td>有效</td>
+</tr>
+</tbody>
+</table>
+<p>新区块包含交易 tx3（Alice 转给 Carol 60 BTC）：</p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1:0</td>
+<td>100 BTC</td>
+<td>Alice</td>
+<td>已花费</td>
+<td>移除</td>
+</tr>
+<tr>
+<td>tx2:0</td>
+<td>50 BTC</td>
+<td>Bob</td>
+<td>有效</td>
+<td>保留</td>
+</tr>
+<tr>
+<td>tx3:0</td>
+<td>60 BTC</td>
+<td>Carol</td>
+<td>有效</td>
+<td>新增</td>
+</tr>
+<tr>
+<td>tx3:1</td>
+<td>40 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+<td>新增（找零）</td>
+</tr>
+</tbody>
+</table>
+<p>Coinbase 交易（tx3_coinbase，矿工奖励 50 BTC）：</p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+<th>操作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx3_coinbase:0</td>
+<td>50 BTC</td>
+<td>Miner</td>
+<td>有效</td>
+<td>新增</td>
+</tr>
+</tbody>
+</table>
+<h2 id="六、矿工：打包交易与挖矿"><a href="#六、矿工：打包交易与挖矿" class="headerlink" title="六、矿工：打包交易与挖矿"></a>六、矿工：打包交易与挖矿</h2><p>矿工是区块链的维护者。他们选择交易、创建区块、执行工作量证明，并获得奖励。</p>
+<h3 id="6-1-矿工的工作流程"><a href="#6-1-矿工的工作流程" class="headerlink" title="6.1 矿工的工作流程"></a>6.1 矿工的工作流程</h3><p><strong>完整的挖矿流程：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">步骤 1: 选择交易</span><br><span class="line">  - 从交易池选择待确认的交易</span><br><span class="line">  - 按手续费从高到低排序</span><br><span class="line">  - 选择前 N 个交易</span><br><span class="line"></span><br><span class="line">步骤 2: 计算奖励</span><br><span class="line">  - 区块奖励：50 BTC（固定）</span><br><span class="line">  - 交易手续费：所有交易的手续费总和</span><br><span class="line">  - 矿工总收益 = 区块奖励 + 交易手续费</span><br><span class="line"></span><br><span class="line">步骤 3: 创建 Coinbase 交易</span><br><span class="line">  - 输入：特殊的全零 txId</span><br><span class="line">  - 输出：矿工总收益 → 矿工地址</span><br><span class="line"></span><br><span class="line">步骤 4: 构建区块</span><br><span class="line">  - 将 Coinbase 交易放在第一位</span><br><span class="line">  - 添加选中的交易</span><br><span class="line">  - 设置前区块哈希、时间戳、难度</span><br><span class="line"></span><br><span class="line">步骤 5: 执行工作量证明</span><br><span class="line">  - 不断尝试 nonce 值</span><br><span class="line">  - 直到找到满足难度的哈希</span><br><span class="line"></span><br><span class="line">步骤 6: 广播区块</span><br><span class="line">  - 将挖到的区块添加到区块链</span><br><span class="line">  - 广播给其他节点（我们的简化版本中省略）</span><br></pre></td></tr></table></figure>
+<h3 id="6-2-实现矿工类"><a href="#6-2-实现矿工类" class="headerlink" title="6.2 实现矿工类"></a>6.2 实现矿工类</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> Miner &#123;</span><br><span class="line">  <span class="keyword">private</span> wallet: Wallet</span><br><span class="line">  <span class="keyword">private</span> blockchain: Blockchain</span><br><span class="line"></span><br><span class="line">  mineBlock(transactions: Transaction[]): &#123;</span><br><span class="line">    block: Block</span><br><span class="line">    miningResult: MiningResult</span><br><span class="line">  &#125; &#123;</span><br><span class="line">    <span class="keyword">const</span> latestBlock = <span class="keyword">this</span>.blockchain.getLatestBlock()</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 计算矿工奖励</span></span><br><span class="line">    <span class="keyword">const</span> blockReward = <span class="keyword">this</span>.blockchain.getBlockReward()</span><br><span class="line">    <span class="keyword">const</span> totalFees = <span class="keyword">this</span>.calculateTotalFees(transactions)</span><br><span class="line">    <span class="keyword">const</span> minerReward = blockReward + totalFees</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 创建 Coinbase 交易</span></span><br><span class="line">    <span class="keyword">const</span> coinbaseTx = Transaction.createCoinbase(</span><br><span class="line">      <span class="keyword">this</span>.wallet.address,</span><br><span class="line">      minerReward,</span><br><span class="line">      latestBlock.index + <span class="number">1</span></span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 构建区块</span></span><br><span class="line">    <span class="keyword">const</span> difficulty = <span class="keyword">this</span>.blockchain.calculateNextDifficulty()</span><br><span class="line">    <span class="keyword">const</span> newBlock = <span class="keyword">new</span> Block(</span><br><span class="line">      latestBlock.index + <span class="number">1</span>,</span><br><span class="line">      latestBlock.hash,</span><br><span class="line">      <span class="built_in">Date</span>.now(),</span><br><span class="line">      [coinbaseTx, ...transactions],</span><br><span class="line">      difficulty</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 执行工作量证明</span></span><br><span class="line">    <span class="keyword">const</span> miningResult = ProofOfWork.mine(newBlock)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> &#123;block: newBlock, miningResult&#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="6-3-交易选择策略"><a href="#6-3-交易选择策略" class="headerlink" title="6.3 交易选择策略"></a>6.3 交易选择策略</h3><p>矿工需要从交易池中选择交易。我们采用贪心策略：优先选择手续费高的交易。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">selectTransactions(</span><br><span class="line">  candidateTransactions: Transaction[],</span><br><span class="line">  maxTransactions: <span class="built_in">number</span> = <span class="number">100</span></span><br><span class="line">): Transaction[] &#123;</span><br><span class="line">  <span class="keyword">const</span> utxoSet = <span class="keyword">this</span>.blockchain.getUTXOSet()</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 计算每个交易的手续费</span></span><br><span class="line">  <span class="keyword">const</span> txWithFees = candidateTransactions</span><br><span class="line">    .filter(<span class="function">(<span class="params">tx</span>) =&gt;</span> !tx.isCoinbase())</span><br><span class="line">    .map(<span class="function">(<span class="params">tx</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">try</span> &#123;</span><br><span class="line">        <span class="keyword">const</span> fee = tx.calculateFee(utxoSet.getAll())</span><br><span class="line">        <span class="keyword">return</span> &#123; tx, fee &#125;</span><br><span class="line">      &#125; <span class="keyword">catch</span> (error) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">null</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">    .filter(<span class="function">(<span class="params">item</span>) =&gt;</span> item !== <span class="literal">null</span>)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 按手续费降序排序</span></span><br><span class="line">  txWithFees.sort(<span class="function">(<span class="params">a, b</span>) =&gt;</span> b.fee - a.fee)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 取前 N 个交易</span></span><br><span class="line">  <span class="keyword">return</span> txWithFees.slice(<span class="number">0</span>, maxTransactions).map(<span class="function">(<span class="params">item</span>) =&gt;</span> item.tx)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>交易选择示例：</strong></p>
+<p>交易池：</p>
+<table>
+<thead>
+<tr>
+<th>交易 ID</th>
+<th>输入总额</th>
+<th>输出总额</th>
+<th>手续费</th>
+<th>优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1</td>
+<td>100 BTC</td>
+<td>98 BTC</td>
+<td>2 BTC</td>
+<td>1</td>
+</tr>
+<tr>
+<td>tx2</td>
+<td>50 BTC</td>
+<td>49.5 BTC</td>
+<td>0.5 BTC</td>
+<td>3</td>
+</tr>
+<tr>
+<td>tx3</td>
+<td>80 BTC</td>
+<td>79 BTC</td>
+<td>1 BTC</td>
+<td>2</td>
+</tr>
+<tr>
+<td>tx4</td>
+<td>30 BTC</td>
+<td>29.9 BTC</td>
+<td>0.1 BTC</td>
+<td>4</td>
+</tr>
+</tbody>
+</table>
+<p>矿工选择（假设只选 2 个）：</p>
+<ul>
+<li>选择 tx1（手续费最高）</li>
+<li>选择 tx3（手续费第二高）</li>
+</ul>
+<p><strong>矿工收益计算：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">区块奖励：50 BTC</span><br><span class="line">交易手续费：2 BTC (tx1) + 1 BTC (tx3) = 3 BTC</span><br><span class="line">矿工总收益：50 + 3 = 53 BTC</span><br></pre></td></tr></table></figure>
+<h2 id="七、实际应用场景"><a href="#七、实际应用场景" class="headerlink" title="七、实际应用场景"></a>七、实际应用场景</h2><p>让我们通过一个完整的例子看看区块链系统是如何工作的。</p>
+<h3 id="场景：从创世到多个区块"><a href="#场景：从创世到多个区块" class="headerlink" title="场景：从创世到多个区块"></a>场景：从创世到多个区块</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建区块链和钱包</span></span><br><span class="line"><span class="keyword">const</span> blockchain = <span class="keyword">new</span> Blockchain(&#123;</span><br><span class="line">  initialDifficulty: <span class="number">2</span>,</span><br><span class="line">  blockReward: <span class="number">50</span>,</span><br><span class="line">  targetBlockTime: <span class="number">10</span>,</span><br><span class="line">  difficultyAdjustmentInterval: <span class="number">10</span>,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> miner = <span class="keyword">new</span> Wallet()</span><br><span class="line"><span class="keyword">const</span> alice = <span class="keyword">new</span> Wallet()</span><br><span class="line"><span class="keyword">const</span> bob = <span class="keyword">new</span> Wallet()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. 创建创世区块</span></span><br><span class="line"><span class="keyword">const</span> genesisCoinbase = Transaction.createCoinbase(miner.address, <span class="number">50</span>, <span class="number">0</span>)</span><br><span class="line"><span class="keyword">const</span> genesisBlock = Block.createGenesisBlock(genesisCoinbase)</span><br><span class="line">blockchain.initializeWithGenesisBlock(genesisBlock)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'创世区块已创建'</span>)</span><br><span class="line"><span class="built_in">console</span>.log(</span><br><span class="line">  <span class="string">`矿工余额: <span class="subst">$&#123;blockchain.getUTXOSet().getBalance(miner.address)&#125;</span> BTC`</span></span><br><span class="line">)</span><br><span class="line"><span class="comment">// 输出: 矿工余额: 50 BTC</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 挖第二个区块</span></span><br><span class="line"><span class="keyword">const</span> minerInstance = <span class="keyword">new</span> Miner(miner, blockchain)</span><br><span class="line"><span class="keyword">const</span> &#123;block: block1, miningResult: result1&#125; = minerInstance.mineEmptyBlock()</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`\n挖矿区块 #1:`</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`  哈希: <span class="subst">$&#123;result1.hash&#125;</span>`</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`  尝试次数: <span class="subst">$&#123;result1.attempts&#125;</span>`</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`  用时: <span class="subst">$&#123;result1.duration&#125;</span>ms`</span>)</span><br><span class="line"></span><br><span class="line">blockchain.addBlock(block1)</span><br><span class="line"><span class="built_in">console</span>.log(</span><br><span class="line">  <span class="string">`矿工余额: <span class="subst">$&#123;blockchain.getUTXOSet().getBalance(miner.address)&#125;</span> BTC`</span></span><br><span class="line">)</span><br><span class="line"><span class="comment">// 输出: 矿工余额: 100 BTC</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 矿工给 Alice 转账</span></span><br><span class="line"><span class="keyword">const</span> utxoSet = blockchain.getUTXOSet()</span><br><span class="line"><span class="keyword">const</span> tx1 = TransactionBuilder.createSimpleTransfer(</span><br><span class="line">  miner,</span><br><span class="line">  alice.address,</span><br><span class="line">  <span class="number">30</span>,</span><br><span class="line">  utxoSet</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. 挖包含交易的区块</span></span><br><span class="line"><span class="keyword">const</span> &#123;block: block2, miningResult: result2&#125; = minerInstance.mineBlock([tx1])</span><br><span class="line">blockchain.addBlock(block2)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`\n区块 #2 已添加`</span>)</span><br><span class="line"><span class="built_in">console</span>.log(</span><br><span class="line">  <span class="string">`Alice 余额: <span class="subst">$&#123;blockchain.getUTXOSet().getBalance(alice.address)&#125;</span> BTC`</span></span><br><span class="line">)</span><br><span class="line"><span class="comment">// 输出: Alice 余额: 30 BTC</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 6. Alice 给 Bob 转账</span></span><br><span class="line"><span class="keyword">const</span> tx2 = TransactionBuilder.createSimpleTransfer(</span><br><span class="line">  alice,</span><br><span class="line">  bob.address,</span><br><span class="line">  <span class="number">15</span>,</span><br><span class="line">  blockchain.getUTXOSet()</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 7. 挖包含 Alice 转账的区块</span></span><br><span class="line"><span class="keyword">const</span> &#123;block: block3&#125; = minerInstance.mineBlock([tx2])</span><br><span class="line">blockchain.addBlock(block3)</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`\n区块 #3 已添加`</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">`Bob 余额: <span class="subst">$&#123;blockchain.getUTXOSet().getBalance(bob.address)&#125;</span> BTC`</span>)</span><br><span class="line"><span class="comment">// 输出: Bob 余额: 15 BTC</span></span><br></pre></td></tr></table></figure>
+<p><strong>最终状态：</strong></p>
+<p>区块链状态：</p>
+<table>
+<thead>
+<tr>
+<th>区块</th>
+<th>高度</th>
+<th>哈希</th>
+<th>交易数</th>
+<th>难度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>创世区块</td>
+<td>0</td>
+<td>00a3f2…</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>区块 1</td>
+<td>1</td>
+<td>007b1e…</td>
+<td>1</td>
+<td>2</td>
+</tr>
+<tr>
+<td>区块 2</td>
+<td>2</td>
+<td>0045c9…</td>
+<td>2</td>
+<td>2</td>
+</tr>
+<tr>
+<td>区块 3</td>
+<td>3</td>
+<td>00d8f3…</td>
+<td>2</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+<p>余额汇总：</p>
+<table>
+<thead>
+<tr>
+<th>用户</th>
+<th>余额</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Miner</td>
+<td>~170 BTC</td>
+<td>3 次区块奖励 + 找零 + 手续费</td>
+</tr>
+<tr>
+<td>Alice</td>
+<td>15 BTC</td>
+<td>收到 30 - 转出 15</td>
+</tr>
+<tr>
+<td>Bob</td>
+<td>15 BTC</td>
+<td>从 Alice 收到</td>
+</tr>
+</tbody>
+</table>
+<h2 id="八、总结"><a href="#八、总结" class="headerlink" title="八、总结"></a>八、总结</h2><p>在这篇文章中，我们实现了比特币的区块链核心。我们学习了 Merkle 树如何提供高效的交易验证，理解了区块的结构和区块哈希的计算方式。我们深入探讨了工作量证明算法，了解了挖矿的本质是寻找满足难度要求的 nonce 值。我们还实现了区块链管理类，包括区块验证、UTXO 维护和动态难度调整。最后，我们实现了矿工类，它负责选择交易、打包区块和执行挖矿。</p>
+<p>这些组件构成了比特币的去中心化账本。有了它们，我们不再需要可信的第三方来维护账本。工作量证明确保了修改历史的成本极高，UTXO 模型确保了不会有双花，Merkle 树提供了高效的验证机制，难度调整保证了稳定的出块时间。</p>
+<p>我们的实现是简化的。真实的比特币网络使用更复杂的难度调整算法（每 2016 个区块调整一次），有更严格的时间戳验证规则，并且区块奖励会每 210,000 个区块减半（这就是著名的”减半”机制）。但我们保留了最核心的概念：工作量证明、区块链接、Merkle 树和 UTXO 管理。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/bitcoin/" rel="tag"># bitcoin</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/12/31/bitcoin-2/" rel="next" title="实现一个简单的比特币：Part 2 - 交易系统">
+                <i class="fa fa-chevron-left"></i> 实现一个简单的比特币：Part 2 - 交易系统
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、为什么需要区块链"><span class="nav-number">1.</span> <span class="nav-text">一、为什么需要区块链</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、Merkle-树：高效验证的基石"><span class="nav-number">2.</span> <span class="nav-text">二、Merkle 树：高效验证的基石</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-什么是-Merkle-树"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 什么是 Merkle 树</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-实现-Merkle-树"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 实现 Merkle 树</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、区块结构：链接的基石"><span class="nav-number">3.</span> <span class="nav-text">三、区块结构：链接的基石</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-区块头"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 区块头</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-区块体"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 区块体</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-区块哈希"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 区块哈希</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-创世区块"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 创世区块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、工作量证明：挖矿的核心"><span class="nav-number">4.</span> <span class="nav-text">四、工作量证明：挖矿的核心</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-难度目标"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 难度目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-挖矿过程"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 挖矿过程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、区块链管理：维护账本"><span class="nav-number">5.</span> <span class="nav-text">五、区块链管理：维护账本</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-区块链的核心功能"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 区块链的核心功能</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-区块验证"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 区块验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-难度调整"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 难度调整</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-UTXO-集合维护"><span class="nav-number">5.4.</span> <span class="nav-text">5.4 UTXO 集合维护</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、矿工：打包交易与挖矿"><span class="nav-number">6.</span> <span class="nav-text">六、矿工：打包交易与挖矿</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#6-1-矿工的工作流程"><span class="nav-number">6.1.</span> <span class="nav-text">6.1 矿工的工作流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-2-实现矿工类"><span class="nav-number">6.2.</span> <span class="nav-text">6.2 实现矿工类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-3-交易选择策略"><span class="nav-number">6.3.</span> <span class="nav-text">6.3 交易选择策略</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#七、实际应用场景"><span class="nav-number">7.</span> <span class="nav-text">七、实际应用场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#场景：从创世到多个区块"><span class="nav-number">7.1.</span> <span class="nav-text">场景：从创世到多个区块</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#八、总结"><span class="nav-number">8.</span> <span class="nav-text">八、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="bitcoin," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="当我们听到比特币这个词的时候，脑海中浮现的可能是价格波动、挖矿、区块链等概念。但如果我们真的想理解比特币的本质，最好的方式就是自己动手实现一个简化版本。在这个系列的第一篇文章中，我们将从最基础的部分开始，逐步构建起比特币系统的核心组件。 从一个问题开始在传统的银行系统中，所有的交易记录都保存在银行的中心服务器上。如果 Alice 想给 Bob 转账 100 元，银行会在自己的数据库中给 Alice">
+<meta name="keywords" content="bitcoin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实现一个简单的比特币：Part 1 - 基础组件">
+<meta property="og:url" content="http://www.paradeto.com/2025/12/26/bitcoin-1/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="当我们听到比特币这个词的时候，脑海中浮现的可能是价格波动、挖矿、区块链等概念。但如果我们真的想理解比特币的本质，最好的方式就是自己动手实现一个简化版本。在这个系列的第一篇文章中，我们将从最基础的部分开始，逐步构建起比特币系统的核心组件。 从一个问题开始在传统的银行系统中，所有的交易记录都保存在银行的中心服务器上。如果 Alice 想给 Bob 转账 100 元，银行会在自己的数据库中给 Alice">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2025-12-29T01:15:21.345Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实现一个简单的比特币：Part 1 - 基础组件">
+<meta name="twitter:description" content="当我们听到比特币这个词的时候，脑海中浮现的可能是价格波动、挖矿、区块链等概念。但如果我们真的想理解比特币的本质，最好的方式就是自己动手实现一个简化版本。在这个系列的第一篇文章中，我们将从最基础的部分开始，逐步构建起比特币系统的核心组件。 从一个问题开始在传统的银行系统中，所有的交易记录都保存在银行的中心服务器上。如果 Alice 想给 Bob 转账 100 元，银行会在自己的数据库中给 Alice">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2025/12/26/bitcoin-1/"/>
+
+
+
+
+
+
+  <title>实现一个简单的比特币：Part 1 - 基础组件 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2025/12/26/bitcoin-1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实现一个简单的比特币：Part 1 - 基础组件</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2025-12-26T10:00:25+08:00">
+                2025-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web3/" itemprop="url" rel="index">
+                    <span itemprop="name">web3</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>当我们听到比特币这个词的时候，脑海中浮现的可能是价格波动、挖矿、区块链等概念。但如果我们真的想理解比特币的本质，最好的方式就是自己动手实现一个简化版本。在这个系列的第一篇文章中，我们将从最基础的部分开始，逐步构建起比特币系统的核心组件。</p>
+<h2 id="从一个问题开始"><a href="#从一个问题开始" class="headerlink" title="从一个问题开始"></a>从一个问题开始</h2><p>在传统的银行系统中，所有的交易记录都保存在银行的中心服务器上。如果 Alice 想给 Bob 转账 100 元，银行会在自己的数据库中给 Alice 的账户减去 100 元，给 Bob 的账户加上 100 元。这个过程看起来很简单，但它依赖于一个前提：我们必须信任银行。</p>
+<p>比特币的创新之处在于，它试图在没有中心化机构的情况下，让一群互不信任的人能够安全地进行转账。要实现这个目标，我们需要解决几个关键问题：如何证明一笔钱确实属于你？如何防止你把同一笔钱花两次？如何让所有人对账本达成共识？</p>
+<p>在这篇文章中，我们先聚焦于第一个问题：如何证明所有权。</p>
+<h2 id="密码学基础：数字签名"><a href="#密码学基础：数字签名" class="headerlink" title="密码学基础：数字签名"></a>密码学基础：数字签名</h2><p>比特币使用椭圆曲线数字签名算法（ECDSA）来证明交易的所有权。核心原理是一对密钥：</p>
+<ul>
+<li><strong>私钥</strong>：256 位随机数，只有所有者知道，用于签名</li>
+<li><strong>公钥</strong>：从私钥通过椭圆曲线运算得到，可以公开，用于验证签名</li>
+</ul>
+<p>数字签名的特性：</p>
+<ul>
+<li>用私钥签名很容易</li>
+<li>用公钥验证签名很容易</li>
+<li>从签名或公钥反推私钥几乎不可能</li>
+<li>没有私钥就无法伪造签名</li>
+</ul>
+<p><strong>签名和验证流程：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">Alice 签名                    Bob/矿工 验证</span><br><span class="line">─────────────────            ─────────────────</span><br><span class="line">消息 &quot;转账 50 BTC&quot;           收到: 消息 + 签名 + Alice公钥</span><br><span class="line">    ↓                             ↓</span><br><span class="line">计算哈希 hash(消息)           计算哈希 hash(消息)</span><br><span class="line">    ↓                             ↓</span><br><span class="line">用私钥签名                     用公钥验证</span><br><span class="line">sign(hash, 私钥)              verify(hash, 签名, 公钥)</span><br><span class="line">    ↓                             ↓</span><br><span class="line">广播: 消息 + 签名 + 公钥      验证通过</span><br></pre></td></tr></table></figure>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> KeyPair &#123;</span><br><span class="line">  <span class="keyword">private</span> _privateKey: <span class="built_in">string</span></span><br><span class="line">  <span class="keyword">private</span> _publicKey: <span class="built_in">string</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">privateKey?: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (privateKey) &#123;</span><br><span class="line">      <span class="keyword">this</span>._privateKey = privateKey</span><br><span class="line">      <span class="keyword">this</span>._publicKey = Signature.getPublicKeyFromPrivate(privateKey)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> &#123;privateKey: privKey, publicKey: pubKey&#125; =</span><br><span class="line">        Signature.generateKeyPair()</span><br><span class="line">      <span class="keyword">this</span>._privateKey = privKey</span><br><span class="line">      <span class="keyword">this</span>._publicKey = pubKey</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  sign(data: <span class="built_in">string</span>): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Signature.sign(data, <span class="keyword">this</span>._privateKey)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  verify(data: <span class="built_in">string</span>, signature: <span class="built_in">string</span>): <span class="built_in">boolean</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> Signature.verify(data, signature, <span class="keyword">this</span>._publicKey)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在实际交易中，发送者用私钥签名，验证者（矿工/节点）使用交易中附带的公钥来验证签名的有效性。</p>
+<h2 id="从公钥到地址"><a href="#从公钥到地址" class="headerlink" title="从公钥到地址"></a>从公钥到地址</h2><p>有了密钥对之后，下一个问题是：我们要把钱转给谁？在比特币中，我们不是直接用公钥来接收比特币，而是用一个叫做”地址”的东西。地址是从公钥经过一系列哈希运算和编码得到的一串字符。</p>
+<p>为什么要这么做呢？有几个原因。首先，公钥比较长，不方便使用和记忆。其次，通过哈希运算，我们可以给公钥增加一层额外的安全保护。最后，经过特殊的编码（Base58 编码），我们可以让地址更容易辨认，避免混淆相似的字符。</p>
+<p>地址的生成过程是这样的：首先对公钥进行 SHA-256 哈希，然后对结果再进行 RIPEMD-160 哈希，最后用 Base58 编码。这样得到的地址通常以数字 1 开头，长度在 26 到 35 个字符之间。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> generateAddress(): <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> sha256Hash = Hash.sha256(<span class="keyword">this</span>.keyPair.publicKey)</span><br><span class="line">  <span class="keyword">const</span> ripemd160Hash = Hash.ripemd160(sha256Hash)</span><br><span class="line">  <span class="keyword">const</span> address = encodeBase58(ripemd160Hash)</span><br><span class="line">  <span class="keyword">return</span> address</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个过程看起来有些复杂，但每一步都有其意义。SHA-256 提供了强大的抗碰撞特性，RIPEMD-160 将结果压缩到更短的长度，而 Base58 编码则让地址对人类更友好。Base58 编码去除了容易混淆的字符，比如数字 0 和字母 O，数字 1 和字母 I。</p>
+<h2 id="UTXO：一种不同的记账方式"><a href="#UTXO：一种不同的记账方式" class="headerlink" title="UTXO：一种不同的记账方式"></a>UTXO：一种不同的记账方式</h2><p>在解释了如何证明身份之后，我们需要思考另一个问题：如何记录谁有多少比特币？</p>
+<p>传统的银行系统使用账户模型，每个账户有一个余额。比如 Alice 的账户显示有 500 元，Bob 的账户显示有 300 元。当 Alice 给 Bob 转账 100 元时，系统会更新两个账户的余额。</p>
+<p>比特币采用了一种完全不同的方式，叫做 UTXO 模型。UTXO 是 “Unspent Transaction Output” 的缩写，意思是”未花费的交易输出”。这个名字听起来有些拗口，但它的概念其实很直观。</p>
+<p>让我们对比一下两种模型：</p>
+<p><strong>账户模型（传统银行）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>账户名</th>
+<th>交易前余额</th>
+<th>交易后余额</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Alice</td>
+<td>500 元</td>
+<td>400 元</td>
+<td>直接修改余额 -100</td>
+</tr>
+<tr>
+<td>Bob</td>
+<td>300 元</td>
+<td>400 元</td>
+<td>直接修改余额 +100</td>
+</tr>
+</tbody>
+</table>
+<p><strong>UTXO 模型（比特币）：</strong></p>
+<p>交易前：</p>
+<table>
+<thead>
+<tr>
+<th>UTXO ID</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UTXO_1</td>
+<td>300 元</td>
+<td>Alice</td>
+<td>有效</td>
+</tr>
+<tr>
+<td>UTXO_2</td>
+<td>200 元</td>
+<td>Alice</td>
+<td>有效</td>
+</tr>
+<tr>
+<td>UTXO_3</td>
+<td>300 元</td>
+<td>Bob</td>
+<td>有效</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Alice 实际余额：300 + 200 = <strong>500 元</strong></li>
+<li>Bob 实际余额：300 = <strong>300 元</strong></li>
+</ul>
+<p>Alice 转给 Bob 100 元后：</p>
+<table>
+<thead>
+<tr>
+<th>UTXO ID</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UTXO_1</td>
+<td>300 元</td>
+<td>Alice</td>
+<td>已花费</td>
+<td>被交易消耗</td>
+</tr>
+<tr>
+<td>UTXO_2</td>
+<td>200 元</td>
+<td>Alice</td>
+<td>有效</td>
+<td>未使用</td>
+</tr>
+<tr>
+<td>UTXO_3</td>
+<td>300 元</td>
+<td>Bob</td>
+<td>有效</td>
+<td>未使用</td>
+</tr>
+<tr>
+<td>UTXO_4</td>
+<td>100 元</td>
+<td>Bob</td>
+<td>有效</td>
+<td>新创建</td>
+</tr>
+<tr>
+<td>UTXO_5</td>
+<td>200 元</td>
+<td>Alice</td>
+<td>有效</td>
+<td>找零</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Alice 实际余额：200 + 200 = <strong>400 元</strong></li>
+<li>Bob 实际余额：300 + 100 = <strong>400 元</strong></li>
+</ul>
+<p>我们可以把 UTXO 想象成一张张不同面额的纸币。假设 Alice 想给 Bob 转账 100 元，她手里有一张 150 元的”纸币”（一个 UTXO）。她不能直接撕掉一部分给 Bob，而是要把整张 150 元的纸币花掉，然后创建两张新的纸币：一张 100 元的给 Bob，一张 50 元的找零给自己。</p>
+<p>让我们看一个完整的例子：</p>
+<p><strong>初始状态：</strong></p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TX_0:0</td>
+<td>150 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+</tr>
+<tr>
+<td>TX_1:0</td>
+<td>200 BTC</td>
+<td>Carol</td>
+<td>有效</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Alice 创建交易 TX_2：</strong></p>
+<p>交易输入：</p>
+<table>
+<thead>
+<tr>
+<th>输入索引</th>
+<th>引用 UTXO</th>
+<th>金额</th>
+<th>签名</th>
+<th>公钥</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>TX_0:0</td>
+<td>150 BTC</td>
+<td>Alice 签名</td>
+<td>Alice 公钥</td>
+</tr>
+</tbody>
+</table>
+<p>交易输出：</p>
+<table>
+<thead>
+<tr>
+<th>输出索引</th>
+<th>金额</th>
+<th>接收地址</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>100 BTC</td>
+<td>Bob 地址</td>
+<td>转账</td>
+</tr>
+<tr>
+<td>1</td>
+<td>50 BTC</td>
+<td>Alice 地址</td>
+<td>找零</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>输入总额：150 BTC</li>
+<li>输出总额：150 BTC</li>
+<li>矿工费：0 BTC</li>
+<li>验证者使用 Alice 公钥 来验证 Alice 签名 的有效性</li>
+</ul>
+<p><strong>交易确认后的状态：</strong></p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TX_0:0</td>
+<td>150 BTC</td>
+<td>Alice</td>
+<td>已花费</td>
+<td>被 TX_2 消耗</td>
+</tr>
+<tr>
+<td>TX_1:0</td>
+<td>200 BTC</td>
+<td>Carol</td>
+<td>有效</td>
+<td>未使用</td>
+</tr>
+<tr>
+<td>TX_2:0</td>
+<td>100 BTC</td>
+<td>Bob</td>
+<td>有效</td>
+<td>新创建</td>
+</tr>
+<tr>
+<td>TX_2:1</td>
+<td>50 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+<td>找零</td>
+</tr>
+</tbody>
+</table>
+<p><strong>余额汇总：</strong></p>
+<ul>
+<li>Alice：50 BTC (TX_2:1)</li>
+<li>Bob：100 BTC (TX_2:0)</li>
+<li>Carol：200 BTC (TX_1:0)</li>
+</ul>
+<p>这种模型有几个优势。首先，每个 UTXO 只能被花费一次，这让双花检测变得很简单：系统只需要检查一个 UTXO 是否已经被使用过。其次，不同的 UTXO 之间是相互独立的，这意味着系统可以并行处理多笔交易，只要它们不涉及相同的 UTXO。最后，UTXO 模型天然地提供了更好的隐私保护，因为每次交易都可以使用新的地址。</p>
+<h2 id="交易的结构"><a href="#交易的结构" class="headerlink" title="交易的结构"></a>交易的结构</h2><p>在 UTXO 模型中，每笔交易都包含两个主要部分：输入和输出。输入指向之前的 UTXO，证明你有权花费它们。输出创建新的 UTXO，指定金额和接收地址。</p>
+<p>交易输入需要包含几个关键信息：引用的交易 ID、输出索引、签名和公钥。交易 ID 和输出索引用来定位具体的 UTXO。签名用来证明你确实有权花费这个 UTXO。公钥则让其他人（矿工和节点）可以验证你的签名是否有效。</p>
+<p>验证过程是这样的：系统会用输入中提供的公钥，结合引用的 UTXO 的接收地址，来验证两件事：第一，这个公钥对应的地址确实是 UTXO 的接收地址；第二，签名确实是用这个公钥对应的私钥生成的。只有两个条件都满足，这个输入才是有效的。</p>
+<p>需要说明的是，真实的比特币使用了更复杂的脚本系统（Script）。在真实比特币中，签名和公钥被包含在 <code>scriptSig</code>（解锁脚本）字段中，而不是像我们这样直接存储。比特币的脚本系统是一个基于栈的语言，提供了更大的灵活性，可以实现多签名、时间锁等高级功能。我们这里为了简化，直接存储签名和公钥，这样更容易理解核心概念。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> TxInput &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    <span class="keyword">public</span> readonly txId: <span class="built_in">string</span>,</span></span><br><span class="line"><span class="params">    <span class="keyword">public</span> readonly outputIndex: <span class="built_in">number</span>,</span></span><br><span class="line">    public signature: string = '',</span><br><span class="line">    <span class="keyword">public</span> publicKey: <span class="built_in">string</span> = <span class="string">''</span></span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!txId || txId.trim().length === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'交易 ID 不能为空'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (outputIndex &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'输出索引不能为负数'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  getUTXOKey(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">`<span class="subst">$&#123;this.txId&#125;</span>:<span class="subst">$&#123;this.outputIndex&#125;</span>`</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个类的设计很简洁。每个输入都明确指向一个 UTXO，通过交易 ID 和输出索引来定位。签名和公钥在创建输入时可能还不存在，因为需要先构建完整的交易内容才能签名，所以它们有默认的空值。</p>
+<p>交易输出的结构更加简单，只需要两个字段：金额和接收地址。金额必须大于零，地址不能为空。这些基本的验证规则在构造函数中就被强制执行了。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> TxOutput &#123;</span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params"><span class="keyword">public</span> readonly amount: <span class="built_in">number</span>, <span class="keyword">public</span> readonly address: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">if</span> (amount &lt;= <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'输出金额必须大于 0'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (!address || address.trim().length === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'接收地址不能为空'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>一笔完整的交易可能有多个输入和多个输出。所有输入的总金额必须大于或等于所有输出的总金额。如果有差额，这个差额就成为矿工费，奖励给打包这笔交易的矿工。</p>
+<p>让我们看一个更复杂的例子，Alice 有多个 UTXO，想给 Bob 转账 180 BTC：</p>
+<p><strong>Alice 的 UTXO：</strong></p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>TX_A:0</td>
+<td>100 BTC</td>
+<td>Alice</td>
+</tr>
+<tr>
+<td>TX_B:0</td>
+<td>50 BTC</td>
+<td>Alice</td>
+</tr>
+<tr>
+<td>TX_C:0</td>
+<td>60 BTC</td>
+<td>Alice</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Alice 想转给 Bob 180 BTC，创建新交易 TX_D：</strong></p>
+<p>交易输入：</p>
+<table>
+<thead>
+<tr>
+<th>输入索引</th>
+<th>引用 UTXO</th>
+<th>金额</th>
+<th>签名</th>
+<th>公钥</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>TX_A:0</td>
+<td>100 BTC</td>
+<td>Alice 签名</td>
+<td>Alice 公钥</td>
+</tr>
+<tr>
+<td>1</td>
+<td>TX_B:0</td>
+<td>50 BTC</td>
+<td>Alice 签名</td>
+<td>Alice 公钥</td>
+</tr>
+<tr>
+<td>2</td>
+<td>TX_C:0</td>
+<td>60 BTC</td>
+<td>Alice 签名</td>
+<td>Alice 公钥</td>
+</tr>
+</tbody>
+</table>
+<p>交易输出：</p>
+<table>
+<thead>
+<tr>
+<th>输出索引</th>
+<th>金额</th>
+<th>接收地址</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>180 BTC</td>
+<td>Bob</td>
+<td>转账</td>
+</tr>
+<tr>
+<td>1</td>
+<td>27 BTC</td>
+<td>Alice</td>
+<td>找零</td>
+</tr>
+</tbody>
+</table>
+<p><strong>交易汇总：</strong></p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>金额</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入总额</td>
+<td>210 BTC</td>
+</tr>
+<tr>
+<td>输出总额</td>
+<td>207 BTC</td>
+</tr>
+<tr>
+<td>矿工费</td>
+<td>3 BTC</td>
+</tr>
+</tbody>
+</table>
+<p><strong>交易验证：</strong></p>
+<ul>
+<li>所有输入的 UTXO 都存在</li>
+<li>所有签名都有效（每个输入都包含签名和公钥用于验证）</li>
+<li>输入总额 (210) ≥ 输出总额 (207)</li>
+<li>矿工费 = 210 - 207 = 3 BTC</li>
+</ul>
+<p>在这个例子中，Alice 使用了三个 UTXO 作为输入，总共 210 BTC。她创建了两个输出：180 BTC 给 Bob，27 BTC 找零给自己。剩余的 3 BTC 成为矿工费。</p>
+<h2 id="UTXO-集合的管理"><a href="#UTXO-集合的管理" class="headerlink" title="UTXO 集合的管理"></a>UTXO 集合的管理</h2><p>系统需要一个地方来存储所有当前有效的 UTXO。这就是 UTXO 集合的作用。每当有新的交易被确认，系统会从 UTXO 集合中移除被花费的 UTXO，同时添加新创建的 UTXO。</p>
+<p>UTXO 集合使用一个 Map 数据结构来存储，键是由交易 ID 和输出索引组成的字符串，值是交易输出本身。这种设计让查找操作的时间复杂度是 O(1)，非常高效。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> UTXOSet &#123;</span><br><span class="line">  <span class="keyword">private</span> utxos: Map&lt;<span class="built_in">string</span>, TxOutput&gt;</span><br><span class="line"></span><br><span class="line">  add(txId: <span class="built_in">string</span>, outputIndex: <span class="built_in">number</span>, output: TxOutput): <span class="built_in">void</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> key = <span class="keyword">this</span>.makeKey(txId, outputIndex)</span><br><span class="line">    <span class="keyword">this</span>.utxos.set(key, output)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  remove(txId: <span class="built_in">string</span>, outputIndex: <span class="built_in">number</span>): <span class="built_in">boolean</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> key = <span class="keyword">this</span>.makeKey(txId, outputIndex)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.utxos.delete(key)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> makeKey(txId: <span class="built_in">string</span>, outputIndex: <span class="built_in">number</span>): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">`<span class="subst">$&#123;txId&#125;</span>:<span class="subst">$&#123;outputIndex&#125;</span>`</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>UTXO 集合还提供了一些实用的方法。比如查询某个地址有哪些 UTXO，计算某个地址的总余额。这些操作都需要遍历整个 UTXO 集合，但因为使用了高效的数据结构，即使有大量的 UTXO，性能也能保持在可接受的范围内。</p>
+<p>获取某个地址的所有 UTXO 是构建交易时的关键操作。当 Alice 想给 Bob 转账时，系统需要找出 Alice 拥有的所有 UTXO，然后选择足够的 UTXO 来满足转账金额。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">getUTXOsByAddress(address: <span class="built_in">string</span>): <span class="built_in">Array</span>&lt;&#123;</span><br><span class="line">  txId: <span class="built_in">string</span></span><br><span class="line">  outputIndex: <span class="built_in">number</span></span><br><span class="line">  output: TxOutput</span><br><span class="line">&#125;&gt; &#123;</span><br><span class="line">  <span class="keyword">const</span> result: <span class="built_in">Array</span>&lt;&#123;</span><br><span class="line">    txId: <span class="built_in">string</span></span><br><span class="line">    outputIndex: <span class="built_in">number</span></span><br><span class="line">    output: TxOutput</span><br><span class="line">  &#125;&gt; = []</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> [key, output] of <span class="keyword">this</span>.utxos.entries()) &#123;</span><br><span class="line">    <span class="keyword">if</span> (output.address === address) &#123;</span><br><span class="line">      <span class="keyword">const</span> [txId, outputIndex] = <span class="keyword">this</span>.parseKey(key)</span><br><span class="line">      result.push(&#123; txId, outputIndex, output &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> result</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个方法遍历所有 UTXO，找出属于指定地址的那些。返回的结果不仅包含 UTXO 本身，还包含了它的位置信息（交易 ID 和输出索引），这样就可以在构建交易输入时直接使用。</p>
+<p>让我们通过一个完整的例子来看 UTXO 集合的状态变化：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 初始化 UTXO 集合</span></span><br><span class="line"><span class="keyword">const</span> utxoSet = <span class="keyword">new</span> UTXOSet()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 创世交易：给 Alice 100 BTC</span></span><br><span class="line">utxoSet.add(<span class="string">'tx0'</span>, <span class="number">0</span>, <span class="keyword">new</span> TxOutput(<span class="number">100</span>, <span class="string">'Alice地址'</span>))</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'Alice 余额:'</span>, utxoSet.getBalance(<span class="string">'Alice地址'</span>))</span><br><span class="line"><span class="comment">// 输出: 100</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Alice 转给 Bob 60 BTC</span></span><br><span class="line"><span class="comment">// 交易 tx1 的输入引用 tx0:0，输出是 60 给 Bob，40 找零给 Alice</span></span><br><span class="line">utxoSet.remove(<span class="string">'tx0'</span>, <span class="number">0</span>) <span class="comment">// 花费旧的 UTXO</span></span><br><span class="line">utxoSet.add(<span class="string">'tx1'</span>, <span class="number">0</span>, <span class="keyword">new</span> TxOutput(<span class="number">60</span>, <span class="string">'Bob地址'</span>)) <span class="comment">// Bob 收到</span></span><br><span class="line">utxoSet.add(<span class="string">'tx1'</span>, <span class="number">1</span>, <span class="keyword">new</span> TxOutput(<span class="number">40</span>, <span class="string">'Alice地址'</span>)) <span class="comment">// Alice 找零</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'Alice 余额:'</span>, utxoSet.getBalance(<span class="string">'Alice地址'</span>)) <span class="comment">// 40</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'Bob 余额:'</span>, utxoSet.getBalance(<span class="string">'Bob地址'</span>)) <span class="comment">// 60</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 查看 Alice 拥有的 UTXO</span></span><br><span class="line"><span class="keyword">const</span> aliceUTXOs = utxoSet.getUTXOsByAddress(<span class="string">'Alice地址'</span>)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'Alice 的 UTXO:'</span>, aliceUTXOs)</span><br><span class="line"><span class="comment">// 输出: [&#123; txId: 'tx1', outputIndex: 1, output: &#123; amount: 40, address: 'Alice地址' &#125;&#125;]</span></span><br></pre></td></tr></table></figure>
+<p>这个例子展示了 UTXO 集合如何随着交易的进行而动态更新。每笔交易都会消费一些 UTXO，同时创建新的 UTXO，整个系统通过这种方式追踪每个人的余额。</p>
+<h2 id="哈希：数字世界的指纹"><a href="#哈希：数字世界的指纹" class="headerlink" title="哈希：数字世界的指纹"></a>哈希：数字世界的指纹</h2><p>哈希函数是比特币的核心组件之一。它的特点是：</p>
+<ul>
+<li><strong>固定长度输出</strong>：无论输入多大，输出长度固定</li>
+<li><strong>单向不可逆</strong>：无法从哈希值反推原始数据</li>
+<li><strong>雪崩效应</strong>：输入微小变化，输出完全不同</li>
+</ul>
+<p><strong>代码实现：</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> Hash &#123;</span><br><span class="line">  <span class="keyword">static</span> sha256(data: <span class="built_in">string</span>): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> CryptoJS.SHA256(data).toString()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> doubleSha256(data: <span class="built_in">string</span>): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> firstHash = <span class="keyword">this</span>.sha256(data)</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.sha256(firstHash)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> ripemd160(data: <span class="built_in">string</span>): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> CryptoJS.RIPEMD160(data).toString()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="钱包：把所有东西整合在一起"><a href="#钱包：把所有东西整合在一起" class="headerlink" title="钱包：把所有东西整合在一起"></a>钱包：把所有东西整合在一起</h2><p>有了前面这些基础组件，我们就可以构建钱包了。钱包是用户与比特币系统交互的主要接口。一个钱包包含了密钥对，可以生成地址，对交易进行签名。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> Wallet &#123;</span><br><span class="line">  <span class="keyword">private</span> keyPair: KeyPair</span><br><span class="line">  <span class="keyword">private</span> _address: <span class="built_in">string</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params">privateKey?: <span class="built_in">string</span></span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.keyPair = <span class="keyword">new</span> KeyPair(privateKey)</span><br><span class="line">    <span class="keyword">this</span>._address = <span class="keyword">this</span>.generateAddress()</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> publicKey(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.keyPair.publicKey</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">get</span> address(): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>._address</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  sign(data: <span class="built_in">string</span>): <span class="built_in">string</span> &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.keyPair.sign(data)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>创建钱包的过程很简单。如果提供了私钥，钱包会从这个私钥恢复；如果没有提供，就生成一个新的密钥对。无论哪种方式，钱包都会计算出对应的地址。</p>
+<p>钱包提供了签名方法，这是创建交易的关键步骤。当用户想要花费某个 UTXO 时，他需要用自己的私钥对交易进行签名，证明他确实有权使用这个 UTXO。其他人可以用交易中提供的公钥来验证这个签名。</p>
+<p>钱包还提供了导出和导入功能。用户可以备份自己的私钥，然后在另一个地方用这个私钥恢复钱包。这个功能极其重要，因为如果私钥丢失了，对应地址上的所有比特币也就永远丢失了。</p>
+<p>下面是一个完整的钱包使用示例：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 创建钱包</span></span><br><span class="line"><span class="keyword">const</span> alice = <span class="keyword">new</span> Wallet()</span><br><span class="line"><span class="keyword">const</span> bob = <span class="keyword">new</span> Wallet()</span><br><span class="line"></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'Alice 的地址:'</span>, alice.address)</span><br><span class="line"><span class="comment">// 输出: 1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa</span></span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'Bob 的地址:'</span>, bob.address)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 2. Alice 对交易消息进行签名</span></span><br><span class="line"><span class="keyword">const</span> message = <span class="string">'Transfer 50 BTC to Bob'</span></span><br><span class="line"><span class="keyword">const</span> signature = alice.sign(message)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'Alice 的签名:'</span>, signature)</span><br><span class="line"><span class="comment">// 输出: 304502210089ab3c...</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. Alice 将消息、签名和公钥一起发送</span></span><br><span class="line"><span class="keyword">const</span> transaction = &#123;</span><br><span class="line">  message: message,</span><br><span class="line">  signature: signature,</span><br><span class="line">  publicKey: alice.publicKey, <span class="comment">// 其他人需要这个来验证</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. Bob（或任何人）验证签名</span></span><br><span class="line"><span class="comment">// 注意：实际场景中，验证者需要用签名者的公钥来验证</span></span><br><span class="line"><span class="comment">// 这里我们用 Signature.verify() 而不是 wallet.verify()</span></span><br><span class="line"><span class="keyword">import</span> &#123;Signature&#125; <span class="keyword">from</span> <span class="string">'./crypto/signature'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> isValid = Signature.verify(</span><br><span class="line">  transaction.message,</span><br><span class="line">  transaction.signature,</span><br><span class="line">  transaction.publicKey <span class="comment">// 使用 Alice 的公钥</span></span><br><span class="line">)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'签名是否有效:'</span>, isValid) <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 5. Alice 也可以自己验证（用于测试）</span></span><br><span class="line"><span class="keyword">const</span> selfVerify = alice.verify(message, signature)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'自验证:'</span>, selfVerify) <span class="comment">// true</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 6. 导出钱包信息（谨慎处理！包含私钥）</span></span><br><span class="line"><span class="keyword">const</span> walletData = alice.export()</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'钱包信息:'</span>, walletData)</span><br><span class="line"><span class="comment">// &#123;</span></span><br><span class="line"><span class="comment">//   privateKey: 'e9873d...',</span></span><br><span class="line"><span class="comment">//   publicKey: '04a34b...',</span></span><br><span class="line"><span class="comment">//   address: '1A1zP1...'</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 7. 从私钥恢复钱包</span></span><br><span class="line"><span class="keyword">const</span> recovered = Wallet.fromPrivateKey(walletData.privateKey)</span><br><span class="line"><span class="built_in">console</span>.log(<span class="string">'恢复的地址:'</span>, recovered.address) <span class="comment">// 与原地址相同</span></span><br></pre></td></tr></table></figure>
+<p>整个系统的工作流程可以这样理解：</p>
+<p><strong>比特币系统工作流程：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">1. 创建钱包</span><br><span class="line">   Wallet() → 生成密钥对 → 生成地址</span><br><span class="line"></span><br><span class="line">2. 获得比特币</span><br><span class="line">   接收转账 → 新的 UTXO 被创建 → 加入 UTXO 集合</span><br><span class="line"></span><br><span class="line">3. 发起转账</span><br><span class="line">   选择 UTXO → 构建交易 → 签名交易 → 广播到网络</span><br><span class="line"></span><br><span class="line">4. 交易确认</span><br><span class="line">   矿工打包交易 → 工作量证明 → 添加到区块链</span><br><span class="line"></span><br><span class="line">5. 更新状态</span><br><span class="line">   旧 UTXO 标记为已花费 → 新 UTXO 加入集合</span><br></pre></td></tr></table></figure>
+<h2 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h2><p>本文实现了比特币系统的基础层，包括：</p>
+<p><strong>核心组件：</strong></p>
+<ul>
+<li><strong>密钥对与签名</strong></li>
+<li><strong>地址生成</strong></li>
+<li><strong>UTXO 模型</strong>：未花费交易输出的独特记账方式</li>
+<li><strong>交易结构</strong>：输入（引用 UTXO + 签名）+ 输出（金额 + 地址）</li>
+<li><strong>UTXO 集合</strong>：高效管理所有有效的未花费输出</li>
+<li><strong>钱包</strong>：密钥管理、地址生成、交易签名</li>
+</ul>
+<p><strong>已具备的能力：</strong><br>创建钱包 → 生成地址 → 构建交易 → 签名验证</p>
+<p>在 Part 2 中，我们将实现区块链、工作量证明（挖矿）和共识机制。</p>
+<p>比特币的设计优雅地融合了密码学、数据结构和经济激励，创造出去中心化的电子现金系统。通过动手实现，我们不仅理解了原理，也体会到了设计的精妙。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/bitcoin/" rel="tag"># bitcoin</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/12/26/ai-finance-report/" rel="next" title="AI Agent 实战：股票研报撰写助手">
+                <i class="fa fa-chevron-left"></i> AI Agent 实战：股票研报撰写助手
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/12/31/bitcoin-2/" rel="prev" title="实现一个简单的比特币：Part 2 - 交易系统">
+                实现一个简单的比特币：Part 2 - 交易系统 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#从一个问题开始"><span class="nav-number">1.</span> <span class="nav-text">从一个问题开始</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#密码学基础：数字签名"><span class="nav-number">2.</span> <span class="nav-text">密码学基础：数字签名</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#从公钥到地址"><span class="nav-number">3.</span> <span class="nav-text">从公钥到地址</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UTXO：一种不同的记账方式"><span class="nav-number">4.</span> <span class="nav-text">UTXO：一种不同的记账方式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#交易的结构"><span class="nav-number">5.</span> <span class="nav-text">交易的结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#UTXO-集合的管理"><span class="nav-number">6.</span> <span class="nav-text">UTXO 集合的管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#哈希：数字世界的指纹"><span class="nav-number">7.</span> <span class="nav-text">哈希：数字世界的指纹</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#钱包：把所有东西整合在一起"><span class="nav-number">8.</span> <span class="nav-text">钱包：把所有东西整合在一起</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#小结"><span class="nav-number">9.</span> <span class="nav-text">小结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

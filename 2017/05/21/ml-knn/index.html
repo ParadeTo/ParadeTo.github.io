@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="机器学习," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="机器学习实战k近邻算法">
+<meta name="keywords" content="机器学习">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习实战-k近邻算法">
+<meta property="og:url" content="http://www.paradeto.com/2017/05/21/ml-knn/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="机器学习实战k近邻算法">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2017/05/21/ml-knn/Figure_1.png">
+<meta property="og:updated_time" content="2018-03-13T08:29:06.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="机器学习实战-k近邻算法">
+<meta name="twitter:description" content="机器学习实战k近邻算法">
+<meta name="twitter:image" content="http://www.paradeto.com/2017/05/21/ml-knn/Figure_1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2017/05/21/ml-knn/"/>
+
+
+
+
+
+
+  <title>机器学习实战-k近邻算法 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2017/05/21/ml-knn/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">机器学习实战-k近邻算法</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-05-21T18:07:59+08:00">
+                2017-05-21
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/机器学习/" itemprop="url" rel="index">
+                    <span itemprop="name">机器学习</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  机器学习实战k近邻算法
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="k近邻算法"><a href="#k近邻算法" class="headerlink" title="k近邻算法"></a>k近邻算法</h1><h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><p>存在一个样本数据集合，也称作训练样本集，且我们知道样本中每个数据的分类信息。<br>当我们输入未分类的新数据后，得到新数据与每个样本数据之间的”距离”，选择前k个距离<br>最近的样本中类别出现次数最多者作为新数据的类别</p>
+<ul>
+<li>优点：精度高、对异常值不敏感、无数据输入假定</li>
+<li>缺点：计算复杂度高、空间复杂度高</li>
+<li>适用数据范围：数值型和标称型</li>
+</ul>
+<h2 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h2><p>假设我们有如下样本集</p>
+<table>
+<thead>
+<tr>
+<th>电影名称</th>
+<th>打斗镜头</th>
+<th>接吻镜头</th>
+<th>电影类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>California Man</td>
+<td>3</td>
+<td>104</td>
+<td>爱情片</td>
+</tr>
+<tr>
+<td>He’s Not Really into Dudes</td>
+<td>2</td>
+<td>100</td>
+<td>爱情片</td>
+</tr>
+<tr>
+<td>Beautiful Woman</td>
+<td>1</td>
+<td>81</td>
+<td>爱情片</td>
+</tr>
+<tr>
+<td>Kevin Longblade</td>
+<td>101</td>
+<td>10</td>
+<td>动作片</td>
+</tr>
+<tr>
+<td>Robo Slayer 3000</td>
+<td>99</td>
+<td>5</td>
+<td>动作片</td>
+</tr>
+<tr>
+<td>Amped 2</td>
+<td>98</td>
+<td>2</td>
+<td>动作片</td>
+</tr>
+<tr>
+<td>？</td>
+<td>18</td>
+<td>90</td>
+<td>未知</td>
+</tr>
+</tbody>
+</table>
+<p>即便我们不知道未知电影的类型，我们也可以计算出来。首先得到未知电影与已知数据之间的距离：</p>
+<table>
+<thead>
+<tr>
+<th>电影名称</th>
+<th>与未知电影的距离</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>California Man</td>
+<td>20.5</td>
+</tr>
+<tr>
+<td>He’s Not Really into Dudes</td>
+<td>18.7</td>
+</tr>
+<tr>
+<td>Beautiful Woman</td>
+<td>19.2</td>
+</tr>
+<tr>
+<td>Kevin Longblade</td>
+<td>115.3</td>
+</tr>
+<tr>
+<td>Robo Slayer 3000</td>
+<td>117.4</td>
+</tr>
+<tr>
+<td>Amped 2</td>
+<td>118.9</td>
+</tr>
+</tbody>
+</table>
+<p>现在可以找到k个距离最近的电影，取k=3，则可发现这三个电影均为爱情片，所以可以判断该电影为爱情片。</p>
+<h2 id="knn算法的步骤"><a href="#knn算法的步骤" class="headerlink" title="knn算法的步骤"></a>knn算法的步骤</h2><ol>
+<li>计算已知类别数据集中的点与当前点之间的距离；</li>
+<li>按照距离递增次序排序；</li>
+<li>选取与当前点距离最小的k个点；</li>
+<li>确定前k个点所在类别的出现频率；</li>
+<li>返回前k个点出现频率最高的类别作为当前点的预测分类。</li>
+</ol>
+<h2 id="代码实现"><a href="#代码实现" class="headerlink" title="代码实现"></a>代码实现</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> numpy <span class="keyword">import</span> tile, operator</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">classify0</span><span class="params">(inX, dataSet, labels, k)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    knn分类函数</span></span><br><span class="line"><span class="string">    :param inX: 待分类的向量</span></span><br><span class="line"><span class="string">    :param dataSet: 样本数据集</span></span><br><span class="line"><span class="string">    :param labels: 样本数据对应的分类向量</span></span><br><span class="line"><span class="string">    :param k: 最近邻数目</span></span><br><span class="line"><span class="string">    :return: 类别标签</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    <span class="comment"># 得到数据大小</span></span><br><span class="line">    dataSetSize = dataSet.shape[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 欧氏距离</span></span><br><span class="line">    diffMat = tile(inX, (dataSetSize, <span class="number">1</span>)) - dataSet</span><br><span class="line">    sqDiffMat = diffMat**<span class="number">2</span></span><br><span class="line">    sqDistances = sqDiffMat.sum(axis=<span class="number">1</span>)</span><br><span class="line">    distances = sqDistances**<span class="number">0.5</span></span><br><span class="line"></span><br><span class="line">    <span class="comment"># [-1 -1 -7] =&gt; [2 0 1]</span></span><br><span class="line">    sortedDistIndicies = distances.argsort()</span><br><span class="line">    classCount=&#123;&#125;</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(k):</span><br><span class="line">        voteIlabel = labels[sortedDistIndicies[i]]</span><br><span class="line">        <span class="string">"""</span></span><br><span class="line"><span class="string">            &#123;</span></span><br><span class="line"><span class="string">                "label1": 34,</span></span><br><span class="line"><span class="string">                 "label2": 23,</span></span><br><span class="line"><span class="string">                 "label3": 35</span></span><br><span class="line"><span class="string">            &#125;</span></span><br><span class="line"><span class="string">        """</span></span><br><span class="line">        classCount[voteIlabel] = classCount.get(voteIlabel,<span class="number">0</span>) + <span class="number">1</span></span><br><span class="line"></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">        [('label3', 35), ('label1', 34), ('label2', 23)]</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(<span class="number">1</span>), reverse=<span class="keyword">True</span>)</span><br><span class="line">    <span class="keyword">return</span> sortedClassCount[<span class="number">0</span>][<span class="number">0</span>]</span><br><span class="line">    <span class="keyword">pass</span></span><br></pre></td></tr></table></figure>
+<h1 id="示例：使用k近邻算法改进约会网站的配对效果"><a href="#示例：使用k近邻算法改进约会网站的配对效果" class="headerlink" title="示例：使用k近邻算法改进约会网站的配对效果"></a>示例：使用k近邻算法改进约会网站的配对效果</h1><h2 id="数据"><a href="#数据" class="headerlink" title="数据"></a>数据</h2><table>
+<thead>
+<tr>
+<th>每年飞行常客里程数</th>
+<th>玩视频游戏所耗时间百分比</th>
+<th>每周消费冰激凌公升数</th>
+<th>吸引力类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>40920</td>
+<td>8.32697</td>
+<td>0.953952</td>
+<td>largeDoses</td>
+</tr>
+<tr>
+<td>14488</td>
+<td>7.153469</td>
+<td>1.673904</td>
+<td>smallDoses</td>
+</tr>
+<tr>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<h2 id="解析数据"><a href="#解析数据" class="headerlink" title="解析数据"></a>解析数据</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">file2matrix</span><span class="params">(filename)</span>:</span></span><br><span class="line">    fr = open(filename)</span><br><span class="line">    numberOfLines = len(fr.readlines())         <span class="comment">#get the number of lines in the file</span></span><br><span class="line">    returnMat = zeros((numberOfLines,<span class="number">3</span>))        <span class="comment">#prepare matrix to return</span></span><br><span class="line">    classLabelVector = []                       <span class="comment">#prepare labels return</span></span><br><span class="line">    fr = open(filename)</span><br><span class="line">    index = <span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> line <span class="keyword">in</span> fr.readlines():</span><br><span class="line">        line = line.strip()</span><br><span class="line">        listFromLine = line.split(<span class="string">'\t'</span>)</span><br><span class="line">        returnMat[index,:] = listFromLine[<span class="number">0</span>:<span class="number">3</span>]</span><br><span class="line">        classLabelVector.append(int(listFromLine[<span class="number">-1</span>]))</span><br><span class="line">        index += <span class="number">1</span></span><br><span class="line">    <span class="keyword">return</span> returnMat,classLabelVector</span><br></pre></td></tr></table></figure>
+<h2 id="分析数据：绘图"><a href="#分析数据：绘图" class="headerlink" title="分析数据：绘图"></a>分析数据：绘图</h2><h3 id="安装matplotlib"><a href="#安装matplotlib" class="headerlink" title="安装matplotlib"></a>安装matplotlib</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pip install matplotlibrc</span><br><span class="line"></span><br><span class="line">vi ~/.matplotlib/matplotlibrc</span><br><span class="line"></span><br><span class="line">backend: TkAgg</span><br></pre></td></tr></table></figure>
+<h3 id="绘图"><a href="#绘图" class="headerlink" title="绘图"></a>绘图</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">plt.figure()</span><br><span class="line">l = plt.scatter(datingDataMat[:,<span class="number">1</span>], datingDataMat[:,<span class="number">2</span>], <span class="number">6</span>*array(datingLabels), (datingLabels), label=<span class="string">'1'</span>)</span><br><span class="line">plt.axis([<span class="number">-2</span>,<span class="number">25</span>,<span class="number">-0.2</span>,<span class="number">2.0</span>])</span><br><span class="line">plt.xlabel(<span class="string">'Percentage of Time Spent Playing Video Games'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Liters of Ice Cream Consumed Per Week'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+<p><img src="/2017/05/21/ml-knn/Figure_1.png" alt="1.jpg"></p>
+<h2 id="数据归一化"><a href="#数据归一化" class="headerlink" title="数据归一化"></a>数据归一化</h2><p>数据中不同的属性之间量程相差很大，需要对数据进行归一化处理，常用的<br>归一化公式为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">newValue = (oldValue-min)/(max-min)</span><br></pre></td></tr></table></figure>
+<p>实现代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">autoNorm</span><span class="params">(dataSet)</span>:</span></span><br><span class="line">    <span class="string">"""</span></span><br><span class="line"><span class="string">    [</span></span><br><span class="line"><span class="string">        [ 1  1 -2]</span></span><br><span class="line"><span class="string">        [-2 -2 -5]</span></span><br><span class="line"><span class="string">    ]</span></span><br><span class="line"><span class="string">    """</span></span><br><span class="line">    minVals = dataSet.min(<span class="number">0</span>) <span class="comment"># [-2 -2 -5]</span></span><br><span class="line">    maxVals = dataSet.max(<span class="number">0</span>) <span class="comment"># [ 1  1 -2]</span></span><br><span class="line">    ranges = maxVals - minVals</span><br><span class="line">    normDataSet = zeros(shape(dataSet))</span><br><span class="line">    m = dataSet.shape[<span class="number">0</span>]</span><br><span class="line">    normDataSet = dataSet - tile(minVals, (m,<span class="number">1</span>))</span><br><span class="line">    normDataSet = normDataSet / tile(ranges, (m,<span class="number">1</span>))   <span class="comment">#element wise divide</span></span><br><span class="line">    <span class="keyword">return</span> normDataSet, ranges, minVals</span><br></pre></td></tr></table></figure>
+<h2 id="测试算法"><a href="#测试算法" class="headerlink" title="测试算法"></a>测试算法</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">datingClassTest</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># 测试数据的占比</span></span><br><span class="line">    hoRatio = <span class="number">0.50</span></span><br><span class="line">    datingDataMat, datingLabels = file2matrix(<span class="string">'datingTestSet2.txt'</span>)</span><br><span class="line">    <span class="comment"># 归一化</span></span><br><span class="line">    normMat, ranges, minVals = autoNorm(datingDataMat)</span><br><span class="line">    m = normMat.shape[<span class="number">0</span>]</span><br><span class="line">    numTestVecs = int(m * hoRatio)</span><br><span class="line">    errorCount = <span class="number">0.0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(numTestVecs):</span><br><span class="line">        classifierResult = classify0(normMat[i, :], normMat[numTestVecs:m, :], datingLabels[numTestVecs:m], <span class="number">3</span>)</span><br><span class="line">        <span class="keyword">print</span> <span class="string">"the classifier came back with: %d, the real answer is: %d"</span> % (classifierResult, datingLabels[i])</span><br><span class="line">        <span class="keyword">if</span> (classifierResult != datingLabels[i]): errorCount += <span class="number">1.0</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"the total error rate is: %f"</span> % (errorCount / float(numTestVecs))</span><br><span class="line">    <span class="keyword">print</span> errorCount</span><br><span class="line">...</span><br><span class="line">the classifier came back <span class="keyword">with</span>: <span class="number">2</span>, the real answer <span class="keyword">is</span>: <span class="number">2</span></span><br><span class="line">the classifier came back <span class="keyword">with</span>: <span class="number">1</span>, the real answer <span class="keyword">is</span>: <span class="number">1</span></span><br><span class="line">the classifier came back <span class="keyword">with</span>: <span class="number">1</span>, the real answer <span class="keyword">is</span>: <span class="number">1</span></span><br><span class="line">the classifier came back <span class="keyword">with</span>: <span class="number">2</span>, the real answer <span class="keyword">is</span>: <span class="number">2</span></span><br><span class="line">the total error rate <span class="keyword">is</span>: <span class="number">0.064000</span></span><br><span class="line"><span class="number">32.0</span></span><br></pre></td></tr></table></figure>
+<p>在测试数据为50%的情况下，得到了6.4%的误差率，分类效果还可以。</p>
+<h2 id="完善分类器的应用"><a href="#完善分类器的应用" class="headerlink" title="完善分类器的应用"></a>完善分类器的应用</h2><p>接下来就是利用该分类器来对数据进行分类了，即判断约会对象的吸引力：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">classifyPerson</span><span class="params">()</span>:</span></span><br><span class="line">    resultList = [<span class="string">'不喜欢'</span>, <span class="string">'一点点喜欢'</span>, <span class="string">'非常喜欢'</span>]</span><br><span class="line">    percentTats = float(raw_input(<span class="string">"花在玩游戏的时间比例:"</span>))</span><br><span class="line">    ffMiles = float(raw_input(<span class="string">"每年飞行里程数:"</span>))</span><br><span class="line">    iceCream = float(raw_input(<span class="string">"每年消费的冰激凌公升数:"</span>))</span><br><span class="line">    datingDataMat, datingLabels = file2matrix(<span class="string">'datingTestSet2.txt'</span>)</span><br><span class="line">    normMat, ranges, minVals = autoNorm(datingDataMat)</span><br><span class="line">    inArr = array([ffMiles, percentTats, iceCream])</span><br><span class="line">    classifierResult = classify0((inArr-minVals)/ranges, normMat, datingLabels, <span class="number">3</span>)</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"你会喜欢这个人吗？"</span>, resultList[classifierResult - <span class="number">1</span>]</span><br><span class="line">...</span><br><span class="line">    </span><br><span class="line">花在玩游戏的时间比例:<span class="number">4</span></span><br><span class="line">每年飞行里程数:<span class="number">0</span></span><br><span class="line">每年消费的冰激凌公升数:<span class="number">0.01</span></span><br><span class="line">你会喜欢这个人吗？ 一点点喜欢 <span class="comment"># 原来我还是有点吸引力的</span></span><br></pre></td></tr></table></figure>
+<h1 id="实例：手写识别系统"><a href="#实例：手写识别系统" class="headerlink" title="实例：手写识别系统"></a>实例：手写识别系统</h1><p>为简单起见，这里只处理<code>0-9</code>的数字。原始图像经过处理后，得到如下所示的数据：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">00000000000001100000000000000000</span><br><span class="line">00000000000000111000000000000000</span><br><span class="line">00000000000111111100000000000000</span><br><span class="line">00000000000111111110000000000000</span><br><span class="line">00000000011111111110000000000000</span><br><span class="line">00000000001111100111100000000000</span><br><span class="line">00000000011111000111100000000000</span><br><span class="line">00000001111110000011100000000000</span><br><span class="line">00000000111111000001110000000000</span><br><span class="line">00000000111111000001111100000000</span><br><span class="line">00000001111111000001111100000000</span><br><span class="line">00000000111110000000011110000000</span><br><span class="line">00000000111100000000011110000000</span><br><span class="line">00000000111100000000011110000000</span><br><span class="line">00000001111100000000001110000000</span><br><span class="line">00000001111110000000000111000000</span><br><span class="line">00000001111100000000000111000000</span><br><span class="line">00000001111100000000000111000000</span><br><span class="line">00000000111110000000000011100000</span><br><span class="line">00000000111110000000000011100000</span><br><span class="line">00000000111110000000000111100000</span><br><span class="line">00000000111110000000001111100000</span><br><span class="line">00000000011111100000001111110000</span><br><span class="line">00000000011111100000001111100000</span><br><span class="line">00000000011100000000111111000000</span><br><span class="line">00000000001110000000111111000000</span><br><span class="line">00000000011111000111111110000000</span><br><span class="line">00000000001111111111111100000000</span><br><span class="line">00000000000111111111111100000000</span><br><span class="line">00000000000111111111110000000000</span><br><span class="line">00000000000011111111000000000000</span><br><span class="line">00000000000000100000000000000000</span><br></pre></td></tr></table></figure>
+<p>上图是数字<code>0</code>的二维数据(<code>32*32</code>)，需要先转为<code>1*1024</code>的数据才能使用前面的分类算法。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">img2vector</span><span class="params">(filename)</span>:</span></span><br><span class="line">    returnVect = zeros((<span class="number">1</span>, <span class="number">1024</span>))</span><br><span class="line">    fr = open(filename)</span><br><span class="line">    <span class="comment"># 遍历行</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">32</span>):</span><br><span class="line">        lineStr = fr.readline()</span><br><span class="line">        <span class="comment"># 遍历每行的每个数字</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> range(<span class="number">32</span>):</span><br><span class="line">            returnVect[<span class="number">0</span>, <span class="number">32</span> * i + j] = int(lineStr[j])</span><br><span class="line">    <span class="keyword">return</span> returnVect</span><br></pre></td></tr></table></figure>
+<p>接下来，测试分类器的分类效果：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handwritingClassTest</span><span class="params">()</span>:</span></span><br><span class="line">    <span class="comment"># 训练数据的类标签向量</span></span><br><span class="line">    hwLabels = []</span><br><span class="line">    trainingFileList = listdir(<span class="string">'trainingDigits'</span>)</span><br><span class="line">    <span class="comment"># 初始化训练矩阵</span></span><br><span class="line">    m = len(trainingFileList)</span><br><span class="line">    trainingMat = zeros((m, <span class="number">1024</span>))</span><br><span class="line">    <span class="comment"># 遍历每个文件</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(m):</span><br><span class="line">        <span class="comment"># 得到类别</span></span><br><span class="line">        fileNameStr = trainingFileList[i]</span><br><span class="line">        fileStr = fileNameStr.split(<span class="string">'.'</span>)[<span class="number">0</span>]</span><br><span class="line">        classNumStr = int(fileStr.split(<span class="string">'_'</span>)[<span class="number">0</span>])</span><br><span class="line">        hwLabels.append(classNumStr)</span><br><span class="line">        <span class="comment"># 得到属性向量</span></span><br><span class="line">        trainingMat[i, :] = img2vector(<span class="string">'trainingDigits/%s'</span> % fileNameStr)</span><br><span class="line">    <span class="comment"># 测试文件</span></span><br><span class="line">    testFileList = listdir(<span class="string">'testDigits'</span>)</span><br><span class="line">    errorCount = <span class="number">0.0</span></span><br><span class="line">    mTest = len(testFileList)</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(mTest):</span><br><span class="line">        <span class="comment"># 分类</span></span><br><span class="line">        fileNameStr = testFileList[i]</span><br><span class="line">        fileStr = fileNameStr.split(<span class="string">'.'</span>)[<span class="number">0</span>]  <span class="comment"># take off .txt</span></span><br><span class="line">        classNumStr = int(fileStr.split(<span class="string">'_'</span>)[<span class="number">0</span>])</span><br><span class="line">        vectorUnderTest = img2vector(<span class="string">'testDigits/%s'</span> % fileNameStr)</span><br><span class="line">        classifierResult = classify0(vectorUnderTest, trainingMat, hwLabels, <span class="number">3</span>)</span><br><span class="line">        <span class="comment"># 检测分类结果</span></span><br><span class="line">        <span class="keyword">print</span> <span class="string">"the classifier came back with: %d, the real answer is: %d"</span> % (classifierResult, classNumStr)</span><br><span class="line">        <span class="keyword">if</span> (classifierResult != classNumStr): errorCount += <span class="number">1.0</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"\nthe total number of errors is: %d"</span> % errorCount</span><br><span class="line">    <span class="keyword">print</span> <span class="string">"\nthe total error rate is: %f"</span> % (errorCount / float(mTest))</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line">the classifier came back <span class="keyword">with</span>: <span class="number">9</span>, the real answer <span class="keyword">is</span>: <span class="number">9</span></span><br><span class="line">the classifier came back <span class="keyword">with</span>: <span class="number">9</span>, the real answer <span class="keyword">is</span>: <span class="number">9</span></span><br><span class="line">the total number of errors <span class="keyword">is</span>: <span class="number">11</span></span><br><span class="line">the total error rate <span class="keyword">is</span>: <span class="number">0.011628</span></span><br></pre></td></tr></table></figure>
+<h1 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h1><p>上述代码稍微运行了一会才出来结果，因为需要对每个测试向量计算2000次距离计算，包括1024个浮点运算，比较耗时。</p>
+<p>另外，如果训练数据很大，需要使用大量的存储空间。</p>
+<p>k近邻算法的另外一个缺陷是它无法给出任何数据的基础结构信息，因此也无法知晓平均实例样本和典型实例样本具有什么特征。</p>
+<h1 id="附录-js实现knn"><a href="#附录-js实现knn" class="headerlink" title="附录-js实现knn"></a>附录-js实现knn</h1><p><a href="http://burakkanber.com/blog/machine-learning-in-js-k-nearest-neighbor-part-1/" target="_blank" rel="noopener">machine learning in js</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/机器学习/" rel="tag"># 机器学习</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/04/08/feInterview/" rel="next" title="前端面试题汇总-持续更新">
+                <i class="fa fa-chevron-left"></i> 前端面试题汇总-持续更新
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/05/22/demo-scrapy/" rel="prev" title="scrapy通用爬虫">
+                scrapy通用爬虫 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#k近邻算法"><span class="nav-number">1.</span> <span class="nav-text">k近邻算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#原理"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#示例"><span class="nav-number">1.2.</span> <span class="nav-text">示例</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#knn算法的步骤"><span class="nav-number">1.3.</span> <span class="nav-text">knn算法的步骤</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#代码实现"><span class="nav-number">1.4.</span> <span class="nav-text">代码实现</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#示例：使用k近邻算法改进约会网站的配对效果"><span class="nav-number">2.</span> <span class="nav-text">示例：使用k近邻算法改进约会网站的配对效果</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#数据"><span class="nav-number">2.1.</span> <span class="nav-text">数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#解析数据"><span class="nav-number">2.2.</span> <span class="nav-text">解析数据</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#分析数据：绘图"><span class="nav-number">2.3.</span> <span class="nav-text">分析数据：绘图</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装matplotlib"><span class="nav-number">2.3.1.</span> <span class="nav-text">安装matplotlib</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#绘图"><span class="nav-number">2.3.2.</span> <span class="nav-text">绘图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#数据归一化"><span class="nav-number">2.4.</span> <span class="nav-text">数据归一化</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#测试算法"><span class="nav-number">2.5.</span> <span class="nav-text">测试算法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#完善分类器的应用"><span class="nav-number">2.6.</span> <span class="nav-text">完善分类器的应用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#实例：手写识别系统"><span class="nav-number">3.</span> <span class="nav-text">实例：手写识别系统</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#小结"><span class="nav-number">4.</span> <span class="nav-text">小结</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#附录-js实现knn"><span class="nav-number">5.</span> <span class="nav-text">附录-js实现knn</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

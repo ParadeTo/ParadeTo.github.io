@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="rust,axum," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="揭秘神奇的 Rust Axum 风格的函数实现">
+<meta name="keywords" content="rust,axum">
+<meta property="og:type" content="article">
+<meta property="og:title" content="译：揭秘神奇的 Rust Axum 风格的函数实现（Rusts Axum style magic function params example）">
+<meta property="og:url" content="http://www.paradeto.com/2024/01/29/rust-axum-style-magic-function-params/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="揭秘神奇的 Rust Axum 风格的函数实现">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-01-29T06:40:42.975Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="译：揭秘神奇的 Rust Axum 风格的函数实现（Rusts Axum style magic function params example）">
+<meta name="twitter:description" content="揭秘神奇的 Rust Axum 风格的函数实现">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/01/29/rust-axum-style-magic-function-params/"/>
+
+
+
+
+
+
+  <title>译：揭秘神奇的 Rust Axum 风格的函数实现（Rusts Axum style magic function params example） | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/01/29/rust-axum-style-magic-function-params/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">译：揭秘神奇的 Rust Axum 风格的函数实现（Rusts Axum style magic function params example）</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-01-29T11:02:12+08:00">
+                2024-01-29
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  揭秘神奇的 Rust Axum 风格的函数实现
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在学习 Rust 时，我了解到它是一种严格的、静态类型的语言。尤其是它没有函数重载或可选参数这种特性。但是，当我看到 <a href="https://github.com/tokio-rs/axum" target="_blank" rel="noopener">Axum</a> 时，我惊讶地发现了这种代码：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> app = Router::new()</span><br><span class="line">  .route(<span class="string">"/users"</span>, get(get_users))</span><br><span class="line">  .route(<span class="string">"/products"</span>, get(get_product));</span><br><span class="line"></span><br><span class="line">async <span class="function"><span class="keyword">fn</span> <span class="title">get_users</span></span>(Query(params): Query&lt;Params&gt;) -&gt; <span class="keyword">impl</span> IntoResponse &#123;</span><br><span class="line">    <span class="keyword">let</span> users = <span class="comment">/* ... */</span></span><br><span class="line"></span><br><span class="line">    Json(users)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">async <span class="function"><span class="keyword">fn</span> <span class="title">get_product</span></span>(State(db): State&lt;Db&gt;, Json(payload): Json&lt;Payload&gt;) -&gt; <span class="built_in">String</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> product = <span class="comment">/* ... */</span></span><br><span class="line"></span><br><span class="line">  product.to_string()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>get</code> 方法可以接收一个各种类型的函数作为参数！这是什么黑魔法？</p>
+<p>为了搞清楚，我写了一个简单的例子：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">print_id</span></span>(id: Id) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"id is &#123;&#125;"</span>, id.<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Param(param) is just pattern matching</span></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">print_all</span></span>(Param(param): Param, Id(id): Id) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"param is &#123;param&#125;, id is &#123;id&#125;"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> context = Context::new(<span class="string">"magic"</span>.into(), <span class="number">33</span>);</span><br><span class="line"></span><br><span class="line">    trigger(context.clone(), print_id);</span><br><span class="line">    trigger(context.clone(), print_all);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>例子中，有一个 <code>trigger</code>，它接收一个 <code>Context</code> 和一个函数作为参数。作为参数的函数可以接收 1 个或 2 个参数，参数类型为 <code>Id</code> 或 <code>Param</code> 类型。神奇吗？</p>
+<p>让我们来看看到底是怎么实现的，首先是 <code>Context</code>：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Context</span></span> &#123;</span><br><span class="line">    param: <span class="built_in">String</span>,</span><br><span class="line">    id: <span class="built_in">u32</span>,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>Context</code> 可以类比为 Axum 里的 <code>Request</code>，它是 <code>print_id</code> 和 <code>print_all</code> 函数里面数据的来源，这个例子中它仅包括两个字段。</p>
+<p>接下来是第一个秘诀， <code>FromContext</code> trait：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">FromContext</span></span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from_context</span></span>(context: &amp;Context) -&gt; <span class="keyword">Self</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>它使得我们可以创建各种 “Extractors” 来提取里面的内容，比如 <code>Param</code> 会提取里面的 <code>param</code> 字段：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Param</span></span>(<span class="built_in">String</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> FromContext <span class="keyword">for</span> Param &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from_context</span></span>(context: &amp;Context) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        Param(context.param.clone())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>第二个秘诀是 <code>Handler</code> trait：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">Handler</span></span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(<span class="keyword">self</span>, context: Context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们会为 <code>Fn&lt;T&gt;</code> 类型来实现这个 trait：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span>&lt;F, T&gt; Handler&lt;T&gt; <span class="keyword">for</span> F</span><br><span class="line"><span class="keyword">where</span></span><br><span class="line">    F: <span class="built_in">Fn</span>(T),</span><br><span class="line">    T: FromContext,</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(<span class="keyword">self</span>, context: Context) &#123;</span><br><span class="line">        <span class="keyword">self</span>(T::from_context(&amp;context));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这样的话，我们在函数调用和它的参数之间就有了一个 “middleware”。这里我们将调用 <code>FromContext::from_context</code> 方法，将上下文转换为预期的函数参数，即 <code>Param</code> 或 <code>Id</code>。</p>
+<p>译者注：执行 <code>impl&lt;F, T&gt; Handler&lt;T&gt; for F</code> 后，相当于为 <code>Fn&lt;T&gt;</code> 类型实现了 <code>Handler</code> 这个 trait，即 <code>print_id</code> 实现了 <code>Handler</code>，可以调用 <code>call</code> 方法，而 <code>call</code> 方法中的 <code>self</code> 就是 <code>print_id</code>。</p>
+<p>我们继续添加代码，支持两个函数参数的情况。有趣的是，这个实现与参数的顺序无关–它同时支持 <code>fn foo(p: Param, id: id)</code> 和 <code>fn foo(id: id, p: Param)</code>：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">impl</span>&lt;T1, T2, F&gt; Handler&lt;(T1, T2)&gt; <span class="keyword">for</span> F</span><br><span class="line"><span class="keyword">where</span></span><br><span class="line">    F: <span class="built_in">Fn</span>(T1, T2),</span><br><span class="line">    T1: FromContext,</span><br><span class="line">    T2: FromContext,</span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(<span class="keyword">self</span>, context: Context) &#123;</span><br><span class="line">        (<span class="keyword">self</span>)(T1::from_context(&amp;context), T2::from_context(&amp;context));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>译者注：通过宏，可以一次性实现不定参数的情况，例：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">macro_rules!</span> all_the_tuples &#123;</span><br><span class="line">    ($name:ident) =&gt; &#123;</span><br><span class="line">        $name!([]);</span><br><span class="line">        $name!([T1]);</span><br><span class="line">        $name!([T1, T2]);</span><br><span class="line">        $name!([T1, T2, T3]);</span><br><span class="line">        <span class="comment">// Can add more</span></span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">macro_rules!</span> impl_handler &#123;</span><br><span class="line">    (</span><br><span class="line">        [$($ty:ident),*]</span><br><span class="line">    ) =&gt; &#123;</span><br><span class="line">        <span class="keyword">impl</span>&lt;F, $($ty,)*&gt; Handler&lt;($($ty,)*)&gt; <span class="keyword">for</span> F</span><br><span class="line">        <span class="keyword">where</span></span><br><span class="line">            F: <span class="built_in">Fn</span>($($ty,)*),</span><br><span class="line">            $( $ty: FromContext,)*</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(<span class="keyword">self</span>, context: Context) &#123;</span><br><span class="line">                <span class="keyword">self</span>($( $ty::from_context(&amp;context), )*);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">all_the_tuples!(impl_handler);</span><br></pre></td></tr></table></figure>
+<p>最后实现 <code>trigger</code> 函数就搞定了：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">trigger</span></span>&lt;T, H&gt;(context: Context, handler: H)</span><br><span class="line"><span class="keyword">where</span></span><br><span class="line">    H: Handler&lt;T&gt;,</span><br><span class="line">&#123;</span><br><span class="line">    handler.call(context);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>现在，让我解释下下面代码：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">let</span> context = Context::new(<span class="string">"magic"</span>.into(), <span class="number">33</span>);</span><br><span class="line"></span><br><span class="line">trigger(context.clone(), print_id);</span><br></pre></td></tr></table></figure>
+<p><code>print_id</code> 是 <code>Fn(Id)</code> 类型，它实现了 <code>Handler&lt;Id&gt;</code>，当调用 <code>handler.call</code> 方法时，相当于执行如下代码：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">print_id(Id::from_context(&amp;context));</span><br></pre></td></tr></table></figure>
+<p>魔术揭秘！</p>
+<p>附完整代码：</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[derive(Clone, Debug)]</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Context</span></span> &#123;</span><br><span class="line">    param: <span class="built_in">String</span>,</span><br><span class="line">    id: <span class="built_in">u32</span>,</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> Context &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">new</span></span>(param: <span class="built_in">String</span>, id: <span class="built_in">u32</span>) -&gt; Context &#123;</span><br><span class="line">        Context &#123; param, id &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">FromContext</span></span> &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from_context</span></span>(context: &amp;Context) -&gt; <span class="keyword">Self</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="class"><span class="keyword">trait</span> <span class="title">Handler</span></span>&lt;T&gt; &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(<span class="keyword">self</span>, context: Context);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Param</span></span>(<span class="built_in">String</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> FromContext <span class="keyword">for</span> Param &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from_context</span></span>(context: &amp;Context) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        Param(context.param.clone())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Id</span></span>(<span class="built_in">u32</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">impl</span> FromContext <span class="keyword">for</span> Id &#123;</span><br><span class="line">    <span class="function"><span class="keyword">fn</span> <span class="title">from_context</span></span>(context: &amp;Context) -&gt; <span class="keyword">Self</span> &#123;</span><br><span class="line">        Id(context.id.clone())</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">macro_rules!</span> all_the_tuples &#123;</span><br><span class="line">    ($name:ident) =&gt; &#123;</span><br><span class="line">        $name!([]);</span><br><span class="line">        $name!([T1]);</span><br><span class="line">        $name!([T1, T2]);</span><br><span class="line">        $name!([T1, T2, T3]);</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="built_in">macro_rules!</span> impl_handler &#123;</span><br><span class="line">    (</span><br><span class="line">        [$($ty:ident),*]</span><br><span class="line">    ) =&gt; &#123;</span><br><span class="line">        <span class="keyword">impl</span>&lt;F, $($ty,)*&gt; Handler&lt;($($ty,)*)&gt; <span class="keyword">for</span> F</span><br><span class="line">        <span class="keyword">where</span></span><br><span class="line">            F: <span class="built_in">Fn</span>($($ty,)*),</span><br><span class="line">            $( $ty: FromContext,)*</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="function"><span class="keyword">fn</span> <span class="title">call</span></span>(<span class="keyword">self</span>, context: Context) &#123;</span><br><span class="line">                <span class="keyword">self</span>($( $ty::from_context(&amp;context), )*);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">all_the_tuples!(impl_handler);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">trigger</span></span>&lt;T, H&gt;(context: Context, handler: H)</span><br><span class="line"><span class="keyword">where</span></span><br><span class="line">    H: Handler&lt;T&gt;,</span><br><span class="line">&#123;</span><br><span class="line">    handler.call(context);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">print_id</span></span>(id: Id) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"id is &#123;&#125;"</span>, id.<span class="number">0</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">print_param</span></span>(Param(param): Param) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"id is &#123;&#125;"</span>, param);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">print_all</span></span>(Param(param): Param, Id(id): Id) &#123;</span><br><span class="line">    <span class="built_in">println!</span>(<span class="string">"param is &#123;param&#125;, id is &#123;id&#125;"</span>);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">main</span></span>() &#123;</span><br><span class="line">    <span class="keyword">let</span> context = Context::new(<span class="string">"magic"</span>.into(), <span class="number">33</span>);</span><br><span class="line">    trigger(context.clone(), print_id);</span><br><span class="line">    trigger(context.clone(), print_param);</span><br><span class="line">    trigger(context.clone(), print_all);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/rust/" rel="tag"># rust</a>
+          
+            <a href="/tags/axum/" rel="tag"># axum</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/01/22/nodejs-http-agent/" rel="next" title="在 Node.js 中使用 HTTP Agent 实现 keep-alive (To request with keep-alive using HTTP agent in Node.js)">
+                <i class="fa fa-chevron-left"></i> 在 Node.js 中使用 HTTP Agent 实现 keep-alive (To request with keep-alive using HTTP agent in Node.js)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/02/27/wasm-video-filter-rust/" rel="prev" title="Rust WebAssembly 实现视频实时滤镜效果">
+                Rust WebAssembly 实现视频实时滤镜效果 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

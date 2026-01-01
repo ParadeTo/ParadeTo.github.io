@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react,wasm," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v18   Based on big-react，I am going to implement">
+<meta name="keywords" content="react,wasm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 React v18，但 WASM 版 - [18] 实现 useRef, useCallback, useMemo">
+<meta property="og:url" content="http://www.paradeto.com/2024/07/10/big-react-wasm-18/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v18   Based on big-react，I am going to implement">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2024-07-10T07:49:04.568Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [18] 实现 useRef, useCallback, useMemo">
+<meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v18   Based on big-react，I am going to implement">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/07/10/big-react-wasm-18/"/>
+
+
+
+
+
+
+  <title>从零实现 React v18，但 WASM 版 - [18] 实现 useRef, useCallback, useMemo | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/07/10/big-react-wasm-18/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 React v18，但 WASM 版 - [18] 实现 useRef, useCallback, useMemo</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-07-10T15:39:13+08:00">
+                2024-07-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>模仿 <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>本文对应 tag：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v18" target="_blank" rel="noopener">v18</a></p>
+</blockquote>
+<blockquote>
+<p>Based on <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，I am going to implement React v18 core features from scratch using WASM and Rust.</p>
+<p>Code Repository：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>The tag related to this article：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v18" target="_blank" rel="noopener">v18</a></p>
+</blockquote>
+<p>前面已经实现了 <code>useState</code> 和 <code>useEffect</code> 两个常用的 hooks，今天我们继续来实现 <code>useRef</code>, <code>useCallback</code>, <code>useMemo</code> 这三个。</p>
+<p>由于前面框架已经搭好，所以我们的 <code>react</code> 包中只需要依葫芦画瓢，把这三个加进去就好了：</p>
+<p>We have already implemented two commonly used hooks, <code>useState</code> and <code>useEffect</code>, earlier. Today, we will continue to implement three more hooks: <code>useRef</code>, <code>useCallback</code>, and <code>useMemo</code>.</p>
+<p>Since the framework has already been set up, we can simply follow the same pattern and add these three hooks to our <code>react</code> package.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react/src/lib.rs</span></span><br><span class="line"><span class="meta">#[wasm_bindgen(js_name = useRef)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">use_ref</span></span>(initial_value: &amp;JsValue) -&gt; JsValue &#123;</span><br><span class="line">    <span class="keyword">let</span> use_ref = &amp;CURRENT_DISPATCHER.current.as_ref().unwrap().use_ref;</span><br><span class="line">    use_ref.call1(&amp;JsValue::null(), initial_value)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen(js_name = useMemo)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">use_memo</span></span>(create: &amp;JsValue, deps: &amp;JsValue) -&gt; <span class="built_in">Result</span>&lt;JsValue, JsValue&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> use_memo = &amp;CURRENT_DISPATCHER.current.as_ref().unwrap().use_memo;</span><br><span class="line">    use_memo.call2(&amp;JsValue::null(), create, deps)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">#[wasm_bindgen(js_name = useCallback)]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">use_callback</span></span>(callback: &amp;JsValue, deps: &amp;JsValue) -&gt; JsValue &#123;</span><br><span class="line">    <span class="keyword">let</span> use_callback = &amp;CURRENT_DISPATCHER.current.as_ref().unwrap().use_callback;</span><br><span class="line">    use_callback.call2(&amp;JsValue::null(), callback, deps)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// react/src/current_dispatcher.rs</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">unsafe</span> <span class="function"><span class="keyword">fn</span> <span class="title">update_dispatcher</span></span>(args: &amp;JsValue) &#123;</span><br><span class="line">    ...</span><br><span class="line">    <span class="keyword">let</span> use_ref = derive_function_from_js_value(args, <span class="string">"use_ref"</span>);</span><br><span class="line">    <span class="keyword">let</span> use_memo = derive_function_from_js_value(args, <span class="string">"use_memo"</span>);</span><br><span class="line">    <span class="keyword">let</span> use_callback = derive_function_from_js_value(args, <span class="string">"use_callback"</span>);</span><br><span class="line">    CURRENT_DISPATCHER.current = <span class="literal">Some</span>(<span class="built_in">Box</span>::new(Dispatcher::new(</span><br><span class="line">        use_state,</span><br><span class="line">        use_effect,</span><br><span class="line">        use_ref,</span><br><span class="line">        use_memo,</span><br><span class="line">        use_callback,</span><br><span class="line">    )))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接着，我们来看看 <code>react-reconciler</code> 中需要怎么修改。</p>
+<p>Next, let’s take a look at how we need to modify <code>react-reconciler</code>.</p>
+<h1 id="useRef"><a href="#useRef" class="headerlink" title="useRef"></a>useRef</h1><p>首先需要在 <code>fiber_hooks.rs</code> 中，增加 <code>mount_ref</code> 和 <code>update_ref</code>：</p>
+<p>First, we need to add <code>mount_ref</code> and <code>update_ref</code> in <code>fiber_hooks.rs</code>.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">mount_ref</span></span>(initial_value: &amp;JsValue) -&gt; JsValue &#123;</span><br><span class="line">    <span class="keyword">let</span> hook = mount_work_in_progress_hook();</span><br><span class="line">    <span class="keyword">let</span> ref_obj: Object = Object::new();</span><br><span class="line">    Reflect::set(&amp;ref_obj, &amp;<span class="string">"current"</span>.into(), initial_value);</span><br><span class="line">    hook.as_ref().unwrap().borrow_mut().memoized_state =</span><br><span class="line">        <span class="literal">Some</span>(MemoizedState::MemoizedJsValue(ref_obj.clone().into()));</span><br><span class="line">    ref_obj.into()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">update_ref</span></span>(initial_value: &amp;JsValue) -&gt; JsValue &#123;</span><br><span class="line">    <span class="keyword">let</span> hook = update_work_in_progress_hook();</span><br><span class="line">    <span class="keyword">match</span> hook.unwrap().borrow_mut().memoized_state.clone() &#123;</span><br><span class="line">        <span class="literal">Some</span>(MemoizedState::MemoizedJsValue(value)) =&gt; value,</span><br><span class="line">        _ =&gt; <span class="built_in">panic!</span>(<span class="string">"ref is none"</span>),</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>对于 <code>useRef</code> 来说，这两个方法实现起来非常简单。</p>
+<p>接着，按照渲染流程的顺序，首先要修改 <code>begin_work.rs</code>，这里我们暂时只处理 Host Component 类型的 <code>FiberNode</code>：</p>
+<p>For <code>useRef</code>, these two methods can be implemented very simply.</p>
+<p>Next, following the order of the rendering process, we need to modify <code>begin_work.rs</code> first. Here, we will only handle <code>FiberNode</code> of the Host Component type for now.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">mark_ref</span></span>(current: <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;, work_in_progress: Rc&lt;RefCell&lt;FiberNode&gt;&gt;) &#123;</span><br><span class="line">    <span class="keyword">let</span> _<span class="keyword">ref</span> = &#123; work_in_progress.borrow()._<span class="keyword">ref</span>.clone() &#125;;</span><br><span class="line">    <span class="keyword">if</span> (current.is_none() &amp;&amp; !_<span class="keyword">ref</span>.is_null())</span><br><span class="line">        || (current.is_some() &amp;&amp; Object::is(&amp;current.as_ref().unwrap().borrow()._<span class="keyword">ref</span>, &amp;_<span class="keyword">ref</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        work_in_progress.borrow_mut().flags |= Flags::Ref;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">update_host_component</span></span>(</span><br><span class="line">    work_in_progress: Rc&lt;RefCell&lt;FiberNode&gt;&gt;,</span><br><span class="line">) -&gt; <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt; &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">let</span> alternate = &#123; work_in_progress.borrow().alternate.clone() &#125;;</span><br><span class="line">  mark_ref(alternate, work_in_progress.clone());</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>处理方式也很简单，根据条件给 <code>FiberNode</code> 打上 <code>Ref</code> 的标记，供 commit 阶段处理。</p>
+<p>然后，需要在 <code>work_loop.rs</code> 中的 <code>commit_root</code> 方法中增加“layout 阶段”：</p>
+<p>The handling process is also straightforward. We can mark the <code>FiberNode</code> with a <code>Ref</code> flag based on certain conditions, which will be processed during the commit phase.</p>
+<p>Next, we need to add the “layout phase” in the <code>commit_root</code> method in <code>work_loop.rs</code>.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1/3: Before Mutation</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 2/3: Mutation</span></span><br><span class="line">commit_mutation_effects(finished_work.clone(), root.clone());</span><br><span class="line"></span><br><span class="line"><span class="comment">// Switch Fiber Tree</span></span><br><span class="line">cloned.borrow_mut().current = finished_work.clone();</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3/3: Layout</span></span><br><span class="line">commit_layout_effects(finished_work.clone(), root.clone());</span><br></pre></td></tr></table></figure>
+<p>该阶段发生在 <code>commit_mutation_effects</code> 之后，也即修改 DOM 之后，所以我们可以在这里更新 Ref。</p>
+<p><code>commit_layout_effects</code> 会根据 <code>FiberNode</code> 节点上是否包含 <code>Ref</code> 标记来决定是否更新 Ref，即调用 <code>safely_attach_ref</code> 这个方法：</p>
+<p>This phase occurs after <code>commit_mutation_effects</code>, which means it happens after modifying the DOM. So we can update the Ref here.</p>
+<p>In <code>commit_layout_effects</code>, we can decide whether to update the Ref based on whether the <code>FiberNode</code> contains the <code>Ref</code> flag. We can do this by calling the <code>safely_attach_ref</code> method.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> flags &amp; Flags::Ref != Flags::NoFlags &amp;&amp; tag == HostComponent &#123;</span><br><span class="line">    safely_attach_ref(finished_work.clone());</span><br><span class="line">    finished_work.borrow_mut().flags -= Flags::Ref;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 <code>safely_attach_ref</code> 中先是从 <code>FiberNode</code> 中取出 <code>state_node</code> 属性，该属性指向 <code>FiberNode</code> 对应的真实节点，对于 React DOM 来说，就是 DOM 节点，<br>然后，根据 <code>_ref</code> 值的类型进行不同的处理：</p>
+<p>In <code>safely_attach_ref</code>, we first retrieve the <code>state_node</code> property from the <code>FiberNode</code>. This property points to the actual node corresponding to the <code>FiberNode</code>. For React DOM, it would be the DOM node.</p>
+<p>Next, we handle different cases based on the type of the <code>_ref</code> value.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">safely_attach_ref</span></span>(fiber: Rc&lt;RefCell&lt;FiberNode&gt;&gt;) &#123;</span><br><span class="line">    <span class="keyword">let</span> _<span class="keyword">ref</span> = fiber.borrow()._<span class="keyword">ref</span>.clone();</span><br><span class="line">    <span class="keyword">if</span> !_<span class="keyword">ref</span>.is_null() &#123;</span><br><span class="line">        <span class="keyword">let</span> instance = <span class="keyword">match</span> fiber.borrow().state_node.clone() &#123;</span><br><span class="line">            <span class="literal">Some</span>(s) =&gt; <span class="keyword">match</span> &amp;*s &#123;</span><br><span class="line">                StateNode::Element(element) =&gt; &#123;</span><br><span class="line">                    <span class="keyword">let</span> node = (*element).downcast_ref::&lt;Node&gt;().unwrap();</span><br><span class="line">                    <span class="literal">Some</span>(node.clone())</span><br><span class="line">                &#125;</span><br><span class="line">                StateNode::FiberRootNode(_) =&gt; <span class="literal">None</span>,</span><br><span class="line">            &#125;,</span><br><span class="line">            <span class="literal">None</span> =&gt; <span class="literal">None</span>,</span><br><span class="line">        &#125;;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span> instance.is_none() &#123;</span><br><span class="line">            <span class="built_in">panic!</span>(<span class="string">"instance is none"</span>)</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">let</span> instance = instance.as_ref().unwrap();</span><br><span class="line">        <span class="keyword">if</span> type_of(&amp;_<span class="keyword">ref</span>, <span class="string">"function"</span>) &#123;</span><br><span class="line">            <span class="comment">// &lt;div ref=&#123;() =&gt; &#123;...&#125;&#125; /&gt;</span></span><br><span class="line">            _<span class="keyword">ref</span>.dyn_ref::&lt;Function&gt;()</span><br><span class="line">                .unwrap()</span><br><span class="line">                .call1(&amp;JsValue::null(), instance);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// const ref = useRef()</span></span><br><span class="line">            <span class="comment">// &lt;div ref=&#123;ref&#125; /&gt;</span></span><br><span class="line">            Reflect::set(&amp;_<span class="keyword">ref</span>, &amp;<span class="string">"current"</span>.into(), instance);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>到此， <code>useRef</code> 就实现完毕了，接下来看看另外两个。</p>
+<p>By now, the implementation of <code>useRef</code> is complete. Let’s move on to the other two hooks.</p>
+<h1 id="useCallback-和-useMemo"><a href="#useCallback-和-useMemo" class="headerlink" title="useCallback 和 useMemo"></a>useCallback 和 useMemo</h1><p>这两个 hooks 实现起来就更简单了，只需要修改 <code>fiber_hooks</code> 即可，而且两者的实现方式非常类似。以 <code>useCallback</code> 为例，首次渲染时，只需把传入 <code>useCallback</code> 的两个参数保存在 <code>Hook</code> 节点上，然后将第一个参数返回即可：</p>
+<p>The implementation of these two hooks becomes simpler. You just need to modify <code>fiber_hooks</code>, and both of them have very similar implementation approaches. Taking <code>useCallback</code> as an example, during the initial render, you only need to save the two arguments passed to <code>useCallback</code> on the <code>Hook</code> node and then return the first argument.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">mount_callback</span></span>(callback: Function, deps: JsValue) -&gt; JsValue &#123;</span><br><span class="line">    <span class="keyword">let</span> hook = mount_work_in_progress_hook();</span><br><span class="line">    <span class="keyword">let</span> next_deps = <span class="keyword">if</span> deps.is_undefined() &#123;</span><br><span class="line">        JsValue::null()</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        deps</span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="keyword">let</span> array = Array::new();</span><br><span class="line">    array.push(&amp;callback);</span><br><span class="line">    array.push(&amp;next_deps);</span><br><span class="line">    hook.as_ref().unwrap().clone().borrow_mut().memoized_state =</span><br><span class="line">        <span class="literal">Some</span>(MemoizedState::MemoizedJsValue(array.into()));</span><br><span class="line">    callback.into()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>更新的时候，先取出之前保存的第二个参数跟新传入的第二个参数进行逐项对比，如果全部相同则返回之前保存的第一个参数，否则返回新传入的第一个参数：</p>
+<p>When updating, you first retrieve the previously saved second argument and compare it item by item with the new second argument that is passed in. If they are all the same, you return the previously saved first argument. Otherwise, you return the new first argument that was passed in.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">update_callback</span></span>(callback: Function, deps: JsValue) -&gt; JsValue &#123;</span><br><span class="line">    <span class="keyword">let</span> hook = update_work_in_progress_hook();</span><br><span class="line">    <span class="keyword">let</span> next_deps = <span class="keyword">if</span> deps.is_undefined() &#123;</span><br><span class="line">        JsValue::null()</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        deps</span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">let</span> MemoizedState::MemoizedJsValue(prev_state) = hook</span><br><span class="line">        .clone()</span><br><span class="line">        .unwrap()</span><br><span class="line">        .borrow()</span><br><span class="line">        .memoized_state</span><br><span class="line">        .as_ref()</span><br><span class="line">        .unwrap()</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span> !next_deps.is_null() &#123;</span><br><span class="line">            <span class="keyword">let</span> arr = prev_state.dyn_ref::&lt;Array&gt;().unwrap();</span><br><span class="line">            <span class="keyword">let</span> prev_deps = arr.get(<span class="number">1</span>);</span><br><span class="line">            <span class="keyword">if</span> are_hook_inputs_equal(&amp;next_deps, &amp;prev_deps) &#123;</span><br><span class="line">                <span class="keyword">return</span> arr.get(<span class="number">0</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">let</span> array = Array::new();</span><br><span class="line">        array.push(&amp;callback);</span><br><span class="line">        array.push(&amp;next_deps);</span><br><span class="line">        hook.as_ref().unwrap().clone().borrow_mut().memoized_state =</span><br><span class="line">            <span class="literal">Some</span>(MemoizedState::MemoizedJsValue(array.into()));</span><br><span class="line">        <span class="keyword">return</span> callback.into();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">panic!</span>(<span class="string">"update_callback, memoized_state is not JsValue"</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>而 <code>useMemo</code> 只是多了一步执行函数的操作，其他步骤一模一样。</p>
+<p>到此，这两个 hooks 也实现完毕了，不过这两个 hooks 目前起不到什么作用，因为我们还没有实现性能优化相关的功能，这个就留到下一篇吧。</p>
+<p>本次更新详见<a href="https://github.com/ParadeTo/big-react-wasm/pull/18" target="_blank" rel="noopener">这里</a>，跪求 star 并关注公众号“前端游”。</p>
+<p>For <code>useMemo</code>, it simply adds an extra step of executing the function, but the other steps remain the same.</p>
+<p>With this, the implementation of these two hooks is complete. However, currently, these two hooks don’t provide any performance optimization features because we haven’t implemented them yet. Let’s leave that for the next article.</p>
+<p>For the details of this update, please refer to <a href="https://github.com/ParadeTo/big-react-wasm/pull/18" target="_blank" rel="noopener">here</a>. Please kindly give me a star!</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+            <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/06/19/big-react-wasm-17/" rel="next" title="从零实现 React v18，但 WASM 版 - [17] 实现 Concurrent 模式">
+                <i class="fa fa-chevron-left"></i> 从零实现 React v18，但 WASM 版 - [17] 实现 Concurrent 模式
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/07/19/big-react-wasm-19/" rel="prev" title="从零实现 React v18，但 WASM 版 - [19] 性能优化之 bailout 和 eagerState">
+                从零实现 React v18，但 WASM 版 - [19] 性能优化之 bailout 和 eagerState <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#useRef"><span class="nav-number">1.</span> <span class="nav-text">useRef</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#useCallback-和-useMemo"><span class="nav-number">2.</span> <span class="nav-text">useCallback 和 useMemo</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

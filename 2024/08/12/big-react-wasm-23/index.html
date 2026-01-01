@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react,wasm," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v23   Based on big-react，I am going to implement">
+<meta name="keywords" content="react,wasm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 React v18，但 WASM 版 - [23] 实现 Fragment">
+<meta property="og:url" content="http://www.paradeto.com/2024/08/12/big-react-wasm-23/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v23   Based on big-react，I am going to implement">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2024/08/12/big-react-wasm-23/1.png">
+<meta property="og:updated_time" content="2024-08-13T03:04:52.740Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [23] 实现 Fragment">
+<meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v23   Based on big-react，I am going to implement">
+<meta name="twitter:image" content="http://www.paradeto.com/2024/08/12/big-react-wasm-23/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/08/12/big-react-wasm-23/"/>
+
+
+
+
+
+
+  <title>从零实现 React v18，但 WASM 版 - [23] 实现 Fragment | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/08/12/big-react-wasm-23/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 React v18，但 WASM 版 - [23] 实现 Fragment</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-08-12T11:56:16+08:00">
+                2024-08-12
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>模仿 <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>本文对应 tag：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v23" target="_blank" rel="noopener">v23</a></p>
+</blockquote>
+<blockquote>
+<p>Based on <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，I am going to implement React v18 core features from scratch using WASM and Rust.</p>
+<p>Code Repository：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>The tag related to this article：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v23" target="_blank" rel="noopener">v23</a></p>
+</blockquote>
+<p>Fragment 也是 react 中一个基本的功能，所以 WASM 版本也得支持才行。不过我们先来修复几个比较严重的 Bug。</p>
+<p>Fragment is also a basic feature in React, so the WASM version needs to support it as well. But first, let’s fix a few critical bugs.</p>
+<p>Bug 1：下面的例子，只有第一次点击会有效果（更新为 1），之后都保持 1 不变。</p>
+<p>Bug 1: In the following example, only the first click has an effect (updates to 1), and subsequent clicks keep it at 1.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [num, setNum] = useState(<span class="number">0</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> setNum((prev) =&gt; prev + 1)&#125;&gt;&#123;num&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>原因在于 <code>update_queue.rs</code> 更新 <code>new_base_state</code> 有问题，需要按如下所示进行修改：</p>
+<p>The issue lies in the update of <code>new_base_state</code> in <code>update_queue.rs</code>. It needs to be modified as follows:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-   new_base_state = result.memoized_state.clone();</span><br><span class="line">+   new_base_state = new_state.clone();</span><br></pre></td></tr></table></figure>
+<p>上面的 Bug 修复后，仍然会有问题，还是跟 <code>useState</code> 相关。</p>
+<p>After fixing the above bug, there is still an issue related to <code>useState</code>.</p>
+<p>Bug 2: 下面的例子，只有第一次点击会有效果（更新为 1），之后都保持 1 不变。</p>
+<p>Bug 2: In the following example, only the first click has an effect (updates to 1), and subsequent clicks keep it at 1.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> [num, setNum] = useState(<span class="number">0</span>)</span><br><span class="line">  <span class="keyword">return</span> <span class="xml"><span class="tag">&lt;<span class="name">div</span> <span class="attr">onClick</span>=<span class="string">&#123;()</span> =&gt;</span> setNum(num + 1)&#125;&gt;&#123;num&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>经过一番定位后，发现 <code>onClick</code> 函数中的 <code>num</code> 永远都为 0，即使第一次点击后 <code>num</code> 已经为 1 了，根本原因在于 <code>div</code> 的 <code>onClick</code> 引用的一直都是第一次渲染时传入的那个函数，其闭包捕获的 <code>num</code> 也是首次渲染时的 0。</p>
+<p>After investigation, it was found that the <code>num</code> inside the <code>onClick</code> function always remains 0, even after the first click when <code>num</code> should be 1. The root cause is that the <code>onClick</code> of the <code>div</code> always references the function passed during the initial rendering, and the captured closure’s <code>num</code> is also the initial 0.</p>
+<p>翻看代码，发现我们漏了对于 <code>HostComponent</code> 这类 <code>FiberNode</code> 的 props 的更新逻辑，之前都只处理了 <code>HostText</code> 类型，接下来让我们补上这一块。</p>
+<p>Upon reviewing the code, it was discovered that we missed the update logic for <code>props</code> of <code>HostComponent</code> type <code>FiberNode</code>. We only handled the <code>HostText</code> type before. Let’s fill in this part.</p>
+<p>首先，我们重新定义一下 <code>HostConfig</code>，去掉 <code>commit_text_update</code>，新增 <code>commit_update</code>：</p>
+<p>First, let’s redefine <code>HostConfig</code> by removing <code>commit_text_update</code> and adding <code>commit_update</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-    <span class="function"><span class="keyword">fn</span> <span class="title">commit_text_update</span></span>(&amp;<span class="keyword">self</span>, text_instance: Rc&lt;dyn Any&gt;, content: &amp;JsValue);</span><br><span class="line">+    <span class="function"><span class="keyword">fn</span> <span class="title">commit_update</span></span>(&amp;<span class="keyword">self</span>, fiber: Rc&lt;RefCell&lt;FiberNode&gt;&gt;);</span><br></pre></td></tr></table></figure>
+<p>然后在 <code>react-dom</code> 库中重新实现这个 Trait：</p>
+<p>Then, implement this trait in the <code>react-dom</code> library as follows:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">commit_update</span></span>(&amp;<span class="keyword">self</span>, fiber: Rc&lt;RefCell&lt;FiberNode&gt;&gt;) &#123;</span><br><span class="line">  <span class="keyword">let</span> instance = FiberNode::derive_state_node(fiber.clone());</span><br><span class="line">  <span class="keyword">let</span> memoized_props = fiber.borrow().memoized_props.clone();</span><br><span class="line">  <span class="keyword">match</span> fiber.borrow().tag &#123;</span><br><span class="line">      WorkTag::HostText =&gt; &#123;</span><br><span class="line">          <span class="keyword">let</span> text = derive_from_js_value(&amp;memoized_props, <span class="string">"content"</span>);</span><br><span class="line">          <span class="keyword">self</span>.commit_text_update(instance.unwrap(), &amp;text);</span><br><span class="line">      &#125;</span><br><span class="line">      WorkTag::HostComponent =&gt; &#123;</span><br><span class="line">          update_fiber_props(</span><br><span class="line">              instance</span><br><span class="line">                  .unwrap()</span><br><span class="line">                  .downcast::&lt;Node&gt;()</span><br><span class="line">                  .unwrap()</span><br><span class="line">                  .dyn_ref::&lt;Element&gt;()</span><br><span class="line">                  .unwrap(),</span><br><span class="line">              &amp;memoized_props,</span><br><span class="line">          );</span><br><span class="line">      &#125;</span><br><span class="line">      _ =&gt; &#123;</span><br><span class="line">          log!(<span class="string">"Unsupported update type"</span>)</span><br><span class="line">      &#125;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>update_fiber_props</code> 之前就有了，作用就是把最新的 <code>props</code> 更新到 <code>FiberNode</code> 对应的 <code>Element</code> 上面。</p>
+<p>Here, <code>update_fiber_props</code> already exists, and its purpose is to update the latest <code>props</code> onto the corresponding <code>Element</code> of the <code>FiberNode</code>.</p>
+<p>然后，在 <code>complete_work.rs</code> 中新增如下代码：</p>
+<p>Next, add the following code in <code>complete_work.rs</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">WorkTag::HostComponent =&gt; &#123;</span><br><span class="line">        <span class="keyword">if</span> current.is_some() &amp;&amp; work_in_progress_cloned.borrow().state_node.is_some() &#123;</span><br><span class="line">          <span class="comment">// todo: compare props to decide if need to update</span></span><br><span class="line">+         CompleteWork::mark_update(work_in_progress.clone());</span><br></pre></td></tr></table></figure>
+<p>也就是给 <code>FiberNode</code> 打上 <code>Update</code> 的标记，这里也可以进一步进行优化（对比前后的 props 来决定是否打标记），简单起见先不加了。</p>
+<p>This marks the <code>FiberNode</code> with the <code>Update</code> flag. Further optimization can be done here (comparing the previous and current props to decide whether to mark the update flag), but for simplicity, let’s skip it for now.</p>
+<p>最后，修改 <code>commit_work.rs</code> 中对于 <code>Update</code> 的处理：</p>
+<p>Finally, modify the handling of <code>Update</code> in <code>commit_work.rs</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> flags.contains(Flags::Update) &#123;</span><br><span class="line">  <span class="keyword">unsafe</span> &#123;</span><br><span class="line">      HOST_CONFIG</span><br><span class="line">          .as_ref()</span><br><span class="line">          .unwrap()</span><br><span class="line">          .commit_update(finished_work.clone())</span><br><span class="line">  &#125;</span><br><span class="line">  finished_work.borrow_mut().flags -= Flags::Update;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Bug 修复的 PR 见<a href="https://github.com/ParadeTo/big-react-wasm/pull/24" target="_blank" rel="noopener">这里</a>。修复完毕，接下来实现 <code>Fragment</code>。</p>
+<p>The PR for fixing the bugs can be found <a href="https://github.com/ParadeTo/big-react-wasm/pull/24" target="_blank" rel="noopener">here</a>. With the bug fixes completed, let’s proceed to implement <code>Fragment</code>.</p>
+<p>首先，<code>Fragment</code> 是从 <code>react</code> 中导出的一个常量，但是在 Rust 中，当我们尝试下面这样写时，会报错 “#[wasm_bindgen] can only be applied to a function, struct, enum, impl, or extern block”：</p>
+<p>First, <code>Fragment</code> is exported as a constant from <code>react</code>. However, when we try to write it as follows in Rust, an error occurs: “#[wasm_bindgen] can only be applied to a function, struct, enum, impl, or extern block”:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#[wasm_bindgen]</span></span><br><span class="line"><span class="keyword">pub</span> <span class="keyword">static</span> Fragment: &amp;<span class="built_in">str</span> = <span class="string">"react.fragment"</span>;</span><br></pre></td></tr></table></figure>
+<p>看来是不支持从 rust 导出字符串给 JS，那我们只能继续通过构建脚本来修改编译后的产物了，即在最终输出的 JS 文件中加上导出 <code>Fragment</code> 的代码。</p>
+<p>It seems that exporting strings from Rust to JavaScript is not supported. Therefore, we need to continue modifying the compiled output through the build script, specifically by adding the code to export <code>Fragment</code> in the final JS file.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// add Fragment</span></span><br><span class="line"><span class="keyword">const</span> reactIndexFilename = <span class="string">`<span class="subst">$&#123;cwd&#125;</span>/dist/react/jsx-dev-runtime.js`</span></span><br><span class="line"><span class="keyword">const</span> reactIndexData = fs.readFileSync(reactIndexFilename)</span><br><span class="line">fs.writeFileSync(</span><br><span class="line">  reactIndexFilename,</span><br><span class="line">  reactIndexData + <span class="string">`export const Fragment='react.fragment';\n`</span></span><br><span class="line">)</span><br><span class="line"><span class="keyword">const</span> reactTsIndexFilename = <span class="string">`<span class="subst">$&#123;cwd&#125;</span>/dist/react/jsx-dev-runtime.d.ts`</span></span><br><span class="line"><span class="keyword">const</span> reactTsIndexData = fs.readFileSync(reactTsIndexFilename)</span><br><span class="line">fs.writeFileSync(</span><br><span class="line">  reactTsIndexFilename,</span><br><span class="line">  reactTsIndexData + <span class="string">`export const Fragment: string;\n`</span></span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>接着，需要在 <code>fiber.rs</code> 中新增一个 <code>create_fiber_from_fragment</code> 的方法：</p>
+<p>Next, we need to add a method <code>create_fiber_from_fragment</code> in <code>fiber.rs</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">create_fiber_from_fragment</span></span>(elements: JsValue, key: JsValue) -&gt; FiberNode &#123;</span><br><span class="line">  FiberNode::new(WorkTag::Fragment, elements, key, JsValue::null())</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的 <code>elements</code> 是他的 <code>children</code>。</p>
+<p>Here, <code>elements</code> refers to the <code>children</code> of the fragment.</p>
+<p>然后，按照流程，需要在 <code>begin_work.rs</code> 中新增对于 <code>Fragment</code> 的处理：</p>
+<p>Then, following the workflow, we need to add handling for <code>Fragment</code> in <code>begin_work.rs</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">begin_work</span></span>(</span><br><span class="line">    work_in_progress: Rc&lt;RefCell&lt;FiberNode&gt;&gt;,</span><br><span class="line">    render_lane: Lane,</span><br><span class="line">) -&gt; <span class="built_in">Result</span>&lt;<span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt;, JsValue&gt; &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">match</span> tag &#123;</span><br><span class="line">    ...</span><br><span class="line">    WorkTag::Fragment =&gt; <span class="literal">Ok</span>(update_fragment(work_in_progress.clone())),</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">update_fragment</span></span>(work_in_progress: Rc&lt;RefCell&lt;FiberNode&gt;&gt;) -&gt; <span class="built_in">Option</span>&lt;Rc&lt;RefCell&lt;FiberNode&gt;&gt;&gt; &#123;</span><br><span class="line">    <span class="keyword">let</span> next_children = work_in_progress.borrow().pending_props.clone();</span><br><span class="line">    reconcile_children(work_in_progress.clone(), <span class="literal">Some</span>(next_children));</span><br><span class="line">    work_in_progress.borrow().child.clone()</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 <code>reconcile_single_element</code> 函数中，也需要新增对于 <code>Fragment</code> 的处理：</p>
+<p>In the <code>reconcile_single_element</code> function, we also need to add handling for <code>Fragment</code>:</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">-    <span class="keyword">let</span> <span class="keyword">mut</span> fiber = FiberNode::create_fiber_from_element(element);</span><br><span class="line">+    <span class="keyword">let</span> <span class="keyword">mut</span> fiber ;</span><br><span class="line">+    <span class="keyword">if</span> derive_from_js_value(&amp;element, <span class="string">"type"</span>) == REACT_FRAGMENT_TYPE &#123;</span><br><span class="line">+        <span class="keyword">let</span> props = derive_from_js_value(&amp;element, <span class="string">"props"</span>);</span><br><span class="line">+        <span class="keyword">let</span> children = derive_from_js_value(&amp;props, <span class="string">"children"</span>);</span><br><span class="line">+        fiber = FiberNode::create_fiber_from_fragment(children, key);</span><br><span class="line">+    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">+        fiber = FiberNode::create_fiber_from_element(element);</span><br><span class="line">+    &#125;</span><br></pre></td></tr></table></figure>
+<p>这样，我们的 react 就可以支持 <code>Fragment</code> 了。</p>
+<p>This way, our React implementation can support <code>Fragment</code>.</p>
+<p>不过，还有一种情况也需要支持，比如：</p>
+<p>However, there is another case that needs to be supported, for example:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">App</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> arr = [<span class="xml"><span class="tag">&lt;<span class="name">span</span>&gt;</span>Hello<span class="tag">&lt;/<span class="name">span</span>&gt;</span></span>, &lt;span&gt;World&lt;<span class="regexp">/span&gt;]</span></span><br><span class="line"><span class="regexp">  return &lt;div&gt;&#123;arr&#125;&lt;/</span>div&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的例子并没有显示的使用 <code>Fragment</code>，但我们处理的时候得加一层，即：</p>
+<p>In the above example, <code>Fragment</code> is not explicitly used, but we still need to add a layer of handling, as shown below:</p>
+<p><img src="/2024/08/12/big-react-wasm-23/1.png" alt=""></p>
+<p>这一部分主要涉及到 <code>child_fiber.rs</code> 中 <code>update_from_map</code> 函数的修改，详情请见<a href="https://github.com/ParadeTo/big-react-wasm/pull/25" target="_blank" rel="noopener">这里</a>。</p>
+<p>This mainly involves modifying the <code>update_from_map</code> function in <code>child_fiber.rs</code>. For more details, please refer to <a href="https://github.com/ParadeTo/big-react-wasm/pull/25" target="_blank" rel="noopener">here</a>.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+            <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/08/02/nodejs-grayscale-oom/" rel="next" title="实战 - Node.js 服务灰度发布系统 OOM 排查">
+                <i class="fa fa-chevron-left"></i> 实战 - Node.js 服务灰度发布系统 OOM 排查
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/08/23/big-react-wasm-24/" rel="prev" title="从零实现 React v18，但 WASM 版 - [24] 实现 Suspense（一）：渲染 Fallback">
+                从零实现 React v18，但 WASM 版 - [24] 实现 Suspense（一）：渲染 Fallback <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

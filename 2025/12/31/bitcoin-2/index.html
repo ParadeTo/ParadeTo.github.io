@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="bitcoin," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="在上一篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统和 UTXO 模型。这些是比特币的基石，但要让比特币真正运转起来，我们还需要一个核心组件：交易系统。 今天我们将深入探讨如何实现一个完整的交易系统，包括交易的构建、签名、验证，以及最重要的 UTXO 选择和找零机制。 一、为什么需要交易系统在传统的银行系统中，转账很简单：从 A 账户扣除一定金额，向 B 账户增加相同金额。但比特币采用">
+<meta name="keywords" content="bitcoin">
+<meta property="og:type" content="article">
+<meta property="og:title" content="实现一个简单的比特币：Part 2 - 交易系统">
+<meta property="og:url" content="http://www.paradeto.com/2025/12/31/bitcoin-2/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="在上一篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统和 UTXO 模型。这些是比特币的基石，但要让比特币真正运转起来，我们还需要一个核心组件：交易系统。 今天我们将深入探讨如何实现一个完整的交易系统，包括交易的构建、签名、验证，以及最重要的 UTXO 选择和找零机制。 一、为什么需要交易系统在传统的银行系统中，转账很简单：从 A 账户扣除一定金额，向 B 账户增加相同金额。但比特币采用">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2025-12-31T03:34:44.049Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="实现一个简单的比特币：Part 2 - 交易系统">
+<meta name="twitter:description" content="在上一篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统和 UTXO 模型。这些是比特币的基石，但要让比特币真正运转起来，我们还需要一个核心组件：交易系统。 今天我们将深入探讨如何实现一个完整的交易系统，包括交易的构建、签名、验证，以及最重要的 UTXO 选择和找零机制。 一、为什么需要交易系统在传统的银行系统中，转账很简单：从 A 账户扣除一定金额，向 B 账户增加相同金额。但比特币采用">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2025/12/31/bitcoin-2/"/>
+
+
+
+
+
+
+  <title>实现一个简单的比特币：Part 2 - 交易系统 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2025/12/31/bitcoin-2/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">实现一个简单的比特币：Part 2 - 交易系统</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2025-12-31T11:34:15+08:00">
+                2025-12-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/web3/" itemprop="url" rel="index">
+                    <span itemprop="name">web3</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>在上一篇文章中，我们实现了比特币的基础组件：密码学工具、钱包系统和 UTXO 模型。这些是比特币的基石，但要让比特币真正运转起来，我们还需要一个核心组件：交易系统。</p>
+<p>今天我们将深入探讨如何实现一个完整的交易系统，包括交易的构建、签名、验证，以及最重要的 UTXO 选择和找零机制。</p>
+<h2 id="一、为什么需要交易系统"><a href="#一、为什么需要交易系统" class="headerlink" title="一、为什么需要交易系统"></a>一、为什么需要交易系统</h2><p>在传统的银行系统中，转账很简单：从 A 账户扣除一定金额，向 B 账户增加相同金额。但比特币采用的 UTXO 模型完全不同，它更像是现金交易。</p>
+<p>想象一下现实生活中的场景：你钱包里有一张 100 元、一张 50 元和两张 20 元的纸币。现在你要买 60 元的东西，你会怎么做？你可能会：</p>
+<ol>
+<li>拿出 100 元纸币</li>
+<li>商家收取 60 元</li>
+<li>商家找零 40 元给你</li>
+</ol>
+<p>这个过程中，你原来的 100 元纸币被”花掉”了，取而代之的是商家收到的 60 元和你收到的 40 元找零。</p>
+<p>比特币的交易系统就是模拟这个过程。每笔交易都需要：</p>
+<ul>
+<li>选择合适的 UTXO（纸币）</li>
+<li>计算找零金额</li>
+<li>对交易进行签名证明所有权</li>
+<li>让网络验证交易的合法性</li>
+</ul>
+<h2 id="二、交易的基本结构"><a href="#二、交易的基本结构" class="headerlink" title="二、交易的基本结构"></a>二、交易的基本结构</h2><p>在开始实现之前，我们先理解交易的结构。一笔比特币交易由三个核心部分组成：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">交易 (Transaction)</span><br><span class="line">├── 交易 ID (txId)</span><br><span class="line">├── 输入列表 (inputs)</span><br><span class="line">│   ├── 输入1: 引用的 UTXO + 签名 + 公钥</span><br><span class="line">│   ├── 输入2: 引用的 UTXO + 签名 + 公钥</span><br><span class="line">│   └── ...</span><br><span class="line">├── 输出列表 (outputs)</span><br><span class="line">│   ├── 输出1: 金额 + 接收地址</span><br><span class="line">│   ├── 输出2: 金额 + 接收地址</span><br><span class="line">│   └── ...</span><br><span class="line">└── 时间戳 (timestamp)</span><br></pre></td></tr></table></figure>
+<p>每个输入都指向一个之前存在的 UTXO，并提供签名来证明你有权花费它。每个输出创建新的 UTXO，可以在未来的交易中被花费。</p>
+<p>让我们看一个具体例子。假设 Alice 有两个 UTXO：</p>
+<p><strong>UTXO 集合（交易前）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1:0</td>
+<td>100 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+</tr>
+<tr>
+<td>tx2:0</td>
+<td>50 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Alice 想给 Bob 转账 60 BTC，创建新交易：</strong></p>
+<p>交易输入：</p>
+<table>
+<thead>
+<tr>
+<th>引用 UTXO</th>
+<th>金额</th>
+<th>签名</th>
+<th>公钥</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1:0</td>
+<td>100 BTC</td>
+<td>Alice 的签名</td>
+<td>Alice 的公钥</td>
+</tr>
+</tbody>
+</table>
+<p>交易输出：</p>
+<table>
+<thead>
+<tr>
+<th>输出索引</th>
+<th>金额</th>
+<th>接收地址</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>60 BTC</td>
+<td>Bob 的地址</td>
+<td>转账</td>
+</tr>
+<tr>
+<td>1</td>
+<td>40 BTC</td>
+<td>Alice 的地址</td>
+<td>找零</td>
+</tr>
+</tbody>
+</table>
+<p><strong>交易完成后，UTXO 集合变成：</strong></p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1:0</td>
+<td>100 BTC</td>
+<td>Alice</td>
+<td>已花费</td>
+<td>被新交易消耗</td>
+</tr>
+<tr>
+<td>tx2:0</td>
+<td>50 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+<td>未使用</td>
+</tr>
+<tr>
+<td>tx3:0</td>
+<td>60 BTC</td>
+<td>Bob</td>
+<td>有效</td>
+<td>新创建</td>
+</tr>
+<tr>
+<td>tx3:1</td>
+<td>40 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+<td>找零</td>
+</tr>
+</tbody>
+</table>
+<p>注意：Alice 原来的 <code>tx1:0</code> 被标记为”已花费”，不再存在于 UTXO 集合中。</p>
+<h2 id="三、Transaction-类：交易的核心"><a href="#三、Transaction-类：交易的核心" class="headerlink" title="三、Transaction 类：交易的核心"></a>三、Transaction 类：交易的核心</h2><p>现在让我们实现 <code>Transaction</code> 类。这个类需要管理交易的输入、输出，计算交易 ID，并提供验证功能。</p>
+<h3 id="3-1-交易的创建"><a href="#3-1-交易的创建" class="headerlink" title="3.1 交易的创建"></a>3.1 交易的创建</h3><figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> Transaction &#123;</span><br><span class="line">  id: <span class="built_in">string</span></span><br><span class="line">  inputs: TxInput[]</span><br><span class="line">  outputs: TxOutput[]</span><br><span class="line">  timestamp: <span class="built_in">number</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">constructor</span>(<span class="params"></span></span><br><span class="line"><span class="params">    inputs: TxInput[],</span></span><br><span class="line"><span class="params">    outputs: TxOutput[],</span></span><br><span class="line">    timestamp: number = Date.now()</span><br><span class="line">  ) &#123;</span><br><span class="line">    <span class="keyword">if</span> (inputs.length === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'交易必须至少有一个输入'</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span> (outputs.length === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">'交易必须至少有一个输出'</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.inputs = inputs</span><br><span class="line">    <span class="keyword">this</span>.outputs = outputs</span><br><span class="line">    <span class="keyword">this</span>.timestamp = timestamp</span><br><span class="line">    <span class="keyword">this</span>.id = <span class="keyword">this</span>.calculateId()</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里的关键点是：交易必须至少有一个输入和一个输出。没有输入意味着没有资金来源，没有输出意味着没有接收者。</p>
+<h3 id="3-2-交易-ID-的计算"><a href="#3-2-交易-ID-的计算" class="headerlink" title="3.2 交易 ID 的计算"></a>3.2 交易 ID 的计算</h3><p>交易 ID 是交易内容的哈希值，它唯一标识一笔交易。重要的是，交易 ID 的计算不应该包含签名，因为签名本身是对交易内容的 hash。如果把签名包含在内，就会形成循环依赖。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> calculateId(): <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> content = <span class="keyword">this</span>.getContentForSigning()</span><br><span class="line">  <span class="keyword">return</span> Hash.sha256(content)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getContentForSigning(): <span class="built_in">string</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> inputsForSigning = <span class="keyword">this</span>.inputs.map(<span class="function"><span class="params">input</span> =&gt;</span> (&#123;</span><br><span class="line">    txId: input.txId,</span><br><span class="line">    outputIndex: input.outputIndex,</span><br><span class="line">  &#125;))</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> content = &#123;</span><br><span class="line">    inputs: inputsForSigning,</span><br><span class="line">    outputs: <span class="keyword">this</span>.outputs.map(<span class="function"><span class="params">output</span> =&gt;</span> output.toJSON()),</span><br><span class="line">    timestamp: <span class="keyword">this</span>.timestamp,</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="built_in">JSON</span>.stringify(content)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>getContentForSigning()</code> 方法返回的内容：</p>
+<ul>
+<li>包含输入的引用信息（txId 和 outputIndex）</li>
+<li>不包含签名和公钥</li>
+<li>包含所有输出和时间戳</li>
+</ul>
+<p>这样，无论签名如何变化，交易的内容始终是确定的，交易 ID 也保持不变。</p>
+<h3 id="3-3-金额验证"><a href="#3-3-金额验证" class="headerlink" title="3.3 金额验证"></a>3.3 金额验证</h3><p>交易系统有一个基本的经济规则：输入总额必须大于或等于输出总额。差额就是矿工费。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">getInputAmount(utxoSet: Map&lt;<span class="built_in">string</span>, TxOutput&gt;): <span class="built_in">number</span> &#123;</span><br><span class="line">  <span class="keyword">let</span> total = <span class="number">0</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> input of <span class="keyword">this</span>.inputs) &#123;</span><br><span class="line">    <span class="keyword">const</span> key = <span class="string">`<span class="subst">$&#123;input.txId&#125;</span>:<span class="subst">$&#123;input.outputIndex&#125;</span>`</span></span><br><span class="line">    <span class="keyword">const</span> utxo = utxoSet.get(key)</span><br><span class="line">    <span class="keyword">if</span> (!utxo) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="built_in">Error</span>(<span class="string">`UTXO 不存在: <span class="subst">$&#123;key&#125;</span>`</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    total += utxo.amount</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> total</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">getOutputAmount(): <span class="built_in">number</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">this</span>.outputs.reduce(<span class="function">(<span class="params">sum, output</span>) =&gt;</span> sum + output.amount, <span class="number">0</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">calculateFee(utxoSet: Map&lt;<span class="built_in">string</span>, TxOutput&gt;): <span class="built_in">number</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> inputAmount = <span class="keyword">this</span>.getInputAmount(utxoSet)</span><br><span class="line">  <span class="keyword">const</span> outputAmount = <span class="keyword">this</span>.getOutputAmount()</span><br><span class="line">  <span class="keyword">return</span> inputAmount - outputAmount</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>让我们通过一个例子理解矿工费：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">  UTXO1: 100 BTC</span><br><span class="line">  UTXO2: 50 BTC</span><br><span class="line">  总计: 150 BTC</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">  给 Bob: 60 BTC</span><br><span class="line">  找零给自己: 89 BTC</span><br><span class="line">  总计: 149 BTC</span><br><span class="line"></span><br><span class="line">矿工费 = 150 - 149 = 1 BTC</span><br></pre></td></tr></table></figure>
+<p>这 1 BTC 的差额就是矿工费，奖励给将这笔交易打包进区块的矿工。</p>
+<h3 id="3-4-Coinbase-交易：特殊的第一笔交易"><a href="#3-4-Coinbase-交易：特殊的第一笔交易" class="headerlink" title="3.4 Coinbase 交易：特殊的第一笔交易"></a>3.4 Coinbase 交易：特殊的第一笔交易</h3><p>每个区块的第一笔交易是特殊的，它叫做 Coinbase 交易，是矿工的奖励。这笔交易没有真正的输入，因为它凭空创造了新的比特币。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> createCoinbase(</span><br><span class="line">  minerAddress: <span class="built_in">string</span>,</span><br><span class="line">  amount: <span class="built_in">number</span>,</span><br><span class="line">  blockHeight: <span class="built_in">number</span> = <span class="number">0</span></span><br><span class="line">): Transaction &#123;</span><br><span class="line">  <span class="keyword">const</span> coinbaseInput = <span class="keyword">new</span> TxInput(</span><br><span class="line">    <span class="string">'0000000000000000000000000000000000000000000000000000000000000000'</span>,</span><br><span class="line">    blockHeight,</span><br><span class="line">    <span class="string">''</span>,</span><br><span class="line">    <span class="string">''</span></span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> coinbaseOutput = <span class="keyword">new</span> TxOutput(amount, minerAddress)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> Transaction([coinbaseInput], [coinbaseOutput])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">isCoinbase(): <span class="built_in">boolean</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="keyword">this</span>.inputs.length === <span class="number">1</span> &amp;&amp;</span><br><span class="line">    <span class="keyword">this</span>.inputs[<span class="number">0</span>].txId === <span class="string">'0000000000000000000000000000000000000000000000000000000000000000'</span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>Coinbase 交易使用一个特殊的全零 txId 作为输入，表示这是新创造的比特币。在真实的比特币网络中，大约每 10 分钟就会产生一个新区块，矿工通过 Coinbase 交易获得区块奖励。</p>
+<h2 id="四、TransactionSigner：签名与验证"><a href="#四、TransactionSigner：签名与验证" class="headerlink" title="四、TransactionSigner：签名与验证"></a>四、TransactionSigner：签名与验证</h2><p>有了交易结构，我们需要一套机制来证明交易的合法性。这就是签名和验证的作用。</p>
+<h3 id="4-1-交易签名"><a href="#4-1-交易签名" class="headerlink" title="4.1 交易签名"></a>4.1 交易签名</h3><p>签名交易就是用私钥对交易内容进行签名，证明你有权花费输入中引用的 UTXO。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> TransactionSigner &#123;</span><br><span class="line">  <span class="keyword">static</span> signTransaction(</span><br><span class="line">    transaction: Transaction,</span><br><span class="line">    wallet: Wallet</span><br><span class="line">  ): Transaction &#123;</span><br><span class="line">    <span class="keyword">const</span> txData = transaction.getContentForSigning()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">const</span> input of transaction.inputs) &#123;</span><br><span class="line">      <span class="keyword">if</span> (input.isSigned()) &#123;</span><br><span class="line">        <span class="keyword">continue</span></span><br><span class="line">      &#125;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">const</span> signature = wallet.sign(txData)</span><br><span class="line">      input.setSignature(signature, wallet.publicKey)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    transaction.id = transaction.calculateId()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> transaction</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>签名过程很直接：</p>
+<ol>
+<li>获取交易的原始内容（不包含签名）</li>
+<li>对每个未签名的输入进行签名</li>
+<li>将签名和公钥存储在输入中</li>
+</ol>
+<p>让我们看一个实际的签名例子：</p>
+<p><strong>原始交易（未签名）：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">  - txId: tx1</span><br><span class="line">  - outputIndex: 0</span><br><span class="line">  - signature: (空)</span><br><span class="line">  - publicKey: (空)</span><br></pre></td></tr></table></figure>
+<p><strong>签名过程</strong><br>↓</p>
+<p><strong>签名后的交易：</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">输入：</span><br><span class="line">  - txId: tx1</span><br><span class="line">  - outputIndex: 0</span><br><span class="line">  - signature: 3045...a7b9</span><br><span class="line">  - publicKey: 04f3...c2d1</span><br></pre></td></tr></table></figure>
+<h3 id="4-2-交易验证：两层防护"><a href="#4-2-交易验证：两层防护" class="headerlink" title="4.2 交易验证：两层防护"></a>4.2 交易验证：两层防护</h3><p>验证交易是确保网络安全的关键。验证过程包含两个层次：</p>
+<p><strong>第一层：验证签名本身是否有效</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> isSignatureValid = Signature.verify(txData, signature, publicKey)</span><br></pre></td></tr></table></figure>
+<p>这一步验证签名确实是由拥有对应私钥的人创建的。</p>
+<p><strong>第二层：验证公钥是否拥有被引用的 UTXO</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> sha256Hash = Hash.sha256(input.publicKey)</span><br><span class="line"><span class="keyword">const</span> ripemd160Hash = Hash.ripemd160(sha256Hash)</span><br><span class="line"><span class="keyword">const</span> addressFromPublicKey = encodeBase58(ripemd160Hash)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (addressFromPublicKey !== utxo.address) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>只有两层验证都通过，交易才有效。即使 Bob 能创建有效的签名（第一层通过），如果他的公钥对应的地址不是 UTXO 的所有者，第二层验证就会失败。</p>
+<p>让我们通过一个攻击场景来理解这两层防护的重要性：</p>
+<p><strong>场景：Bob 试图盗取 Alice 的 UTXO</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">Alice 的 UTXO: tx1:0 (100 BTC)</span><br><span class="line">所有者地址: alice_address</span><br><span class="line"></span><br><span class="line">Bob 创建一个欺诈交易：</span><br><span class="line"></span><br><span class="line">输入：</span><br><span class="line">  - txId: tx1 (Alice 的 UTXO)</span><br><span class="line">  - outputIndex: 0</span><br><span class="line">  - signature: Bob 用自己私钥签名</span><br><span class="line">  - publicKey: Bob 的公钥</span><br><span class="line"></span><br><span class="line">输出：</span><br><span class="line">  - 100 BTC → Bob 的地址</span><br><span class="line"></span><br><span class="line">验证过程：</span><br><span class="line">[通过] 第一层：签名验证通过</span><br><span class="line">        （Bob 的签名对 Bob 的公钥是有效的）</span><br><span class="line"></span><br><span class="line">[失败] 第二层：所有权验证失败</span><br><span class="line">        从 Bob 的公钥计算的地址: bob_address</span><br><span class="line">        UTXO 的所有者地址: alice_address</span><br><span class="line">        地址不匹配！</span><br></pre></td></tr></table></figure>
+<p>这两层防护确保了：</p>
+<ol>
+<li>交易确实是由持有私钥的人签名的（防止伪造签名）</li>
+<li>签名的人确实拥有被引用的 UTXO（防止盗用他人的 UTXO）</li>
+</ol>
+<p>完整的验证代码：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">static</span> verifyTransaction(</span><br><span class="line">  transaction: Transaction,</span><br><span class="line">  utxoSet: Map&lt;<span class="built_in">string</span>, &#123;amount: <span class="built_in">number</span>; address: <span class="built_in">string</span>&#125;&gt;</span><br><span class="line">): <span class="built_in">boolean</span> &#123;</span><br><span class="line">  <span class="keyword">if</span> (transaction.isCoinbase()) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> txData = transaction.getContentForSigning()</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> input of transaction.inputs) &#123;</span><br><span class="line">    <span class="keyword">if</span> (!input.isSigned()) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第一层：验证签名</span></span><br><span class="line">    <span class="keyword">if</span> (!Signature.verify(txData, input.signature, input.publicKey)) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 第二层：验证所有权</span></span><br><span class="line">    <span class="keyword">const</span> utxoKey = <span class="string">`<span class="subst">$&#123;input.txId&#125;</span>:<span class="subst">$&#123;input.outputIndex&#125;</span>`</span></span><br><span class="line">    <span class="keyword">const</span> utxo = utxoSet.get(utxoKey)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!utxo) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> sha256Hash = Hash.sha256(input.publicKey)</span><br><span class="line">    <span class="keyword">const</span> ripemd160Hash = Hash.ripemd160(sha256Hash)</span><br><span class="line">    <span class="keyword">const</span> addressFromPublicKey = encodeBase58(ripemd160Hash)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (addressFromPublicKey !== utxo.address) &#123;</span><br><span class="line">      <span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="五、TransactionBuilder：智能的交易构建器"><a href="#五、TransactionBuilder：智能的交易构建器" class="headerlink" title="五、TransactionBuilder：智能的交易构建器"></a>五、TransactionBuilder：智能的交易构建器</h2><p>手动构建交易很繁琐，需要选择 UTXO、计算找零、处理签名。<code>TransactionBuilder</code> 类封装了这些复杂性，提供了简洁的 API。</p>
+<h3 id="5-1-使用方式"><a href="#5-1-使用方式" class="headerlink" title="5.1 使用方式"></a>5.1 使用方式</h3><p>让我们先看看如何使用 TransactionBuilder：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 简单转账</span></span><br><span class="line"><span class="keyword">const</span> tx = <span class="keyword">new</span> TransactionBuilder(utxoSet)</span><br><span class="line">  .from(aliceWallet)</span><br><span class="line">  .to(bobWallet.address, <span class="number">60</span>)</span><br><span class="line">  .buildAndSign()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 多人转账</span></span><br><span class="line"><span class="keyword">const</span> tx = <span class="keyword">new</span> TransactionBuilder(utxoSet)</span><br><span class="line">  .from(aliceWallet)</span><br><span class="line">  .to(bobWallet.address, <span class="number">30</span>)</span><br><span class="line">  .to(charlieWallet.address, <span class="number">20</span>)</span><br><span class="line">  .withChangeAddress(aliceWallet.address)</span><br><span class="line">  .buildAndSign()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 或使用静态方法</span></span><br><span class="line"><span class="keyword">const</span> tx = TransactionBuilder.createSimpleTransfer(</span><br><span class="line">  aliceWallet,</span><br><span class="line">  bobWallet.address,</span><br><span class="line">  <span class="number">60</span>,</span><br><span class="line">  utxoSet</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<p>这种链式调用的 API 设计让代码既简洁又易读。</p>
+<h3 id="5-2-UTXO-选择策略：贪心算法"><a href="#5-2-UTXO-选择策略：贪心算法" class="headerlink" title="5.2 UTXO 选择策略：贪心算法"></a>5.2 UTXO 选择策略：贪心算法</h3><p>UTXO 选择是交易构建的核心问题。给定一个目标金额，如何从多个 UTXO 中选择最优的组合？</p>
+<p>我们采用贪心算法：优先选择金额最大的 UTXO，直到满足需求。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> selectUTXOs(</span><br><span class="line">  utxos: <span class="built_in">Array</span>&lt;&#123;txId: <span class="built_in">string</span>; outputIndex: <span class="built_in">number</span>; output: TxOutput&#125;&gt;,</span><br><span class="line">  targetAmount: <span class="built_in">number</span></span><br><span class="line">): <span class="built_in">Array</span>&lt;&#123;txId: <span class="built_in">string</span>; outputIndex: <span class="built_in">number</span>; output: TxOutput&#125;&gt; &#123;</span><br><span class="line">  <span class="comment">// 按金额从大到小排序</span></span><br><span class="line">  <span class="keyword">const</span> sorted = [...utxos].sort(<span class="function">(<span class="params">a, b</span>) =&gt;</span> b.output.amount - a.output.amount)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> selected: <span class="built_in">Array</span>&lt;&#123;</span><br><span class="line">    txId: <span class="built_in">string</span></span><br><span class="line">    outputIndex: <span class="built_in">number</span></span><br><span class="line">    output: TxOutput</span><br><span class="line">  &#125;&gt; = []</span><br><span class="line">  <span class="keyword">let</span> total = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> utxo of sorted) &#123;</span><br><span class="line">    selected.push(utxo)</span><br><span class="line">    total += utxo.amount</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (total &gt;= targetAmount) &#123;</span><br><span class="line">      <span class="keyword">break</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (total &lt; targetAmount) &#123;</span><br><span class="line">    <span class="keyword">return</span> []</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> selected</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>让我们通过例子理解这个算法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">场景：Alice 需要支付 60 BTC</span><br><span class="line"></span><br><span class="line">Alice 的 UTXO：</span><br><span class="line">  UTXO1: 100 BTC</span><br><span class="line">  UTXO2: 50 BTC</span><br><span class="line">  UTXO3: 25 BTC</span><br><span class="line">  UTXO4: 10 BTC</span><br><span class="line"></span><br><span class="line">步骤 1：排序（从大到小）</span><br><span class="line">  [100, 50, 25, 10]</span><br><span class="line"></span><br><span class="line">步骤 2：选择</span><br><span class="line">  - 选择 100 BTC</span><br><span class="line">  - 累计：100 BTC</span><br><span class="line">  - 100 &gt;= 60，满足条件，停止</span><br><span class="line"></span><br><span class="line">结果：选择 1 个 UTXO (100 BTC)</span><br><span class="line">找零：100 - 60 = 40 BTC</span><br></pre></td></tr></table></figure>
+<p>如果需要支付 120 BTC：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">步骤 1：排序</span><br><span class="line">  [100, 50, 25, 10]</span><br><span class="line"></span><br><span class="line">步骤 2：选择</span><br><span class="line">  - 选择 100 BTC，累计：100</span><br><span class="line">  - 100 &lt; 120，继续</span><br><span class="line">  - 选择 50 BTC，累计：150</span><br><span class="line">  - 150 &gt;= 120，满足条件，停止</span><br><span class="line"></span><br><span class="line">结果：选择 2 个 UTXO (100 + 50 = 150 BTC)</span><br><span class="line">找零：150 - 120 = 30 BTC</span><br></pre></td></tr></table></figure>
+<p>这个贪心算法的优点：</p>
+<ul>
+<li>简单高效</li>
+<li>通常能选择最少数量的 UTXO</li>
+<li>减少交易大小（更少的输入意味着更小的交易体积）</li>
+</ul>
+<h3 id="5-3-完整流程"><a href="#5-3-完整流程" class="headerlink" title="5.3 完整流程"></a>5.3 完整流程</h3><p>让我们通过一个完整的例子理解整个流程：</p>
+<p><strong>初始状态：</strong></p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1:0</td>
+<td>100 BTC</td>
+<td>Alice</td>
+</tr>
+<tr>
+<td>tx2:0</td>
+<td>50 BTC</td>
+<td>Alice</td>
+</tr>
+<tr>
+<td>tx3:0</td>
+<td>25 BTC</td>
+<td>Alice</td>
+</tr>
+</tbody>
+</table>
+<p><strong>目标：</strong> Alice 给 Bob 转账 60 BTC</p>
+<p><strong>步骤 1：选择 UTXO</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">选择算法：贪心（从大到小）</span><br><span class="line">选择：tx1:0 (100 BTC)</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 2：构建输入</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">inputs = [</span><br><span class="line">  TxInput(txId: <span class="string">'tx1'</span>, outputIndex: <span class="number">0</span>)</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 3：构建输出</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">recipients = [&#123;address: <span class="string">'bob_address'</span>, amount: <span class="number">60</span>&#125;]</span><br><span class="line"></span><br><span class="line">outputs = [TxOutput(<span class="number">60</span>, <span class="string">'bob_address'</span>)]</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 4：计算找零</strong></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">totalInput = 100</span><br><span class="line">totalOutput = 60</span><br><span class="line">change = 100 - 60 = 40</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 5：添加找零输出</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">outputs.push(TxOutput(<span class="number">40</span>, <span class="string">'alice_address'</span>))</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 6：创建交易</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tx = <span class="keyword">new</span> Transaction(inputs, outputs)</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 7：签名交易</strong></p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">对每个输入签名</span><br><span class="line">input.signature = sign(txData, alice_privateKey)</span><br><span class="line">input.publicKey = alice_publicKey</span><br></pre></td></tr></table></figure>
+<p><strong>最终交易 (tx4)：</strong></p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Transaction ID</td>
+<td>tx4</td>
+</tr>
+<tr>
+<td><strong>输入</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>- tx1:0</td>
+<td>signature: 已签名<br>publicKey: Alice’s PubKey</td>
+</tr>
+<tr>
+<td><strong>输出</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>- 输出 0</td>
+<td>60 BTC → bob_address</td>
+</tr>
+<tr>
+<td>- 输出 1</td>
+<td>40 BTC → alice_address</td>
+</tr>
+</tbody>
+</table>
+<p>执行这笔交易后，UTXO 集合的变化：</p>
+<table>
+<thead>
+<tr>
+<th>UTXO</th>
+<th>金额</th>
+<th>所有者</th>
+<th>状态</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tx1:0</td>
+<td>100 BTC</td>
+<td>Alice</td>
+<td>已花费</td>
+<td>被 tx4 消耗</td>
+</tr>
+<tr>
+<td>tx2:0</td>
+<td>50 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+<td>未使用</td>
+</tr>
+<tr>
+<td>tx3:0</td>
+<td>25 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+<td>未使用</td>
+</tr>
+<tr>
+<td>tx4:0</td>
+<td>60 BTC</td>
+<td>Bob</td>
+<td>有效</td>
+<td>新创建</td>
+</tr>
+<tr>
+<td>tx4:1</td>
+<td>40 BTC</td>
+<td>Alice</td>
+<td>有效</td>
+<td>找零</td>
+</tr>
+</tbody>
+</table>
+<p><strong>最终余额：</strong></p>
+<ul>
+<li>Alice: tx2:0 (50) + tx3:0 (25) + tx4:1 (40) = <strong>115 BTC</strong></li>
+<li>Bob: tx4:0 (60) = <strong>60 BTC</strong></li>
+</ul>
+<h2 id="六、总结"><a href="#六、总结" class="headerlink" title="六、总结"></a>六、总结</h2><p>在这篇文章中，我们实现了比特币的交易系统。我们学习了如何构建交易，包括选择 UTXO、计算找零和生成交易 ID。我们探讨了交易签名的两层验证机制：验证签名本身的有效性，以及验证签名者是否真正拥有被引用的 UTXO。我们还实现了 TransactionBuilder，它封装了 UTXO 选择和找零计算的复杂性，提供了简洁的链式 API。</p>
+<p>这些组件构成了比特币价值转移的核心。有了它们，我们可以创建交易、签名交易、验证交易。Transaction 类管理交易的数据结构，TransactionSigner 负责安全性，TransactionBuilder 提供易用性。三个类各司其职，共同构建了一个健壮的交易系统。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/bitcoin/" rel="tag"># bitcoin</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/12/26/bitcoin-1/" rel="next" title="实现一个简单的比特币：Part 1 - 基础组件">
+                <i class="fa fa-chevron-left"></i> 实现一个简单的比特币：Part 1 - 基础组件
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2026/01/01/bitcoin-3/" rel="prev" title="实现一个简单的比特币：Part 3 - 区块链与挖矿">
+                实现一个简单的比特币：Part 3 - 区块链与挖矿 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、为什么需要交易系统"><span class="nav-number">1.</span> <span class="nav-text">一、为什么需要交易系统</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、交易的基本结构"><span class="nav-number">2.</span> <span class="nav-text">二、交易的基本结构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、Transaction-类：交易的核心"><span class="nav-number">3.</span> <span class="nav-text">三、Transaction 类：交易的核心</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-交易的创建"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 交易的创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-交易-ID-的计算"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 交易 ID 的计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-金额验证"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 金额验证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-Coinbase-交易：特殊的第一笔交易"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 Coinbase 交易：特殊的第一笔交易</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、TransactionSigner：签名与验证"><span class="nav-number">4.</span> <span class="nav-text">四、TransactionSigner：签名与验证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-交易签名"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 交易签名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-交易验证：两层防护"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 交易验证：两层防护</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、TransactionBuilder：智能的交易构建器"><span class="nav-number">5.</span> <span class="nav-text">五、TransactionBuilder：智能的交易构建器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-使用方式"><span class="nav-number">5.1.</span> <span class="nav-text">5.1 使用方式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-UTXO-选择策略：贪心算法"><span class="nav-number">5.2.</span> <span class="nav-text">5.2 UTXO 选择策略：贪心算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-完整流程"><span class="nav-number">5.3.</span> <span class="nav-text">5.3 完整流程</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#六、总结"><span class="nav-number">6.</span> <span class="nav-text">六、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="nodejs," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="研究下 Cluster 的实现原理">
+<meta name="keywords" content="nodejs">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Node.js 高级编程之 cluster">
+<meta property="og:url" content="http://www.paradeto.com/2022/12/15/nodejs-cluster-principle/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="研究下 Cluster 的实现原理">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2022/12/15/nodejs-cluster-principle/sharedhandle.png">
+<meta property="og:image" content="http://www.paradeto.com/2022/12/15/nodejs-cluster-principle/roundrobinhandle.png">
+<meta property="og:updated_time" content="2023-01-09T10:26:36.776Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Node.js 高级编程之 cluster">
+<meta name="twitter:description" content="研究下 Cluster 的实现原理">
+<meta name="twitter:image" content="http://www.paradeto.com/2022/12/15/nodejs-cluster-principle/sharedhandle.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2022/12/15/nodejs-cluster-principle/"/>
+
+
+
+
+
+
+  <title>Node.js 高级编程之 cluster | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2022/12/15/nodejs-cluster-principle/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Node.js 高级编程之 cluster</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2022-12-15T20:31:34+08:00">
+                2022-12-15
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/nodejs/" itemprop="url" rel="index">
+                    <span itemprop="name">nodejs</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  研究下 Cluster 的实现原理
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>日常工作中，对 Node.js 的使用都比较粗浅，趁未羊之际，来学点稍微高级的，那就先从 cluster 开始吧。</p>
+<p>鲁迅说过，“带着问题去学习是一个比较好的方法”，所以我们也来试一试。</p>
+<p>当初使用 cluster 时，一直好奇它是怎么做到多个子进程监听同一个端口而不冲突的，比如下面这段代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cluster = <span class="built_in">require</span>(<span class="string">'cluster'</span>)</span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> cpus = <span class="built_in">require</span>(<span class="string">'os'</span>).cpus()</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (cluster.isPrimary) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; cpus.length; i++) &#123;</span><br><span class="line">    cluster.fork()</span><br><span class="line">  &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  net</span><br><span class="line">    .createServer(<span class="function"><span class="keyword">function</span> (<span class="params">socket</span>) </span>&#123;</span><br><span class="line">      socket.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">        socket.write(<span class="string">`Reply from <span class="subst">$&#123;process.pid&#125;</span>: `</span> + data.toString())</span><br><span class="line">      &#125;)</span><br><span class="line">      socket.on(<span class="string">'end'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">        <span class="built_in">console</span>.log(<span class="string">'Close'</span>)</span><br><span class="line">      &#125;)</span><br><span class="line">      socket.write(<span class="string">'Hello!\n'</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">    .listen(<span class="number">9999</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该段代码通过父进程 <code>fork</code> 出了多个子进程，且这些子进程都监听了 9999 这个端口并能正常提供服务，这是如何做到的呢？我们来研究一下。</p>
+<h1 id="准备调试环境"><a href="#准备调试环境" class="headerlink" title="准备调试环境"></a>准备调试环境</h1><p>学习 Node.js 官方提供库最好的方式当然是调试一下，所以，我们先来准备一下环境。注：本文的操作系统为 macOS Big Sur 11.6.6，其他系统请自行准备相应环境。</p>
+<h2 id="编译-Node-js"><a href="#编译-Node-js" class="headerlink" title="编译 Node.js"></a>编译 Node.js</h2><ol>
+<li>下载 Node.js 源码</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/nodejs/node.git</span><br></pre></td></tr></table></figure>
+<p>然后在下面这两个地方加入断点，方便后面调试用：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/primary.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">queryServer</span>(<span class="params">worker, message</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">debugger</span>;</span><br><span class="line">  <span class="comment">// Stop processing if worker already disconnecting</span></span><br><span class="line">  <span class="keyword">if</span> (worker.exitedAfterDisconnect) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/child.js</span></span><br><span class="line">send(message, (reply, handle) =&gt; &#123;</span><br><span class="line">  <span class="keyword">debugger</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> obj._setServerData === <span class="string">'function'</span>) obj._setServerData(reply.data)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (handle) &#123;</span><br><span class="line">    <span class="comment">// Shared listen socket</span></span><br><span class="line">    shared(reply, &#123;handle, indexesKey, index&#125;, cb)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="comment">// Round-robin.</span></span><br><span class="line">    rr(reply, &#123;indexesKey, index&#125;, cb)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>进入目录，执行</li>
+</ol>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">./configure --debug</span><br><span class="line">make -j4</span><br></pre></td></tr></table></figure>
+<p>之后会生成 <code>out/Debug/node</code></p>
+<h2 id="准备-IDE-环境"><a href="#准备-IDE-环境" class="headerlink" title="准备 IDE 环境"></a>准备 IDE 环境</h2><p>使用 vscode 调试，配置好 <code>launch.json</code> 就可以了（其他 IDE 类似，请自行解决）：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="string">"version"</span>: <span class="string">"0.2.0"</span>,</span><br><span class="line">  <span class="string">"configurations"</span>: [</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"Debug C++"</span>,</span><br><span class="line">      <span class="string">"type"</span>: <span class="string">"cppdbg"</span>,</span><br><span class="line">      <span class="string">"program"</span>: <span class="string">"/Users/youxingzhi/ayou/node/out/Debug/node"</span>,</span><br><span class="line">      <span class="string">"request"</span>: <span class="string">"launch"</span>,</span><br><span class="line">      <span class="string">"args"</span>: [<span class="string">"/Users/youxingzhi/ayou/node/index.js"</span>],</span><br><span class="line">      <span class="string">"stopAtEntry"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="string">"cwd"</span>: <span class="string">"$&#123;workspaceFolder&#125;"</span>,</span><br><span class="line">      <span class="string">"environment"</span>: [],</span><br><span class="line">      <span class="string">"externalConsole"</span>: <span class="literal">false</span>,</span><br><span class="line">      <span class="string">"MIMode"</span>: <span class="string">"lldb"</span></span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      <span class="string">"name"</span>: <span class="string">"Debug Node"</span>,</span><br><span class="line">      <span class="string">"type"</span>: <span class="string">"node"</span>,</span><br><span class="line">      <span class="string">"runtimeExecutable"</span>: <span class="string">"/Users/youxingzhi/ayou/node/out/Debug/node"</span>,</span><br><span class="line">      <span class="string">"request"</span>: <span class="string">"launch"</span>,</span><br><span class="line">      <span class="string">"args"</span>: [<span class="string">"--expose-internals"</span>, <span class="string">"--nolazy"</span>],</span><br><span class="line">      <span class="string">"skipFiles"</span>: [],</span><br><span class="line">      <span class="string">"program"</span>: <span class="string">"$&#123;workspaceFolder&#125;/index.js"</span></span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其中第一个是用于调式 C++ 代码（需要安装 C/C++ 插件），第二个用于调式 JS 代码。接下来就可以开始调试了，我们暂时用调式 JS 代码的那个配置就好了。</p>
+<h1 id="Cluster-源码调试"><a href="#Cluster-源码调试" class="headerlink" title="Cluster 源码调试"></a>Cluster 源码调试</h1><p>准备好调试代码（为了调试而已，这里启动一个子进程就够了）：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">debugger</span></span><br><span class="line"><span class="keyword">const</span> cluster = <span class="built_in">require</span>(<span class="string">'cluster'</span>)</span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (cluster.isPrimary) &#123;</span><br><span class="line">  <span class="keyword">debugger</span></span><br><span class="line">  cluster.fork()</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> server = net.createServer(<span class="function"><span class="keyword">function</span> (<span class="params">socket</span>) </span>&#123;</span><br><span class="line">    socket.on(<span class="string">'data'</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">      socket.write(<span class="string">`Reply from <span class="subst">$&#123;process.pid&#125;</span>: `</span> + data.toString())</span><br><span class="line">    &#125;)</span><br><span class="line">    socket.on(<span class="string">'end'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">      <span class="built_in">console</span>.log(<span class="string">'Close'</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">    socket.write(<span class="string">'Hello!\n'</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">  <span class="keyword">debugger</span></span><br><span class="line">  server.listen(<span class="number">9999</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>很明显，我们的程序可以分父进程和子进程这两部分来进行分析。</p>
+<p><em>首先进入的是父进程：</em></p>
+<p>执行 <code>require(&#39;cluster&#39;)</code> 时，会进入 <code>lib/cluster.js</code> 这个文件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> childOrPrimary = <span class="string">'NODE_UNIQUE_ID'</span> <span class="keyword">in</span> process.env ? <span class="string">'child'</span> : <span class="string">'primary'</span></span><br><span class="line"><span class="built_in">module</span>.exports = <span class="built_in">require</span>(<span class="string">`internal/cluster/<span class="subst">$&#123;childOrPrimary&#125;</span>`</span>)</span><br></pre></td></tr></table></figure>
+<p>会根据当前 <code>process.env</code> 上是否有 <code>NODE_UNIQUE_ID</code> 来引入不同的模块，此时是没有的，所以会引入 <code>internal/cluster/primary.js</code> 这个模块：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="keyword">const</span> cluster = <span class="keyword">new</span> EventEmitter();</span><br><span class="line">...</span><br><span class="line"><span class="built_in">module</span>.exports = cluster</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> handles = <span class="keyword">new</span> SafeMap()</span><br><span class="line">cluster.isWorker = <span class="literal">false</span></span><br><span class="line">cluster.isMaster = <span class="literal">true</span> <span class="comment">// Deprecated alias. Must be same as isPrimary.</span></span><br><span class="line">cluster.isPrimary = <span class="literal">true</span></span><br><span class="line">cluster.Worker = Worker</span><br><span class="line">cluster.workers = &#123;&#125;</span><br><span class="line">cluster.settings = &#123;&#125;</span><br><span class="line">cluster.SCHED_NONE = SCHED_NONE <span class="comment">// Leave it to the operating system.</span></span><br><span class="line">cluster.SCHED_RR = SCHED_RR <span class="comment">// Primary distributes connections.</span></span><br><span class="line">...</span><br><span class="line">cluster.schedulingPolicy = schedulingPolicy</span><br><span class="line"></span><br><span class="line">cluster.setupPrimary = <span class="function"><span class="keyword">function</span> (<span class="params">options</span>) </span>&#123;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Deprecated alias must be same as setupPrimary</span></span><br><span class="line">cluster.setupMaster = cluster.setupPrimary</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setupSettingsNT</span>(<span class="params">settings</span>) </span>&#123;</span><br><span class="line">...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createWorkerProcess</span>(<span class="params">id, env</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">removeWorker</span>(<span class="params">worker</span>) </span>&#123;</span><br><span class="line"> ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">removeHandlesForWorker</span>(<span class="params">worker</span>) </span>&#123;</span><br><span class="line"> ...</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">cluster.fork = <span class="function"><span class="keyword">function</span> (<span class="params">env</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该模块主要是在 <code>cluster</code> 对象上挂载了一些属性和方法，并导出，这些后面回过头再看，我们继续往下调试。往下调试会进入 <code>if (cluster.isPrimary)</code> 分支，代码很简单，仅仅是 <code>fork</code> 出了一个新的子进程而已：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/primary.js</span></span><br><span class="line">cluster.fork = <span class="function"><span class="keyword">function</span> (<span class="params">env</span>) </span>&#123;</span><br><span class="line">  cluster.setupPrimary()</span><br><span class="line">  <span class="keyword">const</span> id = ++ids</span><br><span class="line">  <span class="keyword">const</span> workerProcess = createWorkerProcess(id, env)</span><br><span class="line">  <span class="keyword">const</span> worker = <span class="keyword">new</span> Worker(&#123;</span><br><span class="line">    id: id,</span><br><span class="line">    process: workerProcess,</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  worker.process.on(<span class="string">'internalMessage'</span>, internal(worker, onmessage))</span><br><span class="line">  process.nextTick(emitForkNT, worker)</span><br><span class="line">  cluster.workers[worker.id] = worker</span><br><span class="line">  <span class="keyword">return</span> worker</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>cluster.setupPrimary()</code>：比较简单，初始化一些参数啥的。</p>
+<p><code>createWorkerProcess(id, env)</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/primary.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createWorkerProcess</span>(<span class="params">id, env</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> workerEnv = &#123;...process.env, ...env, <span class="attr">NODE_UNIQUE_ID</span>: <span class="string">`<span class="subst">$&#123;id&#125;</span>`</span>&#125;</span><br><span class="line">  <span class="keyword">const</span> execArgv = [...cluster.settings.execArgv]</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> fork(cluster.settings.exec, cluster.settings.args, &#123;</span><br><span class="line">    cwd: cluster.settings.cwd,</span><br><span class="line">    env: workerEnv,</span><br><span class="line">    serialization: cluster.settings.serialization,</span><br><span class="line">    silent: cluster.settings.silent,</span><br><span class="line">    windowsHide: cluster.settings.windowsHide,</span><br><span class="line">    execArgv: execArgv,</span><br><span class="line">    stdio: cluster.settings.stdio,</span><br><span class="line">    gid: cluster.settings.gid,</span><br><span class="line">    uid: cluster.settings.uid,</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，该方法主要是通过 <code>fork</code> 启动了一个子进程来执行我们的 <code>index.js</code>，且启动子进程的时候设置了环境变量 <code>NODE_UNIQUE_ID</code>，这样 <code>index.js</code> 中 <code>require(&#39;cluster&#39;)</code> 的时候，引入的就是 <code>internal/cluster/child.js</code> 模块了。</p>
+<p><code>worker.process.on(&#39;internalMessage&#39;, internal(worker, onmessage))</code>：监听子进程传递过来的消息并处理。</p>
+<p><em>接下来就进入了子进程的逻辑：</em></p>
+<p>前面说了，此时引入的是 <code>internal/cluster/child.js</code> 模块，我们先跳过，继续往下，执行 <code>server.listen(9999)</code> 时实际上是调用了 <code>Server</code> 上的方法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/net.js</span></span><br><span class="line">Server.prototype.listen = <span class="function"><span class="keyword">function</span> (<span class="params">...args</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">      listenInCluster(</span><br><span class="line">        <span class="keyword">this</span>,</span><br><span class="line">        <span class="literal">null</span>,</span><br><span class="line">        options.port | <span class="number">0</span>,</span><br><span class="line">        <span class="number">4</span>,</span><br><span class="line">        backlog,</span><br><span class="line">        <span class="literal">undefined</span>,</span><br><span class="line">        options.exclusive</span><br><span class="line">      );</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，最终是调用了 <code>listenInCluster</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/net.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">listenInCluster</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  server,</span></span></span><br><span class="line"><span class="function"><span class="params">  address,</span></span></span><br><span class="line"><span class="function"><span class="params">  port,</span></span></span><br><span class="line"><span class="function"><span class="params">  addressType,</span></span></span><br><span class="line"><span class="function"><span class="params">  backlog,</span></span></span><br><span class="line"><span class="function"><span class="params">  fd,</span></span></span><br><span class="line"><span class="function"><span class="params">  exclusive,</span></span></span><br><span class="line"><span class="function"><span class="params">  flags,</span></span></span><br><span class="line"><span class="function"><span class="params">  options</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  exclusive = !!exclusive</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (cluster === <span class="literal">undefined</span>) cluster = <span class="built_in">require</span>(<span class="string">'cluster'</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (cluster.isPrimary || exclusive) &#123;</span><br><span class="line">    <span class="comment">// Will create a new handle</span></span><br><span class="line">    <span class="comment">// _listen2 sets up the listened handle, it is still named like this</span></span><br><span class="line">    <span class="comment">// to avoid breaking code that wraps this method</span></span><br><span class="line">    server._listen2(address, port, addressType, backlog, fd, flags)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> serverQuery = &#123;</span><br><span class="line">    address: address,</span><br><span class="line">    port: port,</span><br><span class="line">    addressType: addressType,</span><br><span class="line">    fd: fd,</span><br><span class="line">    flags,</span><br><span class="line">    backlog,</span><br><span class="line">    ...options,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Get the primary's server handle, and listen on it</span></span><br><span class="line">  cluster._getServer(server, serverQuery, listenOnPrimaryHandle)</span><br><span class="line"></span><br><span class="line">  <span class="function"><span class="keyword">function</span> <span class="title">listenOnPrimaryHandle</span>(<span class="params">err, handle</span>) </span>&#123;</span><br><span class="line">    err = checkBindError(err, port, handle)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (err) &#123;</span><br><span class="line">      <span class="keyword">const</span> ex = exceptionWithHostPort(err, <span class="string">'bind'</span>, address, port)</span><br><span class="line">      <span class="keyword">return</span> server.emit(<span class="string">'error'</span>, ex)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Reuse primary's server handle</span></span><br><span class="line">    server._handle = handle</span><br><span class="line">    <span class="comment">// _listen2 sets up the listened handle, it is still named like this</span></span><br><span class="line">    <span class="comment">// to avoid breaking code that wraps this method</span></span><br><span class="line">    server._listen2(address, port, addressType, backlog, fd, flags)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>由于是在子进程中执行，所以最后会调用 <code>cluster._getServer(server, serverQuery, listenOnPrimaryHandle)</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/child.js</span></span><br><span class="line"><span class="comment">// 这里的 cb 就是上面的 listenOnPrimaryHandle</span></span><br><span class="line">cluster._getServer = <span class="function"><span class="keyword">function</span> (<span class="params">obj, options, cb</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  send(message, (reply, handle) =&gt; &#123;</span><br><span class="line">    <span class="keyword">debugger</span></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> obj._setServerData === <span class="string">'function'</span>) obj._setServerData(reply.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (handle) &#123;</span><br><span class="line">      <span class="comment">// Shared listen socket</span></span><br><span class="line">      shared(reply, &#123;handle, indexesKey, index&#125;, cb)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// Round-robin.</span></span><br><span class="line">      rr(reply, &#123;indexesKey, index&#125;, cb)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>该函数最终会向父进程发送 <code>queryServer</code> 的消息，父进程处理完后会调用回调函数，回调函数中会调用 <code>cb</code> 即 <code>listenOnPrimaryHandle</code>。看来，<code>listen</code> 的逻辑是在父进程中进行的了。</p>
+<p><em>接下来进入父进程：</em></p>
+<p>父进程收到 <code>queryServer</code> 的消息后，最终会调用 <code>queryServer</code> 这个方法：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/primary.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">queryServer</span>(<span class="params">worker, message</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// Stop processing if worker already disconnecting</span></span><br><span class="line">  <span class="keyword">if</span> (worker.exitedAfterDisconnect) <span class="keyword">return</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> key =</span><br><span class="line">    <span class="string">`<span class="subst">$&#123;message.address&#125;</span>:<span class="subst">$&#123;message.port&#125;</span>:<span class="subst">$&#123;message.addressType&#125;</span>:`</span> +</span><br><span class="line">    <span class="string">`<span class="subst">$&#123;message.fd&#125;</span>:<span class="subst">$&#123;message.index&#125;</span>`</span></span><br><span class="line">  <span class="keyword">let</span> handle = handles.get(key)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (handle === <span class="literal">undefined</span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> address = message.address</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Find shortest path for unix sockets because of the ~100 byte limit</span></span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      message.port &lt; <span class="number">0</span> &amp;&amp;</span><br><span class="line">      <span class="keyword">typeof</span> address === <span class="string">'string'</span> &amp;&amp;</span><br><span class="line">      process.platform !== <span class="string">'win32'</span></span><br><span class="line">    ) &#123;</span><br><span class="line">      address = path.relative(process.cwd(), address)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (message.address.length &lt; address.length) address = message.address</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// UDP is exempt from round-robin connection balancing for what should</span></span><br><span class="line">    <span class="comment">// be obvious reasons: it's connectionless. There is nothing to send to</span></span><br><span class="line">    <span class="comment">// the workers except raw datagrams and that's pointless.</span></span><br><span class="line">    <span class="keyword">if</span> (</span><br><span class="line">      schedulingPolicy !== SCHED_RR ||</span><br><span class="line">      message.addressType === <span class="string">'udp4'</span> ||</span><br><span class="line">      message.addressType === <span class="string">'udp6'</span></span><br><span class="line">    ) &#123;</span><br><span class="line">      handle = <span class="keyword">new</span> SharedHandle(key, address, message)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      handle = <span class="keyword">new</span> RoundRobinHandle(key, address, message)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    handles.set(key, handle)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，这里主要是对 <code>handle</code> 的处理，这里的 <code>handle</code> 指的是调度策略，分为 <code>SharedHandle</code> 和 <code>RoundRobinHandle</code>，分别对应抢占式和轮询两种策略（文章最后补充部分有关于两者对比的例子）。</p>
+<p>Node.js 中默认是 <code>RoundRobinHandle</code> 策略，可通过环境变量 <code>NODE_CLUSTER_SCHED_POLICY</code> 来修改，取值可以为 <code>none</code>（<code>SharedHandle</code>） 或 <code>rr</code>（<code>RoundRobinHandle</code>）。</p>
+<h2 id="SharedHandle"><a href="#SharedHandle" class="headerlink" title="SharedHandle"></a>SharedHandle</h2><p>首先，我们来看一下 <code>SharedHandle</code>，由于我们这里是 <code>TCP</code> 协议，所以最后会通过 <code>net._createServerHandle</code> 创建一个 <code>TCP</code> 对象挂载在 <code>handle</code> 属性上（注意这里又有一个 <code>handle</code>，别搞混了）：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/shared_handle.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">SharedHandle</span>(<span class="params">key, address, &#123;port, addressType, fd, flags&#125;</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.key = key</span><br><span class="line">  <span class="keyword">this</span>.workers = <span class="keyword">new</span> SafeMap()</span><br><span class="line">  <span class="keyword">this</span>.handle = <span class="literal">null</span></span><br><span class="line">  <span class="keyword">this</span>.errno = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">let</span> rval</span><br><span class="line">  <span class="keyword">if</span> (addressType === <span class="string">'udp4'</span> || addressType === <span class="string">'udp6'</span>)</span><br><span class="line">    rval = dgram._createSocketHandle(address, port, addressType, fd, flags)</span><br><span class="line">  <span class="keyword">else</span> rval = net._createServerHandle(address, port, addressType, fd, flags)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">typeof</span> rval === <span class="string">'number'</span>) <span class="keyword">this</span>.errno = rval</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">this</span>.handle = rval</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在 <code>createServerHandle</code> 中除了创建 <code>TCP</code> 对象外，还绑定了端口和地址：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/net.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">createServerHandle</span>(<span class="params">address, port, addressType, fd, flags</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    handle = <span class="keyword">new</span> TCP(TCPConstants.SERVER);</span><br><span class="line">    isTCP = <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (address || port || isTCP) &#123;</span><br><span class="line">      ...</span><br><span class="line">      err = handle.bind6(address, port, flags);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      err = handle.bind(address, port);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">return</span> handle;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后，<code>queryServer</code> 中继续执行，会调用 <code>add</code> 方法，最终会将 <code>handle</code> 也就是 <code>TCP</code> 对象传递给子进程：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/primary.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">queryServer</span>(<span class="params">worker, message</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">if</span> (!handle.data) handle.data = message.data</span><br><span class="line"></span><br><span class="line">  <span class="comment">// Set custom server data</span></span><br><span class="line">  handle.add(worker, (errno, reply, handle) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> &#123;data&#125; = handles.get(key)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (errno) handles.delete(key) <span class="comment">// Gives other workers a chance to retry.</span></span><br><span class="line"></span><br><span class="line">    send(</span><br><span class="line">      worker,</span><br><span class="line">      &#123;</span><br><span class="line">        errno,</span><br><span class="line">        key,</span><br><span class="line">        ack: message.seq,</span><br><span class="line">        data,</span><br><span class="line">        ...reply,</span><br><span class="line">      &#125;,</span><br><span class="line">      handle <span class="comment">// TCP 对象</span></span><br><span class="line">    )</span><br><span class="line">  &#125;)</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>之后进入子进程：</em></p>
+<p>子进程收到父进程对于 <code>queryServer</code> 的回复后，会调用 <code>shared</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/child.js</span></span><br><span class="line"><span class="comment">// `obj` is a net#Server or a dgram#Socket object.</span></span><br><span class="line">cluster._getServer = <span class="function"><span class="keyword">function</span> (<span class="params">obj, options, cb</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  send(message, (reply, handle) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> obj._setServerData === <span class="string">'function'</span>) obj._setServerData(reply.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (handle) &#123;</span><br><span class="line">      <span class="comment">// Shared listen socket</span></span><br><span class="line">      shared(reply, &#123;handle, indexesKey, index&#125;, cb)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// Round-robin.</span></span><br><span class="line">      rr(reply, &#123;indexesKey, index&#125;, cb) <span class="comment">// cb 是 listenOnPrimaryHandle</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>shared</code> 中最后会调用 <code>cb</code> 也就是 <code>listenOnPrimaryHandle</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/net.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">listenOnPrimaryHandle</span>(<span class="params">err, handle</span>) </span>&#123;</span><br><span class="line">  err = checkBindError(err, port, handle)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="keyword">const</span> ex = exceptionWithHostPort(err, <span class="string">'bind'</span>, address, port)</span><br><span class="line">    <span class="keyword">return</span> server.emit(<span class="string">'error'</span>, ex)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// Reuse primary's server handle 这里的 server 是 index.js 中 net.createServer 返回的那个对象</span></span><br><span class="line">  server._handle = handle</span><br><span class="line">  <span class="comment">// _listen2 sets up the listened handle, it is still named like this</span></span><br><span class="line">  <span class="comment">// to avoid breaking code that wraps this method</span></span><br><span class="line">  server._listen2(address, port, addressType, backlog, fd, flags)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里会把 <code>handle</code> 赋值给 <code>server._handle</code>，这里的 <code>server</code> 是 <code>index.js</code> 中 <code>net.createServer</code> 返回的那个对象，并调用 <code>server._listen2</code>，也就是 <code>setupListenHandle</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/net.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setupListenHandle</span>(<span class="params">address, port, addressType, backlog, fd, flags</span>) </span>&#123;</span><br><span class="line">  debug(<span class="string">'setupListenHandle'</span>, address, port, addressType, backlog, fd)</span><br><span class="line">  <span class="comment">// If there is not yet a handle, we need to create one and bind.</span></span><br><span class="line">  <span class="comment">// In the case of a server sent via IPC, we don't need to do this.</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>._handle) &#123;</span><br><span class="line">    debug(<span class="string">'setupListenHandle: have a handle already'</span>)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>[async_id_symbol] = getNewAsyncId(<span class="keyword">this</span>._handle)</span><br><span class="line">  <span class="keyword">this</span>._handle.onconnection = onconnection</span><br><span class="line">  <span class="keyword">this</span>._handle[owner_symbol] = <span class="keyword">this</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// Use a backlog of 512 entries. We pass 511 to the listen() call because</span></span><br><span class="line">  <span class="comment">// the kernel does: backlogsize = roundup_pow_of_two(backlogsize + 1);</span></span><br><span class="line">  <span class="comment">// which will thus give us a backlog of 512 entries.</span></span><br><span class="line">  <span class="keyword">const</span> err = <span class="keyword">this</span>._handle.listen(backlog || <span class="number">511</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (err) &#123;</span><br><span class="line">    <span class="keyword">const</span> ex = uvExceptionWithHostPort(err, <span class="string">'listen'</span>, address, port)</span><br><span class="line">    <span class="keyword">this</span>._handle.close()</span><br><span class="line">    <span class="keyword">this</span>._handle = <span class="literal">null</span></span><br><span class="line">    defaultTriggerAsyncIdScope(</span><br><span class="line">      <span class="keyword">this</span>[async_id_symbol],</span><br><span class="line">      process.nextTick,</span><br><span class="line">      emitErrorNT,</span><br><span class="line">      <span class="keyword">this</span>,</span><br><span class="line">      ex</span><br><span class="line">    )</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>首先会执行 <code>this._handle.onconnection = onconnection</code>，由于客户端请求过来时会调用 <code>this._handle</code>（也就是 <code>TCP</code> 对象）上的 <code>onconnection</code> 方法，也就是会执行<br><code>lib/net.js</code> 中的 <code>onconnection</code> 方法建立连接，之后就可以通信了。为了控制篇幅，该方法就不继续往下了。</p>
+<p>然后调用 <code>listen</code> 监听，注意这里参数 <code>backlog</code> 跟之前不同，不是表示端口，而是表示在拒绝连接之前，操作系统可以挂起的最大连接数量，也就是连接请求的排队数量。我们平时遇到的 <code>listen EADDRINUSE: address already in use</code> 错误就是因为这行代码返回了非 0 的错误。</p>
+<p>如果还有其他子进程，也会同样走一遍上述的步骤，不同之处是在主进程中 <code>queryServer</code> 时，由于已经有 <code>handle</code> 了，不需要再重新创建了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">queryServer</span>(<span class="params">worker, message</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">debugger</span>;</span><br><span class="line">  <span class="comment">// Stop processing if worker already disconnecting</span></span><br><span class="line">  <span class="keyword">if</span> (worker.exitedAfterDisconnect) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> key =</span><br><span class="line">    <span class="string">`<span class="subst">$&#123;message.address&#125;</span>:<span class="subst">$&#123;message.port&#125;</span>:<span class="subst">$&#123;message.addressType&#125;</span>:`</span> +</span><br><span class="line">    <span class="string">`<span class="subst">$&#123;message.fd&#125;</span>:<span class="subst">$&#123;message.index&#125;</span>`</span>;</span><br><span class="line">  <span class="keyword">let</span> handle = handles.get(key);</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>以上内容整理成流程图如下：</p>
+<p><img src="/2022/12/15/nodejs-cluster-principle/sharedhandle.png" alt=""></p>
+<p>所谓的 <code>SharedHandle</code>，其实是在多个子进程中共享 <code>handle</code> 的 <code>fd</code>，当客户端请求过来时，多个进程会去竞争该请求的处理权，会导致任务分配不均的问题，这也是为什么需要 <code>RoundRobinHandle</code> 的原因。接下来继续看看这种调度方式。</p>
+<h2 id="RoundRobinHandle"><a href="#RoundRobinHandle" class="headerlink" title="RoundRobinHandle"></a>RoundRobinHandle</h2><figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/round_robin_handle.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">RoundRobinHandle</span>(<span class="params"></span></span></span><br><span class="line"><span class="function"><span class="params">  key,</span></span></span><br><span class="line"><span class="function"><span class="params">  address,</span></span></span><br><span class="line"><span class="function"><span class="params">  &#123;port, fd, flags, backlog, readableAll, writableAll&#125;</span></span></span><br><span class="line"><span class="function"><span class="params"></span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">this</span>.server = net.createServer(assert.fail)</span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (port &gt;= <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">this</span>.server.listen(&#123;</span><br><span class="line">      port,</span><br><span class="line">      host: address,</span><br><span class="line">      <span class="comment">// Currently, net module only supports `ipv6Only` option in `flags`.</span></span><br><span class="line">      ipv6Only: <span class="built_in">Boolean</span>(flags &amp; constants.UV_TCP_IPV6ONLY),</span><br><span class="line">      backlog,</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">this</span>.server.once(<span class="string">'listening'</span>, () =&gt; &#123;</span><br><span class="line">    <span class="keyword">this</span>.handle = <span class="keyword">this</span>.server._handle</span><br><span class="line">    <span class="keyword">this</span>.handle.onconnection = <span class="function">(<span class="params">err, handle</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">this</span>.distribute(err, handle)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.server._handle = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">this</span>.server = <span class="literal">null</span></span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>如上所示，<code>RoundRobinHandle</code> 会调用 <code>net.createServer()</code> 创建一个 <code>server</code>，然后调用 <code>listen</code> 方法，最终会来到 <code>setupListenHandle</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/net.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">setupListenHandle</span>(<span class="params">address, port, addressType, backlog, fd, flags</span>) </span>&#123;</span><br><span class="line">  debug(<span class="string">'setupListenHandle'</span>, address, port, addressType, backlog, fd)</span><br><span class="line">  <span class="comment">// If there is not yet a handle, we need to create one and bind.</span></span><br><span class="line">  <span class="comment">// In the case of a server sent via IPC, we don't need to do this.</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="keyword">this</span>._handle) &#123;</span><br><span class="line">    debug(<span class="string">'setupListenHandle: have a handle already'</span>)</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    debug(<span class="string">'setupListenHandle: create a handle'</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> rval = <span class="literal">null</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Try to bind to the unspecified IPv6 address, see if IPv6 is available</span></span><br><span class="line">    <span class="keyword">if</span> (!address &amp;&amp; <span class="keyword">typeof</span> fd !== <span class="string">'number'</span>) &#123;</span><br><span class="line">      rval = createServerHandle(DEFAULT_IPV6_ADDR, port, <span class="number">6</span>, fd, flags)</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (<span class="keyword">typeof</span> rval === <span class="string">'number'</span>) &#123;</span><br><span class="line">        rval = <span class="literal">null</span></span><br><span class="line">        address = DEFAULT_IPV4_ADDR</span><br><span class="line">        addressType = <span class="number">4</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        address = DEFAULT_IPV6_ADDR</span><br><span class="line">        addressType = <span class="number">6</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (rval === <span class="literal">null</span>)</span><br><span class="line">      rval = createServerHandle(address, port, addressType, fd, flags)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> rval === <span class="string">'number'</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> error = uvExceptionWithHostPort(rval, <span class="string">'listen'</span>, address, port)</span><br><span class="line">      process.nextTick(emitErrorNT, <span class="keyword">this</span>, error)</span><br><span class="line">      <span class="keyword">return</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>._handle = rval</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>[async_id_symbol] = getNewAsyncId(<span class="keyword">this</span>._handle)</span><br><span class="line">  <span class="keyword">this</span>._handle.onconnection = onconnection</span><br><span class="line">  <span class="keyword">this</span>._handle[owner_symbol] = <span class="keyword">this</span></span><br><span class="line"></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>且由于此时 <code>this._handle</code> 为空，会调用 <code>createServerHandle()</code> 生成一个 <code>TCP</code> 对象作为 <code>_handle</code>。之后就跟 <code>SharedHandle</code> 一样了，最后也会回到子进程：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/child.js</span></span><br><span class="line"><span class="comment">// `obj` is a net#Server or a dgram#Socket object.</span></span><br><span class="line">cluster._getServer = <span class="function"><span class="keyword">function</span> (<span class="params">obj, options, cb</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  send(message, (reply, handle) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> obj._setServerData === <span class="string">'function'</span>) obj._setServerData(reply.data)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (handle) &#123;</span><br><span class="line">      <span class="comment">// Shared listen socket</span></span><br><span class="line">      shared(reply, &#123;handle, indexesKey, index&#125;, cb)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      <span class="comment">// Round-robin.</span></span><br><span class="line">      rr(reply, &#123;indexesKey, index&#125;, cb) <span class="comment">// cb 是 listenOnPrimaryHandle</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过由于 <code>RoundRobinHandle</code> 不会传递 <code>handle</code> 给子进程，所以此时会执行 <code>rr</code>：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">rr</span>(<span class="params">message, &#123;indexesKey, index&#125;, cb</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="comment">// Faux handle. Mimics a TCPWrap with just enough fidelity to get away</span></span><br><span class="line">  <span class="comment">// with it. Fools net.Server into thinking that it's backed by a real</span></span><br><span class="line">  <span class="comment">// handle. Use a noop function for ref() and unref() because the control</span></span><br><span class="line">  <span class="comment">// channel is going to keep the worker alive anyway.</span></span><br><span class="line">  <span class="keyword">const</span> handle = &#123;close, listen, <span class="attr">ref</span>: noop, <span class="attr">unref</span>: noop&#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (message.sockname) &#123;</span><br><span class="line">    handle.getsockname = getsockname <span class="comment">// TCP handles only.</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  assert(handles.has(key) === <span class="literal">false</span>)</span><br><span class="line">  handles.set(key, handle)</span><br><span class="line">  <span class="keyword">debugger</span></span><br><span class="line">  cb(<span class="number">0</span>, handle)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到，这里构造了一个假的 <code>handle</code>，然后执行 <code>cb</code> 也就是 <code>listenOnPrimaryHandle</code>。最终跟 <code>SharedHandle</code> 一样会调用 <code>setupListenHandle</code> 执行 <code>this._handle.onconnection = onconnection</code>。</p>
+<p><code>RoundRobinHandle</code> 逻辑到此就结束了，好像缺了点什么的样子。回顾下，我们给每个子进程中的 <code>server</code> 上都挂载了一个假的 <code>handle</code>，但它跟绑定了端口的 <code>TCP</code> 对象没有任何关系，如果客户端请求过来了，是不会执行它上面的 <code>onconnection</code> 方法的。之所以要这样写，估计是为了保持跟之前 <code>SharedHandle</code> 代码逻辑的统一。</p>
+<p>此时，我们需要回到 <code>RoundRobinHandle</code>，有这样一段代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/round_robin_handle.js</span></span><br><span class="line"><span class="keyword">this</span>.server.once(<span class="string">'listening'</span>, () =&gt; &#123;</span><br><span class="line">  <span class="keyword">this</span>.handle = <span class="keyword">this</span>.server._handle</span><br><span class="line">  <span class="keyword">this</span>.handle.onconnection = <span class="function">(<span class="params">err, handle</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">this</span>.distribute(err, handle)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.server._handle = <span class="literal">null</span></span><br><span class="line">  <span class="keyword">this</span>.server = <span class="literal">null</span></span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>在 <code>listen</code> 执行完后，会触发 <code>listening</code> 事件的回调，这里重写了 <code>handle</code> 上面的 <code>onconnection</code>。</p>
+<p>所以，当客户端请求过来时，会调用 <code>distribute</code> 在多个子进程中轮询分发，这里又有一个 <code>handle</code>，这里的 <code>handle</code> 姑且理解为 <code>clientHandle</code>，即客户端连接的 <code>handle</code>，别搞混了。总之，最后会将这个 <code>clientHandle</code> 发送给子进程：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/round_robin_handle.js</span></span><br><span class="line">RoundRobinHandle.prototype.handoff = <span class="function"><span class="keyword">function</span> (<span class="params">worker</span>) </span>&#123;</span><br><span class="line">  ...</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> message = &#123; <span class="attr">act</span>: <span class="string">'newconn'</span>, <span class="attr">key</span>: <span class="keyword">this</span>.key &#125;;</span><br><span class="line">  <span class="comment">// 这里的 handle 是 clientHandle</span></span><br><span class="line">  sendHelper(worker.process, message, handle, (reply) =&gt; &#123;</span><br><span class="line">    <span class="keyword">if</span> (reply.accepted) handle.close();</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">this</span>.distribute(<span class="number">0</span>, handle); <span class="comment">// Worker is shutting down. Send to another.</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.handoff(worker);</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>而子进程在 <code>require(&#39;cluster&#39;)</code> 时，已经监听了该事件：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// lib/internal/cluster/child.js</span></span><br><span class="line">process.on(<span class="string">'internalMessage'</span>, internal(worker, onmessage))</span><br><span class="line">send(&#123;<span class="attr">act</span>: <span class="string">'online'</span>&#125;)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">onmessage</span>(<span class="params">message, handle</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (message.act === <span class="string">'newconn'</span>) onconnection(message, handle)</span><br><span class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (message.act === <span class="string">'disconnect'</span>)</span><br><span class="line">    ReflectApply(_disconnect, worker, [<span class="literal">true</span>])</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>最终也同样会走到 <code>net.js</code> 中的 <code>function onconnection(err, clientHandle)</code> 方法。这个方法第二个参数名就叫 <code>clientHandle</code>，这也是为什么前面的 <code>handle</code> 我想叫这个名字的原因。</p>
+<p>还是用图来总结下：</p>
+<p><img src="/2022/12/15/nodejs-cluster-principle/roundrobinhandle.png" alt=""></p>
+<p>跟 <code>SharedHandle</code> 不同的是，该调度策略中 <code>onconnection</code> 最开始是在主进程中触发的，然后通过轮询算法挑选一个子进程，将 <code>clientHandle</code> 传递给它。</p>
+<h1 id="为什么端口不冲突"><a href="#为什么端口不冲突" class="headerlink" title="为什么端口不冲突"></a>为什么端口不冲突</h1><p>cluster 模块的调试就到此告一段落了，接下来我们来回答一下一开始的问题，为什么多个进程监听同一个端口没有报错？</p>
+<p>网上有些文章说是因为设置了 <code>SO_REUSEADDR</code>，但其实跟这个没关系。通过上面的分析知道，不管什么调度策略，最终都只会在主进程中对 <code>TCP</code> 对象 <code>bind</code> 一次。</p>
+<p>我们可以修改一下源代码来测试一下：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// deps/uv/src/unix/tcp.c 下面的 SO_REUSEADDR 改成 SO_DEBUG</span></span><br><span class="line"><span class="keyword">if</span> (setsockopt(tcp-&gt;io_watcher.fd, SOL_SOCKET, SO_REUSEADDR, &amp;on, sizeof(on)))</span><br></pre></td></tr></table></figure>
+<p>编译后执行发现，我们仍然可以正常使用 cluster 模块。</p>
+<p>那这个 <code>SO_REUSEADDR</code> 到底影响的是啥呢？我们继续来研究一下。</p>
+<h1 id="SO-REUSEADDR"><a href="#SO-REUSEADDR" class="headerlink" title="SO_REUSEADDR"></a>SO_REUSEADDR</h1><p>首先，我们我们知道，下面的代码是会报错的：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> server1 = net.createServer()</span><br><span class="line"><span class="keyword">const</span> server2 = net.createServer()</span><br><span class="line">server1.listen(<span class="number">9999</span>)</span><br><span class="line">server2.listen(<span class="number">9999</span>)</span><br></pre></td></tr></table></figure>
+<p>但是，如果我稍微修改一下，就不会报错了：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> server1 = net.createServer()</span><br><span class="line"><span class="keyword">const</span> server2 = net.createServer()</span><br><span class="line">server1.listen(<span class="number">9999</span>, <span class="string">'127.0.0.1'</span>)</span><br><span class="line">server2.listen(<span class="number">9999</span>, <span class="string">'10.53.48.67'</span>)</span><br></pre></td></tr></table></figure>
+<p>原因在于 <code>listen</code> 时，如果不指定 <code>address</code>，则相当于绑定了所有地址，当两个 server 都这样做时，请求到来就不知道要给谁处理了。</p>
+<p>我们可以类比成找对象，<code>port</code> 是对外貌的要求，<code>address</code> 是对城市的要求。现在甲乙都想要一个 <code>port</code> 是 <code>1米7以上</code> 不限城市的对象，那如果有一个 <code>1米7以上</code> 来自 <code>深圳</code> 的对象，就不知道介绍给谁了。而如果两者都指定了城市就好办多了。</p>
+<p>那如果一个指定了 <code>address</code>，一个没有呢？就像下面这样：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">const</span> server1 = net.createServer()</span><br><span class="line"><span class="keyword">const</span> server2 = net.createServer()</span><br><span class="line">server1.listen(<span class="number">9999</span>, <span class="string">'127.0.0.1'</span>)</span><br><span class="line">server2.listen(<span class="number">9999</span>)</span><br></pre></td></tr></table></figure>
+<p>结果是：设置了 <code>SO_REUSEADDR</code> 可以正常运行，而修改成 <code>SO_DEBUG</code> 的会报错。</p>
+<p>还是上面的例子，甲对城市没有限制，乙需要是来自 <code>深圳</code> 的，那当一个对象来自 <code>深圳</code>，我们可以选择优先介绍给乙，非 <code>深圳</code> 的就选择介绍给甲，这个就是 <code>SO_REUSEADDR</code> 的作用。</p>
+<h1 id="补充"><a href="#补充" class="headerlink" title="补充"></a>补充</h1><h2 id="SharedHandle-和-RoundRobinHandle-两种模式的对比"><a href="#SharedHandle-和-RoundRobinHandle-两种模式的对比" class="headerlink" title="SharedHandle 和 RoundRobinHandle 两种模式的对比"></a><code>SharedHandle</code> 和 <code>RoundRobinHandle</code> 两种模式的对比</h2><p>先准备下测试代码：</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// cluster.js</span></span><br><span class="line"><span class="keyword">const</span> cluster = <span class="built_in">require</span>(<span class="string">'cluster'</span>)</span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (cluster.isMaster) &#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">4</span>; i++) &#123;</span><br><span class="line">    cluster.fork()</span><br><span class="line">  &#125;</span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> server = net.createServer()</span><br><span class="line">  server.on(<span class="string">'connection'</span>, (socket) =&gt; &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">`PID: <span class="subst">$&#123;process.pid&#125;</span>!`</span>)</span><br><span class="line">  &#125;)</span><br><span class="line">  server.listen(<span class="number">9997</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// client.js</span></span><br><span class="line"><span class="keyword">const</span> net = <span class="built_in">require</span>(<span class="string">'net'</span>)</span><br><span class="line"><span class="keyword">for</span> (<span class="keyword">let</span> i = <span class="number">0</span>; i &lt; <span class="number">20</span>; i++) &#123;</span><br><span class="line">  net.connect(&#123;<span class="attr">port</span>: <span class="number">9997</span>&#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><em>RoundRobin</em><br>先执行 <code>node cluster.js</code>，然后执行 <code>node client.js</code>，会看到如下输出，可以看到没有任何一个进程的 PID 是紧挨着的。至于为什么没有一直按照一样的顺序，后面再研究一下。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">PID: <span class="number">42904</span>!</span><br><span class="line">PID: <span class="number">42906</span>!</span><br><span class="line">PID: <span class="number">42905</span>!</span><br><span class="line">PID: <span class="number">42904</span>!</span><br><span class="line">PID: <span class="number">42907</span>!</span><br><span class="line">PID: <span class="number">42905</span>!</span><br><span class="line">PID: <span class="number">42906</span>!</span><br><span class="line">PID: <span class="number">42907</span>!</span><br><span class="line">PID: <span class="number">42904</span>!</span><br><span class="line">PID: <span class="number">42905</span>!</span><br><span class="line">PID: <span class="number">42906</span>!</span><br><span class="line">PID: <span class="number">42907</span>!</span><br><span class="line">PID: <span class="number">42904</span>!</span><br><span class="line">PID: <span class="number">42905</span>!</span><br><span class="line">PID: <span class="number">42906</span>!</span><br><span class="line">PID: <span class="number">42907</span>!</span><br><span class="line">PID: <span class="number">42904</span>!</span><br><span class="line">PID: <span class="number">42905</span>!</span><br><span class="line">PID: <span class="number">42906</span>!</span><br><span class="line">PID: <span class="number">42904</span>!</span><br></pre></td></tr></table></figure>
+<p><em>Shared</em></p>
+<p>先执行 <code>NODE_CLUSTER_SCHED_POLICY=none node cluster.js</code>，则 Node.js 会使用 <code>SharedHandle</code>，然后执行 <code>node client.js</code>，会看到如下输出，可以看到同一个 PID 连续输出了多次，所以这种策略会导致进程任务分配不均的现象。就像公司里有些人忙到 996，有些人天天摸鱼，这显然不是老板愿意看到的现象，所以不推荐使用。</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">PID: <span class="number">42561</span>!</span><br><span class="line">PID: <span class="number">42562</span>!</span><br><span class="line">PID: <span class="number">42561</span>!</span><br><span class="line">PID: <span class="number">42562</span>!</span><br><span class="line">PID: <span class="number">42564</span>!</span><br><span class="line">PID: <span class="number">42561</span>!</span><br><span class="line">PID: <span class="number">42562</span>!</span><br><span class="line">PID: <span class="number">42563</span>!</span><br><span class="line">PID: <span class="number">42561</span>!</span><br><span class="line">PID: <span class="number">42562</span>!</span><br><span class="line">PID: <span class="number">42563</span>!</span><br><span class="line">PID: <span class="number">42564</span>!</span><br><span class="line">PID: <span class="number">42564</span>!</span><br><span class="line">PID: <span class="number">42564</span>!</span><br><span class="line">PID: <span class="number">42564</span>!</span><br><span class="line">PID: <span class="number">42564</span>!</span><br><span class="line">PID: <span class="number">42563</span>!</span><br><span class="line">PID: <span class="number">42563</span>!</span><br><span class="line">PID: <span class="number">42564</span>!</span><br><span class="line">PID: <span class="number">42563</span>!</span><br></pre></td></tr></table></figure>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a href="https://cloud.tencent.com/developer/article/1600191" target="_blank" rel="noopener">https://cloud.tencent.com/developer/article/1600191</a><br><a href="https://www.jianshu.com/p/141aa1c41f15" target="_blank" rel="noopener">https://www.jianshu.com/p/141aa1c41f15</a><br><a href="https://theanarkh.github.io/understand-nodejs/chapter15-Cluster/" target="_blank" rel="noopener">https://theanarkh.github.io/understand-nodejs/chapter15-Cluster/</a><br><a href="https://www.tripfe.cn/node-js-four-postures-of-source-code-debugging/" target="_blank" rel="noopener">https://www.tripfe.cn/node-js-four-postures-of-source-code-debugging/</a></p>
+<p><a href="https://segmentfault.com/a/1190000005069010" target="_blank" rel="noopener">https://segmentfault.com/a/1190000005069010</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/nodejs/" rel="tag"># nodejs</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2022/12/01/sentry/" rel="next" title="搞清楚 Sentry Issues 页面几个重要的内容">
+                <i class="fa fa-chevron-left"></i> 搞清楚 Sentry Issues 页面几个重要的内容
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2022/12/28/nest-di/" rel="prev" title="Nest.js 之依赖注入">
+                Nest.js 之依赖注入 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#准备调试环境"><span class="nav-number">2.</span> <span class="nav-text">准备调试环境</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#编译-Node-js"><span class="nav-number">2.1.</span> <span class="nav-text">编译 Node.js</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#准备-IDE-环境"><span class="nav-number">2.2.</span> <span class="nav-text">准备 IDE 环境</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Cluster-源码调试"><span class="nav-number">3.</span> <span class="nav-text">Cluster 源码调试</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SharedHandle"><span class="nav-number">3.1.</span> <span class="nav-text">SharedHandle</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RoundRobinHandle"><span class="nav-number">3.2.</span> <span class="nav-text">RoundRobinHandle</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#为什么端口不冲突"><span class="nav-number">4.</span> <span class="nav-text">为什么端口不冲突</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#SO-REUSEADDR"><span class="nav-number">5.</span> <span class="nav-text">SO_REUSEADDR</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#补充"><span class="nav-number">6.</span> <span class="nav-text">补充</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#SharedHandle-和-RoundRobinHandle-两种模式的对比"><span class="nav-number">6.1.</span> <span class="nav-text">SharedHandle 和 RoundRobinHandle 两种模式的对比</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#参考"><span class="nav-number">7.</span> <span class="nav-text">参考</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

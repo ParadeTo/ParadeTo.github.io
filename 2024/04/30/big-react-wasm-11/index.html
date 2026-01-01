@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="react,wasm," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v11   Based on big-react，I am going to implement">
+<meta name="keywords" content="react,wasm">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从零实现 React v18，但 WASM 版 - [11] 实现事件系统">
+<meta property="og:url" content="http://www.paradeto.com/2024/04/30/big-react-wasm-11/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v11   Based on big-react，I am going to implement">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/30/big-react-wasm-11/1.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/30/big-react-wasm-11/2.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/30/big-react-wasm-11/3.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/30/big-react-wasm-11/4.png">
+<meta property="og:image" content="http://www.paradeto.com/2024/04/30/big-react-wasm-11/5.png">
+<meta property="og:updated_time" content="2024-05-07T07:25:49.911Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从零实现 React v18，但 WASM 版 - [11] 实现事件系统">
+<meta name="twitter:description" content="模仿 big-react，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！ 代码地址：https://github.com/ParadeTo/big-react-wasm 本文对应 tag：v11   Based on big-react，I am going to implement">
+<meta name="twitter:image" content="http://www.paradeto.com/2024/04/30/big-react-wasm-11/1.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2024/04/30/big-react-wasm-11/"/>
+
+
+
+
+
+
+  <title>从零实现 React v18，但 WASM 版 - [11] 实现事件系统 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2024/04/30/big-react-wasm-11/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从零实现 React v18，但 WASM 版 - [11] 实现事件系统</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2024-04-30T11:45:54+08:00">
+                2024-04-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/rust/" itemprop="url" rel="index">
+                    <span itemprop="name">rust</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <blockquote>
+<p>模仿 <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，使用 Rust 和 WebAssembly，从零实现 React v18 的核心功能。深入理解 React 源码的同时，还锻炼了 Rust 的技能，简直赢麻了！</p>
+<p>代码地址：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>本文对应 tag：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v11" target="_blank" rel="noopener">v11</a></p>
+</blockquote>
+<blockquote>
+<p>Based on <a href="https://github.com/BetaSu/big-react" target="_blank" rel="noopener">big-react</a>，I am going to implement React v18 core features from scratch using WASM and Rust.</p>
+<p>Code Repository：<a href="https://github.com/ParadeTo/big-react-wasm" target="_blank" rel="noopener">https://github.com/ParadeTo/big-react-wasm</a></p>
+<p>The tag related to this article：<a href="https://github.com/ParadeTo/big-react-wasm/tree/v11" target="_blank" rel="noopener">v11</a></p>
+</blockquote>
+<p>没有事件系统的 React 是没有灵魂的，用户完全无法进行交互，所以这篇文章我们以 <code>click</code> 事件为例来介绍如何实现。</p>
+<p>Without an event system, React lacks interactivity, and users are unable to interact with the application. Therefore, in this article, we will use the <code>click</code> event as an example to demonstrate how to implement it.</p>
+<p>以下面的代码为例，我们先来回顾一下，正版的 React 是怎么实现的。</p>
+<p>Let’s take a look at how the official version of React handles events, using the following code as an example.</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> App = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">  innerClick = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'A: react inner click.'</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  outerClick = <span class="function"><span class="params">()</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'B: react outer click.'</span>)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    &lt;div id=<span class="string">'outer'</span> onClickCapture=&#123;<span class="keyword">this</span>.outerClick&#125;&gt;</span><br><span class="line">      &lt;button id=<span class="string">'inner'</span> onClick=&#123;<span class="keyword">this</span>.innerClick&#125;&gt;</span><br><span class="line">        button</span><br><span class="line">      &lt;<span class="regexp">/button&gt;</span></span><br><span class="line"><span class="regexp">    &lt;/</span>div&gt;</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>当事件在根元素上触发的时候，我们可以拿到原生事件对象 <code>NativeEvent</code>，通过 target 可以访问到当前点击的元素 <code>button</code>，通过其属性 <code>__reactFiber$*****</code>（*表示随机数）可以获取 <code>button</code> 所对应的 <code>FiberNode</code>。同时，React 还会利用 <code>NativeEvent</code> 来生成 <code>SyntheticEvent</code>，其中 <code>SyntheticEvent</code> 有几个重要的属性值得关注：</p>
+<ul>
+<li><code>nativeEvent</code>，指向 <code>NativeEvent</code>。</li>
+<li><code>_dispatchListeners</code>，存储要执行的事件监听函数。</li>
+<li><code>_dispatchInstances</code>，存储要执行的事件监听函数所属的 <code>FiberNode</code> 对象。</li>
+</ul>
+<p>When an event is triggered on the root element, we can obtain the native event object <code>NativeEvent</code>. By accessing the <code>target</code> property, we can retrieve the current clicked element, which in this case is the <code>button</code>. Using the property <code>__reactFiber$*****</code> (where <code>*</code> represents a random number) on the button, we can access the corresponding <code>FiberNode</code>. Additionally, React utilizes the <code>NativeEvent</code> to generate a <code>SyntheticEvent</code>, which has several important properties worth noting:</p>
+<ul>
+<li><code>nativeEvent</code>: Points to the <code>NativeEvent</code>.</li>
+<li><code>_dispatchListeners</code>: Stores the event listener functions to be executed.</li>
+<li><code>_dispatchInstances</code>: Stores the <code>FiberNode</code> objects to which the event listener functions belong.</li>
+</ul>
+<p><img src="/2024/04/30/big-react-wasm-11/1.png" alt=""></p>
+<p>接下来分别按照捕获和冒泡两个阶段来收集要执行的事件监听函数：</p>
+<p>Next, we will collect the event listener functions to be executed in both the capturing and bubbling phases.</p>
+<p><img src="/2024/04/30/big-react-wasm-11/2.png" alt=""></p>
+<p><img src="/2024/04/30/big-react-wasm-11/3.png" alt=""></p>
+<p>最后，按照顺序执行 <code>_dispatchListeners</code> 中的方法，并通过 <code>_dispatchInstances</code> 中的 <code>FiberNode</code> 来得到对应的 <code>stateNode</code> 作为 <code>SyntheticEvent</code> 上的 <code>currentTarget</code>。</p>
+<p><code>SyntheticEvent</code> 上也有 <code>stopPropagation</code> 方法，调用它以后 <code>_dispatchListeners</code> 后面的方法就不会执行了，从而达到了阻止事件传播的效果。</p>
+<p>React 事件系统的介绍就到这，更多内容可以参考<a href="/2020/08/20/react-event/">这篇文章</a>。</p>
+<p>不过，big react 的实现方式跟正版的 React 不同，它是这样做的。</p>
+<p>在 complete work 阶段，创建 <code>FiberNode</code> 节点的 <code>stateNode</code> 时，将 <code>FiberNode</code> 节点上的事件监听函数复制到 <code>Element</code> 上：</p>
+<p>Finally, the methods in <code>_dispatchListeners</code> are executed in order, and the corresponding <code>stateNode</code> is obtained from the <code>FiberNode</code> in <code>_dispatchInstances</code> as the <code>currentTarget</code> on the <code>SyntheticEvent</code>.</p>
+<p>The <code>SyntheticEvent</code> also has a <code>stopPropagation</code> method. Once called, the methods following <code>_dispatchListeners</code> will not be executed, effectively preventing event propagation.</p>
+<p>That concludes the introduction to the React event system. For more information, you can refer to <a href="/2020/08/20/react-event/">this article</a>.</p>
+<p>However, the implementation of Big React differs from the official React. Here’s how it’s done:</p>
+<p>During the complete work phase, when creating the <code>stateNode</code> for a <code>FiberNode</code> node, the event listener functions on the <code>FiberNode</code> node are copied to the <code>Element</code>.</p>
+<p><img src="/2024/04/30/big-react-wasm-11/4.png" alt=""></p>
+<p>当事件触发时，通过 <code>NativeEvent</code> 上的 <code>target</code> 一路往上收集事件监听函数，如果是 <code>onClick</code>，则 <code>push</code> 到 <code>bubble</code> 这个列表中，是 <code>onClickCapture</code> 的话则 <code>insert</code> 到 <code>capture</code> 这个列表中：</p>
+<p>When an event is triggered, the event listener functions are collected by traversing up the tree using the <code>target</code> property on the <code>NativeEvent</code>. If it’s an <code>onClick</code> event, the function is <code>pushed</code> into the <code>bubble</code> list. If it’s an <code>onClickCapture</code> event, the function is <code>inserted</code> into the <code>capture</code> list.</p>
+<p><img src="/2024/04/30/big-react-wasm-11/5.png" alt=""></p>
+<p>然后先从头到尾依次执行 <code>capture</code> 中的事件监听函数，再从头到尾依次执行 <code>bubble</code> 中的事件监听函数。</p>
+<p>阻止事件传播是怎么实现的呢？答案是修改了 <code>NativeEvent</code> 上的该方法：</p>
+<p>Then, the event listener functions in the <code>capture</code> list are executed from start to finish, followed by the event listener functions in the <code>bubble</code> list.</p>
+<p>How is event propagation prevented? The answer lies in modifying the method on the <code>NativeEvent</code>.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">create_synthetic_event</span></span>(e: Event) -&gt; Event &#123;</span><br><span class="line">    Reflect::set(&amp;*e, &amp;<span class="string">"__stopPropagation"</span>.into(), &amp;JsValue::from_bool(<span class="literal">false</span>));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">let</span> e_cloned = e.clone();</span><br><span class="line">    <span class="keyword">let</span> origin_stop_propagation = derive_from_js_value(&amp;*e, <span class="string">"stopPropagation"</span>);</span><br><span class="line">    <span class="keyword">let</span> closure = Closure::wrap(<span class="built_in">Box</span>::new(<span class="keyword">move</span> || &#123;</span><br><span class="line">        <span class="comment">// set __stopPropagation to true</span></span><br><span class="line">        Reflect::set(</span><br><span class="line">            &amp;*e_cloned,</span><br><span class="line">            &amp;<span class="string">"__stopPropagation"</span>.into(),</span><br><span class="line">            &amp;JsValue::from_bool(<span class="literal">true</span>),</span><br><span class="line">        );</span><br><span class="line">        <span class="keyword">if</span> origin_stop_propagation.is_function() &#123;</span><br><span class="line">            <span class="keyword">let</span> origin_stop_propagation = origin_stop_propagation.dyn_ref::&lt;Function&gt;().unwrap();</span><br><span class="line">            origin_stop_propagation.call0(&amp;JsValue::null());</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;) <span class="keyword">as</span> <span class="built_in">Box</span>&lt;dyn <span class="built_in">Fn</span>()&gt;);</span><br><span class="line">    <span class="keyword">let</span> function = closure.as_ref().unchecked_ref::&lt;Function&gt;().clone();</span><br><span class="line">    closure.forget();</span><br><span class="line">    Reflect::set(&amp;*e.clone(), &amp;<span class="string">"stopPropagation"</span>.into(), &amp;function.into());</span><br><span class="line">    e</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">fn</span> <span class="title">trigger_event_flow</span></span>(paths: <span class="built_in">Vec</span>&lt;Function&gt;, se: &amp;Event) &#123;</span><br><span class="line">    <span class="keyword">for</span> callback <span class="keyword">in</span> paths &#123;</span><br><span class="line">        callback.call1(&amp;JsValue::null(), se);</span><br><span class="line">        <span class="comment">// If __stopPropagation is true, break</span></span><br><span class="line">        <span class="keyword">if</span> derive_from_js_value(se, <span class="string">"__stopPropagation"</span>)</span><br><span class="line">            .as_bool()</span><br><span class="line">            .unwrap()</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>不过这里还有个问题，就是 <code>currentTarget</code> 并没有像正版的 React 那样进行修正，这里的 <code>currentTarget</code> 一直都是根元素，因为事件监听函数是绑定在该元素上的：</p>
+<p>However, there is another issue here. The <code>currentTarget</code> is not corrected as it is in the official version of React. In this case, the <code>currentTarget</code> always refers to the root element because the event listener functions are bound to that element.</p>
+<figure class="highlight rust"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">pub</span> <span class="function"><span class="keyword">fn</span> <span class="title">init_event</span></span>(container: JsValue, event_type: <span class="built_in">String</span>) &#123;</span><br><span class="line">  ...</span><br><span class="line">  <span class="keyword">let</span> element = container</span><br><span class="line">      .clone()</span><br><span class="line">      .dyn_into::&lt;Element&gt;()</span><br><span class="line">      .expect(<span class="string">"container is not element"</span>);</span><br><span class="line">  <span class="keyword">let</span> on_click = EventListener::new(&amp;element.clone(), event_type.clone(), <span class="keyword">move</span> |event| &#123;</span><br><span class="line">      dispatch_event(&amp;element, event_type.clone(), event)</span><br><span class="line">  &#125;);</span><br><span class="line">  on_click.forget();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>本次更新详见<a href="https://github.com/ParadeTo/big-react-wasm/pull/10" target="_blank" rel="noopener">这里</a>。</p>
+<p>This update can be found in detail <a href="https://github.com/ParadeTo/big-react-wasm/pull/10" target="_blank" rel="noopener">here</a>.</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/react/" rel="tag"># react</a>
+          
+            <a href="/tags/wasm/" rel="tag"># wasm</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2024/04/26/big-react-wasm-10/" rel="next" title="从零实现 React v18，但 WASM 版 - [10] 实现单节点更新流程">
+                <i class="fa fa-chevron-left"></i> 从零实现 React v18，但 WASM 版 - [10] 实现单节点更新流程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2024/05/07/big-react-wasm-12/" rel="prev" title="从零实现 React v18，但 WASM 版 - [12] 实现多节点更新流程">
+                从零实现 React v18，但 WASM 版 - [12] 实现多节点更新流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

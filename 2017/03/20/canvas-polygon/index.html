@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="html,canvas," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="canvas画多边形">
+<meta name="keywords" content="html,canvas">
+<meta property="og:type" content="article">
+<meta property="og:title" content="canvas画多边形">
+<meta property="og:url" content="http://www.paradeto.com/2017/03/20/canvas-polygon/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="canvas画多边形">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2017/03/20/canvas-polygon/1.jpg">
+<meta property="og:updated_time" content="2018-07-16T03:52:12.242Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="canvas画多边形">
+<meta name="twitter:description" content="canvas画多边形">
+<meta name="twitter:image" content="http://www.paradeto.com/2017/03/20/canvas-polygon/1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2017/03/20/canvas-polygon/"/>
+
+
+
+
+
+
+  <title>canvas画多边形 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2017/03/20/canvas-polygon/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">canvas画多边形</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-20T16:26:23+08:00">
+                2017-03-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/html-css/" itemprop="url" rel="index">
+                    <span itemprop="name">html/css</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  canvas画多边形
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h1><p><img src="/2017/03/20/canvas-polygon/1.jpg" alt=""></p>
+<ul>
+<li>右键完成闭合</li>
+<li>esc回退到上一点</li>
+</ul>
+<h1 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h1><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">div</span> <span class="attr">id</span>=<span class="string">"demo"</span>&gt;</span><span class="tag">&lt;/<span class="name">div</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"btn"</span>&gt;</span>确定<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">button</span> <span class="attr">id</span>=<span class="string">"reset"</span>&gt;</span>重置<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"canvas-draw.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">script</span>&gt;</span><span class="undefined"></span></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> $div = <span class="built_in">document</span>.getElementById(<span class="string">'demo'</span>);</span></span><br><span class="line"><span class="javascript">    <span class="keyword">var</span> canvasDraw = <span class="keyword">new</span> CanvasDraw(&#123;</span></span><br><span class="line"><span class="javascript">      canDraw: <span class="literal">true</span>,</span></span><br><span class="line"><span class="undefined">      polygons: [</span></span><br><span class="line"><span class="javascript">        &#123;<span class="attr">text</span>: <span class="string">'区块1'</span>, <span class="attr">active</span>:<span class="literal">true</span>, <span class="attr">points</span>:[&#123;<span class="attr">x</span>: <span class="number">0</span>,<span class="attr">y</span>:<span class="number">0</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0.5</span>,<span class="attr">y</span>:<span class="number">0.5</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0</span>,<span class="attr">y</span>:<span class="number">0.5</span>&#125;]&#125;,</span></span><br><span class="line"><span class="javascript">        &#123;<span class="attr">text</span>: <span class="string">'区块2'</span>, <span class="attr">active</span>:<span class="literal">false</span>, <span class="attr">points</span>:[&#123;<span class="attr">x</span>: <span class="number">0.5</span>,<span class="attr">y</span>:<span class="number">0.2</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0.3</span>,<span class="attr">y</span>:<span class="number">0.4</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0.7</span>,<span class="attr">y</span>:<span class="number">0.4</span>&#125;]&#125;,</span></span><br><span class="line"><span class="javascript">        &#123;<span class="attr">text</span>: <span class="string">'区块3'</span>, <span class="attr">active</span>:<span class="literal">false</span>, <span class="attr">points</span>:[&#123;<span class="attr">x</span>: <span class="number">0.2</span>,<span class="attr">y</span>:<span class="number">0</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0.4</span>,<span class="attr">y</span>:<span class="number">0.8</span>&#125;,&#123;<span class="attr">x</span>:<span class="number">0.2</span>,<span class="attr">y</span>:<span class="number">0.5</span>&#125;]&#125;,</span></span><br><span class="line"><span class="undefined">      ],</span></span><br><span class="line"><span class="javascript">      id: <span class="string">'demo'</span>,</span></span><br><span class="line"><span class="javascript">      bgImg: <span class="string">'./test.jpg'</span>,</span></span><br><span class="line"><span class="undefined">      width: $div.clientWidth,</span></span><br><span class="line"><span class="undefined">      height: $div.clientHeight</span></span><br><span class="line"><span class="undefined">    &#125;)</span></span><br><span class="line"><span class="undefined">    canvasDraw.init();</span></span><br><span class="line"><span class="javascript">    btn.onclick = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="javascript">      <span class="built_in">console</span>.log(canvasDraw.getPolygonsData());</span></span><br><span class="line"><span class="undefined">    &#125;</span></span><br><span class="line"><span class="javascript">    reset.onclick = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span></span><br><span class="line"><span class="undefined">      canvasDraw.clean();</span></span><br><span class="line"><span class="undefined">    &#125;</span></span><br><span class="line"><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">CanvasDraw</span>(<span class="params">config</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.config = &#123;</span><br><span class="line">    id: config.id,</span><br><span class="line">    canDraw: config.canDraw || <span class="literal">false</span>,</span><br><span class="line">    max: config.max || <span class="literal">Infinity</span>, <span class="comment">// 允许的多边形个数</span></span><br><span class="line">    bgImg: config.bgImg,</span><br><span class="line">    height: config.height,</span><br><span class="line">    width: config.width,</span><br><span class="line">    pointColor: config.pointColor || <span class="string">'#3c8dbc'</span>,</span><br><span class="line">    pointSize: config.pointSize || <span class="number">3</span>,</span><br><span class="line">    lineColor: config.lineColor || <span class="string">'#80b5b3'</span>,</span><br><span class="line">    lineSize: config.lineSize || <span class="number">1</span>,</span><br><span class="line">    textColor: config.textColor || <span class="string">'#333'</span>,</span><br><span class="line">    polygonFillColor: config.polygonFillColor || <span class="string">'rgba(255,255,255,0.4)'</span>,</span><br><span class="line">    polygonPointlColor: config.polygonPointlColor || <span class="string">'#00c0ef'</span>,</span><br><span class="line">    polygonPointlSize: config.polygonPointlSize || <span class="number">2</span>,</span><br><span class="line">    polygonLineColor: config.polygonLineColor || <span class="string">'#eee'</span>,</span><br><span class="line">    polygonLineSize: config.polygonLineSize || <span class="number">1</span>,</span><br><span class="line">    polygonActiveFillColor: config.polygonFillColor || <span class="string">'rgba(149,255,255,0.4)'</span>,</span><br><span class="line">    polygonActiveLineColor: config.polygonFillColor || <span class="string">'#95FFFF'</span>,</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.cxt = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">this</span>.bgCxt = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">this</span>.bgCanvas = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">this</span>.canvas = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">this</span>.wrapper = <span class="literal">null</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// canvas在wrapper中的左上角坐标</span></span><br><span class="line">  <span class="keyword">this</span>.lt = &#123;</span><br><span class="line">    x: <span class="number">0</span>,</span><br><span class="line">    y: <span class="number">0</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 图像</span></span><br><span class="line">  <span class="keyword">this</span>.img = <span class="literal">null</span>;</span><br><span class="line">  <span class="keyword">this</span>.imgLoaded = <span class="literal">false</span>;</span><br><span class="line">  <span class="keyword">this</span>.imgW = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">this</span>.imgH = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 未闭合的多边形的点</span></span><br><span class="line">  <span class="keyword">this</span>.points = [];</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 此次绘画所画多边形</span></span><br><span class="line">  <span class="keyword">this</span>.polygons = [];</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 画布初始时的多边形，不能更改</span></span><br><span class="line">  <span class="keyword">this</span>._polygons = config.polygons || [];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.createLayer = <span class="function"><span class="keyword">function</span>(<span class="params">x, y, w, h, zIndex</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> canvas = <span class="built_in">document</span>.createElement(<span class="string">"canvas"</span>);</span><br><span class="line">  canvas.width = w;</span><br><span class="line">  canvas.height = h;</span><br><span class="line">  canvas.style.position = <span class="string">"absolute"</span>;</span><br><span class="line">  canvas.style.top = y + <span class="string">'px'</span>;</span><br><span class="line">  canvas.style.left = x + <span class="string">'px'</span>;</span><br><span class="line">  canvas.style.zIndex = zIndex;</span><br><span class="line">  <span class="keyword">return</span> canvas;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.init = <span class="function"><span class="keyword">function</span> (<span class="params">cb</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> _wrapper = <span class="built_in">document</span>.getElementById(<span class="keyword">this</span>.config.id);</span><br><span class="line">  _wrapper.style.position = <span class="string">'relative'</span>;</span><br><span class="line">  <span class="keyword">this</span>.wrapper = _wrapper;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">this</span>.getDrawBgConf(cb);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 禁止浏览器右键</span></span><br><span class="line">  <span class="keyword">this</span>.addHandler(<span class="built_in">document</span>.body, <span class="string">'contextmenu'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">    e.returnValue = <span class="literal">false</span>;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.coordinateTransform = <span class="function"><span class="keyword">function</span> (<span class="params">point</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> me = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    <span class="comment">// x: me.bound.lt.x + (point.x * me.bound.w),</span></span><br><span class="line">    x: (point.x * me.canvas.width),</span><br><span class="line">    <span class="comment">// y: me.bound.lt.y + (point.y * me.bound.h)</span></span><br><span class="line">    y: (point.y * me.canvas.height)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.initPolygons = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 坐标转换，画图</span></span><br><span class="line">  <span class="keyword">var</span> len = <span class="keyword">this</span>._polygons.length;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">    <span class="keyword">var</span> pointNum = <span class="keyword">this</span>._polygons[i].points.length;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; pointNum; j++) &#123;</span><br><span class="line">      <span class="keyword">var</span> _p = <span class="keyword">this</span>.coordinateTransform(<span class="keyword">this</span>._polygons[i].points[j]);</span><br><span class="line">      <span class="keyword">this</span>._polygons[i].points[j].x = _p.x;</span><br><span class="line">      <span class="keyword">this</span>._polygons[i].points[j].y = _p.y;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">var</span> params = [<span class="keyword">this</span>._polygons[i].points, <span class="keyword">this</span>._polygons[i].text];</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">this</span>._polygons[i].active) &#123;</span><br><span class="line">      params.push(<span class="keyword">this</span>.config.polygonActiveLineColor);</span><br><span class="line">      params.push(<span class="keyword">this</span>.config.polygonActiveFillColor);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">this</span>.drawPolygon.apply(<span class="keyword">this</span>, params);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.getDrawBgConf = <span class="function"><span class="keyword">function</span> (<span class="params">cb</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> me = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">var</span> image = <span class="keyword">new</span> Image();</span><br><span class="line">  image.src = <span class="keyword">this</span>.config.bgImg;</span><br><span class="line">  image.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">    me.imgLoaded = <span class="literal">true</span>;</span><br><span class="line">    me.img = image;</span><br><span class="line">    me.imgW = image.width;</span><br><span class="line">    me.imgH = image.height;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> wScale = image.width / me.config.width;</span><br><span class="line">    <span class="keyword">var</span> hScale = image.height / me.config.height;</span><br><span class="line">    <span class="keyword">var</span> _scale = wScale &lt; hScale ? hScale : wScale;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> _width = image.width / _scale;</span><br><span class="line">    <span class="keyword">var</span> _height = image.height / _scale;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> dx = <span class="number">0</span>, dy = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">if</span> (wScale &lt; hScale) &#123;</span><br><span class="line">      dx = <span class="built_in">parseInt</span>((me.config.width - _width) / <span class="number">2</span>);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      dy = <span class="built_in">parseInt</span>((me.config.height - _height) / <span class="number">2</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    me.lt.x = dx;</span><br><span class="line">    me.lt.y = dy;</span><br><span class="line"></span><br><span class="line">    me.canvas = me.createLayer(dx, dy, _width, _height, <span class="number">99</span>);</span><br><span class="line">    me.bgCanvas = me.createLayer(dx, dy, _width, _height, <span class="number">1</span>);</span><br><span class="line"></span><br><span class="line">    me.bgCxt = me.bgCanvas.getContext(<span class="string">"2d"</span>);</span><br><span class="line">    me.cxt = me.canvas.getContext(<span class="string">"2d"</span>);</span><br><span class="line"></span><br><span class="line">    me.wrapper.appendChild(me.canvas);</span><br><span class="line">    me.wrapper.appendChild(me.bgCanvas);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (me.config.canDraw) &#123;</span><br><span class="line">      me.initEventListener();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    me.bgCxt.drawImage(image, <span class="number">0</span>, <span class="number">0</span>, _width, _height);</span><br><span class="line">    me.initPolygons();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">typeof</span> cb === <span class="string">'function'</span>) &#123;</span><br><span class="line">      cb();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.drawPoint = <span class="function"><span class="keyword">function</span> (<span class="params">x, y, color, size</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> cxt = <span class="keyword">this</span>.cxt;</span><br><span class="line">  cxt.beginPath();</span><br><span class="line">  cxt.fillStyle = color || <span class="keyword">this</span>.config.pointColor;</span><br><span class="line">  cxt.arc(x, y, size || <span class="keyword">this</span>.config.pointSize, <span class="number">0</span>, <span class="number">2</span>*<span class="built_in">Math</span>.PI);</span><br><span class="line">  cxt.fill();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.drawLine = <span class="function"><span class="keyword">function</span> (<span class="params">x1, y1, x2, y2, color, size</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> cxt = <span class="keyword">this</span>.cxt;</span><br><span class="line">  cxt.beginPath();</span><br><span class="line">  cxt.strokeStyle = color || <span class="keyword">this</span>.config.lineColor;</span><br><span class="line">  cxt.lineWidth = size || <span class="keyword">this</span>.config.lineSize;</span><br><span class="line">  cxt.moveTo(x1, y1);</span><br><span class="line">  cxt.lineTo(x2, y2);</span><br><span class="line">  cxt.stroke();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.drawPolygon = <span class="function"><span class="keyword">function</span> (<span class="params">points, text, lineColor, fillColor</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> len = points.length;</span><br><span class="line">  <span class="keyword">if</span> (len &lt; <span class="number">3</span>) &#123;</span><br><span class="line">    <span class="built_in">console</span>.log(<span class="string">'点不够呀！'</span>);</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">var</span> cxt = <span class="keyword">this</span>.cxt;</span><br><span class="line">  <span class="comment">// for (var i = 0; i &lt; len; i++) &#123;</span></span><br><span class="line">  <span class="comment">//   // 点</span></span><br><span class="line">  <span class="comment">//   this.drawPoint(points[i].x, points[i].y);</span></span><br><span class="line">  <span class="comment">// &#125;</span></span><br><span class="line">  cxt.beginPath();</span><br><span class="line">  cxt.strokeStyle = lineColor || <span class="keyword">this</span>.config.polygonLineColor;</span><br><span class="line">  cxt.fillStyle = fillColor || <span class="keyword">this</span>.config.polygonFillColor;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">    <span class="comment">// 画线</span></span><br><span class="line">    <span class="keyword">if</span> (i === <span class="number">0</span>) &#123;</span><br><span class="line">      cxt.moveTo(points[i].x, points[i].y);</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      cxt.lineTo(points[i].x, points[i].y);</span><br><span class="line">      cxt.stroke();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  cxt.lineTo(points[<span class="number">0</span>].x, points[<span class="number">0</span>].y);</span><br><span class="line">  cxt.stroke();</span><br><span class="line">  cxt.closePath();</span><br><span class="line">  cxt.fill();</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 文字</span></span><br><span class="line">  <span class="keyword">if</span> (!text) <span class="keyword">return</span>;</span><br><span class="line">  <span class="keyword">var</span> cx = <span class="number">0</span>, cy = <span class="number">0</span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">    cx += points[i].x;</span><br><span class="line">    cy += points[i].y;</span><br><span class="line">  &#125;</span><br><span class="line">  cx /= len;</span><br><span class="line">  cy /= len;</span><br><span class="line"></span><br><span class="line">  cxt.fillStyle = <span class="keyword">this</span>.config.textColor;</span><br><span class="line">  cxt.font = <span class="string">'normal 12px Microsoft YaHei'</span>;</span><br><span class="line">  cxt.textAlign = <span class="string">'center'</span>;</span><br><span class="line">  cxt.fillText(text, cx, cy);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.reDraw = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> me = <span class="keyword">this</span>;</span><br><span class="line">  <span class="comment">// 清空画布</span></span><br><span class="line">  me.cxt.clearRect(<span class="number">0</span>, <span class="number">0</span>, me.canvas.width, me.canvas.height);</span><br><span class="line"></span><br><span class="line">  <span class="comment">// // 画背景</span></span><br><span class="line">  <span class="comment">// me.cxt.drawImage(me.img, 0, me.bound.lt.y, me.bound.w, me.bound.h);</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 画点及线</span></span><br><span class="line">  <span class="keyword">var</span> pLen = me.points.length;</span><br><span class="line">  <span class="keyword">if</span> (pLen &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; me.points.length - <span class="number">1</span>; i++) &#123;</span><br><span class="line">      <span class="comment">// 点</span></span><br><span class="line">      me.drawPoint(me.points[i].x, me.points[i].y);</span><br><span class="line">      <span class="comment">// 线</span></span><br><span class="line">      me.drawLine(me.points[i].x, me.points[i].y, me.points[i+<span class="number">1</span>].x, me.points[i+<span class="number">1</span>].y);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 最后那个点</span></span><br><span class="line">    me.drawPoint(me.points[pLen<span class="number">-1</span>].x, me.points[pLen<span class="number">-1</span>].y);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="comment">// 画多边形</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; me._polygons.length; i++) &#123;</span><br><span class="line">    <span class="keyword">var</span> params = [me._polygons[i].points, me._polygons[i].text];</span><br><span class="line">    <span class="keyword">if</span> (me._polygons[i].active) &#123;</span><br><span class="line">      params.push(me.config.polygonActiveLineColor);</span><br><span class="line">      params.push(me.config.polygonActiveFillColor);</span><br><span class="line">    &#125;</span><br><span class="line">    me.drawPolygon.apply(<span class="keyword">this</span>, params);</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; me.polygons.length; i++) &#123;</span><br><span class="line">    me.drawPolygon(me.polygons[i]);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.isIn = <span class="function"><span class="keyword">function</span> (<span class="params">x, y</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> me = <span class="keyword">this</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="number">0</span> &lt; x &amp;&amp;</span><br><span class="line">    me.canvas.width &gt; x &amp;&amp;</span><br><span class="line">    <span class="number">0</span> &lt; y &amp;&amp;</span><br><span class="line">    me.canvas.height &gt; y) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.initEventListener = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> me = <span class="keyword">this</span>;</span><br><span class="line">  me.addHandler(me.canvas, <span class="string">'mousedown'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (me.polygons.length === me.config.max) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 鼠标左键</span></span><br><span class="line">    <span class="keyword">if</span> (e.button === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">var</span> x = e.offsetX;</span><br><span class="line">      <span class="keyword">var</span> y = e.offsetY;</span><br><span class="line"></span><br><span class="line">      <span class="keyword">if</span> (!me.isIn(x, y)) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">      me.points.push(&#123;<span class="attr">x</span>: x, <span class="attr">y</span>: y&#125;);</span><br><span class="line"></span><br><span class="line">      me.drawPoint(x, y);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 鼠标右键</span></span><br><span class="line">    <span class="keyword">if</span> (e.button === <span class="number">2</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (me.points.length &lt; <span class="number">3</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> ;</span><br><span class="line">      &#125;</span><br><span class="line">      me.polygons.push(me.points);</span><br><span class="line">      me.points = [];</span><br><span class="line">      me.reDraw();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  me.addHandler(me.canvas, <span class="string">'mousemove'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (me.polygons.length === me.config.max) <span class="keyword">return</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (me.points.length === <span class="number">0</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> x = e.offsetX;</span><br><span class="line">    <span class="keyword">var</span> y = e.offsetY;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">var</span> lastX = me.points[me.points.length - <span class="number">1</span>].x;</span><br><span class="line">    <span class="keyword">var</span> lastY = me.points[me.points.length - <span class="number">1</span>].y;</span><br><span class="line"></span><br><span class="line">    me.reDraw();</span><br><span class="line">    me.drawLine(lastX, lastY, x, y);</span><br><span class="line">  &#125;);</span><br><span class="line"></span><br><span class="line">  me.addHandler(<span class="built_in">window</span>, <span class="string">'keyup'</span>, <span class="function"><span class="keyword">function</span>(<span class="params">e</span>) </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (e.keyCode === <span class="number">27</span>) &#123;</span><br><span class="line">      me.points.pop();</span><br><span class="line">      me.reDraw();</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.addHandler = <span class="function"><span class="keyword">function</span> (<span class="params">ele, type, handler</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span>(ele.addEventListener)&#123;</span><br><span class="line">    ele.addEventListener(type,handler,<span class="literal">false</span>);</span><br><span class="line">  &#125; <span class="keyword">else</span> <span class="keyword">if</span> (ele.attachEvent) &#123;</span><br><span class="line">    ele.attachEvent(<span class="string">'on'</span>+type,handler);</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    ele[<span class="string">'on'</span>+type] = handler;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.getPolygonsData = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> _polygons = [];</span><br><span class="line">  <span class="keyword">var</span> len = <span class="keyword">this</span>.polygons.length;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; len; i++) &#123;</span><br><span class="line">    <span class="keyword">var</span> pN = <span class="keyword">this</span>.polygons[i].length;</span><br><span class="line">    _polygons[i] = [];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">var</span> j = <span class="number">0</span>; j &lt; pN; j++) &#123;</span><br><span class="line">      _polygons[i].push(&#123;</span><br><span class="line">        x: <span class="keyword">this</span>.polygons[i][j].x / <span class="keyword">this</span>.canvas.width,</span><br><span class="line">        y: <span class="keyword">this</span>.polygons[i][j].y / <span class="keyword">this</span>.canvas.height</span><br><span class="line">      &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> _polygons;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 重置本次绘画</span></span><br><span class="line">CanvasDraw.prototype.reset = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.polygons = [];</span><br><span class="line">  <span class="keyword">this</span>.reDraw();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 清空所有多边形</span></span><br><span class="line">CanvasDraw.prototype.clean = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">this</span>.polygons = [];</span><br><span class="line">  <span class="keyword">this</span>._polygons = [];</span><br><span class="line">  <span class="keyword">this</span>.reDraw();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加多边形</span></span><br><span class="line">CanvasDraw.prototype.pushPolygon = <span class="function"><span class="keyword">function</span>(<span class="params">polygons</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">var</span> i = <span class="number">0</span>; i &lt; polygons.length; i++) &#123;</span><br><span class="line">    <span class="keyword">this</span>._polygons.push(polygons[i]);</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">this</span>.initPolygons();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">CanvasDraw.prototype.delete = <span class="function"><span class="keyword">function</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">var</span> _parentElement = <span class="keyword">this</span>.canvas.parentNode;</span><br><span class="line">  <span class="keyword">if</span>(_parentElement)&#123;</span><br><span class="line">    _parentElement.removeChild(<span class="keyword">this</span>.canvas);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>更多详见<a href="https://github.com/ParadeTo/canvas-polygon" target="_blank" rel="noopener">github</a></p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/html/" rel="tag"># html</a>
+          
+            <a href="/tags/canvas/" rel="tag"># canvas</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/03/19/algo-maxsubarr/" rel="next" title="最大子序列应用－最大在线人数">
+                <i class="fa fa-chevron-left"></i> 最大子序列应用－最大在线人数
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/03/23/algo-search-topn/" rel="prev" title="模拟实现十大热门搜索">
+                模拟实现十大热门搜索 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#效果"><span class="nav-number">1.</span> <span class="nav-text">效果</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#代码"><span class="nav-number">2.</span> <span class="nav-text">代码</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>

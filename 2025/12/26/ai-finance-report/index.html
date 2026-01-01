@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ai,agent," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍如何基于 LangGraph 构建自动化股票研报助手，通过流水线思维拆解任务，涵盖跨语言数据采集、财务指标工具化计算及递归生成长文本研报的实战方案。">
+<meta name="keywords" content="ai,agent">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI Agent 实战：股票研报撰写助手">
+<meta property="og:url" content="http://www.paradeto.com/2025/12/26/ai-finance-report/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍如何基于 LangGraph 构建自动化股票研报助手，通过流水线思维拆解任务，涵盖跨语言数据采集、财务指标工具化计算及递归生成长文本研报的实战方案。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2025/12/26/ai-finance-report/1.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2025/12/26/ai-finance-report/2.jpg">
+<meta property="og:updated_time" content="2025-12-26T01:45:31.890Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI Agent 实战：股票研报撰写助手">
+<meta name="twitter:description" content="介绍如何基于 LangGraph 构建自动化股票研报助手，通过流水线思维拆解任务，涵盖跨语言数据采集、财务指标工具化计算及递归生成长文本研报的实战方案。">
+<meta name="twitter:image" content="http://www.paradeto.com/2025/12/26/ai-finance-report/1.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2025/12/26/ai-finance-report/"/>
+
+
+
+
+
+
+  <title>AI Agent 实战：股票研报撰写助手 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2025/12/26/ai-finance-report/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">AI Agent 实战：股票研报撰写助手</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2025-12-26T09:31:05+08:00">
+                2025-12-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ai/" itemprop="url" rel="index">
+                    <span itemprop="name">ai</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍如何基于 LangGraph 构建自动化股票研报助手，通过流水线思维拆解任务，涵盖跨语言数据采集、财务指标工具化计算及递归生成长文本研报的实战方案。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>传统研报分析师的一天：在东方财富翻财报、在 Excel 算比率、在 Word 里敲字，最后发现数据还弄错了。用 ChatGPT 帮忙？三座大山挡住去路：</p>
+<ol>
+<li><strong>数据幻觉</strong>：AI 会编造一个看起来完美的”同比增长 12%”</li>
+<li><strong>上下文限制</strong>：几年的财报塞进去，AI 很快就”断片”</li>
+<li><strong>逻辑碎片化</strong>：无法自主完成”找对手 -&gt; 算指标 -&gt; 出结论”的长链路</li>
+</ol>
+<p><strong>解决方案：流水线思维</strong>。把任务拆成一条流水线，每个工位只负责一件事。本文基于 LangGraph 构建一个 6 节点的研报自动化工作流。</p>
+<h2 id="一、工作流"><a href="#一、工作流" class="headerlink" title="一、工作流"></a>一、工作流</h2><table>
+<thead>
+<tr>
+<th>序号</th>
+<th>节点</th>
+<th>功能</th>
+<th>包含子任务</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>collect_market_data</td>
+<td>市场数据采集</td>
+<td>深度搜索行业信息、提取竞品、下载财报</td>
+</tr>
+<tr>
+<td>2</td>
+<td>calculate_financials</td>
+<td>财务指标计算</td>
+<td>计算毛利率、ROE 等核心指标</td>
+</tr>
+<tr>
+<td>3</td>
+<td>analyze_and_visualize</td>
+<td>分析与可视化</td>
+<td>趋势分析、对比分析、生成 ECharts 图表</td>
+</tr>
+<tr>
+<td>4</td>
+<td>collect_company_profile</td>
+<td>公司概况采集</td>
+<td>主营业务、股东结构、基本信息（并行）</td>
+</tr>
+<tr>
+<td>5</td>
+<td>consolidate_analysis</td>
+<td>整合分析</td>
+<td>估值模型、汇总所有数据</td>
+</tr>
+<tr>
+<td>6</td>
+<td>generate_report</td>
+<td>生成报告</td>
+<td>递归生成深度研报 HTML</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二、核心实现"><a href="#二、核心实现" class="headerlink" title="二、核心实现"></a>二、核心实现</h2><h3 id="2-1-AkShare-桥接：跨语言数据采集"><a href="#2-1-AkShare-桥接：跨语言数据采集" class="headerlink" title="2.1 AkShare 桥接：跨语言数据采集"></a>2.1 AkShare 桥接：跨语言数据采集</h3><p>JS 生态缺少像 AkShare 这样成熟的金融数据库增么办呢？答案是构建 Python 桥梁，让 Node.js 通过 <code>child_process</code> 调用 Python 脚本。</p>
+<p><strong>TypeScript 端</strong>封装静态类：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// akshare.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">class</span> AkShare &#123;</span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">static</span> execute(funcName: <span class="built_in">string</span>, ...args: <span class="built_in">string</span>[]): <span class="built_in">any</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> command = <span class="string">`"<span class="subst">$&#123;VENV_PYTHON&#125;</span>" "<span class="subst">$&#123;BRIDGE_PATH&#125;</span>" <span class="subst">$&#123;funcName&#125;</span> <span class="subst">$&#123;args.join(</span></span></span><br><span class="line"><span class="string"><span class="subst">      ' '</span></span></span><br><span class="line"><span class="string"><span class="subst">    )&#125;</span>`</span></span><br><span class="line">    <span class="keyword">const</span> output = execSync(command, &#123;</span><br><span class="line">      encoding: <span class="string">'utf-8'</span>,</span><br><span class="line">      maxBuffer: <span class="number">50</span> * <span class="number">1024</span> * <span class="number">1024</span>,</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">return</span> <span class="built_in">JSON</span>.parse(output)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">static</span> getBalanceSheet(stockCode: <span class="built_in">string</span>, year: <span class="built_in">string</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.execute(<span class="string">'get_balance_sheet'</span>, stockCode, year)</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">static</span> getIncomeStatement(stockCode: <span class="built_in">string</span>, year: <span class="built_in">string</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">this</span>.execute(<span class="string">'get_income_statement'</span>, stockCode, year)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Python 端</strong>接收参数，调用 AkShare，返回 JSON：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># akshare_bridge.py</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">clean_data</span><span class="params">(df)</span>:</span></span><br><span class="line">    <span class="string">"""JSON 不支持 NaN，必须转为 None"""</span></span><br><span class="line">    <span class="keyword">return</span> df.where(pd.notnull(df), <span class="keyword">None</span>).to_dict(orient=<span class="string">'records'</span>)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">handle_get_balance_sheet</span><span class="params">(stock_code, year)</span>:</span></span><br><span class="line">    df = ak.stock_balance_sheet_by_yearly_em(symbol=stock_code)</span><br><span class="line">    <span class="keyword">return</span> clean_data(df[df[<span class="string">'报告期'</span>].str.startswith(year)])</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">'__main__'</span>:</span><br><span class="line">    handlers = &#123; <span class="string">'get_balance_sheet'</span>: handle_get_balance_sheet, ... &#125;</span><br><span class="line">    result = handlers[sys.argv[<span class="number">1</span>]](*sys.argv[<span class="number">2</span>:])</span><br><span class="line">    print(json.dumps(result, ensure_ascii=<span class="keyword">False</span>))</span><br></pre></td></tr></table></figure>
+<h3 id="2-2-状态定义"><a href="#2-2-状态定义" class="headerlink" title="2.2 状态定义"></a>2.2 状态定义</h3><p>Agent 的”记忆”用 LangGraph 的 Annotation 定义：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// types.ts</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> OverallState = Annotation.Root(&#123;</span><br><span class="line">  stock_code: Annotation&lt;<span class="built_in">string</span>&gt;<span class="function">(<span class="params">&#123; reducer: (<span class="params">x, y</span>) =&gt; y ?? x, <span class="keyword">default</span>: (<span class="params"></span>) =&gt; '' &#125;</span>),</span></span><br><span class="line"><span class="function">  <span class="params">stock_name</span>: <span class="params">Annotation</span>&lt;<span class="params">string</span>&gt;(<span class="params">&#123; reducer: (<span class="params">x, y</span>) =&gt; y ?? x, <span class="keyword">default</span>: (<span class="params"></span>) =&gt; '' &#125;</span>),</span></span><br><span class="line"><span class="function">  <span class="params">year</span>: <span class="params">Annotation</span>&lt;<span class="params">string</span>[]&gt;(<span class="params">&#123; reducer: (<span class="params">x, y</span>) =&gt; y ?? x, <span class="keyword">default</span>: (<span class="params"></span>) =&gt; [] &#125;</span>),</span></span><br><span class="line"><span class="function"></span></span><br><span class="line"><span class="function">  <span class="params">competitor_and_industry_data</span>: <span class="params">Annotation</span>&lt;<span class="params">string</span>&gt;(<span class="params">&#123; ... &#125;</span>),  // 行业数据</span></span><br><span class="line"><span class="function">  <span class="params">competitor_info</span>: <span class="params">Annotation</span>&lt;<span class="params">CompetitorInfoList</span>&gt;(<span class="params">&#123; ... &#125;</span>),   // 竞品列表</span></span><br><span class="line"><span class="function">  <span class="params">company_report</span>: <span class="params">Annotation</span>&lt;<span class="params">Record</span>&lt;<span class="params">string</span>, <span class="params">any</span>&gt;&gt;(<span class="params">&#123; ... &#125;</span>),   // 分析报告</span></span><br><span class="line"><span class="function">  <span class="params">formatted_output</span>: <span class="params">Annotation</span>&lt;<span class="params">string</span>[]&gt;(<span class="params">&#123; ... &#125;</span>),            // 汇总输出</span></span><br><span class="line"><span class="function">  <span class="params">final_report</span>: <span class="params">Annotation</span>&lt;<span class="params">string</span>&gt;(<span class="params">&#123; ... &#125;</span>),                  // 最终报告</span></span><br><span class="line"><span class="function">&#125;);</span></span><br></pre></td></tr></table></figure>
+<h3 id="2-3-节点-1：市场数据采集"><a href="#2-3-节点-1：市场数据采集" class="headerlink" title="2.3 节点 1：市场数据采集"></a>2.3 节点 1：市场数据采集</h3><p>这是流水线的”情报员”，一次性完成三件事：深度搜索行业信息、结构化提取竞品、采集财务报表。</p>
+<p><strong>Prompt 1 - 深度搜索行业信息</strong> (<code>get_competitor_and_industry_data_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">请分析以下公司的竞争对手以及所处行业：</span><br><span class="line">公司信息：</span><br><span class="line"> - 市场：&#123;market&#125;</span><br><span class="line"> - 公司名称：&#123;stock_name&#125;</span><br><span class="line"> - 股票代码：&#123;stock_code&#125;</span><br><span class="line"></span><br><span class="line">分析竞争对手的标准为：</span><br><span class="line">1. 同行业内的主要上市公司</span><br><span class="line">2. 业务模式相似的公司</span><br><span class="line">3. 市值规模相近的公司</span><br><span class="line">4. 主要业务重叠度高的公司</span><br><span class="line"></span><br><span class="line">要求：</span><br><span class="line">1.请返回3~5个竞争对手(需包含股票代码，公司名称，市场信息)，按竞争程度排序。</span><br><span class="line">2.请返回关键财务比率的行业均值数据（如行业平均毛利率、净利率、市盈率等），并注明是什么行业</span><br><span class="line"></span><br><span class="line">重要提示：</span><br><span class="line">1.竞争对手只关注在A股或港股上市的公司，不关注美股等其他市场上市的公司或者未上市的公司</span><br></pre></td></tr></table></figure>
+<p><strong>Prompt 2 - 结构化提取竞品</strong> (<code>get_competitor_info_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">请从以下内容中，将竞争对手公司信息提取出来。</span><br><span class="line"></span><br><span class="line">上下文：</span><br><span class="line">&#123;context&#125;</span><br><span class="line"></span><br><span class="line">输出格式:</span><br><span class="line">- 将您的响应格式化为包含以下字段的 JSON 对象：</span><br><span class="line">   - &quot;competitors&quot;: 竞争对手公司信息</span><br><span class="line">     - &quot;stock_name&quot;: 公司名称</span><br><span class="line">     - &quot;stock_code&quot;: 股票代码（纯数字股票代码，不要带HK SZ等标识）</span><br><span class="line">     - &quot;market&quot;: 市场</span><br><span class="line"></span><br><span class="line">Example:</span><br><span class="line">&#123;</span><br><span class="line">    &quot;competitors&quot;: [</span><br><span class="line">        &#123;</span><br><span class="line">            &quot;stock_name&quot;: &quot;商汤科技&quot;,</span><br><span class="line">            &quot;stock_code&quot;: &quot;00020&quot;,</span><br><span class="line">            &quot;market&quot;: &quot;港股&quot;</span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>核心代码</strong>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">collectMarketData</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 1. 深度搜索（调用 DeepResearchAgent 多轮迭代搜索）</span></span><br><span class="line">  <span class="keyword">const</span> industryResult = <span class="keyword">await</span> getCompetitorAndIndustryData(state)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 结构化提取（withStructuredOutput 保证输出格式）</span></span><br><span class="line">  <span class="keyword">const</span> structuredLLM = llm.withStructuredOutput(CompetitorInfoListSchema)</span><br><span class="line">  <span class="keyword">const</span> competitorResult = <span class="keyword">await</span> getCompetitorInfo(&#123;</span><br><span class="line">    ...state,</span><br><span class="line">    ...industryResult,</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 采集财务报表（本公司 + 竞品，调用 AkShare 桥接）</span></span><br><span class="line">  <span class="keyword">await</span> getFinancialData(&#123;...state, ...competitorResult&#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;competitor_and_industry_data, competitor_info&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>输出示例</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">competitor_info: &#123;</span><br><span class="line">  competitors: [</span><br><span class="line">    &#123; stock_name: &quot;五粮液&quot;, stock_code: &quot;000858&quot;, market: &quot;A股&quot; &#125;,</span><br><span class="line">    &#123; stock_name: &quot;泸州老窖&quot;, stock_code: &quot;000568&quot;, market: &quot;A股&quot; &#125;,</span><br><span class="line">    &#123; stock_name: &quot;洋河股份&quot;, stock_code: &quot;002304&quot;, market: &quot;A股&quot; &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">生成文件:</span><br><span class="line">- data/financial_statements/600519_2024_资产负债表.csv</span><br><span class="line">- data/financial_statements/600519_2024_利润表.csv</span><br><span class="line">- data/financial_statements/600519_2024_现金流量表.csv</span><br><span class="line">- data/financial_statements/000858_2024_资产负债表.csv</span><br><span class="line">- ...</span><br></pre></td></tr></table></figure>
+<h3 id="2-4-节点-2：财务指标计算"><a href="#2-4-节点-2：财务指标计算" class="headerlink" title="2.4 节点 2：财务指标计算"></a>2.4 节点 2：财务指标计算</h3><p>不要让 LLM 算数！预定义 11 个计算工具，让 Agent 自主调用。</p>
+<p><strong>System Prompt</strong> (<code>analyze_system_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">你是一名财务分析师，你的任务是根据用户传入的财务指标和三大会计表数据，完成如下的数据获取与计算任务。</span><br><span class="line"></span><br><span class="line">1.毛利率、净利率、净资产收益率 (ROE)</span><br><span class="line">2.资产负债率、流动比率、速动比率</span><br><span class="line">3.总资产周转率、应收账款周转天数、存货周转天数</span><br><span class="line">4.现金流匹配度、销售现金比率</span><br><span class="line">5.权益乘数</span><br><span class="line"></span><br><span class="line">#要求：</span><br><span class="line">- 如果能直接获取到数据，就无需调用工具计算，否则需要调用工具计算，所有的比率都以百分比的形式给出</span><br><span class="line">- 不需要描述获取或者计算的过程，只需给出结果即可</span><br><span class="line">- 不允许自行杜撰编造数据</span><br><span class="line"></span><br><span class="line">#输出格式：</span><br><span class="line">请以以下JSON格式返回：</span><br><span class="line">&#123;</span><br><span class="line">    &quot;毛利率&quot;: 数值,</span><br><span class="line">    &quot;净利率&quot;: 数值,</span><br><span class="line">    &quot;净资产收益率&quot;: 数值,</span><br><span class="line">    &quot;资产负债率&quot;: 数值,</span><br><span class="line">    &quot;流动比率&quot;: 数值,</span><br><span class="line">    &quot;速动比率&quot;: 数值,</span><br><span class="line">    &quot;总资产周转率&quot;: 数值,</span><br><span class="line">    &quot;应收账款周转天数&quot;: 数值,</span><br><span class="line">    &quot;存货周转天数&quot;: 数值,</span><br><span class="line">    &quot;现金流匹配度&quot;: 数值,</span><br><span class="line">    &quot;销售现金比率&quot;: 数值,</span><br><span class="line">    &quot;权益乘数&quot;: 数值,</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>User Prompt</strong> (<code>analyze_user_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">以下是&#123;company_name&#125; &#123;year&#125;年度的财务指标与三大会计表数据：</span><br><span class="line">文件路径:&#123;files0&#125;</span><br><span class="line">内容:</span><br><span class="line">&#123;report0&#125;</span><br><span class="line"></span><br><span class="line">文件路径:&#123;files1&#125;</span><br><span class="line">内容:</span><br><span class="line">&#123;report1&#125;</span><br><span class="line"></span><br><span class="line">文件路径:&#123;files2&#125;</span><br><span class="line">内容:</span><br><span class="line">&#123;report2&#125;</span><br><span class="line"></span><br><span class="line">文件路径:&#123;files3&#125;</span><br><span class="line">内容:</span><br><span class="line">&#123;report3&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>核心代码</strong>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> agent = createReactAgent(&#123;</span><br><span class="line">  llm,</span><br><span class="line">  tools: calculationTools, <span class="comment">// 毛利率、ROE、资产负债率等 11 个计算工具</span></span><br><span class="line">  messageModifier: <span class="keyword">new</span> SystemMessage(formattedSystemPrompt),</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> agentResponse = <span class="keyword">await</span> agent.invoke(&#123;</span><br><span class="line">  messages: [<span class="keyword">new</span> HumanMessage(formattedUserPrompt)],</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>输出示例</strong>：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"毛利率"</span>: <span class="number">91.96</span>,</span><br><span class="line">  <span class="attr">"净利率"</span>: <span class="number">52.49</span>,</span><br><span class="line">  <span class="attr">"净资产收益率"</span>: <span class="number">31.24</span>,</span><br><span class="line">  <span class="attr">"资产负债率"</span>: <span class="number">19.85</span>,</span><br><span class="line">  <span class="attr">"流动比率"</span>: <span class="number">3.68</span>,</span><br><span class="line">  <span class="attr">"速动比率"</span>: <span class="number">3.12</span>,</span><br><span class="line">  <span class="attr">"总资产周转率"</span>: <span class="number">0.35</span>,</span><br><span class="line">  <span class="attr">"应收账款周转天数"</span>: <span class="number">12.5</span>,</span><br><span class="line">  <span class="attr">"存货周转天数"</span>: <span class="number">1245.6</span>,</span><br><span class="line">  <span class="attr">"现金流匹配度"</span>: <span class="number">1.15</span>,</span><br><span class="line">  <span class="attr">"销售现金比率"</span>: <span class="number">98.72</span>,</span><br><span class="line">  <span class="attr">"权益乘数"</span>: <span class="number">1.25</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>生成文件: <code>data/financial_caculates/600519_2024年度财务计算结果.csv</code></p>
+<h3 id="2-5-节点-3：分析与可视化"><a href="#2-5-节点-3：分析与可视化" class="headerlink" title="2.5 节点 3：分析与可视化"></a>2.5 节点 3：分析与可视化</h3><p>一个节点完成趋势分析、对比分析、ECharts 图表生成。</p>
+<p><strong>趋势分析 User Prompt</strong> (<code>analyze_financial_data_user_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">以下是&#123;company_name&#125; 公司的过去三年财务数据：</span><br><span class="line">文件:&#123;files0&#125;</span><br><span class="line">内容:&#123;report0&#125;</span><br><span class="line"></span><br><span class="line">文件:&#123;files1&#125;</span><br><span class="line">内容:&#123;report1&#125;</span><br><span class="line"></span><br><span class="line">文件:&#123;files2&#125;</span><br><span class="line">内容:&#123;report2&#125;</span><br><span class="line"></span><br><span class="line">请利用财务分析方法进行纵向的趋势分析</span><br></pre></td></tr></table></figure>
+<p><strong>对比分析 User Prompt</strong> (<code>compare_company_report_user_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">以下是基准公司：&#123;source_name&#125; 公司的过去三年财务数据：</span><br><span class="line">文件:&#123;source_files0&#125;</span><br><span class="line">内容:&#123;source_report0&#125;</span><br><span class="line"></span><br><span class="line">文件:&#123;source_files1&#125;</span><br><span class="line">内容:&#123;source_report1&#125;</span><br><span class="line"></span><br><span class="line">文件:&#123;source_files2&#125;</span><br><span class="line">内容:&#123;source_report2&#125;</span><br><span class="line"></span><br><span class="line">以下是对比公司：&#123;target_name&#125; 公司的过去三年财务数据：</span><br><span class="line">文件:&#123;target_files0&#125;</span><br><span class="line">内容:&#123;target_report0&#125;</span><br><span class="line"></span><br><span class="line">文件:&#123;target_files1&#125;</span><br><span class="line">内容:&#123;target_report1&#125;</span><br><span class="line"></span><br><span class="line">文件:&#123;target_files2&#125;</span><br><span class="line">内容:&#123;target_report2&#125;</span><br><span class="line"></span><br><span class="line">请利用财务分析方法对两家公司，分析基准公司相比对比公司的优劣势，完成对比分析报告</span><br></pre></td></tr></table></figure>
+<p><strong>System Prompt - ECharts 图表生成</strong> (<code>analyze_financial_data_system_prompt_web</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br></pre></td><td class="code"><pre><span class="line">你是一名资深财务分析师，能够根据用户需求生成数据分析和 ECharts 可视化代码。</span><br><span class="line"></span><br><span class="line">**核心任务**：</span><br><span class="line">分析用户提供的财务数据，生成 ECharts 图表配置，并输出最终的分析报告。</span><br><span class="line"></span><br><span class="line">**工作流程**：</span><br><span class="line"></span><br><span class="line">**阶段1：数据分析和可视化（使用 generate_chart 动作）**</span><br><span class="line">- 分析财务数据，识别关键指标和趋势</span><br><span class="line">- 生成 ECharts 图表配置（JSON 格式）</span><br><span class="line">- 每次只生成一个图表，可多次调用</span><br><span class="line"></span><br><span class="line">**阶段2：最终报告（使用 analysis_complete 动作）**</span><br><span class="line">- 图表生成完毕后，生成包含所有图表和分析的完整报告</span><br><span class="line"></span><br><span class="line">**ECharts 图表设计指南**：</span><br><span class="line"></span><br><span class="line">**图表类型选择**：</span><br><span class="line">- 时间序列/趋势数据 → line（折线图）</span><br><span class="line">- 分类比较 → bar（柱状图）</span><br><span class="line">- 占比分析 → pie（饼图）</span><br><span class="line">- 多维指标对比 → radar（雷达图）</span><br><span class="line">- 相关性分析 → scatter（散点图）</span><br><span class="line"></span><br><span class="line">**金融数据可视化最佳实践**：</span><br><span class="line">- 营收利润类：柱状图展示年度对比，线图展示趋势</span><br><span class="line">- 财务比率类：雷达图展示综合表现</span><br><span class="line">- 现金流类：堆叠柱状图展示流入流出</span><br><span class="line">- 资产负债类：堆叠柱状图展示结构占比</span><br><span class="line"></span><br><span class="line">**配色方案**：</span><br><span class="line">- 主色调：#5470c6（蓝色）用于主要数据</span><br><span class="line">- 增长/正向：#91cc75（绿色）</span><br><span class="line">- 下降/警示：#ee6666（红色）</span><br><span class="line">- 辅助色：#fac858（黄色）、#73c0de（浅蓝）</span><br><span class="line"></span><br><span class="line">**响应格式（严格遵守 YAML）**：</span><br><span class="line"></span><br><span class="line">**1. 生成图表时：**</span><br><span class="line">action: &quot;generate_chart&quot;</span><br><span class="line">reasoning: &quot;说明为什么要生成这个图表&quot;</span><br><span class="line">chart:</span><br><span class="line">  title: &quot;图表标题&quot;</span><br><span class="line">  filename: &quot;chart_name.html&quot;</span><br><span class="line">  type: &quot;bar|line|pie|radar|scatter&quot;</span><br><span class="line">  option: |</span><br><span class="line">    &#123;</span><br><span class="line">      &quot;title&quot;: &#123; &quot;text&quot;: &quot;图表标题&quot;, &quot;left&quot;: &quot;center&quot; &#125;,</span><br><span class="line">      &quot;xAxis&quot;: &#123; &quot;type&quot;: &quot;category&quot;, &quot;data&quot;: [&quot;2022&quot;, &quot;2023&quot;, &quot;2024&quot;] &#125;,</span><br><span class="line">      &quot;yAxis&quot;: &#123; &quot;type&quot;: &quot;value&quot; &#125;,</span><br><span class="line">      &quot;series&quot;: [&#123; &quot;name&quot;: &quot;营业收入&quot;, &quot;type&quot;: &quot;bar&quot;, &quot;data&quot;: [100, 120, 150] &#125;]</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">**2. 完成分析时：**</span><br><span class="line">action: &quot;analysis_complete&quot;</span><br><span class="line">final_report: |</span><br><span class="line">  # 财务数据分析报告</span><br><span class="line">  ## 关键发现</span><br><span class="line">  1. 营业收入稳步增长...</span><br><span class="line">  ## 图表分析</span><br><span class="line">  ### 营业收入趋势</span><br><span class="line">  &lt;div id=&quot;chart_revenue&quot;&gt;&lt;/div&gt;</span><br><span class="line">  从图中可以看出...</span><br><span class="line"></span><br><span class="line">**重要约束**：</span><br><span class="line">1. 每次只选择一种动作，不要混合</span><br><span class="line">2. ECharts option 必须是合法的 JSON 格式</span><br><span class="line">3. 数据必须来自用户提供的财务数据，不要编造</span><br><span class="line">4. 图表文件名使用有意义的英文命名</span><br><span class="line">5. 最终报告中引用图表使用 &lt;div id=&quot;chart_xxx&quot;&gt;&lt;/div&gt; 占位符</span><br></pre></td></tr></table></figure>
+<p><strong>两个动作的使用时机</strong>：</p>
+<p>LLM 在分析过程中通过动作进行”状态切换”，形成一个简单的循环：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">开始 → generate_chart → generate_chart → ... → analysis_complete → 结束</span><br><span class="line">       ↑______________________|</span><br><span class="line">            (可多次循环)</span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>generate_chart</code></strong>：每次生成一个图表，图表会被保存到 <code>this.charts</code> 数组中，可多次调用</li>
+<li><strong><code>analysis_complete</code></strong>：终止信号，输出最终报告后结束循环</li>
+</ul>
+<p>举个例子：分析贵州茅台时，LLM 可能会：</p>
+<ol>
+<li><code>generate_chart</code> → 生成”营收趋势折线图”（保存到 charts 数组）</li>
+<li><code>generate_chart</code> → 生成”利润结构饼图”（保存到 charts 数组）</li>
+<li><code>analysis_complete</code> → 输出完整分析报告，循环结束</li>
+</ol>
+<p><strong>核心代码</strong>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">analyzeAndVisualize</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 1. 趋势分析（纵向看自己，生成 ECharts 图表）</span></span><br><span class="line">  <span class="keyword">const</span> analyzeResult = <span class="keyword">await</span> analyzeFinancialData(state)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 对比分析（横向看对手，生成对比图表）</span></span><br><span class="line">  <span class="keyword">const</span> compareResult = <span class="keyword">await</span> generateCompareCompanyReport(&#123;</span><br><span class="line">    ...state,</span><br><span class="line">    ...analyzeResult,</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 汇总报告</span></span><br><span class="line">  <span class="keyword">const</span> mergeResult = <span class="keyword">await</span> mergerReports(&#123;...state, ...compareResult&#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;company_report, compare_company_report, formatted_output&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>输出示例</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">生成文件:</span><br><span class="line">- analyze_agent_outputs/session_xxx/revenue_trend.html      (营业收入趋势图)</span><br><span class="line">- analyze_agent_outputs/session_xxx/profit_margin.html      (利润率分析图)</span><br><span class="line">- analyze_agent_outputs/session_xxx/debt_ratio_trend.html   (资产负债率趋势图)</span><br><span class="line">- analyze_agent_outputs/session_xxx/最终分析报告.md</span><br><span class="line">- compare_company_report_outputs/session_xxx/comparison_bar.html  (对比柱状图)</span><br><span class="line">- compare_company_report_outputs/session_xxx/最终分析报告.md</span><br><span class="line"></span><br><span class="line">formatted_output 示例:</span><br><span class="line">【财务数据分析结果开始】</span><br><span class="line"># 贵州茅台财务趋势分析报告</span><br><span class="line">## 盈利能力分析</span><br><span class="line">贵州茅台2022-2024年毛利率保持在91%以上，净利率稳定在52%左右...</span><br><span class="line">【财务数据分析结果结束】</span><br><span class="line"></span><br><span class="line">【对比分析结果开始】</span><br><span class="line"># 贵州茅台与五粮液对比分析</span><br><span class="line">## 盈利能力对比</span><br><span class="line">贵州茅台毛利率91.96%，五粮液75.79%，茅台在成本控制上具有压倒性优势...</span><br><span class="line">【对比分析结果结束】</span><br></pre></td></tr></table></figure>
+<h3 id="2-6-节点-4：公司概况采集"><a href="#2-6-节点-4：公司概况采集" class="headerlink" title="2.6 节点 4：公司概况采集"></a>2.6 节点 4：公司概况采集</h3><p>三个子任务<strong>并行执行</strong>，提升效率。</p>
+<p><strong>主营业务 Prompt</strong> (<code>get_business_info_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">请获取以下公司的主营业务与核心竞争力：</span><br><span class="line"></span><br><span class="line">公司信息：</span><br><span class="line"> - 市场：&#123;market&#125;</span><br><span class="line"> - 公司名称：&#123;stock_name&#125;</span><br><span class="line"> - 股票代码：&#123;stock_code&#125;</span><br><span class="line"></span><br><span class="line">名词解释：</span><br><span class="line">主营业务: 按产品/地区划分的收入和利润构成。</span><br><span class="line">核心竞争力: 公司的技术专利、品牌价值、渠道优势、成本控制能力等描述性文本。</span><br><span class="line">行业地位: 市场份额、行业排名、主要竞争对手等信息。</span><br></pre></td></tr></table></figure>
+<p><strong>公司基本信息 Prompt</strong> (<code>collect_stock_info_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">你是一个专业的股票信息整理师，请根据以下公司信息，整理其基本介绍信息：</span><br><span class="line">公司信息：</span><br><span class="line"> - 市场：&#123;market&#125;</span><br><span class="line"> - 公司名称：&#123;stock_name&#125;</span><br><span class="line"> - 股票代码：&#123;stock_code&#125;</span><br><span class="line"></span><br><span class="line">请整理以下内容并生成报告：</span><br><span class="line">1. 公司简介</span><br><span class="line">2. 主营业务</span><br><span class="line">3. 经营范围</span><br><span class="line">4. 行业地位</span><br><span class="line">5. 发展历程（如有）</span><br></pre></td></tr></table></figure>
+<p><strong>核心代码</strong>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">collectCompanyProfile</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 三个子任务并行执行（互不依赖）</span></span><br><span class="line">  <span class="keyword">const</span> [businessResult, shareholderResult, companyResult] = <span class="keyword">await</span> <span class="built_in">Promise</span>.all([</span><br><span class="line">    getBusinessInfo(state), <span class="comment">// DeepResearchAgent 深度搜索</span></span><br><span class="line">    getShareholderInfo(state), <span class="comment">// AkShare 获取十大股东等数据</span></span><br><span class="line">    getCompanyInfo(state), <span class="comment">// AkShare + LLM 整理</span></span><br><span class="line">  ])</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;business_info, shareholder_info, company_info&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>输出示例</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">生成文件:</span><br><span class="line">- final_output/主营业务与核心竞争力.md</span><br><span class="line">- final_output/股东信息数据.md</span><br><span class="line">- final_output/公司信息数据.md</span><br><span class="line"></span><br><span class="line">business_info 示例:</span><br><span class="line"># 贵州茅台主营业务与核心竞争力</span><br><span class="line">## 主营业务</span><br><span class="line">- 茅台酒：占营收85%，毛利率95%以上</span><br><span class="line">- 系列酒：占营收15%，毛利率75%左右</span><br><span class="line">## 核心竞争力</span><br><span class="line">- 品牌价值：连续多年蝉联中国白酒品牌价值榜首</span><br><span class="line">- 产能稀缺：受限于茅台镇特殊地理环境，产能扩张困难</span><br><span class="line">- 渠道控制：直销占比持续提升，价格管控能力强</span><br><span class="line"></span><br><span class="line">shareholder_info 示例:</span><br><span class="line"># 贵州茅台股东结构分析</span><br><span class="line">## 十大股东</span><br><span class="line">1. 中国贵州茅台酒厂(集团)有限责任公司 - 54.00%</span><br><span class="line">2. 香港中央结算有限公司 - 7.82%</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+<h3 id="2-7-节点-5-amp-6：整合与生成"><a href="#2-7-节点-5-amp-6：整合与生成" class="headerlink" title="2.7 节点 5&amp;6：整合与生成"></a>2.7 节点 5&amp;6：整合与生成</h3><p>整合所有数据，然后递归生成深度研报。</p>
+<p><strong>估值模型 Prompt</strong> (<code>buildValuationModelPrompt</code> 动态生成)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">你是一名金融分析师，请根据以下&#123;company_name&#125; 公司的信息，构建估值与预测模型，</span><br><span class="line">模拟关键变量变化对财务结果的影响，最后生成一份报告。</span><br><span class="line"></span><br><span class="line">&#123;year&#125;年的财务数据如下：</span><br><span class="line">文件:&#123;files0&#125;</span><br><span class="line">内容:&#123;report0&#125;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">竞争对手与行业均值数据如下：</span><br><span class="line">&#123;competitor_and_industry_data&#125;</span><br><span class="line"></span><br><span class="line">主营业务与核心竞争力如下：</span><br><span class="line">&#123;business_info&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>大纲生成 Prompt</strong> (<code>outline_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">你是一位顶级金融分析师和研报撰写专家。请基于以下背景和财务研报汇总内容，</span><br><span class="line">生成一份详尽的《&#123;company_name&#125;公司研报》分段大纲，要求：</span><br><span class="line">- 以yaml格式输出，务必用```yaml和```包裹整个yaml内容，便于后续自动分割。</span><br><span class="line">- 每一项为一个主要部分，每部分需包含：</span><br><span class="line">  - part_title: 章节标题</span><br><span class="line">  - part_desc: 本部分内容简介</span><br><span class="line">- 章节需覆盖公司基本面、财务分析、行业对比、估值与预测、治理结构、投资建议、风险提示、数据来源等。</span><br><span class="line">- 只输出yaml格式的分段大纲，不要输出正文内容。</span><br><span class="line"></span><br><span class="line">【背景说明开始】</span><br><span class="line">&#123;background&#125;</span><br><span class="line">【背景说明结束】</span><br><span class="line"></span><br><span class="line">【财务研报汇总内容开始】</span><br><span class="line">&#123;report_content&#125;</span><br><span class="line">【财务研报汇总内容结束】</span><br></pre></td></tr></table></figure>
+<p><strong>章节生成 Prompt</strong> (<code>generate_section_prompt</code>)：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">你是一位顶级金融分析师和研报撰写专家。请基于以下内容，直接输出&quot;&#123;part_title&#125;&quot;这一部分的完整研报内容。</span><br><span class="line"></span><br><span class="line">**重要要求：**</span><br><span class="line">1. 直接输出完整可用的研报内容，以&quot;## &#123;part_title&#125;&quot;开头</span><br><span class="line">2. 在正文中引用数据、事实等信息时，适当位置插入参考资料符号（如[1][2][3]），符号需与文末引用文献编号一致</span><br><span class="line">3. 不要输出任何【xxx开始】【xxx结束】等分隔符</span><br><span class="line">4. 不要输出&quot;建议补充&quot;、&quot;需要添加&quot;等提示性语言</span><br><span class="line">5. 不要编造数据</span><br><span class="line">6. 内容要详实、专业，可直接使用</span><br><span class="line"></span><br><span class="line">**数据来源标注：**</span><br><span class="line">- 财务数据标注：（数据来源：东方财富-数据中心-年报季报-业绩快报[1]）</span><br><span class="line">- 主营业务信息标注：（数据来源：互联网[2]）</span><br><span class="line">- 股东结构信息标注：（数据来源：东方财富网-股东信息[3]）</span><br><span class="line"></span><br><span class="line">【本次任务】</span><br><span class="line">&#123;part_title&#125;</span><br><span class="line"></span><br><span class="line">【已生成前文】</span><br><span class="line">&#123;prev_content&#125;</span><br><span class="line"></span><br><span class="line">【背景说明开始】</span><br><span class="line">&#123;background&#125;</span><br><span class="line">【背景说明结束】</span><br><span class="line"></span><br><span class="line">【财务研报汇总内容开始】</span><br><span class="line">&#123;report_content&#125;</span><br><span class="line">【财务研报汇总内容结束】</span><br></pre></td></tr></table></figure>
+<p><strong>核心代码</strong>：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 节点5：整合分析</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">consolidateAnalysis</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> valuationResult = <span class="keyword">await</span> generateValuationModel(state)</span><br><span class="line">  <span class="keyword">const</span> summaryResult = <span class="keyword">await</span> summarizeFirstStageData(&#123;...state, ...valuationResult&#125;)</span><br><span class="line">  <span class="keyword">return</span> &#123; valuation_model, final_report &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 节点6：递归生成深度研报</span></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">generateReport</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 1. 生成大纲</span></span><br><span class="line">  <span class="keyword">const</span> parts = <span class="keyword">await</span> generateOutline(state.stock_name, reportContent, background)</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 2. 逐章节递归生成（突破 LLM 上下文限制）</span></span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">const</span> part of parts) &#123;</span><br><span class="line">    <span class="keyword">const</span> sectionText = <span class="keyword">await</span> generateSection(part.part_title, prevContent, ...)</span><br><span class="line">    fullReport.push(sectionText)</span><br><span class="line">    prevContent = fullReport.join(<span class="string">'\n\n'</span>)  <span class="comment">// 传递前文作为上下文</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 3. 输出 HTML 报告，内嵌所有 ECharts 图表</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>输出示例</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">节点5 - 整合分析:</span><br><span class="line">生成文件:</span><br><span class="line">- final_output/估值与预测模型.md</span><br><span class="line">- final_output/财务研报汇总_20251223012602.md</span><br><span class="line"></span><br><span class="line">节点6 - 生成报告:</span><br><span class="line">生成大纲: 5 个章节</span><br><span class="line">  1. 公司概况与行业地位</span><br><span class="line">  2. 财务数据深度分析</span><br><span class="line">  3. 竞争格局与行业对比</span><br><span class="line">  4. 估值分析与投资建议</span><br><span class="line">  5. 风险提示与数据来源</span><br><span class="line"></span><br><span class="line">递归生成:</span><br><span class="line">  - 正在生成：公司概况与行业地位 (1/5)</span><br><span class="line">  - 正在生成：财务数据深度分析 (2/5)</span><br><span class="line">  - ...</span><br><span class="line"></span><br><span class="line">最终输出:</span><br><span class="line">- final_output/深度财务研报分析_20251223012602.md</span><br><span class="line">- final_output/深度财务研报分析_20251223012602.html (内嵌 ECharts 图表)</span><br></pre></td></tr></table></figure>
+<h2 id="四、运行效果"><a href="#四、运行效果" class="headerlink" title="四、运行效果"></a>四、运行效果</h2><p><img src="/2025/12/26/ai-finance-report/1.jpg" alt=""></p>
+<p><img src="/2025/12/26/ai-finance-report/2.jpg" alt=""></p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>这套系统的核心是”结构化计算 + AI 推理”：前半段用 Python 桥接 AkShare 采集数据并计算指标，后半段让 LLM 生成分析报告和 ECharts 可视化。通过 LangGraph 串成 6 个节点，每个节点只做一件事。</p>
+<p>未来可以往两个方向走：一是接入更多数据源（如新闻舆情、研报库），让 AI 分析更全面；二是加入实时监控和定时任务，把单次生成改造成持续跟踪系统。技术上可以尝试用 Agent 自主决策采集哪些数据、生成哪些图表，而不是写死流程。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ai/" rel="tag"># ai</a>
+          
+            <a href="/tags/agent/" rel="tag"># agent</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/12/19/ai-mem/" rel="next" title="AI Agent Memory 实战">
+                <i class="fa fa-chevron-left"></i> AI Agent Memory 实战
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/12/26/bitcoin-1/" rel="prev" title="实现一个简单的比特币：Part 1 - 基础组件">
+                实现一个简单的比特币：Part 1 - 基础组件 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">207</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#一、工作流"><span class="nav-number">2.</span> <span class="nav-text">一、工作流</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、核心实现"><span class="nav-number">3.</span> <span class="nav-text">二、核心实现</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-AkShare-桥接：跨语言数据采集"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 AkShare 桥接：跨语言数据采集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-状态定义"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 状态定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-节点-1：市场数据采集"><span class="nav-number">3.3.</span> <span class="nav-text">2.3 节点 1：市场数据采集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-节点-2：财务指标计算"><span class="nav-number">3.4.</span> <span class="nav-text">2.4 节点 2：财务指标计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-5-节点-3：分析与可视化"><span class="nav-number">3.5.</span> <span class="nav-text">2.5 节点 3：分析与可视化</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-6-节点-4：公司概况采集"><span class="nav-number">3.6.</span> <span class="nav-text">2.6 节点 4：公司概况采集</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-7-节点-5-amp-6：整合与生成"><span class="nav-number">3.7.</span> <span class="nav-text">2.7 节点 5&amp;6：整合与生成</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、运行效果"><span class="nav-number">4.</span> <span class="nav-text">四、运行效果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、总结"><span class="nav-number">5.</span> <span class="nav-text">五、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
