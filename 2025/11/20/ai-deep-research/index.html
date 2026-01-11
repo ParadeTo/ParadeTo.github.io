@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ai,agent," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍 Deep Research 模式，通过反思机制让 AI Agent 主动识别知识缺口并迭代挖掘，基于 LangGraph 实现具备批判性思维的深度研究助手。">
+<meta name="keywords" content="ai,agent">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI Agent Deep Research 实战">
+<meta property="og:url" content="http://www.paradeto.com/2025/11/20/ai-deep-research/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍 Deep Research 模式，通过反思机制让 AI Agent 主动识别知识缺口并迭代挖掘，基于 LangGraph 实现具备批判性思维的深度研究助手。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2025/11/20/ai-deep-research/deep-research-workflow.png">
+<meta property="og:updated_time" content="2025-11-20T12:56:46.399Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI Agent Deep Research 实战">
+<meta name="twitter:description" content="介绍 Deep Research 模式，通过反思机制让 AI Agent 主动识别知识缺口并迭代挖掘，基于 LangGraph 实现具备批判性思维的深度研究助手。">
+<meta name="twitter:image" content="http://www.paradeto.com/2025/11/20/ai-deep-research/deep-research-workflow.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2025/11/20/ai-deep-research/"/>
+
+
+
+
+
+
+  <title>AI Agent Deep Research 实战 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2025/11/20/ai-deep-research/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">AI Agent Deep Research 实战</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2025-11-20T20:45:50+08:00">
+                2025-11-20
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ai/" itemprop="url" rel="index">
+                    <span itemprop="name">ai</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍 Deep Research 模式，通过反思机制让 AI Agent 主动识别知识缺口并迭代挖掘，基于 LangGraph 实现具备批判性思维的深度研究助手。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在 Agent 设计模式的演进中，我们已经见证了 ReAct 模式如何让 LLM 学会使用工具，Plan-and-Solve 模式如何提升复杂任务的规划能力。然而，当我们面对”分析 2025 年贵州茅台的投资价值”这样需要深度分析、多角度求证的复杂课题时，现有的模式往往显得力不从心。单次的搜索和总结往往只能提供浮于表面的信息，无法像人类分析师那样进行层层递进的深度挖掘。</p>
+<p><strong>Deep Research（深度研究）</strong> 模式正是为了解决这一痛点而生。它的核心理念在于<strong>迭代式研究（Iterative Research）</strong>。与传统的”搜索-总结”线性流程不同，Deep Research 引入了<strong>反思（Reflection）</strong>机制，模仿人类研究员的工作流：</p>
+<ol>
+<li><strong>广度优先（Breadth-First）</strong>：先生成多个角度的初始查询，获取概览信息。</li>
+<li><strong>自我反思（Self-Reflection）</strong>：阅读初步结果，像人类一样自问：”这些信息够了吗？还缺什么细节？”</li>
+<li><strong>深度挖掘（Depth-First）</strong>：针对反思中发现的<strong>知识缺口（Knowledge Gap）</strong>，生成具体的后续查询。</li>
+<li><strong>循环迭代</strong>：重复上述过程，直到信息充足或达到预定深度。</li>
+</ol>
+<p>这种模式让 Agent 从单纯的”问答机器”进化为具备批判性思维的”研究助手”，能够主动识别信息的缺失并自主补全。本文将基于 LangGraph 实现这样一个完整的深度研究 Agent。</p>
+<h1 id="一、工作流程-Workflow"><a href="#一、工作流程-Workflow" class="headerlink" title="一、工作流程 (Workflow)"></a>一、工作流程 (Workflow)</h1><p>Deep Research 的典型工作流包含以下关键节点：</p>
+<p><img src="/2025/11/20/ai-deep-research/deep-research-workflow.png" alt="Deep Research Workflow"></p>
+<ol>
+<li><strong>Generate Query (生成查询)</strong>: 将用户模糊的需求转化为多个具体的搜索引擎友好的查询词。</li>
+<li><strong>Web Research (网络研究)</strong>: 并行执行搜索，抓取网页内容。这是一个高并发的步骤，利用 <strong>Send</strong> 机制分发任务。</li>
+<li><strong>Reflection (反思)</strong>: 核心大脑。分析已收集的信息，判断是否满足需求。如果不满足，识别知识缺口，生成 Follow-up Queries（后续查询）。</li>
+<li><strong>Evaluate (评估)</strong>: 路由节点。决定是继续下一轮搜索（进入 Web Research），还是结束研究（进入 Finalize Answer）。</li>
+<li><strong>Finalize Answer (输出报告)</strong>: 综合所有轮次收集的信息，生成最终报告，并附上引用来源。</li>
+</ol>
+<h1 id="二、核心代码实现"><a href="#二、核心代码实现" class="headerlink" title="二、核心代码实现"></a>二、核心代码实现</h1><p>我们使用 <strong>LangGraph</strong> 来编排这个复杂的状态机，使用 <strong>Tavily API</strong> 进行高质量搜索。</p>
+<h2 id="2-1-状态定义"><a href="#2-1-状态定义" class="headerlink" title="2.1 状态定义"></a>2.1 状态定义</h2><p>首先定义 Agent 的”记忆”（State）。我们需要存储用户的原始问题、所有生成的查询、收集到的搜索结果、以及反思产生的知识缺口。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// types.ts</span></span><br><span class="line"><span class="keyword">import</span> &#123;Annotation&#125; <span class="keyword">from</span> <span class="string">'@langchain/langgraph'</span></span><br><span class="line"><span class="keyword">import</span> &#123;BaseMessage&#125; <span class="keyword">from</span> <span class="string">'@langchain/core/messages'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">const</span> OverallState = Annotation.Root(&#123;</span><br><span class="line">  messages: Annotation&lt;BaseMessage[]&gt;(&#123;</span><br><span class="line">    reducer: <span class="function">(<span class="params">x, y</span>) =&gt;</span> x.concat(y),</span><br><span class="line">    <span class="keyword">default</span>: <span class="function"><span class="params">()</span> =&gt;</span> [],</span><br><span class="line">  &#125;),</span><br><span class="line">  <span class="comment">// 存储所有生成的搜索查询</span></span><br><span class="line">  search_query: Annotation&lt;<span class="built_in">string</span>[]&gt;(&#123;</span><br><span class="line">    reducer: <span class="function">(<span class="params">x, y</span>) =&gt;</span> x.concat(y),</span><br><span class="line">    <span class="keyword">default</span>: <span class="function"><span class="params">()</span> =&gt;</span> [],</span><br><span class="line">  &#125;),</span><br><span class="line">  <span class="comment">// 存储所有搜索结果</span></span><br><span class="line">  web_research_result: Annotation&lt;<span class="built_in">string</span>[]&gt;(&#123;</span><br><span class="line">    reducer: <span class="function">(<span class="params">x, y</span>) =&gt;</span> x.concat(y),</span><br><span class="line">    <span class="keyword">default</span>: <span class="function"><span class="params">()</span> =&gt;</span> [],</span><br><span class="line">  &#125;),</span><br><span class="line">  <span class="comment">// 反思状态</span></span><br><span class="line">  is_sufficient: Annotation&lt;<span class="built_in">boolean</span>&gt;(&#123;</span><br><span class="line">    reducer: <span class="function">(<span class="params">x, y</span>) =&gt;</span> y,</span><br><span class="line">    <span class="keyword">default</span>: <span class="function"><span class="params">()</span> =&gt;</span> <span class="literal">false</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">  knowledge_gap: Annotation&lt;<span class="built_in">string</span>&gt;(&#123;</span><br><span class="line">    reducer: <span class="function">(<span class="params">x, y</span>) =&gt;</span> y,</span><br><span class="line">    <span class="keyword">default</span>: <span class="function"><span class="params">()</span> =&gt;</span> <span class="string">''</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">  follow_up_queries: Annotation&lt;<span class="built_in">string</span>[]&gt;(&#123;</span><br><span class="line">    reducer: <span class="function">(<span class="params">x, y</span>) =&gt;</span> y,</span><br><span class="line">    <span class="keyword">default</span>: <span class="function"><span class="params">()</span> =&gt;</span> [],</span><br><span class="line">  &#125;),</span><br><span class="line">  <span class="comment">// 循环控制</span></span><br><span class="line">  research_loop_count: Annotation&lt;<span class="built_in">number</span>&gt;(&#123;</span><br><span class="line">    reducer: <span class="function">(<span class="params">x, y</span>) =&gt;</span> y,</span><br><span class="line">    <span class="keyword">default</span>: <span class="function"><span class="params">()</span> =&gt;</span> <span class="number">0</span>,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h2 id="2-2-生成初始查询"><a href="#2-2-生成初始查询" class="headerlink" title="2.2 生成初始查询"></a>2.2 生成初始查询</h2><p>Agent 的第一步不是直接搜索，而是”拆解问题”。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// graph.ts (Generate Query Node)</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">generateQuery</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ...配置与LLM初始化...</span></span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> formattedPrompt = queryWriterInstructions</span><br><span class="line">    .replace(<span class="string">'&#123;current_date&#125;'</span>, currentDate)</span><br><span class="line">    .replace(<span class="string">'&#123;research_topic&#125;'</span>, researchTopic)</span><br><span class="line">    .replace(<span class="string">'&#123;number_queries&#125;'</span>, <span class="string">'3'</span>) <span class="comment">// 生成3个初始角度</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// 使用结构化输出保证格式</span></span><br><span class="line">  <span class="keyword">const</span> result = <span class="keyword">await</span> structuredLLM.invoke(formattedPrompt)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    search_query: result.query, <span class="comment">// 例如 ["AI 2025 趋势", "AI 医疗应用", "AI 伦理挑战"]</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-3-并行搜索执行"><a href="#2-3-并行搜索执行" class="headerlink" title="2.3 并行搜索执行"></a>2.3 并行搜索执行</h2><p>为了提高效率，我们并行执行搜索。这里利用了 LangGraph 的 <code>Send</code> 机制，将每个查询分发给独立的 <code>web_research</code> 节点运行。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// graph.ts (Conditional Edge)</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">continueToWebResearch</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 将每个新生成的查询转换为一个并行的搜索任务</span></span><br><span class="line">  <span class="keyword">return</span> state.search_query.map(</span><br><span class="line">    (query, index) =&gt; <span class="keyword">new</span> Send(<span class="string">'web_research'</span>, &#123;search_query: query, id: index&#125;)</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// graph.ts (Web Research Node)</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">webResearch</span>(<span class="params">state: <span class="keyword">typeof</span> WebSearchState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 调用 Tavily 搜索工具</span></span><br><span class="line">  <span class="keyword">const</span> results = <span class="keyword">await</span> wideSearchForToolStr.invoke(&#123;query: state.search_query&#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    search_query: [state.search_query],</span><br><span class="line">    web_research_result: [results], <span class="comment">// 存储搜索结果</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-4-核心：反思与知识缺口"><a href="#2-4-核心：反思与知识缺口" class="headerlink" title="2.4 核心：反思与知识缺口"></a>2.4 核心：反思与知识缺口</h2><p>这是 Deep Research 的灵魂。Agent 阅读所有已有的搜索结果，判断是否足够回答用户问题。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// graph.ts (Reflection Node)</span></span><br><span class="line"><span class="keyword">async</span> <span class="function"><span class="keyword">function</span> <span class="title">reflection</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> summaries = state.web_research_result.join(<span class="string">'\n\n---\n\n'</span>)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">const</span> formattedPrompt = reflectionInstructions</span><br><span class="line">    .replace(<span class="string">'&#123;research_topic&#125;'</span>, getResearchTopic(state.messages))</span><br><span class="line">    .replace(<span class="string">'&#123;summaries&#125;'</span>, summaries) <span class="comment">// 注入已有知识</span></span><br><span class="line"></span><br><span class="line">  <span class="comment">// LLM 评估：是否足够？缺什么？</span></span><br><span class="line">  <span class="keyword">const</span> result = <span class="keyword">await</span> structuredLLM.invoke(formattedPrompt)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> &#123;</span><br><span class="line">    is_sufficient: result.is_sufficient,</span><br><span class="line">    knowledge_gap: result.knowledge_gap,</span><br><span class="line">    follow_up_queries: result.follow_up_queries, <span class="comment">// 生成针对性的后续查询</span></span><br><span class="line">    research_loop_count: state.research_loop_count + <span class="number">1</span>,</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-5-决策路由"><a href="#2-5-决策路由" class="headerlink" title="2.5 决策路由"></a>2.5 决策路由</h2><p>根据反思结果决定下一步。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// graph.ts (Evaluate Node)</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">evaluateResearch</span>(<span class="params">state: <span class="keyword">typeof</span> OverallState.State</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 如果信息充足 或 达到最大循环次数(防止死循环)</span></span><br><span class="line">  <span class="keyword">if</span> (state.is_sufficient || state.research_loop_count &gt;= <span class="number">2</span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="string">'finalize_answer'</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 否则，将后续查询(Follow-up Queries)再次投入搜索</span></span><br><span class="line">  <span class="keyword">return</span> state.follow_up_queries.map(</span><br><span class="line">    (query, index) =&gt; <span class="keyword">new</span> Send(<span class="string">'web_research'</span>, &#123;search_query: query, id: index&#125;)</span><br><span class="line">  )</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="三、实战案例：贵州茅台分析"><a href="#三、实战案例：贵州茅台分析" class="headerlink" title="三、实战案例：贵州茅台分析"></a>三、实战案例：贵州茅台分析</h1><p>我们使用一个真实的运行日志，展示 Agent 如何分析 <strong>“贵州茅台”</strong>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br></pre></td><td class="code"><pre><span class="line">npx ts-node src/deep-research/index.ts &quot;贵州茅台分析&quot;</span><br><span class="line"></span><br><span class="line">🚀 程序启动...</span><br><span class="line"></span><br><span class="line">🔍 启动深度研究助手</span><br><span class="line">📋 研究问题: 贵州茅台分析</span><br><span class="line">⏳ 开始执行...</span><br><span class="line"></span><br><span class="line">📡 正在调用 graph.stream...</span><br><span class="line">✅ 图执行已启动，等待节点输出...</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🔧 节点: generate_query</span><br><span class="line">============================================================</span><br><span class="line">📝 生成的查询:</span><br><span class="line">  1. 贵州茅台2025年最新业绩分析</span><br><span class="line">🔍 Searching Tavily: &quot;贵州茅台2025年业绩分析&quot;</span><br><span class="line">🔍 Searching Tavily: &quot;2025年贵州茅台财务数据&quot;</span><br><span class="line">🔍 Searching Tavily: &quot;贵州茅台2025年销售额&quot;</span><br><span class="line">🔍 Searching Tavily: &quot;Kweichow Moutai 2025 performance analysis&quot;</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🔧 节点: web_research</span><br><span class="line">============================================================</span><br><span class="line">🌐 网络研究已完成</span><br><span class="line">Reflection result: &#123;</span><br><span class="line">  is_sufficient: false,</span><br><span class="line">  knowledge_gap: &apos;The summary lacks details on the specifics of Kweichow Moutai’s green technology initiatives, the impact of digital platforms on their sales strategy, recent global spirits market trends affecting their international standing, and economic pressures influencing their pricing and inventory strategies.&apos;,</span><br><span class="line">  follow_up_queries: [</span><br><span class="line">    &apos;What specific green technology initiatives has Kweichow Moutai implemented, and how do they contribute to their sustainable practices?&apos;,</span><br><span class="line">    ...</span><br><span class="line">    &quot;How are current economic pressures influencing Kweichow Moutai&apos;s pricing and inventory strategies?&quot;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🔧 节点: reflection</span><br><span class="line">============================================================</span><br><span class="line">🤔 反思结果:</span><br><span class="line">  - 信息是否充足: 否</span><br><span class="line">  - 知识缺口: The summary lacks details on the specifics of Kweichow Moutai’s green technology initiatives, the impact of digital platforms on their sales strategy, recent global spirits market trends affecting their international standing, and economic pressures influencing their pricing and inventory strategies.</span><br><span class="line">  - 后续查询:</span><br><span class="line">    1. What specific green technology initiatives has Kweichow Moutai implemented, and how do they contribute to their sustainable practices?</span><br><span class="line">    2. How has the integration of digital platforms like &apos;i茅台&apos; impacted Kweichow Moutai’s sales strategies and customer engagement?</span><br><span class="line">    3. What recent trends in the global spirits market could affect Kweichow Moutai&apos;s international performance?</span><br><span class="line">    4. How are current economic pressures influencing Kweichow Moutai&apos;s pricing and inventory strategies?</span><br><span class="line"></span><br><span class="line">🔍 Searching Tavily: &quot;Kweichow Moutai pricing strategy under economic pressure 2025&quot;</span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">🔍 Searching Tavily: &quot;Kweichow Moutai export challenges and opportunities 2025&quot;</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🔧 节点: web_research</span><br><span class="line">============================================================</span><br><span class="line">🌐 网络研究已完成</span><br><span class="line"></span><br><span class="line">...</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🔧 节点: web_research</span><br><span class="line">============================================================</span><br><span class="line">🌐 网络研究已完成</span><br><span class="line">Reflection result: &#123;</span><br><span class="line">  is_sufficient: false,</span><br><span class="line">  knowledge_gap: &apos;The summaries provide detailed financial and market insights for Kweichow Moutai in 2025, but there are unexplored areas regarding specific strategic plans and future innovations to address slow growth and changing consumer preferences at both national and international levels.&apos;,</span><br><span class="line">  follow_up_queries: [</span><br><span class="line">    &apos;What strategies is Kweichow Moutai employing to counteract the slow growth in Q3 2025?&apos;,</span><br><span class="line">    &apos;How is Kweichow Moutai planning to address the weakening Chinese consumer demand?&apos;,</span><br><span class="line">    &apos;What innovations or product lines is Kweichow Moutai introducing to cater to international markets?&apos;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🔧 节点: reflection</span><br><span class="line">============================================================</span><br><span class="line">🤔 反思结果:</span><br><span class="line">  - 信息是否充足: 否</span><br><span class="line">  - 知识缺口: The summaries provide detailed financial and market insights for Kweichow Moutai in 2025, but there are unexplored areas regarding specific strategic plans and future innovations to address slow growth and changing consumer preferences at both national and international levels.</span><br><span class="line">  - 后续查询:</span><br><span class="line">    1. What strategies is Kweichow Moutai employing to counteract the slow growth in Q3 2025?</span><br><span class="line">    2. How is Kweichow Moutai planning to address the weakening Chinese consumer demand?</span><br><span class="line">    3. What innovations or product lines is Kweichow Moutai introducing to cater to international markets?</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🔧 节点: finalize_answer</span><br><span class="line">============================================================</span><br><span class="line"></span><br><span class="line">✅ 最终答案:</span><br><span class="line"></span><br><span class="line">Kweichow Moutai, a premier Chinese liquor brand, has showcased robust financial ...</span><br><span class="line">market strategies positions it strongly in the luxury liquor segment while preparing for future challenges ([source](https://www.swotandpestle.com)).</span><br><span class="line"></span><br><span class="line">============================================================</span><br><span class="line">🎉 研究完成!</span><br><span class="line">============================================================</span><br></pre></td></tr></table></figure>
+<h1 id="四、总结"><a href="#四、总结" class="headerlink" title="四、总结"></a>四、总结</h1><p>Deep Research 模式突破了传统 Agent 浅层搜索的局限，通过模仿人类研究员”广度探索-自我反思-深度挖掘”的迭代工作流，自动化地识别并填补知识缺口，从而能够自主完成从模糊需求到高质量深度研究报告的完整闭环，特别适用于行业调研、竞品分析等需要深度洞察的复杂场景。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ai/" rel="tag"># ai</a>
+          
+            <a href="/tags/agent/" rel="tag"># agent</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2025/11/18/ai-patterns/" rel="next" title="Agent 设计模式实战">
+                <i class="fa fa-chevron-left"></i> Agent 设计模式实战
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2025/12/19/ai-mem/" rel="prev" title="AI Agent Memory 实战">
+                AI Agent Memory 实战 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">209</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、工作流程-Workflow"><span class="nav-number">2.</span> <span class="nav-text">一、工作流程 (Workflow)</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、核心代码实现"><span class="nav-number">3.</span> <span class="nav-text">二、核心代码实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-状态定义"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 状态定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-生成初始查询"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 生成初始查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-并行搜索执行"><span class="nav-number">3.3.</span> <span class="nav-text">2.3 并行搜索执行</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-核心：反思与知识缺口"><span class="nav-number">3.4.</span> <span class="nav-text">2.4 核心：反思与知识缺口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-决策路由"><span class="nav-number">3.5.</span> <span class="nav-text">2.5 决策路由</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、实战案例：贵州茅台分析"><span class="nav-number">4.</span> <span class="nav-text">三、实战案例：贵州茅台分析</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、总结"><span class="nav-number">5.</span> <span class="nav-text">四、总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
