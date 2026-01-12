@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ai," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="引言当 AI 能够生成大量代码时，一个新问题随之而来：如何量化团队对 AI 的依赖程度？为了回答这个问题，我构建了一套统计系统，用于追踪和分析仓库中 AI 代码的占比。代码见 https://github.com/ParadeTo/ai-stats 快速开始1. 安装与启动安装 Cursor 插件： 克隆本项目后，在 Cursor 编辑器中打开插件目录并安装，插件会自动配置钩子以捕获 AI 生成的">
+<meta name="keywords" content="ai">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI 代码统计分析系统实践">
+<meta property="og:url" content="http://www.paradeto.com/2026/01/06/ai-stats/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="引言当 AI 能够生成大量代码时，一个新问题随之而来：如何量化团队对 AI 的依赖程度？为了回答这个问题，我构建了一套统计系统，用于追踪和分析仓库中 AI 代码的占比。代码见 https://github.com/ParadeTo/ai-stats 快速开始1. 安装与启动安装 Cursor 插件： 克隆本项目后，在 Cursor 编辑器中打开插件目录并安装，插件会自动配置钩子以捕获 AI 生成的">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/project-list.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/detail.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/mark.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/invalid.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/invalid.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/mark.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/range.jpg">
+<meta property="og:image" content="http://www.paradeto.com/2026/01/06/ai-stats/ai-stats-architecture.png">
+<meta property="og:updated_time" content="2026-01-06T02:12:04.375Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AI 代码统计分析系统实践">
+<meta name="twitter:description" content="引言当 AI 能够生成大量代码时，一个新问题随之而来：如何量化团队对 AI 的依赖程度？为了回答这个问题，我构建了一套统计系统，用于追踪和分析仓库中 AI 代码的占比。代码见 https://github.com/ParadeTo/ai-stats 快速开始1. 安装与启动安装 Cursor 插件： 克隆本项目后，在 Cursor 编辑器中打开插件目录并安装，插件会自动配置钩子以捕获 AI 生成的">
+<meta name="twitter:image" content="http://www.paradeto.com/2026/01/06/ai-stats/project-list.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2026/01/06/ai-stats/"/>
+
+
+
+
+
+
+  <title>AI 代码统计分析系统实践 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2026/01/06/ai-stats/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">AI 代码统计分析系统实践</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2026-01-06T10:07:21+08:00">
+                2026-01-06
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ai/" itemprop="url" rel="index">
+                    <span itemprop="name">ai</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h2><p>当 AI 能够生成大量代码时，一个新问题随之而来：如何量化团队对 AI 的依赖程度？为了回答这个问题，我构建了一套统计系统，用于追踪和分析仓库中 AI 代码的占比。代码见 <a href="https://github.com/ParadeTo/ai-stats" target="_blank" rel="noopener">https://github.com/ParadeTo/ai-stats</a></p>
+<h2 id="快速开始"><a href="#快速开始" class="headerlink" title="快速开始"></a>快速开始</h2><h3 id="1-安装与启动"><a href="#1-安装与启动" class="headerlink" title="1. 安装与启动"></a>1. 安装与启动</h3><p><strong>安装 Cursor 插件</strong>：</p>
+<p>克隆本项目后，在 Cursor 编辑器中打开插件目录并安装，插件会自动配置钩子以捕获 AI 生成的代码。</p>
+<p><strong>安装依赖</strong>：</p>
+<p>系统分为后端和前端两个部分，需要分别安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 后端服务</span></span><br><span class="line"><span class="built_in">cd</span> server</span><br><span class="line">pnpm install</span><br><span class="line"></span><br><span class="line"><span class="comment"># 前端面板</span></span><br><span class="line"><span class="built_in">cd</span> dashboard</span><br><span class="line">pnpm install</span><br></pre></td></tr></table></figure>
+<p><strong>配置环境变量</strong>：</p>
+<p>在 <code>server</code> 目录下创建 <code>.env</code> 文件，配置 GitHub 访问令牌：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GITHUB_TOKEN=your_github_token_here</span><br></pre></td></tr></table></figure>
+<p><strong>启动服务</strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 启动后端服务（端口 3001）</span></span><br><span class="line"><span class="built_in">cd</span> server</span><br><span class="line">pnpm start</span><br><span class="line"></span><br><span class="line"><span class="comment"># 启动前端面板（端口 3000）</span></span><br><span class="line"><span class="built_in">cd</span> dashboard</span><br><span class="line">pnpm start</span><br></pre></td></tr></table></figure>
+<p>启动成功后，访问 <code>http://localhost:3000</code> 即可看到系统主界面。</p>
+<h3 id="2-基本使用流程"><a href="#2-基本使用流程" class="headerlink" title="2. 基本使用流程"></a>2. 基本使用流程</h3><h4 id="步骤-1：使用-AI-生成代码并推送到-GitHub"><a href="#步骤-1：使用-AI-生成代码并推送到-GitHub" class="headerlink" title="步骤 1：使用 AI 生成代码并推送到 GitHub"></a>步骤 1：使用 AI 生成代码并推送到 GitHub</h4><p>在 Cursor 编辑器中使用 AI 生成代码。系统会自动捕获这次 AI 生成的差异并存入数据库。完成开发后，将代码提交并推送到 GitHub。</p>
+<blockquote>
+<p><strong>重要提示</strong>：只有在代码推送到 GitHub 后，系统才能在项目列表页展示该仓库的分析数据。</p>
+</blockquote>
+<h4 id="步骤-2：查看列表"><a href="#步骤-2：查看列表" class="headerlink" title="步骤 2：查看列表"></a>步骤 2：查看列表</h4><p>代码推送到 GitHub 后，打开系统主界面，即可以看到分析的数据：</p>
+<p><img src="/2026/01/06/ai-stats/project-list.jpg" alt="项目列表截图占位"></p>
+<h4 id="步骤-3：查看详情"><a href="#步骤-3：查看详情" class="headerlink" title="步骤 3：查看详情"></a>步骤 3：查看详情</h4><p>点击项目，进入详情页面：</p>
+<p><img src="/2026/01/06/ai-stats/detail.jpg" alt="文件分析输入截图占位"></p>
+<p><strong>查看代码归属</strong>：</p>
+<p>点击左侧的文件，系统会展示文件内容，每一行代码都标注了归属：</p>
+<ul>
+<li>绿色背景：AI 生成</li>
+<li>白色背景：人工编写</li>
+<li>● 标记：有未保存的手动标记</li>
+<li>✓ 标记：已保存的手动标记</li>
+<li>⚠ 标记：手动标记已失效（内容已变更）</li>
+</ul>
+<p><img src="/2026/01/06/ai-stats/mark.jpg" alt="代码归属展示截图占位"></p>
+<p><img src="/2026/01/06/ai-stats/invalid.jpg" alt="代码归属展示截图占位"></p>
+<p><strong>处理重复代码警告</strong>：</p>
+<p>如果文件中存在多行相同的代码，系统会在顶部显示警告信息，例如：</p>
+<p><img src="/2026/01/06/ai-stats/invalid.jpg" alt="代码归属展示截图占位"></p>
+<h4 id="步骤-4：手动标记"><a href="#步骤-4：手动标记" class="headerlink" title="步骤 4：手动标记"></a>步骤 4：手动标记</h4><p>对于系统无法准确判断的代码（如重复代码），可以手动标记。点击代码行号，该行的归属会在 AI/人工之间，点击页面顶部的”保存手动标记”按钮。</p>
+<p><img src="/2026/01/06/ai-stats/mark.jpg" alt="代码归属展示截图占位"></p>
+<p>手动标记会存储在数据库中，并在后续所有分析中优先使用。</p>
+<h4 id="步骤-5：Commit-范围分析"><a href="#步骤-5：Commit-范围分析" class="headerlink" title="步骤 5：Commit 范围分析"></a>步骤 5：Commit 范围分析</h4><p>如果需要分析特定 commit 范围内的代码变更，可以：</p>
+<ol>
+<li>勾选”使用 commit 范围分析”</li>
+<li>输入起始 commit 和结束 commit 的哈希值</li>
+<li>点击”分析”</li>
+</ol>
+<p>系统会展示该范围内的所有变更，并标注每一行的增删状态和 AI 归属。</p>
+<p><img src="/2026/01/06/ai-stats/range.jpg" alt="Commit 范围分析截图占位"></p>
+<p>以下章节将详细介绍系统的技术实现原理。</p>
+<h2 id="系统架构概览"><a href="#系统架构概览" class="headerlink" title="系统架构概览"></a>系统架构概览</h2><p>AI 代码追踪系统采用三层架构设计，分别是插件层、后端层和前端层。每一层承担不同的职责，共同构成了完整的追踪链路。</p>
+<h3 id="系统架构图"><a href="#系统架构图" class="headerlink" title="系统架构图"></a>系统架构图</h3><p><img src="/2026/01/06/ai-stats/ai-stats-architecture.png" alt="系统架构图"></p>
+<h2 id="插件层：实时捕获机制"><a href="#插件层：实时捕获机制" class="headerlink" title="插件层：实时捕获机制"></a>插件层：实时捕获机制</h2><p>插件层是整个系统的数据入口，它的核心任务是准确捕获 AI 生成的代码。</p>
+<h3 id="Cursor-钩子系统"><a href="#Cursor-钩子系统" class="headerlink" title="Cursor 钩子系统"></a>Cursor 钩子系统</h3><p>Cursor 编辑器提供了生命周期钩子机制，允许开发者在特定事件发生时执行自定义脚本。系统通过修改 Cursor 的配置文件 <code>~/.cursor/hooks.json</code> 来注册钩子：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"stop"</span>: <span class="string">"/path/to/stop.js"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>核心钩子是 <code>stop</code>，它在每次 AI 代码生成完成且用户点击”应用”按钮时被触发。当钩子被触发时，Cursor 会通过标准输入流向脚本传递一个 JSON 对象，包含丰富的元数据：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"conversation_id"</span>: <span class="string">"conv-abc123"</span>,</span><br><span class="line">  <span class="attr">"generation_id"</span>: <span class="string">"gen-xyz789"</span>,</span><br><span class="line">  <span class="attr">"model"</span>: <span class="string">"gpt-4"</span>,</span><br><span class="line">  <span class="attr">"workspace_roots"</span>: [<span class="string">"/Users/username/project"</span>],</span><br><span class="line">  <span class="attr">"timestamp"</span>: <span class="string">"2024-01-15T10:30:45.123Z"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这些元数据为后续的数据分析提供了重要的上下文信息。</p>
+<h3 id="stop-js-脚本的工作流程"><a href="#stop-js-脚本的工作流程" class="headerlink" title="stop.js 脚本的工作流程"></a>stop.js 脚本的工作流程</h3><p>stop.js 脚本是插件层的核心组件，它执行以下步骤来完成数据捕获：</p>
+<h4 id="1-读取元数据"><a href="#1-读取元数据" class="headerlink" title="1. 读取元数据"></a>1. 读取元数据</h4><p>脚本首先从标准输入读取 Cursor 传入的元数据：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> cursorData = <span class="keyword">await</span> readStdin()</span><br><span class="line"><span class="keyword">const</span> metadata = <span class="built_in">JSON</span>.parse(cursorData)</span><br><span class="line"><span class="keyword">const</span> workspaceRoot = metadata.workspace_roots[<span class="number">0</span>]</span><br></pre></td></tr></table></figure>
+<p>关键技术细节：脚本需要从元数据中提取 <code>workspace_roots</code> 字段，这个字段包含了用户项目的本地路径，用于后续的 Git 操作。</p>
+<h4 id="2-获取-Git-差异"><a href="#2-获取-Git-差异" class="headerlink" title="2. 获取 Git 差异"></a>2. 获取 Git 差异</h4><p>这里需要处理两种情况：</p>
+<p><strong>情况 A：已跟踪文件的修改</strong></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git diff</span><br></pre></td></tr></table></figure>
+<p><strong>情况 B：未跟踪的新文件</strong></p>
+<p>Git 默认不会将未跟踪的新文件包含在差异中。系统使用 <code>git add -N</code> 命令将新文件临时标记为”意图添加”状态：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取未跟踪的文件</span></span><br><span class="line"><span class="keyword">const</span> statusOutput = execSync(<span class="string">'git status --porcelain'</span>, &#123;cwd&#125;)</span><br><span class="line"><span class="keyword">const</span> untrackedFiles = statusOutput</span><br><span class="line">  .split(<span class="string">'\n'</span>)</span><br><span class="line">  .filter(<span class="function">(<span class="params">line</span>) =&gt;</span> line.startsWith(<span class="string">'??'</span>))</span><br><span class="line">  .map(<span class="function">(<span class="params">line</span>) =&gt;</span> line.substring(<span class="number">3</span>).trim())</span><br><span class="line"></span><br><span class="line"><span class="comment">// 临时标记为意图添加</span></span><br><span class="line">untrackedFiles.forEach(<span class="function">(<span class="params">file</span>) =&gt;</span> &#123;</span><br><span class="line">  execSync(<span class="string">`git add -N "<span class="subst">$&#123;file&#125;</span>"`</span>, &#123;cwd&#125;)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 获取差异（现在包含新文件）</span></span><br><span class="line"><span class="keyword">const</span> diff = execSync(<span class="string">'git diff'</span>, &#123;cwd&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 撤销临时操作</span></span><br><span class="line">execSync(<span class="string">'git reset'</span>, &#123;cwd&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="3-压缩和传输"><a href="#3-压缩和传输" class="headerlink" title="3. 压缩和传输"></a>3. 压缩和传输</h4><p>获取到差异后，脚本进行压缩处理：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 压缩差异数据（通常能减少到原来的 10-20%）</span></span><br><span class="line"><span class="keyword">const</span> compressed = zlib.gzipSync(Buffer.from(diff))</span><br><span class="line"><span class="keyword">const</span> base64 = compressed.toString(<span class="string">'base64'</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 发送到后端</span></span><br><span class="line"><span class="keyword">await</span> fetch(<span class="string">'http://localhost:3001/api/create-task'</span>, &#123;</span><br><span class="line">  method: <span class="string">'POST'</span>,</span><br><span class="line">  headers: &#123;<span class="string">'Content-Type'</span>: <span class="string">'application/json'</span>&#125;,</span><br><span class="line">  body: <span class="built_in">JSON</span>.stringify(&#123;</span><br><span class="line">    generation_id: metadata.generation_id,</span><br><span class="line">    compressed_diff: base64,</span><br><span class="line">    repo_url: getRepoUrl(workspaceRoot),</span><br><span class="line">    branch_name: getCurrentBranch(workspaceRoot),</span><br><span class="line">    model: metadata.model,</span><br><span class="line">  &#125;),</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="完整捕获示例"><a href="#完整捕获示例" class="headerlink" title="完整捕获示例"></a>完整捕获示例</h3><p><strong>场景</strong>：开发者小李在 Cursor 中请求 AI 生成一个快速排序函数。</p>
+<p><strong>步骤 1</strong>：AI 生成代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">quickSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (arr.length &lt;= <span class="number">1</span>) <span class="keyword">return</span> arr</span><br><span class="line">  <span class="keyword">const</span> pivot = arr[<span class="number">0</span>]</span><br><span class="line">  <span class="keyword">const</span> left = arr.filter(<span class="function">(<span class="params">x</span>) =&gt;</span> x &lt; pivot)</span><br><span class="line">  <span class="keyword">const</span> right = arr.filter(<span class="function">(<span class="params">x</span>) =&gt;</span> x &gt; pivot)</span><br><span class="line">  <span class="keyword">return</span> [...quickSort(left), pivot, ...quickSort(right)]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 2</strong>：小李点击”应用”按钮，stop.js 脚本被触发</p>
+<p><strong>步骤 3</strong>：脚本执行 <code>git diff</code>，获取差异</p>
+<figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">diff --git a/utils.js b/utils.js</span><br><span class="line"><span class="meta">@@ -0,0 +1,7 @@</span></span><br><span class="line"><span class="addition">+function quickSort(arr) &#123;</span></span><br><span class="line"><span class="addition">+    if (arr.length &lt;= 1) return arr;</span></span><br><span class="line"><span class="addition">+    const pivot = arr[0];</span></span><br><span class="line"><span class="addition">+    const left = arr.filter(x =&gt; x &lt; pivot);</span></span><br><span class="line"><span class="addition">+    const right = arr.filter(x =&gt; x &gt; pivot);</span></span><br><span class="line"><span class="addition">+    return [...quickSort(left), pivot, ...quickSort(right)];</span></span><br><span class="line"><span class="addition">+&#125;</span></span><br></pre></td></tr></table></figure>
+<p><strong>步骤 4</strong>：脚本压缩、编码并发送到后端</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"generation_id"</span>: <span class="string">"gen-1234567890"</span>,</span><br><span class="line">    <span class="string">"compressed_diff"</span>: <span class="string">"H4sIAAAAAAAAA+1WTW/bMAy9..."</span>,</span><br><span class="line">    <span class="string">"repo_url"</span>: <span class="string">"https://github.com/user/myproject.git"</span>,</span><br><span class="line">    <span class="string">"branch_name"</span>: <span class="string">"feature-sort"</span>,</span><br><span class="line">    <span class="string">"model"</span>: <span class="string">"gpt-4"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 5</strong>：后端存储到数据库，完成捕获</p>
+<h2 id="后端层：存储与分析算法"><a href="#后端层：存储与分析算法" class="headerlink" title="后端层：存储与分析算法"></a>后端层：存储与分析算法</h2><p>后端层是整个系统的核心，它不仅要存储数据，更重要的是提供智能的分析能力。</p>
+<h3 id="数据库设计"><a href="#数据库设计" class="headerlink" title="数据库设计"></a>数据库设计</h3><p>后端使用 SQLite 数据库存储 AI 代码生成记录。表结构设计如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">-- AI 代码生成记录表</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> task_records (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">INTEGER</span> PRIMARY <span class="keyword">KEY</span> AUTOINCREMENT,</span><br><span class="line">    generation_id <span class="built_in">TEXT</span> <span class="keyword">UNIQUE</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">    user_id <span class="built_in">TEXT</span>,</span><br><span class="line">    repo_url <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">    branch_name <span class="built_in">TEXT</span>,</span><br><span class="line">    <span class="keyword">model</span> <span class="built_in">TEXT</span>,</span><br><span class="line">    compressed_diff <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">    created_at DATETIME <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span></span><br><span class="line">);</span><br><span class="line"></span><br><span class="line"><span class="comment">-- 手动标记表（用于修正自动识别的误判）</span></span><br><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> manual_attributions (</span><br><span class="line">    <span class="keyword">id</span> <span class="built_in">INTEGER</span> PRIMARY <span class="keyword">KEY</span> AUTOINCREMENT,</span><br><span class="line">    repo_url <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">    file_path <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">    branch <span class="built_in">TEXT</span>,</span><br><span class="line">    commit_hash <span class="built_in">TEXT</span>,</span><br><span class="line">    line_number <span class="built_in">INTEGER</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">    content_hash <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span>,</span><br><span class="line">    attribution <span class="built_in">TEXT</span> <span class="keyword">NOT</span> <span class="literal">NULL</span> <span class="keyword">CHECK</span>(attribution <span class="keyword">IN</span> (<span class="string">'ai'</span>, <span class="string">'human'</span>)),</span><br><span class="line">    user_id <span class="built_in">TEXT</span>,</span><br><span class="line">    created_at DATETIME <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span>,</span><br><span class="line">    updated_at DATETIME <span class="keyword">DEFAULT</span> <span class="keyword">CURRENT_TIMESTAMP</span>,</span><br><span class="line">    <span class="keyword">UNIQUE</span>(repo_url, file_path, branch, line_number, commit_hash)</span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p><strong>存储示例</strong>：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> task_records <span class="keyword">VALUES</span> (</span><br><span class="line">    <span class="number">1</span>,</span><br><span class="line">    <span class="string">'gen-1234567890'</span>,</span><br><span class="line">    <span class="string">'developer001'</span>,</span><br><span class="line">    <span class="string">'https://github.com/user/myproject.git'</span>,</span><br><span class="line">    <span class="string">'feature-sort'</span>,</span><br><span class="line">    <span class="string">'gpt-4'</span>,</span><br><span class="line">    <span class="string">'H4sIAAAAAAAAA+1WTW/bMAy9...'</span>,</span><br><span class="line">    <span class="string">'2024-01-15 10:30:45'</span></span><br><span class="line">);</span><br></pre></td></tr></table></figure>
+<p>压缩后的差异数据以 Base64 编码的字符串形式存储。当需要分析时，系统会：</p>
+<ol>
+<li>从数据库读取 Base64 字符串</li>
+<li>解码为二进制数据</li>
+<li>使用 Gzip 解压缩，还原为原始 diff 文本</li>
+<li>使用 parse-diff 库解析 diff，提取出每一行代码</li>
+</ol>
+<h3 id="核心算法：内容哈希匹配"><a href="#核心算法：内容哈希匹配" class="headerlink" title="核心算法：内容哈希匹配"></a>核心算法：内容哈希匹配</h3><p>系统识别 AI 代码的核心算法基于内容哈希匹配。这个算法的设计经过了多次迭代优化，最终形成了一套完整的解决方案。</p>
+<h4 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h4><p><strong>基本思想</strong>：为每一行代码计算一个唯一的哈希值（”指纹”），通过比较哈希值来判断代码的来源。</p>
+<p><strong>哈希计算</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">hashLine</span>(<span class="params">line</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> crypto</span><br><span class="line">    .createHash(<span class="string">'sha256'</span>)</span><br><span class="line">    .update(line.trim()) <span class="comment">// 去除首尾空格</span></span><br><span class="line">    .digest(<span class="string">'hex'</span>)</span><br><span class="line">    .substring(<span class="number">0</span>, <span class="number">16</span>) <span class="comment">// 取前 16 个字符</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>示例</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hashLine(<span class="string">'    return true;'</span>) <span class="comment">// → "a3f5e9d2b1c8f4e1"</span></span><br><span class="line">hashLine(<span class="string">'return true;'</span>) <span class="comment">// → "a3f5e9d2b1c8f4e1" (相同)</span></span><br><span class="line">hashLine(<span class="string">'    return false;'</span>) <span class="comment">// → "b7c2d4e8f1a9b3c5" (不同)</span></span><br></pre></td></tr></table></figure>
+<h4 id="AI-代码索引数据结构"><a href="#AI-代码索引数据结构" class="headerlink" title="AI 代码索引数据结构"></a>AI 代码索引数据结构</h4><p>系统使用 Map（映射）数据结构来存储 AI 生成的代码信息。可以把它理解为一个”字典”，通过代码的”指纹”（哈希值）来查找这行代码的详细信息。</p>
+<p><strong>基本结构</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> aiLinesMap = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line"></span><br><span class="line"><span class="comment">// 添加一条记录</span></span><br><span class="line">aiLinesMap.set(<span class="string">'a3f5e9d2b1c8f4e1'</span>, &#123;</span><br><span class="line">  timestamp: <span class="string">'2024-01-15T10:00:00Z'</span>,</span><br><span class="line">  generation_id: <span class="string">'gen-123'</span>,</span><br><span class="line">  count: <span class="number">1</span>,</span><br><span class="line">  occurrences: [</span><br><span class="line">    &#123;</span><br><span class="line">      timestamp: <span class="string">'2024-01-15T10:00:00Z'</span>,</span><br><span class="line">      generation_id: <span class="string">'gen-123'</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>字段详解</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>类型</th>
+<th>说明</th>
+<th>示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>键（Key）</strong></td>
+<td>string</td>
+<td>代码行的哈希值，作为唯一标识</td>
+<td><code>&quot;a3f5e9d2b1c8f4e1&quot;</code></td>
+</tr>
+<tr>
+<td><strong>timestamp</strong></td>
+<td>string</td>
+<td>AI <strong>最早</strong>生成这行代码的时间</td>
+<td><code>&quot;2024-01-15T10:00:00Z&quot;</code></td>
+</tr>
+<tr>
+<td><strong>generation_id</strong></td>
+<td>string</td>
+<td>对应最早生成记录的 ID</td>
+<td><code>&quot;gen-123&quot;</code></td>
+</tr>
+<tr>
+<td><strong>count</strong></td>
+<td>number</td>
+<td>AI 生成这行代码的<strong>总次数</strong></td>
+<td><code>3</code> 表示 AI 生成过 3 次</td>
+</tr>
+<tr>
+<td><strong>occurrences</strong></td>
+<td>Array</td>
+<td>所有生成记录的<strong>完整列表</strong></td>
+<td>见下方示例</td>
+</tr>
+</tbody>
+</table>
+<p><strong>完整示例</strong>：</p>
+<p>假设 AI 在不同时间多次生成了同一行代码 <code>return true;</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第一次生成（2024-01-15）</span></span><br><span class="line">AI 生成: <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第二次生成（2024-01-20）</span></span><br><span class="line">AI 又生成了一次: <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第三次生成（2024-01-25）</span></span><br><span class="line">AI 再次生成: <span class="keyword">return</span> <span class="literal">true</span>;</span><br></pre></td></tr></table></figure>
+<p>存储在 Map 中的数据：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">aiLinesMap.set(<span class="string">'hash(return true;)'</span>, &#123;</span><br><span class="line">  <span class="comment">// 最早的生成时间（第一次）</span></span><br><span class="line">  timestamp: <span class="string">'2024-01-15T10:00:00Z'</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 最早生成记录的 ID</span></span><br><span class="line">  generation_id: <span class="string">'gen-123'</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 总共生成了 3 次</span></span><br><span class="line">  count: <span class="number">3</span>,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 所有生成记录的详细列表</span></span><br><span class="line">  occurrences: [</span><br><span class="line">    &#123;</span><br><span class="line">      timestamp: <span class="string">'2024-01-15T10:00:00Z'</span>,</span><br><span class="line">      generation_id: <span class="string">'gen-123'</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      timestamp: <span class="string">'2024-01-20T14:30:00Z'</span>,</span><br><span class="line">      generation_id: <span class="string">'gen-456'</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      timestamp: <span class="string">'2024-01-25T09:15:00Z'</span>,</span><br><span class="line">      generation_id: <span class="string">'gen-789'</span>,</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>为什么要记录 timestamp（最早时间）？</strong></p>
+<p>让我用一个真实的开发场景来说明：</p>
+<p><strong>完整的开发时间线</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// ============ 1月10日：你开始写项目 ============</span></span><br><span class="line"><span class="comment">// 文件 utils.js (version 1)</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sleep</span>(<span class="params">ms</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> setTimeout(resolve, ms)) <span class="comment">// ← 你自己写的</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// ============ 1月15日：你用 AI 生成了验证函数 ============</span></span><br><span class="line"><span class="comment">// 文件 utils.js (version 2)</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sleep</span>(<span class="params">ms</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> setTimeout(resolve, ms)) <span class="comment">// ← 你自己写的</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">validate</span>(<span class="params">data</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (!data) <span class="keyword">return</span> <span class="literal">false</span> <span class="comment">// ← AI 生成</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> setTimeout(resolve, ms)) <span class="comment">// ← AI 复用了相同代码</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 此时数据库记录：</span></span><br><span class="line"><span class="comment">// - hash("return new Promise(...)") → timestamp = 1月15日</span></span><br></pre></td></tr></table></figure>
+<p><strong>问题来了</strong>：现在文件中有<strong>两行</strong>一模一样的 <code>return new Promise(...)</code></p>
+<ul>
+<li>第 1 行：你在 1 月 10 日写的</li>
+<li>第 2 行：AI 在 1 月 15 日生成的</li>
+</ul>
+<p><strong>如果没有 timestamp，会发生什么？</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 系统只知道：AI 生成过 return new Promise(...)</span></span><br><span class="line"><span class="comment">// 结果：两行都被标记为 AI（错误！）</span></span><br><span class="line"><span class="comment">// 你1月10日的劳动成果被错误归给了 AI</span></span><br></pre></td></tr></table></figure>
+<p><strong>有了 timestamp，系统怎么判断？</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第1行 return new Promise(...)</span></span><br><span class="line">codeTime = <span class="number">1</span>月<span class="number">10</span>日 (Git commit 时间)</span><br><span class="line">aiTimestamp = <span class="number">1</span>月<span class="number">15</span>日 (AI 第一次生成的时间)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (codeTime &lt; aiTimestamp) &#123;</span><br><span class="line">    <span class="comment">// 1月10日 &lt; 1月15日</span></span><br><span class="line">    <span class="comment">// 结论：这行代码在 AI 生成之前就存在了</span></span><br><span class="line">    <span class="comment">// 判定：人工编写（正确）</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 第2行 return new Promise(...)</span></span><br><span class="line">codeTime = <span class="number">1</span>月<span class="number">15</span>日 (Git commit 时间)</span><br><span class="line">aiTimestamp = <span class="number">1</span>月<span class="number">15</span>日 (AI 第一次生成的时间)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (codeTime &gt;= aiTimestamp) &#123;</span><br><span class="line">    <span class="comment">// 1月15日 &gt;= 1月15日</span></span><br><span class="line">    <span class="comment">// 结论：这行代码在 AI 生成之后出现的</span></span><br><span class="line">    <span class="comment">// 判定：AI 生成（正确）</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>总结</strong>：</p>
+<p>timestamp 就像一个”时间戳”，告诉系统：</p>
+<ul>
+<li>“AI 是从 1 月 15 日开始知道这行代码的”</li>
+<li>“如果某行代码在 1 月 15 日之前就存在，那肯定不是 AI 写的”</li>
+<li>“如果某行代码在 1 月 15 日之后出现，那可能是 AI 写的”（也有可能 AI 写了，人工删除又添加回来了）</li>
+</ul>
+<p>没有 timestamp，系统只能简单地认为”凡是内容相同的代码都是 AI”，这会错误地把你的劳动成果归给 AI。有了 timestamp，系统能区分”谁先写的”，避免误判。</p>
+<p><strong>为什么要记录 count？</strong></p>
+<p>用于检测重复代码问题。例如：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 场景：文件中有 5 行 return true;</span></span><br><span class="line"><span class="keyword">const</span> fileCount = <span class="number">5</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 查询 AI 信息</span></span><br><span class="line"><span class="keyword">const</span> aiInfo = aiLinesMap.get(hash(<span class="string">'return true;'</span>))</span><br><span class="line"><span class="comment">// aiInfo.count = 3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 判断：文件中有 5 行，但 AI 只生成了 3 次</span></span><br><span class="line"><span class="keyword">if</span> (fileCount &gt; aiInfo.count) &#123;</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">'警告：有些相同的代码可能是人工编写的'</span>)</span><br><span class="line">  <span class="built_in">console</span>.log(<span class="string">`估算：<span class="subst">$&#123;aiInfo.count&#125;</span> 行 AI，<span class="subst">$&#123;fileCount - aiInfo.count&#125;</span> 行人工`</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 输出：</span></span><br><span class="line"><span class="comment">// 警告：有些相同的代码可能是人工编写的</span></span><br><span class="line"><span class="comment">// 估算：3 行 AI，2 行人工</span></span><br></pre></td></tr></table></figure>
+<h4 id="从数据库构建-AI-代码索引"><a href="#从数据库构建-AI-代码索引" class="headerlink" title="从数据库构建 AI 代码索引"></a>从数据库构建 AI 代码索引</h4><p><strong>目标</strong>：将数据库中存储的 AI 生成记录转换成一个可快速查询的索引结构。</p>
+<p><strong>输入</strong>：数据库中的 AI 生成记录（包含压缩的 diff 数据、时间戳等）</p>
+<p><strong>输出</strong>：<code>Map&lt;内容哈希, 元数据&gt;</code>，用于快速判断某行代码是否为 AI 生成</p>
+<p><strong>核心思路</strong>：</p>
+<ol>
+<li>从数据库读取所有 AI 生成记录</li>
+<li>解压每条记录的 diff 数据</li>
+<li>提取所有新增的代码行</li>
+<li>为每行代码计算哈希值</li>
+<li>将哈希值和元数据（时间戳、生成次数等）存入 Map</li>
+</ol>
+<p>系统通过 <code>buildAiLinesMap</code> 函数实现这个过程：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">buildAiLinesMap</span>(<span class="params">rows, zlib, parseDiff</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">const</span> aiLinesMap = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line"></span><br><span class="line">  rows.forEach(<span class="function">(<span class="params">row</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 1. 解压缩差异数据</span></span><br><span class="line">    <span class="keyword">const</span> buffer = Buffer.from(row.compressed_diff, <span class="string">'base64'</span>)</span><br><span class="line">    <span class="keyword">const</span> decompressed = zlib.gunzipSync(buffer).toString(<span class="string">'utf8'</span>)</span><br><span class="line">    <span class="keyword">const</span> files = parseDiff(decompressed)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 2. 遍历所有新增的代码行</span></span><br><span class="line">    files.forEach(<span class="function">(<span class="params">file</span>) =&gt;</span> &#123;</span><br><span class="line">      file.chunks.forEach(<span class="function">(<span class="params">chunk</span>) =&gt;</span> &#123;</span><br><span class="line">        chunk.changes.forEach(<span class="function">(<span class="params">change</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (change.type === <span class="string">'add'</span>) &#123;</span><br><span class="line">            <span class="keyword">const</span> content = change.content.substring(<span class="number">1</span>)</span><br><span class="line">            <span class="keyword">const</span> hash = hashLine(content) <span class="comment">// 3. 计算哈希</span></span><br><span class="line"></span><br><span class="line">            <span class="comment">// 4. 存入 Map（记录时间戳、次数等）</span></span><br><span class="line">            <span class="keyword">if</span> (!aiLinesMap.has(hash)) &#123;</span><br><span class="line">              <span class="comment">// 首次出现</span></span><br><span class="line">              aiLinesMap.set(hash, &#123;</span><br><span class="line">                timestamp: row.created_at,</span><br><span class="line">                generation_id: row.generation_id,</span><br><span class="line">                count: <span class="number">1</span>,</span><br><span class="line">                occurrences: [</span><br><span class="line">                  &#123;</span><br><span class="line">                    timestamp: row.created_at,</span><br><span class="line">                    generation_id: row.generation_id,</span><br><span class="line">                  &#125;,</span><br><span class="line">                ],</span><br><span class="line">              &#125;)</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">              <span class="comment">// 已存在，增加计数</span></span><br><span class="line">              <span class="keyword">const</span> existing = aiLinesMap.get(hash)</span><br><span class="line">              existing.count++</span><br><span class="line">              existing.occurrences.push(&#123;</span><br><span class="line">                timestamp: row.created_at,</span><br><span class="line">                generation_id: row.generation_id,</span><br><span class="line">              &#125;)</span><br><span class="line"></span><br><span class="line">              <span class="comment">// 保持最早的时间戳</span></span><br><span class="line">              <span class="keyword">if</span> (row.created_at &lt; existing.timestamp) &#123;</span><br><span class="line">                existing.timestamp = row.created_at</span><br><span class="line">                existing.generation_id = row.generation_id</span><br><span class="line">              &#125;</span><br><span class="line">            &#125;</span><br><span class="line">          &#125;</span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;)</span><br><span class="line"></span><br><span class="line">  <span class="keyword">return</span> aiLinesMap</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>生成的 Map 结构示例</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">Map</span>([</span><br><span class="line">  [</span><br><span class="line">    <span class="string">'a3f5e9d2b1c8f4e1'</span>,</span><br><span class="line">    &#123;</span><br><span class="line">      timestamp: <span class="string">'2024-01-15T10:00:00Z'</span>, <span class="comment">// 最早生成时间</span></span><br><span class="line">      generation_id: <span class="string">'gen-123'</span>, <span class="comment">// 对应的生成任务 ID</span></span><br><span class="line">      count: <span class="number">2</span>, <span class="comment">// AI 生成了 2 次</span></span><br><span class="line">      occurrences: [</span><br><span class="line">        <span class="comment">// 所有生成记录</span></span><br><span class="line">        &#123;<span class="attr">timestamp</span>: <span class="string">'2024-01-15T10:00:00Z'</span>, <span class="attr">generation_id</span>: <span class="string">'gen-123'</span>&#125;,</span><br><span class="line">        &#123;<span class="attr">timestamp</span>: <span class="string">'2024-01-20T15:00:00Z'</span>, <span class="attr">generation_id</span>: <span class="string">'gen-456'</span>&#125;,</span><br><span class="line">      ],</span><br><span class="line">    &#125;,</span><br><span class="line">  ],</span><br><span class="line">  <span class="comment">// ... 更多代码行的哈希和元数据</span></span><br><span class="line">])</span><br></pre></td></tr></table></figure>
+<p>有了这个 Map，判断某行代码是否为 AI 生成就非常简单：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> hash = hashLine(<span class="string">'return true;'</span>)</span><br><span class="line"><span class="keyword">const</span> isAI = aiLinesMap.has(hash) <span class="comment">// 快速查询</span></span><br></pre></td></tr></table></figure>
+<p>下面通过几个案例来进行说明。</p>
+<h3 id="案例-1：基本的代码归属分析"><a href="#案例-1：基本的代码归属分析" class="headerlink" title="案例 1：基本的代码归属分析"></a>案例 1：基本的代码归属分析</h3><p><strong>场景</strong>：分析一个包含 AI 和人工代码的文件。</p>
+<p><strong>数据库记录</strong>（2024-01-15 生成）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// AI 生成的快速排序函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">quickSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (arr.length &lt;= <span class="number">1</span>) <span class="keyword">return</span> arr</span><br><span class="line">  <span class="keyword">const</span> pivot = arr[<span class="number">0</span>]</span><br><span class="line">  <span class="keyword">return</span> [...quickSort(left), pivot, ...quickSort(right)]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>当前文件内容</strong>（utils.js）：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 工具函数集合</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">quickSort</span>(<span class="params">arr</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">if</span> (arr.length &lt;= <span class="number">1</span>) <span class="keyword">return</span> arr</span><br><span class="line">  <span class="keyword">const</span> pivot = arr[<span class="number">0</span>]</span><br><span class="line">  <span class="keyword">return</span> [...quickSort(left), pivot, ...quickSort(right)]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 人工添加的格式化函数</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">formatDate</span>(<span class="params">date</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> date.toISOString().split(<span class="string">'T'</span>)[<span class="number">0</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>分析过程</strong>：</p>
+<p><strong>步骤 1</strong>：构建 AI 代码索引</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">aiLinesMap = <span class="built_in">Map</span>([</span><br><span class="line">    [<span class="string">'hash("function quickSort(arr) &#123;")'</span>, &#123;</span><br><span class="line">        timestamp: <span class="string">'2024-01-15T10:00:00Z'</span>,</span><br><span class="line">        generation_id: <span class="string">'gen-123'</span>,</span><br><span class="line">        count: <span class="number">1</span></span><br><span class="line">    &#125;],</span><br><span class="line">    [<span class="string">'hash("    if (arr.length &lt;= 1) return arr;")'</span>, &#123; ... &#125;],</span><br><span class="line">    [<span class="string">'hash("    const pivot = arr[0];")'</span>, &#123; ... &#125;],</span><br><span class="line">    [<span class="string">'hash("    return [...quickSort(left), pivot, ...quickSort(right)];")'</span>, &#123; ... &#125;],</span><br><span class="line">    [<span class="string">'hash("&#125;")'</span>, &#123; ... &#125;]</span><br><span class="line">]);</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 2</strong>：逐行分析文件</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">第<span class="number">1</span>行: <span class="string">"// 工具函数集合"</span></span><br><span class="line">  hash → 不在 aiLinesMap 中 → 人工编写</span><br><span class="line"></span><br><span class="line">第<span class="number">2</span>行: <span class="string">""</span></span><br><span class="line">  hash → 不在 aiLinesMap 中 → 人工编写</span><br><span class="line"></span><br><span class="line">第<span class="number">3</span>行: <span class="string">"function quickSort(arr) &#123;"</span></span><br><span class="line">  hash → 在 aiLinesMap 中 → AI 生成</span><br><span class="line"></span><br><span class="line">第<span class="number">4</span>行: <span class="string">"    if (arr.length &lt;= 1) return arr;"</span></span><br><span class="line">  hash → 在 aiLinesMap 中 → AI 生成</span><br><span class="line"></span><br><span class="line">第<span class="number">5</span>行: <span class="string">"    const pivot = arr[0];"</span></span><br><span class="line">  hash → 在 aiLinesMap 中 → AI 生成</span><br><span class="line"></span><br><span class="line">第<span class="number">6</span>行: <span class="string">"    return [...quickSort(left), pivot, ...quickSort(right)];"</span></span><br><span class="line">  hash → 在 aiLinesMap 中 → AI 生成</span><br><span class="line"></span><br><span class="line">第<span class="number">7</span>行: <span class="string">"&#125;"</span></span><br><span class="line">  hash → 在 aiLinesMap 中 → AI 生成</span><br><span class="line"></span><br><span class="line">第<span class="number">8</span>行: <span class="string">""</span></span><br><span class="line">  hash → 不在 aiLinesMap 中 → 人工编写</span><br><span class="line"></span><br><span class="line">第<span class="number">9</span>行: <span class="string">"// 人工添加的格式化函数"</span></span><br><span class="line">  hash → 不在 aiLinesMap 中 → 人工编写</span><br><span class="line"></span><br><span class="line">第<span class="number">10</span>行: <span class="string">"function formatDate(date) &#123;"</span></span><br><span class="line">  hash → 不在 aiLinesMap 中 → 人工编写</span><br><span class="line"></span><br><span class="line">第<span class="number">11</span>行: <span class="string">"    return date.toISOString().split('T')[0];"</span></span><br><span class="line">  hash → 不在 aiLinesMap 中 → 人工编写</span><br><span class="line"></span><br><span class="line">第<span class="number">12</span>行: <span class="string">"&#125;"</span></span><br><span class="line">  hash → 不在 aiLinesMap 中 → 人工编写</span><br></pre></td></tr></table></figure>
+<p><strong>分析结果</strong>：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"stats"</span>: &#123;</span><br><span class="line">        <span class="attr">"total_lines"</span>: <span class="number">12</span>,</span><br><span class="line">        <span class="attr">"ai_lines"</span>: <span class="number">5</span>,</span><br><span class="line">        <span class="attr">"human_lines"</span>: <span class="number">7</span></span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"analysis"</span>: [</span><br><span class="line">        &#123; "lineNumber": 1, "attribution": "human", ... &#125;,</span><br><span class="line">        &#123; "lineNumber": 2, "attribution": "human", ... &#125;,</span><br><span class="line">        &#123; "lineNumber": 3, "attribution": "ai", "generation_id": "gen-123" &#125;,</span><br><span class="line">        &#123; "lineNumber": 4, "attribution": "ai", "generation_id": "gen-123" &#125;,</span><br><span class="line">        ...</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="案例-2：时间过滤的局限性"><a href="#案例-2：时间过滤的局限性" class="headerlink" title="案例 2：时间过滤的局限性"></a>案例 2：时间过滤的局限性</h3><p><strong>场景</strong>：AI 生成的代码被删除后，人工重新添加了相同的代码。</p>
+<p><strong>时间线</strong>：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">2024-01-15 10:00:00  AI 生成: return true;</span><br><span class="line">2024-01-16 11:00:00  人工删除这行代码</span><br><span class="line">2024-01-17 12:00:00  人工重新添加: return true;</span><br></pre></td></tr></table></figure>
+<p><strong>问题</strong>：如何区分这两次 <code>return true;</code> 的来源？</p>
+<p><strong>当前实现</strong>：使用时间过滤</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取文件的最后修改时间</span></span><br><span class="line"><span class="keyword">const</span> fileTimestamp = <span class="string">'2024-01-17T12:00:00Z'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 分析时传入时间戳</span></span><br><span class="line">analyzeFileAttribution(lines, aiLinesMap, &#123;</span><br><span class="line">  fileTimestamp: fileTimestamp,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>分析逻辑</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> aiInfo = aiLinesMap.get(hash(<span class="string">'return true;'</span>))</span><br><span class="line"><span class="comment">// aiInfo = &#123;</span></span><br><span class="line"><span class="comment">//     timestamp: '2024-01-15T10:00:00Z',  // AI 第一次生成的时间</span></span><br><span class="line"><span class="comment">//     generation_id: 'gen-123',</span></span><br><span class="line"><span class="comment">//     count: 1</span></span><br><span class="line"><span class="comment">// &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 时间戳判断</span></span><br><span class="line"><span class="keyword">if</span> (aiInfo &amp;&amp; aiInfo.timestamp &lt;= fileTimestamp) &#123;</span><br><span class="line">  <span class="comment">// '2024-01-15' &lt;= '2024-01-17' (条件满足)</span></span><br><span class="line">  <span class="comment">// AI 在文件修改之前就生成过这行代码</span></span><br><span class="line">  <span class="comment">// 判断：标记为 AI 代码</span></span><br><span class="line">  isAI = <span class="literal">true</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// AI 生成时间晚于文件时间，或者 AI 没生成过</span></span><br><span class="line">  <span class="comment">// 判断：标记为人工代码</span></span><br><span class="line">  isAI = <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>当前实现的局限性</strong>：</p>
+<p>系统目前只使用时间戳进行简单比较，<strong>无法识别”删除 → 重新添加”的场景</strong>。</p>
+<p>在案例的场景中（AI 生成 → 删除 → 人工重新添加），系统会：</p>
+<ul>
+<li>[正确识别] AI 在 1 月 15 日生成过 <code>return true;</code></li>
+<li>[误判结果] 1 月 17 日的 <code>return true;</code> 也会被标记为 AI（因为时间戳满足条件）</li>
+<li>[无法识别] 中间的”删除 → 重新添加”过程</li>
+</ul>
+<p><strong>改进方向</strong>：</p>
+<ul>
+<li>需要结合 Git 历史分析（<code>git log --follow</code>）追踪代码的删除和重新添加</li>
+</ul>
+<h3 id="案例-3：重复代码的处理"><a href="#案例-3：重复代码的处理" class="headerlink" title="案例 3：重复代码的处理"></a>案例 3：重复代码的处理</h3><p><strong>场景</strong>：文件中有多行相同的代码，但来源不同。</p>
+<p><strong>文件内容</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check1</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span> <span class="comment">// 人工编写</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check2</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span> <span class="comment">// AI 生成</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">check3</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span> <span class="comment">// 人工编写</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>AI 记录</strong>：只有 1 次生成 <code>return true;</code></p>
+<p><strong>问题</strong>：三行 <code>return true;</code> 的哈希值完全相同，如何判断？</p>
+<p><strong>算法处理</strong>：</p>
+<p><strong>步骤 1</strong>：统计文件中的重复代码</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> hashCounts = <span class="keyword">new</span> <span class="built_in">Map</span>()</span><br><span class="line">lines.forEach(<span class="function">(<span class="params">content</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> hash = hashLine(content)</span><br><span class="line">  hashCounts.set(hash, (hashCounts.get(hash) || <span class="number">0</span>) + <span class="number">1</span>)</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 结果</span></span><br><span class="line">hashCounts.get(hash(<span class="string">'return true;'</span>)) === <span class="number">3</span> <span class="comment">// 文件中有 3 行</span></span><br></pre></td></tr></table></figure>
+<p><strong>步骤 2</strong>：对比 AI 生成次数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> aiInfo = aiLinesMap.get(hash(<span class="string">'return true;'</span>))</span><br><span class="line">aiInfo.count === <span class="number">1</span> <span class="comment">// AI 只生成了 1 次</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 检测到不匹配</span></span><br><span class="line"><span class="keyword">if</span> (fileCount !== aiCount) &#123;</span><br><span class="line">  <span class="comment">// 3 !== 1，有重复代码问题</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 3</strong>：生成警告和估算</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="string">"analysis"</span>: [</span><br><span class="line">        &#123; <span class="string">"lineNumber"</span>: <span class="number">2</span>, <span class="string">"attribution"</span>: <span class="string">"ai"</span> &#125;,  <span class="comment">// [注意] 基于哈希匹配标记为 AI</span></span><br><span class="line">        &#123; <span class="string">"lineNumber"</span>: <span class="number">5</span>, <span class="string">"attribution"</span>: <span class="string">"ai"</span> &#125;,  <span class="comment">// [注意] 但实际上可能有人工代码</span></span><br><span class="line">        &#123; <span class="string">"lineNumber"</span>: <span class="number">8</span>, <span class="string">"attribution"</span>: <span class="string">"ai"</span> &#125;   <span class="comment">// [注意] 无法精确判断哪一行是人工</span></span><br><span class="line">    ],</span><br><span class="line">    <span class="string">"warning"</span>: <span class="string">"[警告] 检测到重复代码，逐行归属可能不准确。请参考 duplicateStats 获取更准确的估算。"</span>,</span><br><span class="line">    <span class="string">"duplicateStats"</span>: &#123;</span><br><span class="line">        <span class="string">"hash(return true;)"</span>: &#123;</span><br><span class="line">            <span class="string">"content"</span>: <span class="string">"return true;"</span>,</span><br><span class="line">            <span class="string">"total_in_file"</span>: <span class="number">3</span>,</span><br><span class="line">            <span class="string">"ai_count"</span>: <span class="number">1</span>,</span><br><span class="line">            <span class="string">"estimated_ai_lines"</span>: <span class="number">1</span>,      <span class="comment">// [更准确] 基于统计的估算</span></span><br><span class="line">            <span class="string">"estimated_human_lines"</span>: <span class="number">2</span>,    <span class="comment">// [更准确] 基于统计的估算</span></span><br><span class="line">            <span class="string">"confidence"</span>: <span class="string">"low"</span>,</span><br><span class="line">            <span class="string">"note"</span>: <span class="string">"文件中有 3 行此代码，AI 生成了 1 次，可能有 2 行是人工编写"</span></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>设计理念</strong>：</p>
+<p>当检测到重复代码时，系统采用”诚实报告”策略：</p>
+<ol>
+<li><strong>逐行归属</strong>（<code>analysis</code>）：基于哈希匹配，可能不准确（3 行都标记为 AI，存在误判）</li>
+<li><strong>统计估算</strong>（<code>duplicateStats</code>）：基于 AI 生成次数，更接近真实情况（1 AI + 2 人工）</li>
+<li><strong>警告信息</strong>（<code>warning</code>）：明确告知用户”逐行归属可能不准确”</li>
+</ol>
+<p>系统<strong>不会强行猜测</strong>哪一行是 AI、哪一行是人工（因为这在技术上无法准确判断），而是提供多个维度的信息，让用户自己判断。这种设计比给出错误的精确结果更有价值。</p>
+<p><strong>手动标记功能</strong>：</p>
+<p>为了解决重复代码等无法自动准确判断的场景，系统提供了手动标记功能：</p>
+<ol>
+<li><strong>交互方式</strong>：用户点击代码行号，即可切换该行的归属（AI ↔ 人工）</li>
+<li><strong>优先级</strong>：手动标记的优先级最高，会覆盖自动识别的结果</li>
+<li><strong>内容验证</strong>：通过内容哈希验证，确保标记的准确性</li>
+<li><strong>持久化</strong>：手动标记存储在数据库中，刷新页面后仍然有效</li>
+</ol>
+<p><strong>手动标记流程</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 1. 用户点击第 6 行的行号</span></span><br><span class="line"><span class="comment">// 2. 前端发送 POST 请求</span></span><br><span class="line">POST /api/manual-attribution</span><br><span class="line">&#123;</span><br><span class="line">    <span class="string">"repo_url"</span>: <span class="string">"https://github.com/user/repo.git"</span>,</span><br><span class="line">    <span class="string">"file_path"</span>: <span class="string">"test.js"</span>,</span><br><span class="line">    <span class="string">"branch"</span>: <span class="string">"main"</span>,</span><br><span class="line">    <span class="string">"manual_attributions"</span>: [</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="string">"lineNumber"</span>: <span class="number">6</span>,</span><br><span class="line">            <span class="string">"content"</span>: <span class="string">"console.log('hello');"</span>,</span><br><span class="line">            <span class="string">"attribution"</span>: <span class="string">"human"</span>  <span class="comment">// 从 AI 改为人工</span></span><br><span class="line">        &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 3. 后端保存到数据库，并计算内容哈希</span></span><br><span class="line">INSERT INTO manual_attributions (repo_url, file_path, branch, line_number, content_hash, attribution)</span><br><span class="line">VALUES (<span class="string">'...'</span>, <span class="string">'test.js'</span>, <span class="string">'main'</span>, <span class="number">6</span>, <span class="string">'b98785ede1f35602'</span>, <span class="string">'human'</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 4. 再次分析文件时，手动标记优先</span></span><br><span class="line"><span class="keyword">const</span> result = analyzeFileAttribution(lines, aiLinesMap);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 构建手动标记映射（按行号索引）</span></span><br><span class="line"><span class="keyword">const</span> manualMap = <span class="keyword">new</span> <span class="built_in">Map</span>();</span><br><span class="line">manualMap.set(<span class="number">6</span>, &#123;</span><br><span class="line">    attribution: <span class="string">'human'</span>,</span><br><span class="line">    content_hash: <span class="string">'b98785ede1f35602'</span></span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"><span class="comment">// 应用手动标记（行号+内容双重验证）</span></span><br><span class="line">result.analysis.forEach(<span class="function"><span class="params">line</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">const</span> manual = manualMap.get(line.lineNumber);</span><br><span class="line">    <span class="keyword">if</span> (manual) &#123;</span><br><span class="line">        <span class="keyword">const</span> currentHash = hashLine(line.content);</span><br><span class="line">        <span class="keyword">if</span> (manual.content_hash === currentHash) &#123;</span><br><span class="line">            <span class="comment">// 行号和内容都匹配，应用手动标记</span></span><br><span class="line">            line.attribution = manual.attribution;</span><br><span class="line">            line.isManual = <span class="literal">true</span>;</span><br><span class="line">            line.autoAttribution = <span class="string">'ai'</span>; <span class="comment">// 保留原自动识别结果</span></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// 内容已变，手动标记失效</span></span><br><span class="line">            line.manualInvalid = <span class="literal">true</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p>选择”行号+内容匹配”的原因：</p>
+<ol>
+<li><strong>避免误匹配</strong>：重复代码场景下，用户只想标记特定一行，不应影响其他行</li>
+<li><strong>明确性</strong>：行号失效时会显示 <code>manualInvalid: true</code>，用户可以重新标记</li>
+<li><strong>可预测性</strong>：用户点击哪一行，就只影响那一行</li>
+</ol>
+<h3 id="案例-4：Commit-范围分析"><a href="#案例-4：Commit-范围分析" class="headerlink" title="案例 4：Commit 范围分析"></a>案例 4：Commit 范围分析</h3><p><strong>场景概述</strong>：分析两个 commit 之间的代码变更，计算 AI 代码占比。</p>
+<p>Commit 范围分析的核心是判断：在指定的 commit 范围内，哪些新增/删除是 AI 做的。这涉及三个关键数据结构：</p>
+<ol>
+<li><strong><code>allAiLines</code></strong>：历史上所有 AI 添加的代码（从数据库查询得到）</li>
+<li><strong><code>allAiDeletes</code></strong>：历史上所有 AI 删除的代码（从数据库查询得到）</li>
+<li><strong><code>aiLinesInRange</code></strong>：当前 commit 范围内 AI 添加的代码</li>
+</ol>
+<p><strong><code>aiLinesInRange</code> 的构建过程</strong>：</p>
+<p>通过两遍扫描 Git diff 来构建。第一遍扫描所有新增行，检查其哈希是否在 <code>allAiLines</code> 中，如果在就加入 <code>aiLinesInRange</code>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 第一遍：识别当前 range 内 AI 添加的行</span></span><br><span class="line"><span class="keyword">const</span> aiLinesInRange = <span class="keyword">new</span> <span class="built_in">Set</span>()</span><br><span class="line"></span><br><span class="line">diffFile.chunks.forEach(<span class="function">(<span class="params">chunk</span>) =&gt;</span> &#123;</span><br><span class="line">  chunk.changes.forEach(<span class="function">(<span class="params">change</span>) =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (change.type === <span class="string">'add'</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> content = change.content.substring(<span class="number">1</span>)</span><br><span class="line">      <span class="keyword">const</span> hash = hashLine(content)</span><br><span class="line">      <span class="keyword">if</span> (allAiLines.has(hash)) &#123;</span><br><span class="line">        aiLinesInRange.add(hash)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p><strong>新增操作的判断逻辑</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (allAiLines.has(hash)) &#123;</span><br><span class="line">  <span class="comment">// 哈希在 AI 历史记录中 → AI 新增</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// 否则 → 人工新增</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>删除操作的判断逻辑</strong>：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span> (allAiDeletes.has(hash)) &#123;</span><br><span class="line">  <span class="comment">// 检查 1：AI 历史上删除过这行 → AI 删除</span></span><br><span class="line">&#125; <span class="keyword">else</span> <span class="keyword">if</span> (aiLinesInRange.has(hash)) &#123;</span><br><span class="line">  <span class="comment">// 检查 2：这行是范围内 AI 添加的 → AI 删除</span></span><br><span class="line">&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">  <span class="comment">// 否则 → 人工删除</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="案例-4-1：aiLinesInRange-为空"><a href="#案例-4-1：aiLinesInRange-为空" class="headerlink" title="案例 4.1：aiLinesInRange 为空"></a>案例 4.1：aiLinesInRange 为空</h4><h4 id="代码演变过程"><a href="#代码演变过程" class="headerlink" title="代码演变过程"></a>代码演变过程</h4><p><strong>第 1 步（Commit A）- 基础代码</strong></p>
+<p>2024-01-10，小王手动创建了基础文件：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// utils.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sleep</span>(<span class="params">ms</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> setTimeout(resolve, ms))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>第 2 步（Commit B）- AI 添加功能</strong></p>
+<p>2024-01-15，AI 助手添加了防抖函数：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// utils.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sleep</span>(<span class="params">ms</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> setTimeout(resolve, ms))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ← AI 生成的 5 行代码</span></span><br><span class="line">  <span class="keyword">let</span> timeout</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">...args</span>) </span>&#123;</span><br><span class="line">    clearTimeout(timeout)</span><br><span class="line">    timeout = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> func(...args), wait)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>第 3 步（Commit C）- 小王简化 sleep</strong></p>
+<p>2024-01-20，小王觉得 sleep 函数太复杂，删除了 Promise 那行：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// utils.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">sleep</span>(<span class="params">ms</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 删除了 return new Promise(...) 这行</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">debounce</span>(<span class="params">func, wait</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ← 保持不变</span></span><br><span class="line">  <span class="keyword">let</span> timeout</span><br><span class="line">  <span class="keyword">return</span> <span class="function"><span class="keyword">function</span> (<span class="params">...args</span>) </span>&#123;</span><br><span class="line">    clearTimeout(timeout)</span><br><span class="line">    timeout = setTimeout(<span class="function"><span class="params">()</span> =&gt;</span> func(...args), wait)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="分析任务"><a href="#分析任务" class="headerlink" title="分析任务"></a>分析任务</h4><p>小王想知道：<strong>从 Commit B 到 Commit C，这次改动中有多少是 AI 的贡献？</strong></p>
+<h4 id="Git-Diff（B-→-C）"><a href="#Git-Diff（B-→-C）" class="headerlink" title="Git Diff（B → C）"></a>Git Diff（B → C）</h4><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/utils.js (Commit B)</span></span><br><span class="line"><span class="comment">+++ b/utils.js (Commit C)</span></span><br><span class="line">@@ function sleep(ms) &#123;</span><br><span class="line"><span class="deletion">-    return new Promise(resolve =&gt; setTimeout(resolve, ms));</span></span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>只有 1 行删除，没有新增。</p>
+<h4 id="系统分析过程"><a href="#系统分析过程" class="headerlink" title="系统分析过程"></a>系统分析过程</h4><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 步骤 1：找出 B → C 范围内，AI 新增了哪些代码</span></span><br><span class="line"><span class="keyword">const</span> aiLinesInRange = <span class="keyword">new</span> <span class="built_in">Set</span>();</span><br><span class="line"></span><br><span class="line">遍历 Git diff (B → C)：</span><br><span class="line">  - 发现 <span class="number">0</span> 行新增</span><br><span class="line">  - 发现 <span class="number">1</span> 行删除：<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(...)</span><br><span class="line"></span><br><span class="line">结果：aiLinesInRange 为空（B → C 期间 AI 没有添加代码）</span><br><span class="line"></span><br><span class="line"><span class="comment">// 步骤 2：判断这 1 行删除是谁做的</span></span><br><span class="line">被删除的代码：<span class="keyword">return</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function"><span class="params">resolve</span> =&gt;</span> setTimeout(resolve, ms));</span><br><span class="line"></span><br><span class="line">检查 <span class="number">1</span>：数据库中有 AI 删除过这行的记录吗？</span><br><span class="line">  → 查询 allAiDeletes.has(hash(<span class="string">'return new Promise(...)'</span>))</span><br><span class="line">  → 结果：<span class="literal">false</span>（没有）</span><br><span class="line"></span><br><span class="line">检查 <span class="number">2</span>：这行是在 B → C 期间 AI 添加的吗？</span><br><span class="line">  → 查询 aiLinesInRange.has(hash(<span class="string">'return new Promise(...)'</span>))</span><br><span class="line">  → 结果：<span class="literal">false</span>（不是）</span><br><span class="line"></span><br><span class="line">结论：标记为 人工删除</span><br></pre></td></tr></table></figure>
+<h4 id="分析结果"><a href="#分析结果" class="headerlink" title="分析结果"></a>分析结果</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"from_commit"</span>: <span class="string">"B"</span>,</span><br><span class="line">  <span class="attr">"to_commit"</span>: <span class="string">"C"</span>,</span><br><span class="line">  <span class="attr">"stats"</span>: &#123;</span><br><span class="line">    "added": 0, // B → C 没有新增代码</span><br><span class="line">    "deleted": 1, // 删除了 1 行</span><br><span class="line">    "ai_added": 0, // AI 没有添加代码</span><br><span class="line">    "ai_deleted": 0 // AI 没有删除代码</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="案例-4-2：aiLinesInRange-不为空"><a href="#案例-4-2：aiLinesInRange-不为空" class="headerlink" title="案例 4.2：aiLinesInRange 不为空"></a>案例 4.2：aiLinesInRange 不为空</h4><h4 id="代码演变过程-1"><a href="#代码演变过程-1" class="headerlink" title="代码演变过程"></a>代码演变过程</h4><p><strong>Commit A（起点）</strong></p>
+<p>2024-01-10，基础代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// utils.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">  <span class="keyword">return</span> a + b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><strong>Commit B（终点）</strong></p>
+<p>2024-01-15，AI 重构代码：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// utils.js</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// 优化后的实现           // ← AI 添加的注释</span></span><br><span class="line">  <span class="keyword">return</span> a + b <span class="comment">// ← AI 添加的新行</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">multiply</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">  <span class="comment">// ← AI 添加的新函数</span></span><br><span class="line">  <span class="keyword">return</span> a * b</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从 Commit A 到 Commit B，AI 贡献了多少代码？</p>
+<h4 id="Git-Diff（A-→-B）"><a href="#Git-Diff（A-→-B）" class="headerlink" title="Git Diff（A → B）"></a>Git Diff（A → B）</h4><figure class="highlight diff"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">--- a/utils.js (Commit A)</span></span><br><span class="line"><span class="comment">+++ b/utils.js (Commit B)</span></span><br><span class="line"><span class="meta">@@ -1,3 +1,7 @@</span></span><br><span class="line"> function add(a, b) &#123;</span><br><span class="line"><span class="deletion">-    return a + b;            ← 删除旧行</span></span><br><span class="line"><span class="addition">+    // 优化后的实现           ← AI 添加</span></span><br><span class="line"><span class="addition">+    return a + b;            ← AI 添加（虽然内容相同，但是新的一行）</span></span><br><span class="line"> &#125;</span><br><span class="line"><span class="addition">+</span></span><br><span class="line"><span class="addition">+function multiply(a, b) &#123;    ← AI 添加</span></span><br><span class="line"><span class="addition">+    return a * b;            ← AI 添加</span></span><br><span class="line"><span class="addition">+&#125;</span></span><br></pre></td></tr></table></figure>
+<p>变更：</p>
+<ul>
+<li>删除 1 行</li>
+<li>添加 4 行</li>
+</ul>
+<h4 id="系统分析过程-1"><a href="#系统分析过程-1" class="headerlink" title="系统分析过程"></a>系统分析过程</h4><p><strong>步骤 1：找出 A → B 范围内，AI 添加了哪些代码</strong></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> aiLinesInRange = <span class="keyword">new</span> <span class="built_in">Set</span>();</span><br><span class="line"></span><br><span class="line">遍历 Git diff (A → B) 的所有新增行：</span><br><span class="line">  第 <span class="number">1</span> 行：</span><br><span class="line">    → 查询数据库：在 AI 代码索引中 ✓</span><br><span class="line">    → 加入 aiLinesInRange</span><br><span class="line"></span><br><span class="line">  第 <span class="number">2</span> 行：<span class="keyword">return</span> a + b;</span><br><span class="line">    → 查询数据库：在 AI 代码索引中 ✓</span><br><span class="line">    → 加入 aiLinesInRange</span><br><span class="line"></span><br><span class="line">  第 <span class="number">3</span> 行：<span class="function"><span class="keyword">function</span> <span class="title">multiply</span>(<span class="params">a, b</span>) </span>&#123;</span><br><span class="line">    → 查询数据库：在 AI 代码索引中 ✓</span><br><span class="line">    → 加入 aiLinesInRange</span><br><span class="line"></span><br><span class="line">  第 <span class="number">4</span> 行：<span class="keyword">return</span> a * b;</span><br><span class="line">    → 查询数据库：在 AI 代码索引中 ✓</span><br><span class="line">    → 加入 aiLinesInRange</span><br><span class="line"></span><br><span class="line">结果：aiLinesInRange 包含 <span class="number">4</span> 个哈希值</span><br></pre></td></tr></table></figure>
+<p><strong>步骤 2：判断删除操作的归属</strong></p>
+<p>被删除的代码：<code>return a + b;</code>（旧的那行）</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> hash = hashLine(<span class="string">'return a + b;'</span>);</span><br><span class="line"></span><br><span class="line">检查 <span class="number">1</span>：AI 历史上删除过这行吗？</span><br><span class="line">  → allAiDeletes.has(hash)</span><br><span class="line">  → <span class="literal">false</span>（这是第一次删除这行）</span><br><span class="line"></span><br><span class="line">检查 <span class="number">2</span>：这行是在 A → B 期间 AI 添加的吗？</span><br><span class="line">  → aiLinesInRange.has(hash)</span><br><span class="line">  → <span class="literal">true</span>！（AI 在这个范围内添加了 <span class="keyword">return</span> a + b;）</span><br><span class="line"></span><br><span class="line">结论：标记为 AI 删除</span><br></pre></td></tr></table></figure>
+<h4 id="分析结果-1"><a href="#分析结果-1" class="headerlink" title="分析结果"></a>分析结果</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"from_commit"</span>: <span class="string">"A"</span>,</span><br><span class="line">  <span class="attr">"to_commit"</span>: <span class="string">"B"</span>,</span><br><span class="line">  <span class="attr">"stats"</span>: &#123;</span><br><span class="line">    "added": 4, // 新增 4 行</span><br><span class="line">    "deleted": 1, // 删除 1 行</span><br><span class="line">    "ai_added": 4, // AI 添加了 4 行</span><br><span class="line">    "ai_deleted": 1 // AI 删除了 1 行（因为 AI 在范围内添加了相同内容）</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><code>aiLinesInRange</code> 的作用是识别 AI 在当前 commit 范围内”删除旧代码 + 添加相同内容新代码”的重构行为，将这类删除操作正确归属给 AI。如果没有这个数据结构，由于 <code>allAiDeletes</code> 中没有这行代码的删除记录，系统会将其误判为人工删除，导致统计结果出现偏差。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>AI 代码追踪系统通过”源头捕获 + 内容哈希匹配”实现 AI 代码的准确追踪。系统在 AI 生成代码的瞬间捕获差异，使用内容哈希识别代码，即使代码位置变化也能正确匹配。</p>
+<p>不过整个系统还存在一些问题，可以做进一步优化的。</p>
+<p>比如现在存在删除后重写的代码会被误判的问题。具体来说就是，当 AI 生成了一行代码，用户删除后又手动写回相同内容时，系统仍会将其标记为 AI 代码。这是因为当前只做内容哈希匹配，没有追踪代码的”生命周期”。后续可结合 <code>git log --follow</code> 分析代码的删除和重新添加历史，识别出”删除 → 人工重写”的场景。</p>
+<p>还有目前系统仅支持单人使用，团队成员的追踪数据各自独立，无法聚合查看。后续可设计数据同步机制和权限管理，提供团队级别的统计视图。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ai/" rel="tag"># ai</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/01/03/bitcoin-4/" rel="next" title="实现一个简单的比特币：Part 4 - 一个简单的 Demo">
+                <i class="fa fa-chevron-left"></i> 实现一个简单的比特币：Part 4 - 一个简单的 Demo
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">208</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">21</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">87</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#引言"><span class="nav-number">1.</span> <span class="nav-text">引言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#快速开始"><span class="nav-number">2.</span> <span class="nav-text">快速开始</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-安装与启动"><span class="nav-number">2.1.</span> <span class="nav-text">1. 安装与启动</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-基本使用流程"><span class="nav-number">2.2.</span> <span class="nav-text">2. 基本使用流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤-1：使用-AI-生成代码并推送到-GitHub"><span class="nav-number">2.2.1.</span> <span class="nav-text">步骤 1：使用 AI 生成代码并推送到 GitHub</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤-2：查看列表"><span class="nav-number">2.2.2.</span> <span class="nav-text">步骤 2：查看列表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤-3：查看详情"><span class="nav-number">2.2.3.</span> <span class="nav-text">步骤 3：查看详情</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤-4：手动标记"><span class="nav-number">2.2.4.</span> <span class="nav-text">步骤 4：手动标记</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#步骤-5：Commit-范围分析"><span class="nav-number">2.2.5.</span> <span class="nav-text">步骤 5：Commit 范围分析</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#系统架构概览"><span class="nav-number">3.</span> <span class="nav-text">系统架构概览</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#系统架构图"><span class="nav-number">3.1.</span> <span class="nav-text">系统架构图</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#插件层：实时捕获机制"><span class="nav-number">4.</span> <span class="nav-text">插件层：实时捕获机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Cursor-钩子系统"><span class="nav-number">4.1.</span> <span class="nav-text">Cursor 钩子系统</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#stop-js-脚本的工作流程"><span class="nav-number">4.2.</span> <span class="nav-text">stop.js 脚本的工作流程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-读取元数据"><span class="nav-number">4.2.1.</span> <span class="nav-text">1. 读取元数据</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-获取-Git-差异"><span class="nav-number">4.2.2.</span> <span class="nav-text">2. 获取 Git 差异</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-压缩和传输"><span class="nav-number">4.2.3.</span> <span class="nav-text">3. 压缩和传输</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#完整捕获示例"><span class="nav-number">4.3.</span> <span class="nav-text">完整捕获示例</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#后端层：存储与分析算法"><span class="nav-number">5.</span> <span class="nav-text">后端层：存储与分析算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#数据库设计"><span class="nav-number">5.1.</span> <span class="nav-text">数据库设计</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#核心算法：内容哈希匹配"><span class="nav-number">5.2.</span> <span class="nav-text">核心算法：内容哈希匹配</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#算法原理"><span class="nav-number">5.2.1.</span> <span class="nav-text">算法原理</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#AI-代码索引数据结构"><span class="nav-number">5.2.2.</span> <span class="nav-text">AI 代码索引数据结构</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#从数据库构建-AI-代码索引"><span class="nav-number">5.2.3.</span> <span class="nav-text">从数据库构建 AI 代码索引</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#案例-1：基本的代码归属分析"><span class="nav-number">5.3.</span> <span class="nav-text">案例 1：基本的代码归属分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#案例-2：时间过滤的局限性"><span class="nav-number">5.4.</span> <span class="nav-text">案例 2：时间过滤的局限性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#案例-3：重复代码的处理"><span class="nav-number">5.5.</span> <span class="nav-text">案例 3：重复代码的处理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#案例-4：Commit-范围分析"><span class="nav-number">5.6.</span> <span class="nav-text">案例 4：Commit 范围分析</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#案例-4-1：aiLinesInRange-为空"><span class="nav-number">5.6.1.</span> <span class="nav-text">案例 4.1：aiLinesInRange 为空</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码演变过程"><span class="nav-number">5.6.2.</span> <span class="nav-text">代码演变过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分析任务"><span class="nav-number">5.6.3.</span> <span class="nav-text">分析任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Git-Diff（B-→-C）"><span class="nav-number">5.6.4.</span> <span class="nav-text">Git Diff（B → C）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系统分析过程"><span class="nav-number">5.6.5.</span> <span class="nav-text">系统分析过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分析结果"><span class="nav-number">5.6.6.</span> <span class="nav-text">分析结果</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#案例-4-2：aiLinesInRange-不为空"><span class="nav-number">5.6.7.</span> <span class="nav-text">案例 4.2：aiLinesInRange 不为空</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#代码演变过程-1"><span class="nav-number">5.6.8.</span> <span class="nav-text">代码演变过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Git-Diff（A-→-B）"><span class="nav-number">5.6.9.</span> <span class="nav-text">Git Diff（A → B）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#系统分析过程-1"><span class="nav-number">5.6.10.</span> <span class="nav-text">系统分析过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#分析结果-1"><span class="nav-number">5.6.11.</span> <span class="nav-text">分析结果</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
