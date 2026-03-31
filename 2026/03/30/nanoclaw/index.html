@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next mist" lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="ai,agent,claude," />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="介绍 NanoClaw 的整体架构与工作原理，包括 Channel 插件体系、容器隔离执行、宿主-容器 IPC 通信机制，以及它与 OpenClaw 的核心差异。">
+<meta name="keywords" content="ai,agent,claude">
+<meta property="og:type" content="article">
+<meta property="og:title" content="NanoClaw：一个你真正能看懂的个人 AI 助手">
+<meta property="og:url" content="http://www.paradeto.com/2026/03/30/nanoclaw/index.html">
+<meta property="og:site_name" content="Ayou">
+<meta property="og:description" content="介绍 NanoClaw 的整体架构与工作原理，包括 Channel 插件体系、容器隔离执行、宿主-容器 IPC 通信机制，以及它与 OpenClaw 的核心差异。">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:image" content="http://www.paradeto.com/2026/03/30/nanoclaw/architecture.png">
+<meta property="og:image" content="http://www.paradeto.com/2026/03/30/nanoclaw/sequence.png">
+<meta property="og:updated_time" content="2026-03-31T02:40:55.790Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="NanoClaw：一个你真正能看懂的个人 AI 助手">
+<meta name="twitter:description" content="介绍 NanoClaw 的整体架构与工作原理，包括 Channel 插件体系、容器隔离执行、宿主-容器 IPC 通信机制，以及它与 OpenClaw 的核心差异。">
+<meta name="twitter:image" content="http://www.paradeto.com/2026/03/30/nanoclaw/architecture.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+
+
+
+
+
+
+  <link rel="canonical" href="http://www.paradeto.com/2026/03/30/nanoclaw/"/>
+
+
+
+
+
+
+  <title>NanoClaw：一个你真正能看懂的个人 AI 助手 | Ayou</title>
+  
+
+
+
+
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?6a0c6a11d4daa051d62442b432fb279d";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+    
+    
+      
+    
+
+    <div class="container sidebar-position-left page-post-detail">
+      <div class="headband"></div>
+
+      <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+        <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Ayou</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Good Good Study, Day Day Up!</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-demo">
+          <a href="/demo/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            Demo
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            Categories
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/resume" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            About
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+      </header>
+
+      <main id="main" class="main">
+        <div class="main-inner">
+          <div class="content-wrap">
+            <div id="content" class="content">
+              
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://www.paradeto.com/2026/03/30/nanoclaw/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Ayou">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ayou">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">NanoClaw：一个你真正能看懂的个人 AI 助手</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2026-03-30T15:00:00+08:00">
+                2026-03-30
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/ai/" itemprop="url" rel="index">
+                    <span itemprop="name">ai</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+              <div class="post-description">
+                  介绍 NanoClaw 的整体架构与工作原理，包括 Channel 插件体系、容器隔离执行、宿主-容器 IPC 通信机制，以及它与 OpenClaw 的核心差异。
+              </div>
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>我用飞书和 AI 对话已经有一段时间了。这件事听起来简单，背后其实需要一套完整的基础设施：消息要能收发、对话上下文要能持久化、agent 执行环境要足够安全。</p>
+<p>OpenClaw 是这个领域最知名的开源项目，功能相当完整。但当我真正想搞清楚它是怎么工作的时候，发现这几乎是不可能的事——数十个 Channel、跨平台客户端、语音唤醒、Canvas、多进程架构，代码量和依赖规模都远超你能在一个下午读完的范围。软件跑在我的机器上，我却完全不知道它在干什么。</p>
+<p>NanoClaw 就是为了解决这个问题而生的。它提供了相同的核心能力，但整个 codebase 小到一个下午就能通读。</p>
+<p>接下来我们从整体架构开始，到一条消息的完整旅程，再到各个模块的细节，一起把它拆开来看。</p>
+<hr>
+<h1 id="一、整体架构"><a href="#一、整体架构" class="headerlink" title="一、整体架构"></a>一、整体架构</h1><p>NanoClaw 是一个<strong>单 Node.js 进程</strong>，内部分三层：</p>
+<p><img src="/2026/03/30/nanoclaw/architecture.png" alt="整体架构"></p>
+<p>几个关键概念先说清楚：</p>
+<p><strong>Group（群组）</strong>：每个注册的对话就是一个 Group。比如你的飞书私聊是一个 Group，一个工作群是另一个 Group。每个 Group 有独立的记忆文件（<code>CLAUDE.md</code>）、独立的工作目录、独立的对话 session，互不干扰。同一个 Group 同时只跑一个容器；全局最多 5 个容器并发，超出的进等待队列，有槽位自动补上。失败会指数退避重试，最多 5 次。</p>
+<p><strong>Channel</strong>：消息来源的抽象。飞书、WhatsApp、Telegram 都是 Channel，各自实现同一套接口，启动时自注册进来。你不需要哪个 Channel，代码里就没有它的任何痕迹。</p>
+<p><strong>容器</strong>：每次 agent 处理消息，都在一个独立的 Linux 容器里执行。容器只能看到明确挂载进去的目录，bash 命令跑在容器内，不影响宿主机。</p>
+<hr>
+<h1 id="二、一条消息的完整旅程"><a href="#二、一条消息的完整旅程" class="headerlink" title="二、一条消息的完整旅程"></a>二、一条消息的完整旅程</h1><p>用一个具体例子串起全流程：<strong>在飞书里发一条消息 <code>帮我查一下深圳天气</code></strong>。</p>
+<h2 id="2-1-飞书-Channel-接收消息"><a href="#2-1-飞书-Channel-接收消息" class="headerlink" title="2.1 飞书 Channel 接收消息"></a>2.1 飞书 Channel 接收消息</h2><p>飞书 Channel 用的是 WebSocket 长连接（Lark SDK 的 <code>WSClient</code>），消息实时推送过来，不需要轮询。</p>
+<p>收到消息后，调用 <code>onMessage()</code> 回调，把消息写入 SQLite：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/channels/feishu.ts</span></span><br><span class="line"><span class="keyword">const</span> dispatcher = <span class="keyword">new</span> lark.EventDispatcher(&#123;&#125;).register(&#123;</span><br><span class="line">  <span class="string">'im.message.receive_v1'</span>: <span class="keyword">async</span> (data) =&gt; &#123;</span><br><span class="line">    <span class="keyword">const</span> chatId = data.message.chat_id</span><br><span class="line">    <span class="keyword">const</span> jid = <span class="string">`feishu:<span class="subst">$&#123;chatId&#125;</span>`</span></span><br><span class="line">    <span class="keyword">const</span> content = <span class="built_in">JSON</span>.parse(data.message.content).text</span><br><span class="line"></span><br><span class="line">    <span class="keyword">this</span>.opts.onMessage(jid, &#123;</span><br><span class="line">      id: data.message.message_id,</span><br><span class="line">      chat_jid: jid,</span><br><span class="line">      sender: data.sender.sender_id.open_id,</span><br><span class="line">      sender_name: senderName, <span class="comment">// 通过联系人 API 查询，fallback 到 open_id</span></span><br><span class="line">      content,</span><br><span class="line">      timestamp: <span class="keyword">new</span> <span class="built_in">Date</span>(<span class="built_in">Number</span>(data.message.create_time)).toISOString(),</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>此时消息已经在 SQLite 的 <code>messages</code> 表里了，等待被处理。</p>
+<h2 id="2-2-消息循环检测触发词"><a href="#2-2-消息循环检测触发词" class="headerlink" title="2.2 消息循环检测触发词"></a>2.2 消息循环检测触发词</h2><p>主进程里有一个每 2 秒轮询一次的消息循环：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/index.ts</span></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123;messages, newTimestamp&#125; = getNewMessages(</span><br><span class="line">    jids,</span><br><span class="line">    lastTimestamp,</span><br><span class="line">    ASSISTANT_NAME,</span><br><span class="line">  )</span><br><span class="line"></span><br><span class="line">  <span class="keyword">if</span> (messages.length &gt; <span class="number">0</span>) &#123;</span><br><span class="line">    <span class="keyword">const</span> triggerPattern = getTriggerPattern(group.trigger)</span><br><span class="line">    <span class="keyword">const</span> hasTrigger = groupMessages.some(<span class="function">(<span class="params">m</span>) =&gt;</span></span><br><span class="line">      triggerPattern.test(m.content.trim()),</span><br><span class="line">    )</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (hasTrigger) &#123;</span><br><span class="line">      queue.enqueueMessageCheck(chatJid)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">await</span> <span class="keyword">new</span> <span class="built_in">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> setTimeout(resolve, POLL_INTERVAL)) <span class="comment">// 2000ms</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>实际日志里能看到这个过程：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&#123;&quot;level&quot;:30,&quot;time&quot;:&quot;2026-03-30T10:37:17.545Z&quot;,&quot;count&quot;:1,&quot;msg&quot;:&quot;New messages&quot;&#125;</span><br><span class="line">&#123;&quot;level&quot;:30,&quot;time&quot;:&quot;2026-03-30T10:37:17.592Z&quot;,&quot;group&quot;:&quot;Feishu Main&quot;,&quot;messageCount&quot;:1,&quot;msg&quot;:&quot;Processing messages&quot;&#125;</span><br><span class="line">&#123;&quot;level&quot;:30,&quot;time&quot;:&quot;2026-03-30T10:37:17.617Z&quot;,&quot;group&quot;:&quot;Feishu Main&quot;,&quot;containerName&quot;:&quot;nanoclaw-main-1774867037616&quot;,&quot;mountCount&quot;:7,&quot;msg&quot;:&quot;Spawning container agent&quot;&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-3-组装-prompt，启动容器"><a href="#2-3-组装-prompt，启动容器" class="headerlink" title="2.3 组装 prompt，启动容器"></a>2.3 组装 prompt，启动容器</h2><p>触发词命中后，从 SQLite 拉取这个 Group 上次 agent 回复之后的所有消息（最多 10 条），组装成 XML 格式的 prompt：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context</span> <span class="attr">timezone</span>=<span class="string">"Asia/Shanghai"</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">messages</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">message</span> <span class="attr">sender</span>=<span class="string">"youxingzhi"</span> <span class="attr">time</span>=<span class="string">"2026-03-30 14:23:10"</span>&gt;</span>帮我查一下深圳天气<span class="tag">&lt;/<span class="name">message</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">messages</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>然后启动一个 Docker 容器：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">docker run -i --rm \</span><br><span class="line">  --name nanoclaw-main-1774867037616 \</span><br><span class="line">  -e TZ=Asia/Shanghai \                                          <span class="comment"># 容器时区跟随宿主机</span></span><br><span class="line">  -e ANTHROPIC_BASE_URL=http://host.docker.internal:3001 \      <span class="comment"># API 流量走凭证代理</span></span><br><span class="line">  -e ANTHROPIC_API_KEY=placeholder \                            <span class="comment"># 真实 key 由代理注入，容器看不到</span></span><br><span class="line">  --add-host host.docker.internal:host-gateway \                <span class="comment"># 让容器能访问宿主机</span></span><br><span class="line">  --user 501:20 \                                               <span class="comment"># 以宿主用户身份运行，挂载文件权限一致</span></span><br><span class="line">  -e HOME=/home/node \</span><br><span class="line">  -v /path/to/nanoclaw:/workspace/project:ro \                  <span class="comment"># 项目代码只读</span></span><br><span class="line">  -v /dev/null:/workspace/project/.env:ro \                     <span class="comment"># 遮蔽 .env，secrets 不暴露给容器</span></span><br><span class="line">  -v /path/to/nanoclaw/groups/main:/workspace/group \           <span class="comment"># group 工作目录（可写）</span></span><br><span class="line">  -v /path/to/nanoclaw/data/sessions/main/.claude:/home/node/.claude \ <span class="comment"># 对话 session 持久化</span></span><br><span class="line">  -v /path/to/nanoclaw/data/ipc/main:/workspace/ipc \           <span class="comment"># IPC 双向通信目录（详见 3.3 节）</span></span><br><span class="line">  nanoclaw-agent:latest</span><br></pre></td></tr></table></figure>
+<p>几个关键点：</p>
+<ul>
+<li><strong>API key 永远不进容器</strong>：<code>ANTHROPIC_BASE_URL</code> 指向宿主机上的<strong>凭证代理</strong>（credential proxy），这是 NanoClaw 主进程启动时在 3001 端口开的一个 HTTP 服务。容器里的 Claude Agent SDK 以为自己在访问 Anthropic API，实际上所有请求都先到代理，代理把 <code>ANTHROPIC_API_KEY=placeholder</code> 替换成真实 key，再转发给 Anthropic。容器里的 agent 拿不到真实 key——即使被 prompt injection 攻击也无法泄露。</li>
+<li><strong><code>--add-host host.docker.internal:host-gateway</code></strong>：在容器的 <code>/etc/hosts</code> 里写一条记录，把 <code>host.docker.internal</code> 指向宿主机的 IP（Docker 网桥的网关地址）。macOS 上 Docker Desktop 会自动做这件事，Linux 上需要手动加。有了这条记录，容器才能通过 <code>host.docker.internal:3001</code> 访问到宿主机上的凭证代理。</li>
+<li><strong><code>.env</code> 被 <code>/dev/null</code> 遮蔽</strong>：项目根目录是只读挂载的，但 <code>.env</code> 里有 secrets，用 <code>/dev/null</code> 覆盖挂载点，agent 读不到任何内容。</li>
+<li><strong>只能看到挂载的目录</strong>：容器内没有宿主机的其他文件系统，agent 执行 <code>bash</code> 命令也只影响容器内部。</li>
+</ul>
+<h2 id="2-4-Agent-处理，结果通过-stdout-返回"><a href="#2-4-Agent-处理，结果通过-stdout-返回" class="headerlink" title="2.4 Agent 处理，结果通过 stdout 返回"></a>2.4 Agent 处理，结果通过 stdout 返回</h2><p>容器内 Claude Agent SDK 读取 prompt，开始处理（调用工具查天气等）。处理完成后向 stdout 打印边界标记：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">---NANOCLAW_OUTPUT_START---</span><br><span class="line">&#123;&quot;status&quot;:&quot;success&quot;,&quot;result&quot;:&quot;深圳今天晴，气温 8-18°C，东风 3 级。&quot;,&quot;newSessionId&quot;:&quot;sess_abc123&quot;&#125;</span><br><span class="line">---NANOCLAW_OUTPUT_END---</span><br></pre></td></tr></table></figure>
+<p>NanoClaw 主进程（Node.js）用 <code>child_process.spawn</code> 执行 <code>docker run</code> 命令，通过 stdout pipe 实时监听输出。<strong>不需要等容器退出</strong>——每次检测到完整的标记对，立刻解析 JSON 并回复用户：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/container-runner.ts</span></span><br><span class="line">container.stdout.on(<span class="string">'data'</span>, <span class="function">(<span class="params">chunk</span>) =&gt;</span> &#123;</span><br><span class="line">  parseBuffer += chunk</span><br><span class="line">  <span class="keyword">while</span> (parseBuffer.includes(<span class="string">'---NANOCLAW_OUTPUT_START---'</span>)) &#123;</span><br><span class="line">    <span class="keyword">const</span> startIdx = parseBuffer.indexOf(<span class="string">'---NANOCLAW_OUTPUT_START---'</span>)</span><br><span class="line">    <span class="keyword">const</span> endIdx = parseBuffer.indexOf(<span class="string">'---NANOCLAW_OUTPUT_END---'</span>)</span><br><span class="line">    <span class="keyword">if</span> (endIdx === <span class="number">-1</span>) <span class="keyword">break</span> <span class="comment">// 数据还没收全，等下一个 chunk</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">const</span> output = <span class="built_in">JSON</span>.parse(</span><br><span class="line">      parseBuffer.slice(startIdx + marker.length, endIdx).trim(),</span><br><span class="line">    )</span><br><span class="line">    onOutput(output) <span class="comment">// 立刻回复用户</span></span><br><span class="line">    parseBuffer = parseBuffer.slice(endIdx + endMarker.length)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>回复发出后，<strong>容器并不退出</strong>，而是进入 idle 状态继续监听 <code>input/</code> 目录。下一条消息到来时直接注入，容器无缝处理，标记对再次出现，用户收到新的回复。30 分钟无活动后容器才自动销毁。</p>
+<p>用边界标记而不是直接解析最后一行，是因为 Claude Agent SDK 本身也会向 stdout 打印东西（工具调用日志、思考过程等），两个标记能精准定位真正的输出，不会被噪声干扰。</p>
+<h2 id="2-5-完整时序图"><a href="#2-5-完整时序图" class="headerlink" title="2.5 完整时序图"></a>2.5 完整时序图</h2><p><img src="/2026/03/30/nanoclaw/sequence.png" alt="完整时序图"></p>
+<hr>
+<h1 id="三、各模块详解"><a href="#三、各模块详解" class="headerlink" title="三、各模块详解"></a>三、各模块详解</h1><h2 id="3-1-Channel-层：统一接口，自注册"><a href="#3-1-Channel-层：统一接口，自注册" class="headerlink" title="3.1 Channel 层：统一接口，自注册"></a>3.1 Channel 层：统一接口，自注册</h2><p>所有 Channel 实现同一套接口：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/types.ts</span></span><br><span class="line"><span class="keyword">interface</span> Channel &#123;</span><br><span class="line">  name: <span class="built_in">string</span></span><br><span class="line">  connect(): <span class="built_in">Promise</span>&lt;<span class="built_in">void</span>&gt;</span><br><span class="line">  sendMessage(jid: <span class="built_in">string</span>, text: <span class="built_in">string</span>): <span class="built_in">Promise</span>&lt;<span class="built_in">void</span>&gt;</span><br><span class="line">  isConnected(): <span class="built_in">boolean</span></span><br><span class="line">  ownsJid(jid: <span class="built_in">string</span>): <span class="built_in">boolean</span> <span class="comment">// 判断某个 JID 归属哪个 Channel</span></span><br><span class="line">  disconnect(): <span class="built_in">Promise</span>&lt;<span class="built_in">void</span>&gt;</span><br><span class="line">  setTyping?(jid: <span class="built_in">string</span>, typing: <span class="built_in">boolean</span>): <span class="built_in">Promise</span>&lt;<span class="built_in">void</span>&gt;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>每个 Channel 在模块加载时自注册，主进程统一 connect。以飞书为例，用的是 Lark SDK 的 WebSocket 长连接，不需要暴露公网端口，连接稳定：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/channels/feishu.ts</span></span><br><span class="line">registerChannel(<span class="string">'feishu'</span>, <span class="function">(<span class="params">opts: ChannelOpts</span>) =&gt;</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> appId = process.env.FEISHU_APP_ID</span><br><span class="line">  <span class="keyword">const</span> appSecret = process.env.FEISHU_APP_SECRET</span><br><span class="line">  <span class="keyword">if</span> (!appId || !appSecret) <span class="keyword">return</span> <span class="literal">null</span> <span class="comment">// 没配置就跳过</span></span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">new</span> FeishuChannel(opts, appId, appSecret, mainChatId)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<p>不同 Channel 的传输方式各不相同：</p>
+<table>
+<thead>
+<tr>
+<th>Channel</th>
+<th>传输方式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>飞书</td>
+<td>WebSocket（Lark WSClient）</td>
+</tr>
+<tr>
+<td>Slack</td>
+<td>WebSocket（Socket Mode）</td>
+</tr>
+<tr>
+<td>WhatsApp</td>
+<td>WebSocket（Baileys）</td>
+</tr>
+<tr>
+<td>Telegram</td>
+<td>HTTP 长轮询</td>
+</tr>
+<tr>
+<td>Gmail</td>
+<td>HTTP 轮询</td>
+</tr>
+</tbody>
+</table>
+<p><strong>JID</strong>（Jabber ID）是跨 Channel 的统一标识符。飞书群的 JID 格式是 <code>feishu:{chat_id}</code>，Telegram 是 <code>telegram:{chatId}</code>，所有路由逻辑都用 JID 而不是 Channel 原始 ID。</p>
+<h2 id="3-2-消息编排：SQLite-游标机制"><a href="#3-2-消息编排：SQLite-游标机制" class="headerlink" title="3.2 消息编排：SQLite + 游标机制"></a>3.2 消息编排：SQLite + 游标机制</h2><p>消息存入 SQLite 的 <code>messages</code> 表后，消息循环通过<strong>游标</strong>来追踪处理进度：</p>
+<ul>
+<li><code>lastTimestamp</code>：全局游标，记录最后一次”看到”哪条消息</li>
+<li><code>lastAgentTimestamp[chatJid]</code>：每个 Group 的游标，记录 agent 上次处理到哪条</li>
+</ul>
+<p>两个游标分开是有原因的：消息”看到”和”处理完”是两件事。主进程先推进全局游标（防止重复检测），agent 处理完后才推进 Group 游标。如果 agent 出错，Group 游标回滚，下次会重新处理。</p>
+<p>两个游标都持久化在 SQLite 的 <code>router_state</code> 表里，进程重启后从数据库恢复，不会丢失处理进度。</p>
+<h2 id="3-3-宿主-容器通信（IPC）"><a href="#3-3-宿主-容器通信（IPC）" class="headerlink" title="3.3 宿主-容器通信（IPC）"></a>3.3 宿主-容器通信（IPC）</h2><p>这是整个系统最精妙的部分——宿主机和容器完全通过<strong>文件系统</strong>通信，不走网络。</p>
+<p>容器启动时，<code>data/ipc/{folder}/</code> 目录被挂载进来：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">data/ipc/main/</span><br><span class="line">├── input/      # 宿主 → 容器（追加消息、关闭信号）</span><br><span class="line">├── messages/   # 容器 → 宿主（发送消息）</span><br><span class="line">└── tasks/      # 容器 → 宿主（创建/管理定时任务）</span><br></pre></td></tr></table></figure>
+<p><strong>宿主 → 容器：两种路径</strong></p>
+<p>路径 A：启动容器时通过 stdin 传入初始 prompt（一次性）。</p>
+<p>路径 B：容器运行期间，新消息通过文件写入 <code>input/</code> 目录。容器内的 agent-runner 定期轮询这个目录，发现文件立刻读取并注入 agent：</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// src/group-queue.ts</span></span><br><span class="line">sendMessage(groupJid: <span class="built_in">string</span>, text: <span class="built_in">string</span>): <span class="built_in">boolean</span> &#123;</span><br><span class="line">  <span class="keyword">const</span> inputDir = path.join(DATA_DIR, <span class="string">'ipc'</span>, state.groupFolder, <span class="string">'input'</span>);</span><br><span class="line">  <span class="keyword">const</span> filename = <span class="string">`<span class="subst">$&#123;Date.now()&#125;</span>-<span class="subst">$&#123;Math.random().toString(36).slice(2, 6)&#125;</span>.json`</span>;</span><br><span class="line">  fs.writeFileSync(tempPath, <span class="built_in">JSON</span>.stringify(&#123; <span class="keyword">type</span>: <span class="string">'message'</span>, text &#125;));</span><br><span class="line">  fs.renameSync(tempPath, filepath); <span class="comment">// 原子写入，防止容器读到半截文件</span></span><br><span class="line">  <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>关闭信号也是文件：写一个空的 <code>_close</code> 文件，容器收到后优雅退出。</p>
+<p><strong>容器 → 宿主：三种路径</strong></p>
+<p>路径 A：最终结果通过 stdout 的边界标记：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">---NANOCLAW_OUTPUT_START---</span><br><span class="line">&#123;&quot;status&quot;:&quot;success&quot;,&quot;result&quot;:&quot;...&quot;,&quot;newSessionId&quot;:&quot;sess_xxx&quot;&#125;</span><br><span class="line">---NANOCLAW_OUTPUT_END---</span><br></pre></td></tr></table></figure>
+<p>路径 B：发送消息给用户，写 <code>messages/</code> 目录：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"type"</span>: <span class="string">"message"</span>,</span><br><span class="line">  <span class="attr">"chatJid"</span>: <span class="string">"feishu:oc_xxx"</span>,</span><br><span class="line">  <span class="attr">"text"</span>: <span class="string">"深圳今天晴，气温 8-18°C"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>路径 C：创建定时任务，写 <code>tasks/</code> 目录：</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">"type"</span>: <span class="string">"schedule_task"</span>,</span><br><span class="line">  <span class="attr">"prompt"</span>: <span class="string">"每天早上汇报天气"</span>,</span><br><span class="line">  <span class="attr">"schedule_type"</span>: <span class="string">"cron"</span>,</span><br><span class="line">  <span class="attr">"schedule_value"</span>: <span class="string">"0 9 * * *"</span>,</span><br><span class="line">  <span class="attr">"targetJid"</span>: <span class="string">"feishu:oc_xxx"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>宿主的 IPC watcher 每秒扫描 <code>messages/</code> 和 <code>tasks/</code>，处理完立刻删除文件。</p>
+<h2 id="3-4-会话与记忆"><a href="#3-4-会话与记忆" class="headerlink" title="3.4 会话与记忆"></a>3.4 会话与记忆</h2><p>容器是临时的——idle 30 分钟后会被销毁。但对话不能因此断掉。NanoClaw 把”记忆”分成三层来解决这个问题。</p>
+<p><strong>第一层：NanoClaw 的调度记忆（SQLite）</strong></p>
+<p>轮询、触发词检测、多消息合并——这些都发生在 Claude 介入之前。SQLite 的 <code>messages</code> 表存的是原始消息文本，<code>router_state</code> 表存的是游标，这两张表是 NanoClaw 自己的调度中枢，Claude 根本不知道它们的存在。</p>
+<p><strong>第二层：Claude 的对话记忆（SDK session）</strong></p>
+<p>Claude Agent SDK 把完整的对话历史存成 <code>.jsonl</code> 文件，每个 session 有一个唯一 ID。NanoClaw 把这个 <code>sessionId</code> 持久化在 SQLite 的 <code>sessions</code> 表里：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ sqlite3 store/messages.db &quot;SELECT group_folder, session_id FROM sessions;&quot;</span><br><span class="line">main|796347c3-64fe-4f86-9d9f-b16b17de0380</span><br><span class="line">feishu_work|c2d1be5d-58d4-46fe-9b09-c923574b7505</span><br></pre></td></tr></table></figure>
+<p>对应的文件就在磁盘上：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">data/sessions/main/.claude/projects/-workspace-group/</span><br><span class="line">└── 796347c3-64fe-4f86-9d9f-b16b17de0380.jsonl   ← 完整对话历史</span><br></pre></td></tr></table></figure>
+<p>这个格式和你本机安装的 Claude Code 完全一样——Claude Code 把 session 存在 <code>~/.claude/projects/{工作目录}/</code> 下，NanoClaw 的 session 存在容器挂载的 <code>data/sessions/{folder}/.claude/projects/</code> 下，都是同一套 Claude Agent SDK 的标准格式，只是挂载路径不同。NanoClaw 没有自己实现任何对话持久化，而是直接复用了 Claude Code 本身的能力。</p>
+<p>容器销毁时，<code>.jsonl</code> 文件还在磁盘上，<code>sessionId</code> 还在 SQLite 里。下次消息到来，新容器启动，NanoClaw 把 <code>sessionId</code> 传给 SDK，SDK 读取对应的 <code>.jsonl</code> 文件，对话无缝继续——Claude 看到的是一条从未中断的对话。</p>
+<p><strong>第三层：人设与背景知识（CLAUDE.md）</strong></p>
+<p>每个 Group 还有一个 <code>groups/{folder}/CLAUDE.md</code>，在容器启动时作为系统提示读入。我的主群 <code>CLAUDE.md</code> 里定义了 Agent 的能力范围、回复风格。你也可以直接在飞书里告诉 Agent「记住我在深圳，平时早上 8 点前不要主动打扰我」，Agent 会把这些写进 <code>CLAUDE.md</code>，之后每次容器启动都会读到。</p>
+<h2 id="3-5-定时任务"><a href="#3-5-定时任务" class="headerlink" title="3.5 定时任务"></a>3.5 定时任务</h2><p>Agent 可以通过 IPC 文件给自己或其他 Group 创建定时任务。支持三种调度类型：</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>例子</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cron</code></td>
+<td><code>0 9 * * *</code></td>
+<td>每天早上 9 点</td>
+</tr>
+<tr>
+<td><code>interval</code></td>
+<td><code>3600000</code></td>
+<td>每小时（毫秒）</td>
+</tr>
+<tr>
+<td><code>once</code></td>
+<td><code>2026-04-01T09:00:00Z</code></td>
+<td>指定时间执行一次</td>
+</tr>
+</tbody>
+</table>
+<p>主进程的 scheduler 每 60 秒扫描 <code>scheduled_tasks</code> 表，对到期任务启动独立容器执行，结果写回 <code>task_run_logs</code>。</p>
+<p>比如你告诉 Agent「每天早上 9 点给我发天气预报」，agent 会写一个 IPC 文件到 <code>tasks/</code>，主进程创建任务记录，之后每天定时触发，不需要你再做任何事。</p>
+<hr>
+<h1 id="四、NanoClaw-vs-OpenClaw"><a href="#四、NanoClaw-vs-OpenClaw" class="headerlink" title="四、NanoClaw vs OpenClaw"></a>四、NanoClaw vs OpenClaw</h1><p>有了前面的架构理解，再来看两者的差异就很具体了。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>OpenClaw</th>
+<th>NanoClaw</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代码量</td>
+<td>比较庞大</td>
+<td>几千行，一个下午能通读</td>
+</tr>
+<tr>
+<td>架构</td>
+<td>Gateway 守护进程 + 多客户端</td>
+<td>1 个 Node.js 进程</td>
+</tr>
+<tr>
+<td>安全隔离</td>
+<td>应用层白名单、设备配对</td>
+<td>OS 层容器隔离</td>
+</tr>
+<tr>
+<td>Agent 执行环境</td>
+<td>同一进程，直接访问系统资源</td>
+<td>独立 Linux 容器，只看挂载目录</td>
+</tr>
+<tr>
+<td>定制方式</td>
+<td>配置文件</td>
+<td>fork + 改代码</td>
+</tr>
+</tbody>
+</table>
+<p>安全这一块值得多说一句。OpenClaw 的 agent 跑在主进程里，如果 agent 被诱导执行了恶意命令（比如 prompt injection），它实际上能访问你机器上所有 OpenClaw 有权限访问的东西。</p>
+<p>NanoClaw 的 agent 跑在容器里，<code>bash</code> 命令执行的是容器内的 bash。即使 agent 被欺骗，它也只能动容器内挂载的那几个目录，出不了沙箱。</p>
+<p><strong>Skill 机制</strong>是另一个值得说的差异。NanoClaw 的功能扩展不是往主仓库加代码，而是维护在独立的 git 分支上。不需要的功能，代码里完全不存在。</p>
+<p>以 Gmail 集成为例。在你的 fork 里对 Claude Code 说 <code>/add-gmail</code>，Claude Code 会：</p>
+<ol>
+<li>把 <code>nanoclaw-gmail</code> 仓库加为 git remote，fetch 并 merge 对应分支</li>
+<li>Merge 带进来的改动：<code>src/channels/gmail.ts</code>（GmailChannel 实现）、barrel 文件里的 import、容器挂载配置（<code>~/.gmail-mcp</code>）、agent 侧的 MCP server 配置</li>
+<li>引导你完成 GCP OAuth 授权，把凭证写到 <code>~/.gmail-mcp/</code></li>
+<li>重新构建容器镜像，重启服务</li>
+</ol>
+<p>整个过程 Claude Code 全程操作，你只需要在浏览器里点一次 OAuth 授权。之后 agent 就能读邮件、发邮件，或者在收到新邮件时主动触发对话——取决于你选了 tool 模式还是 channel 模式。</p>
+<p>如果你之后不想要 Gmail 了，反向操作：删掉 <code>gmail.ts</code>、移除挂载和 MCP 配置、重建容器。代码回到没有任何 Gmail 痕迹的状态。</p>
+<p>当然，NanoClaw 也有明显的局限：</p>
+<ul>
+<li><strong>固定延迟</strong>：消息循环每 2 秒轮询一次，加上容器 cold start，响应速度不如常驻进程方案</li>
+<li><strong>维护负担</strong>：定制靠 fork，上游有更新时需要自己 merge，冲突自己解决</li>
+<li><strong>只支持文本</strong>：图片、文件、语音需要自己扩展 channel 实现</li>
+<li><strong>没有管理界面</strong>：查任务、改配置、看日志全靠命令行</li>
+<li><strong>不支持 Thread</strong>：Group 以 <code>chat_id</code> 为粒度，Slack、飞书等应用里的 thread 消息和主频道消息会混入同一个 session，agent 无法对不同 thread 保持独立上下文</li>
+<li><strong>不适合规模化团队部署</strong>：全局最多 5 个容器并发，超出排队；单进程单机，没有高可用方案；所有群组共享同一套权限，没有角色和审计机制。几个人共用一个群聊完全没问题，但如果你想给一个组织的几十个群同时提供服务，这套架构撑不住</li>
+</ul>
+<p>这些局限大多是”简单”这个目标的代价。如果你需要毫秒级响应、多媒体支持、或者企业级的权限管控，NanoClaw 不是合适的选择。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/ai/" rel="tag"># ai</a>
+          
+            <a href="/tags/agent/" rel="tag"># agent</a>
+          
+            <a href="/tags/claude/" rel="tag"># claude</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2026/03/03/ai-ui-mockup/" rel="next" title="裁掉前端，PM 来切图？试了下还真行">
+                <i class="fa fa-chevron-left"></i> 裁掉前端，PM 来切图？试了下还真行
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+            </div>
+            
+
+
+            
+
+  
+    <div class="comments" id="comments">
+      <div id="lv-container" data-id="city" data-uid="MTAyMC8zODAwNS8xNDUzNQ=="></div>
+    </div>
+
+  
+
+
+
+          </div>
+          
+            
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Ayou</p>
+              <p class="site-description motion-element" itemprop="description">一名转行的菜鸡程序员</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">211</span>
+                  <span class="site-state-item-name">posts</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">22</span>
+                  <span class="site-state-item-name">categories</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">91</span>
+                  <span class="site-state-item-name">tags</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#一、整体架构"><span class="nav-number">2.</span> <span class="nav-text">一、整体架构</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、一条消息的完整旅程"><span class="nav-number">3.</span> <span class="nav-text">二、一条消息的完整旅程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-飞书-Channel-接收消息"><span class="nav-number">3.1.</span> <span class="nav-text">2.1 飞书 Channel 接收消息</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-消息循环检测触发词"><span class="nav-number">3.2.</span> <span class="nav-text">2.2 消息循环检测触发词</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-组装-prompt，启动容器"><span class="nav-number">3.3.</span> <span class="nav-text">2.3 组装 prompt，启动容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-Agent-处理，结果通过-stdout-返回"><span class="nav-number">3.4.</span> <span class="nav-text">2.4 Agent 处理，结果通过 stdout 返回</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-5-完整时序图"><span class="nav-number">3.5.</span> <span class="nav-text">2.5 完整时序图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#三、各模块详解"><span class="nav-number">4.</span> <span class="nav-text">三、各模块详解</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-Channel-层：统一接口，自注册"><span class="nav-number">4.1.</span> <span class="nav-text">3.1 Channel 层：统一接口，自注册</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-消息编排：SQLite-游标机制"><span class="nav-number">4.2.</span> <span class="nav-text">3.2 消息编排：SQLite + 游标机制</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-宿主-容器通信（IPC）"><span class="nav-number">4.3.</span> <span class="nav-text">3.3 宿主-容器通信（IPC）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-会话与记忆"><span class="nav-number">4.4.</span> <span class="nav-text">3.4 会话与记忆</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-定时任务"><span class="nav-number">4.5.</span> <span class="nav-text">3.5 定时任务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#四、NanoClaw-vs-OpenClaw"><span class="nav-number">5.</span> <span class="nav-text">四、NanoClaw vs OpenClaw</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+          
+        </div>
+      </main>
+
+      <footer id="footer" class="footer">
+        <div class="footer-inner">
+          <div class="copyright">&copy; <span itemprop="copyrightYear">2026</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ayou</span>
+
+  
+</div>
+
+
+  <div class="powered-by">Powered by <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a></div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">Theme &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+          
+
+
+
+
+
+
+
+          
+        </div>
+      </footer>
+
+      
+        <div class="back-to-top">
+          <i class="fa fa-arrow-up"></i>
+          
+        </div>
+      
+
+      
+    
+  
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+    <script type="text/javascript">
+      (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+      })(document, 'script');
+    </script>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+</body>
+</html>
